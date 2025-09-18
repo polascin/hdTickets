@@ -112,11 +112,7 @@ document.addEventListener('DOMContentLoaded', function() {
         // Adjust prefetching based on connection quality
         if (effectiveType === '4g' || effectiveType === 'wifi') {
             // High-quality connection: Prefetch more resources
-            const highPriorityPrefetches = [
-                '{{ asset("css/components.css") }}',
-                '{{ asset("js/alpine.js") }}',
-                '{{ asset("js/chart.js") }}',
-            ];
+            const highPriorityPrefetches = [];
             
             highPriorityPrefetches.forEach(url => {
                 const link = document.createElement('link');
