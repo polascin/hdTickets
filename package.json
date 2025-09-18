@@ -16,7 +16,9 @@
     "format": "prettier --write resources/**/*.{js,ts,css,scss}",
     "format:check": "prettier --check resources/**/*.{js,ts,css,scss}",
     "clean": "rm -rf public/build",
-    "type-check": "tsc --noEmit"
+    "type-check": "tsc --noEmit",
+    "e2e:install": "playwright install chromium",
+    "test:e2e": "playwright test --project=chromium"
   },
   "dependencies": {
     "@alpinejs/focus": "^3.14.1",
