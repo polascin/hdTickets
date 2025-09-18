@@ -268,3 +268,21 @@ This document provides a comprehensive audit of the current frontend architectur
 The HD Tickets frontend has a solid foundation with excellent component architecture, accessibility features, and mobile responsiveness. The major gaps are in business-specific interfaces (subscription management, advanced search, analytics) rather than architectural issues.
 
 The existing codebase provides an excellent starting point for building out the missing features while maintaining consistency and quality standards.
+
+---
+
+## 2025-09-18 Frontend Standardization Update
+
+This update makes the UI/UX stack consistent and simplifies operations:
+
+- Canonical layout: all pages extend `layouts/app-v2.blade.php`
+- Vite-only asset pipeline: all CSS/JS moved to `resources/` and bundled via Vite; legacy `public/css` and `public/js` removed
+- Bootstrap removed: Tailwind is the single UI framework; small `.btn` base class provided for residual compatibility
+- PWA unification: service worker registration and `beforeinstallprompt` consolidated in `resources/js/app.js`
+- Z-index scale: added named Tailwind z-index (header, dropdown, overlay, modal, tooltip) and removed nuclear z-index CSS
+- Accessibility: zoom enabled, `no-js` toggled to `js`, skip link to `#main-content`, focus-visible verified in smoke tests
+- Navigation cleanup: inline Tailwind `@apply` removed from Blade; styles compiled via Vite
+- E2E coverage: Playwright smoke tests (public pages, navigation, tickets, profile, keyboard nav) with screenshots; basic axe-core scan on login
+- CI: GitHub Actions workflow runs Playwright on push/PR and uploads artifacts
+
+See `tests/e2e/*` and `.github/workflows/e2e.yml` for details.

@@ -197,6 +197,23 @@ mobileTouchUtils.showMobileNotification(
 
 ## 📋 Remaining Tasks
 
+Updated after standardization (2025-09-18):
+
+High Priority
+1. Verify role-based dashboard widgets and content under `app-v2` layout (admin/agent/customer)
+2. Replace any lingering Bootstrap-oriented class names in niche templates with Tailwind utilities or UI v2 components
+3. Increase e2e coverage for purchase validation, tickets filters interactions, and profile updates
+
+Medium Priority
+4. Remove migrated but unused CSS in `resources/css/migrated` once confirmed redundant
+5. Add Playwright Axe checks for more routes (register, profile, tickets)
+6. Introduce Lighthouse CI for performance and a11y budgets on `/`, `/login`, `/tickets`
+
+Future Enhancements
+7. Visual regression via Playwright screenshots diffing
+8. Add mobile-specific tests for swipe/gestures if exposed in web
+9. Document z-index scale usage in a dedicated style guide
+
 ### High Priority
 1. **Optimize CSS and JavaScript Loading** - Bundle assets with Vite
 2. **Enhance Mobile Navigation UX** - Add breadcrumbs and better focus management
