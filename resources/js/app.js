@@ -169,9 +169,16 @@ import './utils/gridLayout';
 import './utils/touchSupport';
 import './utils/performanceOptimizer';
 
+// Migrated legacy utilities (from public)
+import './migrated/assets/feature-detection.js';
+import './migrated/assets/performance-monitor.js';
+import './migrated/assets/lazy-loading.js';
+import './migrated/accessibility.js';
+import './migrated/pwa-manager.js';
+
 // Ticket system components (conditional loading)
 if (document.querySelector('[data-ticket-system]')) {
-    import('./tickets/index.js');
+  import('./tickets/index.js');
 }
 
 // Initialize Alpine
