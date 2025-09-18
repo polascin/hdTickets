@@ -18,7 +18,8 @@
     "clean": "rm -rf public/build",
     "type-check": "tsc --noEmit",
     "e2e:install": "playwright install chromium",
-    "test:e2e": "playwright test --project=chromium"
+    "test:e2e": "playwright test --project=chromium",
+    "e2e": "start-server-and-test 'php artisan serve --host=127.0.0.1 --port=8000' http://127.0.0.1:8000 'playwright test --project=chromium'"
   },
   "dependencies": {
     "@alpinejs/focus": "^3.14.1",
@@ -45,6 +46,7 @@
     "@types/pusher-js": "^5.1.0",
     "@typescript-eslint/eslint-plugin": "^8.28.1",
     "@typescript-eslint/parser": "^8.28.1",
+    "axe-core": "^4.10.0",
     "autoprefixer": "^10.4.21",
     "cssnano": "^7.1.1",
     "eslint": "^9.34.0",
@@ -53,6 +55,7 @@
     "prettier": "^3.4.2",
     "prettier-plugin-tailwindcss": "^0.6.9",
     "sass": "^1.91.0",
+    "start-server-and-test": "^2.0.4",
     "tailwindcss": "^3.4.17",
     "typescript": "^5.7.3",
     "vite": "^6.3.5",
