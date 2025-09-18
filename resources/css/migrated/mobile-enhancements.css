@@ -1,0 +1,790 @@
+/* Mobile Enhancement CSS for HD Tickets Sports Events Platform */
+/* Comprehensive mobile-first design with touch interactions and responsive components */
+
+/* ========================================
+   MOBILE-FIRST FOUNDATION
+======================================== */
+
+/* Touch-friendly base settings */
+*,
+*::before,
+*::after {
+  /* Improve touch responsiveness */
+  -webkit-tap-highlight-color: rgba(59, 130, 246, 0.2);
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+
+/* Allow text selection where needed */
+input,
+textarea,
+[contenteditable],
+.selectable {
+  -webkit-user-select: text;
+  -moz-user-select: text;
+  -ms-user-select: text;
+  user-select: text;
+}
+
+/* Improve scrolling performance on mobile */
+html {
+  -webkit-overflow-scrolling: touch;
+  scroll-behavior: smooth;
+}
+
+/* ========================================
+   MOBILE LAYOUT & CONTAINERS
+======================================== */
+
+/* Mobile container adjustments */
+@media (max-width: 768px) {
+  .hd-container {
+    padding-left: 1rem !important;
+    padding-right: 1rem !important;
+    max-width: 100% !important;
+  }
+
+  .container {
+    padding-left: 1rem !important;
+    padding-right: 1rem !important;
+  }
+
+  /* Full-width on mobile */
+  .max-w-7xl,
+  .max-w-6xl,
+  .max-w-5xl,
+  .max-w-4xl {
+    max-width: 100% !important;
+    margin-left: 1rem !important;
+    margin-right: 1rem !important;
+  }
+}
+
+/* ========================================
+   MOBILE NAVIGATION ENHANCEMENTS
+======================================== */
+
+/* Mobile header height variables */
+:root {
+  --hd-header-height-mobile: 64px;
+  --hd-header-height-desktop: 72px;
+}
+
+/* Enhanced hamburger menu */
+.hd-mobile-hamburger {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border: none;
+  background: none;
+  border-radius: 8px;
+  transition: all 0.2s ease;
+  cursor: pointer;
+  position: relative;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.hd-mobile-hamburger:hover,
+.hd-mobile-hamburger:focus {
+  background-color: rgba(59, 130, 246, 0.1);
+  outline: none;
+}
+
+.hd-mobile-hamburger__icon {
+  width: 20px;
+  height: 16px;
+  position: relative;
+  transform: rotate(0deg);
+  transition: all 0.3s cubic-bezier(0.23, 1, 0.320, 1);
+}
+
+.hd-mobile-hamburger__line {
+  display: block;
+  position: absolute;
+  height: 2px;
+  width: 100%;
+  background: #374151;
+  border-radius: 2px;
+  opacity: 1;
+  left: 0;
+  transform: rotate(0deg);
+  transition: all 0.25s ease-in-out;
+}
+
+.hd-mobile-hamburger__line:nth-child(1) {
+  top: 0px;
+}
+
+.hd-mobile-hamburger__line:nth-child(2) {
+  top: 7px;
+}
+
+.hd-mobile-hamburger__line:nth-child(3) {
+  top: 14px;
+}
+
+/* Animated hamburger states */
+.hd-mobile-hamburger--open .hd-mobile-hamburger__line:nth-child(1) {
+  top: 7px;
+  transform: rotate(135deg);
+}
+
+.hd-mobile-hamburger--open .hd-mobile-hamburger__line:nth-child(2) {
+  opacity: 0;
+  left: -20px;
+}
+
+.hd-mobile-hamburger--open .hd-mobile-hamburger__line:nth-child(3) {
+  top: 7px;
+  transform: rotate(-135deg);
+}
+
+/* Mobile navigation menu */
+.mobile-nav-menu {
+  transition: all 0.3s ease-in-out;
+  overflow: hidden;
+}
+
+.mobile-nav-menu.open {
+  max-height: 100vh;
+  opacity: 1;
+}
+
+.mobile-nav-menu.closed {
+  max-height: 0;
+  opacity: 0;
+}
+
+/* ========================================
+   TOUCH-FRIENDLY ELEMENTS
+======================================== */
+
+/* Enhanced tap targets - minimum 44px */
+.tap-target,
+button,
+a,
+input[type="button"],
+input[type="submit"],
+input[type="reset"],
+[role="button"],
+.btn {
+  min-height: 44px;
+  min-width: 44px;
+  position: relative;
+  cursor: pointer;
+}
+
+/* Touch feedback */
+.tap-target::before,
+button::before,
+[role="button"]::before,
+.btn::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  border-radius: 50%;
+  background: rgba(59, 130, 246, 0.3);
+  transform: translate(-50%, -50%);
+  transition: width 0.2s ease, height 0.2s ease;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.tap-target:active::before,
+button:active::before,
+[role="button"]:active::before,
+.btn:active::before {
+  width: 120%;
+  height: 120%;
+}
+
+/* ========================================
+   MOBILE FORMS & INPUTS
+======================================== */
+
+/* Touch-friendly form controls */
+@media (max-width: 768px) {
+  input,
+  textarea,
+  select,
+  button {
+    min-height: 48px !important;
+    font-size: 16px !important; /* Prevent zoom on iOS */
+    padding: 12px 16px !important;
+    border-radius: 8px !important;
+  }
+
+  /* Large tap areas for checkboxes and radios */
+  input[type="checkbox"],
+  input[type="radio"] {
+    width: 20px !important;
+    height: 20px !important;
+    min-height: 20px !important;
+  }
+
+  /* Enhanced focus states for mobile */
+  input:focus,
+  textarea:focus,
+  select:focus {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+    border-color: #3b82f6;
+  }
+}
+
+/* Floating label enhancement */
+.form-field-floating {
+  position: relative;
+  margin-bottom: 1.5rem;
+}
+
+.form-field-floating input,
+.form-field-floating textarea {
+  width: 100%;
+  padding: 16px 12px 8px 12px;
+  border: 2px solid #e5e7eb;
+  border-radius: 8px;
+  background: transparent;
+  font-size: 16px;
+  transition: all 0.2s ease;
+}
+
+.form-field-floating label {
+  position: absolute;
+  left: 12px;
+  top: 16px;
+  font-size: 16px;
+  color: #6b7280;
+  pointer-events: none;
+  transition: all 0.2s ease;
+  transform-origin: left top;
+}
+
+.form-field-floating input:focus + label,
+.form-field-floating input:not(:placeholder-shown) + label,
+.form-field-floating textarea:focus + label,
+.form-field-floating textarea:not(:placeholder-shown) + label {
+  transform: translateY(-8px) scale(0.75);
+  color: #3b82f6;
+}
+
+/* ========================================
+   MOBILE CARDS & WIDGETS
+======================================== */
+
+/* Enhanced mobile card layout */
+@media (max-width: 768px) {
+  .dashboard-card,
+  .metric-card,
+  .action-card,
+  .widget {
+    margin-bottom: 1rem !important;
+    border-radius: 12px !important;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1) !important;
+  }
+
+  /* Grid adjustments */
+  .grid,
+  .metrics-grid,
+  .actions-grid,
+  .content-grid {
+    grid-template-columns: 1fr !important;
+    gap: 1rem !important;
+  }
+
+  /* Stack items vertically */
+  .lg\:grid-cols-4,
+  .lg\:grid-cols-3,
+  .lg\:grid-cols-2,
+  .md\:grid-cols-4,
+  .md\:grid-cols-3,
+  .md\:grid-cols-2 {
+    grid-template-columns: 1fr !important;
+  }
+}
+
+/* ========================================
+   MOBILE TABLES & DATA
+======================================== */
+
+/* Responsive table container */
+.mobile-table-container {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  border-radius: 8px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+@media (max-width: 768px) {
+  /* Stack table content */
+  .table-responsive {
+    display: block;
+    overflow-x: auto;
+    white-space: nowrap;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .table-responsive table {
+    min-width: 600px;
+  }
+
+  /* Alternative: Card-style table for mobile */
+  .table-cards {
+    display: none;
+  }
+
+  .table-cards.active {
+    display: block;
+  }
+
+  .table-cards.active + .table-responsive {
+    display: none;
+  }
+
+  .table-card {
+    background: white;
+    border-radius: 8px;
+    padding: 1rem;
+    margin-bottom: 1rem;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  }
+
+  .table-card-header {
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+    color: #1f2937;
+  }
+
+  .table-card-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 0.5rem 0;
+    border-bottom: 1px solid #f3f4f6;
+  }
+
+  .table-card-row:last-child {
+    border-bottom: none;
+  }
+}
+
+/* ========================================
+   MOBILE MODALS & OVERLAYS
+======================================== */
+
+/* Full-screen modals on mobile */
+@media (max-width: 768px) {
+  .modal,
+  .modal-overlay {
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    bottom: 0 !important;
+    width: 100% !important;
+    height: 100% !important;
+    margin: 0 !important;
+    border-radius: 0 !important;
+  }
+
+  .modal-content {
+    height: 100%;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .modal-header {
+    position: sticky;
+    top: 0;
+    background: white;
+    z-index: 10;
+    padding: 1rem;
+    border-bottom: 1px solid #e5e7eb;
+  }
+
+  .modal-close {
+    min-width: 44px;
+    min-height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+}
+
+/* Bottom sheet style modal */
+.modal-bottom-sheet {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: white;
+  border-top-left-radius: 16px;
+  border-top-right-radius: 16px;
+  box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.15);
+  transform: translateY(100%);
+  transition: transform 0.3s ease;
+  z-index: 1000;
+}
+
+.modal-bottom-sheet.active {
+  transform: translateY(0);
+}
+
+.modal-bottom-sheet-handle {
+  width: 40px;
+  height: 4px;
+  background: #d1d5db;
+  border-radius: 2px;
+  margin: 12px auto 20px;
+  cursor: grab;
+}
+
+/* ========================================
+   SWIPE GESTURES & TOUCH INTERACTIONS
+======================================== */
+
+/* Swipeable elements */
+.swipe-container {
+  position: relative;
+  overflow: hidden;
+  touch-action: pan-x;
+}
+
+.swipe-item {
+  display: flex;
+  transition: transform 0.3s ease;
+  will-change: transform;
+}
+
+.swipe-actions {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  align-items: center;
+  background: #ef4444;
+  min-width: 80px;
+  transform: translateX(100%);
+  transition: transform 0.3s ease;
+}
+
+.swipe-item.swiped .swipe-actions {
+  transform: translateX(0);
+}
+
+/* Pull-to-refresh indicator */
+.pull-to-refresh {
+  position: relative;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.pull-to-refresh-indicator {
+  position: absolute;
+  top: -50px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  background: white;
+  border-radius: 50%;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+}
+
+.pull-to-refresh.pulling .pull-to-refresh-indicator {
+  top: 10px;
+}
+
+/* ========================================
+   MOBILE TYPOGRAPHY
+======================================== */
+
+@media (max-width: 768px) {
+  /* Adjust font sizes for mobile */
+  h1, .text-4xl, .text-5xl, .text-6xl {
+    font-size: 2rem !important;
+    line-height: 1.2 !important;
+  }
+
+  h2, .text-3xl {
+    font-size: 1.75rem !important;
+    line-height: 1.25 !important;
+  }
+
+  h3, .text-2xl {
+    font-size: 1.5rem !important;
+    line-height: 1.3 !important;
+  }
+
+  h4, .text-xl {
+    font-size: 1.25rem !important;
+    line-height: 1.4 !important;
+  }
+
+  /* Improve readability */
+  p, .text-base {
+    font-size: 1rem !important;
+    line-height: 1.6 !important;
+  }
+
+  .text-sm {
+    font-size: 0.875rem !important;
+    line-height: 1.5 !important;
+  }
+}
+
+/* ========================================
+   MOBILE ANIMATIONS & TRANSITIONS
+======================================== */
+
+/* Smooth page transitions */
+.page-transition {
+  transition: all 0.3s ease;
+}
+
+.page-transition-enter {
+  opacity: 0;
+  transform: translateX(20px);
+}
+
+.page-transition-enter-active {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+.page-transition-leave {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+.page-transition-leave-active {
+  opacity: 0;
+  transform: translateX(-20px);
+}
+
+/* Loading states */
+.skeleton-loader {
+  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+  background-size: 200% 100%;
+  animation: skeleton-loading 1.5s infinite;
+  border-radius: 4px;
+}
+
+@keyframes skeleton-loading {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+/* Pulse animation for live indicators */
+.pulse-slow {
+  animation: pulse-slow 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+@keyframes pulse-slow {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+/* ========================================
+   MOBILE UTILITIES
+======================================== */
+
+/* Hide/show utilities for mobile */
+.mobile-only {
+  display: none;
+}
+
+.desktop-only {
+  display: block;
+}
+
+@media (max-width: 768px) {
+  .mobile-only {
+    display: block;
+  }
+
+  .desktop-only {
+    display: none;
+  }
+
+  /* Mobile spacing utilities */
+  .mobile-p-4 {
+    padding: 1rem !important;
+  }
+
+  .mobile-m-4 {
+    margin: 1rem !important;
+  }
+
+  .mobile-text-center {
+    text-align: center !important;
+  }
+
+  /* Mobile flex utilities */
+  .mobile-flex-col {
+    flex-direction: column !important;
+  }
+
+  .mobile-space-y-4 > * + * {
+    margin-top: 1rem !important;
+  }
+}
+
+/* ========================================
+   ACCESSIBILITY ENHANCEMENTS
+======================================== */
+
+/* Enhanced focus indicators for mobile */
+@media (max-width: 768px) {
+  *:focus {
+    outline: 3px solid #3b82f6;
+    outline-offset: 2px;
+  }
+
+  /* Skip links for mobile */
+  .skip-link {
+    position: absolute;
+    top: -40px;
+    left: 6px;
+    background: #3b82f6;
+    color: white;
+    padding: 8px;
+    text-decoration: none;
+    border-radius: 4px;
+    z-index: 1000;
+    transition: top 0.3s;
+  }
+
+  .skip-link:focus {
+    top: 6px;
+  }
+}
+
+/* ========================================
+   PERFORMANCE OPTIMIZATIONS
+======================================== */
+
+/* Optimize animations for mobile */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* Will-change for animated elements */
+.animated-element,
+.modal,
+.dropdown,
+.swipe-item {
+  will-change: transform, opacity;
+}
+
+/* Remove will-change after animation */
+.animation-complete {
+  will-change: auto;
+}
+
+/* ========================================
+   MOBILE-SPECIFIC STATES
+======================================== */
+
+/* Active states for mobile */
+@media (hover: none) and (pointer: coarse) {
+  .hover\:bg-gray-100:hover {
+    background-color: initial;
+  }
+
+  .hover\:bg-gray-100:active {
+    background-color: #f3f4f6;
+  }
+
+  button:active,
+  [role="button"]:active,
+  .tap-target:active {
+    background-color: rgba(59, 130, 246, 0.1);
+    transform: scale(0.98);
+  }
+}
+
+/* Loading spinner for mobile */
+.mobile-spinner {
+  width: 24px;
+  height: 24px;
+  border: 2px solid #f3f4f6;
+  border-top: 2px solid #3b82f6;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* ========================================
+   DARK MODE SUPPORT
+======================================== */
+
+@media (prefers-color-scheme: dark) {
+  .hd-mobile-hamburger__line {
+    background: #f3f4f6;
+  }
+
+  .mobile-nav-menu {
+    background: #1f2937;
+    border-color: #374151;
+  }
+
+  .table-card {
+    background: #1f2937;
+    color: #f3f4f6;
+  }
+
+  .modal-bottom-sheet {
+    background: #1f2937;
+  }
+
+  .skeleton-loader {
+    background: linear-gradient(90deg, #374151 25%, #4b5563 50%, #374151 75%);
+  }
+}
+
+/* ========================================
+   PRINT STYLES
+======================================== */
+
+@media print {
+  .mobile-nav-menu,
+  .hd-mobile-hamburger,
+  .mobile-only {
+    display: none !important;
+  }
+
+  .desktop-only {
+    display: block !important;
+  }
+}

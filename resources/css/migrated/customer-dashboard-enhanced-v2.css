@@ -1,0 +1,28 @@
+/* Customer Dashboard Enhanced v2 CSS
+   Focus: layering/z-index fixes, backdrop-filter safe defaults, responsive spacing, reduced motion support */
+
+:root {
+  --ring: 0 0% 100% / 0.6;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; scroll-behavior: auto !important; }
+}
+
+/***** Utility Fixes *****/
+.sticky { position: sticky; }
+.backdrop-blur-sm { backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); }
+
+/***** Z-index layering for header, toasts, dropdowns *****/
+#customerDashboard header { z-index: 40; }
+#customerDashboard [role="alert"] { z-index: 50; }
+
+/***** Cards *****/
+.card { background: rgba(255,255,255,0.6); border: 1px solid rgba(15,23,42,0.12); border-radius: 0.75rem; }
+.card:hover { background: rgba(255,255,255,0.8); }
+
+/***** Progress bar color thresholds *****/
+.progress-green { background-color: #16a34a; }
+.progress-yellow { background-color: #eab308; }
+.progress-red { background-color: #ef4444; }
+
