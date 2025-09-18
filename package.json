@@ -1,9 +1,24 @@
 {
   "name": "hdtickets",
   "version": "2.0.0",
-  "description": "HD Tickets - Sports Event Ticket Monitoring Platform",
   "private": true,
+  "description": "HD Tickets - Sports Event Ticket Monitoring Platform",
+  "homepage": "https://github.com/polascin/hdTickets#readme",
+  "bugs": {
+    "url": "https://github.com/polascin/hdTickets/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/polascin/hdTickets.git"
+  },
+  "license": "ISC",
+  "author": "",
   "type": "module",
+  "main": "eslint.config.js",
+  "directories": {
+    "doc": "docs",
+    "test": "tests"
+  },
   "scripts": {
     "dev": "vite",
     "build": "vite build",
