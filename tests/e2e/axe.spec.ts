@@ -2,7 +2,10 @@ import { test, expect } from '@playwright/test';
 
 // Simple axe-core injection without the full playwright-axe wrapper
 async function injectAxe(page) {
-  await page.addScriptTag({ url: 'https://cdnjs.cloudflare.com/ajax/libs/axe-core/4.10.0/axe.min.js' });
+  // Load axe from local node_modules instead of CDN for CI stability
+  // eslint-disable-next-line @typescript-eslint/no-var-requires
+  const axePath = require.resolve('axe-core/axe.min.js');
+  await page.addScriptTag({ path: axePath });
 }
 
 const shot = async (page, name: string) => page.screenshot({ path: `tests/e2e/screenshots/${test.info().project.name}-axe-${name}.png`, fullPage: true });
