@@ -1,0 +1,687 @@
+/*
+ * HD Tickets Cross-Browser Compatibility Fixes
+ *
+ * This file addresses browser-specific issues and provides fallbacks for:
+ * - CSS Grid/Flexbox compatibility
+ * - Safari-specific fixes (iOS/macOS)
+ * - Firefox-specific issues
+ * - Edge compatibility
+ * - Vendor prefixes
+ * - Progressive enhancement
+ */
+
+/* ==========================================================================
+   CSS GRID & FLEXBOX FALLBACKS
+   ========================================================================== */
+
+/* Grid Fallbacks for IE11 and older browsers */
+@supports not (display: grid) {
+    .hd-grid,
+    .hd-card-grid {
+        display: flex;
+        flex-wrap: wrap;
+        margin: calc(var(--hd-spacing-3) * -1);
+    }
+    
+    .hd-grid > *,
+    .hd-card-grid > * {
+        margin: var(--hd-spacing-3);
+        flex: 1 1 300px;
+    }
+    
+    .hd-grid--2 > * {
+        flex: 1 1 calc(50% - var(--hd-spacing-6));
+    }
+    
+    .hd-grid--3 > * {
+        flex: 1 1 calc(33.333% - var(--hd-spacing-6));
+    }
+    
+    .hd-grid--4 > * {
+        flex: 1 1 calc(25% - var(--hd-spacing-6));
+    }
+    
+    /* Mobile fallback */
+    @media (max-width: 768px) {
+        .hd-grid > *,
+        .hd-card-grid > * {
+            flex: 1 1 100%;
+        }
+    }
+}
+
+/* Flexbox fallbacks for very old browsers */
+@supports not (display: flex) {
+    .hd-flex,
+    .hd-card__header,
+    .hd-card__actions,
+    .hd-stat-card__header,
+    .hd-modal__container {
+        display: table-cell;
+        vertical-align: middle;
+    }
+    
+    .hd-flex--column {
+        display: block;
+    }
+    
+    .hd-flex--between {
+        display: table;
+        width: 100%;
+    }
+    
+    .hd-flex--between > * {
+        display: table-cell;
+        vertical-align: middle;
+    }
+    
+    .hd-flex--between > *:first-child {
+        text-align: left;
+    }
+    
+    .hd-flex--between > *:last-child {
+        text-align: right;
+    }
+}
+
+/* ==========================================================================
+   SAFARI-SPECIFIC FIXES
+   ========================================================================== */
+
+/* iOS Safari bounce scroll fix */
+html {
+    -webkit-overflow-scrolling: touch;
+    overflow-scrolling: touch;
+}
+
+body {
+    /* Prevent bounce scroll on iOS */
+    position: fixed;
+    overflow: hidden;
+    width: 100%;
+    height: 100%;
+}
+
+.main-content {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    overflow: auto;
+    -webkit-overflow-scrolling: touch;
+}
+
+/* Safari safe area handling for devices with notches */
+@supports (padding-top: env(safe-area-inset-top)) {
+    .hd-header,
+    .navigation {
+        padding-top: max(var(--hd-spacing-4), env(safe-area-inset-top));
+    }
+    
+    .hd-mobile-navigation {
+        padding-bottom: max(var(--hd-spacing-4), env(safe-area-inset-bottom));
+    }
+    
+    /* Modal safe area handling */
+    .hd-modal {
+        padding-top: max(var(--hd-spacing-4), env(safe-area-inset-top));
+        padding-bottom: max(var(--hd-spacing-4), env(safe-area-inset-bottom));
+        padding-left: max(var(--hd-spacing-4), env(safe-area-inset-left));
+        padding-right: max(var(--hd-spacing-4), env(safe-area-inset-right));
+    }
+}
+
+/* iOS Safari form input zoom prevention */
+@supports (-webkit-touch-callout: none) {
+    .hd-input,
+    .hd-select,
+    textarea.hd-input {
+        font-size: 16px; /* Prevents zoom on focus in iOS Safari */
+        -webkit-appearance: none;
+        border-radius: var(--hd-radius);
+    }
+    
+    /* Custom select arrow for Safari */
+    .hd-select {
+        background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3E%3Cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3E%3C/svg%3E");
+        background-position: right var(--hd-spacing-3) center;
+        background-repeat: no-repeat;
+        background-size: 1rem;
+        padding-right: var(--hd-spacing-8);
+    }
+}
+
+/* Safari flexbox fixes */
+@media screen and (-webkit-min-device-pixel-ratio: 0) {
+    .hd-card,
+    .hd-stat-card {
+        /* Fix Safari flexbox shrinking issues */
+        flex-shrink: 0;
+        width: 100%;
+    }
+    
+    .hd-input,
+    .hd-select {
+        /* Fix Safari input height issues */
+        min-height: 44px;
+        -webkit-appearance: none;
+    }
+    
+    /* Fix Safari button styling */
+    .hd-btn {
+        -webkit-appearance: none;
+        border: none;
+        border-radius: var(--hd-radius);
+        cursor: pointer;
+    }
+}
+
+/* macOS Safari scrollbar styling */
+@media screen and (-webkit-min-device-pixel-ratio: 0) {
+    ::-webkit-scrollbar {
+        width: 8px;
+        height: 8px;
+    }
+    
+    ::-webkit-scrollbar-track {
+        background: var(--hd-gray-100, #f3f4f6);
+        border-radius: 4px;
+    }
+    
+    ::-webkit-scrollbar-thumb {
+        background: var(--hd-gray-400, #9ca3af);
+        border-radius: 4px;
+    }
+    
+    ::-webkit-scrollbar-thumb:hover {
+        background: var(--hd-gray-500, #6b7280);
+    }
+}
+
+/* ==========================================================================
+   FIREFOX-SPECIFIC FIXES
+   ========================================================================== */
+
+/* Firefox-specific styles */
+@-moz-document url-prefix() {
+    /* Fix Firefox flexbox issues */
+    .hd-card,
+    .hd-stat-card {
+        min-height: 0; /* Firefox flexbox fix */
+    }
+    
+    /* Fix Firefox input styling */
+    .hd-input,
+    .hd-select {
+        -moz-appearance: none;
+        background-image: none;
+    }
+    
+    /* Custom select arrow for Firefox */
+    .hd-select {
+        background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3E%3Cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3E%3C/svg%3E");
+    }
+    
+    /* Fix Firefox button focus outline */
+    .hd-btn::-moz-focus-inner {
+        border: 0;
+        padding: 0;
+    }
+    
+    /* Fix Firefox scrollbar */
+    * {
+        scrollbar-width: thin;
+        scrollbar-color: var(--hd-gray-400, #9ca3af) var(--hd-gray-100, #f3f4f6);
+    }
+}
+
+/* Firefox-specific grid fixes */
+@supports (display: -moz-grid) {
+    .hd-grid,
+    .hd-card-grid {
+        display: -moz-grid;
+    }
+}
+
+/* ==========================================================================
+   EDGE/IE COMPATIBILITY
+   ========================================================================== */
+
+/* Edge-specific fixes */
+@supports (-ms-ime-align: auto) {
+    .hd-input,
+    .hd-select {
+        /* Fix Edge input height */
+        height: 44px;
+        line-height: normal;
+    }
+    
+    /* Fix Edge grid issues */
+    .hd-grid,
+    .hd-card-grid {
+        display: -ms-grid;
+    }
+    
+    /* Fix Edge flexbox issues */
+    .hd-card,
+    .hd-stat-card {
+        -ms-flex-preferred-size: auto;
+    }
+}
+
+/* IE11 specific fixes */
+@media screen and (-ms-high-contrast: active), screen and (-ms-high-contrast: none) {
+    /* IE11 flexbox fixes */
+    .hd-card,
+    .hd-stat-card {
+        flex: 1 1 auto;
+        max-width: 100%;
+    }
+    
+    .hd-input,
+    .hd-select {
+        height: 44px;
+        line-height: normal;
+    }
+    
+    /* IE11 doesn't support CSS custom properties */
+    .hd-card {
+        background: #ffffff;
+        border: 1px solid #e5e7eb;
+        border-radius: 8px;
+        padding: 24px;
+    }
+    
+    .hd-input {
+        border: 1px solid #d1d5db;
+        border-radius: 6px;
+        padding: 12px;
+    }
+    
+    .hd-btn {
+        border: none;
+        border-radius: 6px;
+        padding: 12px 24px;
+        cursor: pointer;
+    }
+    
+    .hd-btn--primary {
+        background: #3b82f6;
+        color: white;
+    }
+    
+    /* IE11 grid fallback using flexbox */
+    .hd-grid,
+    .hd-card-grid {
+        display: -ms-flexbox;
+        display: flex;
+        -ms-flex-wrap: wrap;
+        flex-wrap: wrap;
+        margin: -12px;
+    }
+    
+    .hd-grid > *,
+    .hd-card-grid > * {
+        margin: 12px;
+        -ms-flex: 1 1 300px;
+        flex: 1 1 300px;
+    }
+}
+
+/* ==========================================================================
+   VENDOR PREFIXES
+   ========================================================================== */
+
+/* Transform prefixes */
+.hd-card--interactive:hover,
+.hd-stat-card--interactive:hover {
+    -webkit-transform: translateY(-2px);
+    -moz-transform: translateY(-2px);
+    -ms-transform: translateY(-2px);
+    transform: translateY(-2px);
+}
+
+/* Transition prefixes */
+.hd-card,
+.hd-stat-card,
+.hd-input,
+.hd-btn {
+    -webkit-transition: all var(--hd-transition, 0.2s ease);
+    -moz-transition: all var(--hd-transition, 0.2s ease);
+    -o-transition: all var(--hd-transition, 0.2s ease);
+    transition: all var(--hd-transition, 0.2s ease);
+}
+
+/* Box shadow prefixes */
+.hd-card,
+.hd-stat-card,
+.hd-modal__content {
+    -webkit-box-shadow: var(--hd-shadow-sm, 0 1px 2px 0 rgba(0, 0, 0, 0.05));
+    -moz-box-shadow: var(--hd-shadow-sm, 0 1px 2px 0 rgba(0, 0, 0, 0.05));
+    box-shadow: var(--hd-shadow-sm, 0 1px 2px 0 rgba(0, 0, 0, 0.05));
+}
+
+/* Border radius prefixes */
+.hd-card,
+.hd-stat-card,
+.hd-input,
+.hd-btn {
+    -webkit-border-radius: var(--hd-radius, 8px);
+    -moz-border-radius: var(--hd-radius, 8px);
+    border-radius: var(--hd-radius, 8px);
+}
+
+/* Backdrop filter prefixes */
+.hd-modal__backdrop,
+.hd-loading--overlay {
+    -webkit-backdrop-filter: blur(4px);
+    backdrop-filter: blur(4px);
+}
+
+/* User select prefixes */
+.hd-card__title,
+.hd-stat-card__title,
+.hd-btn {
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}
+
+/* Appearance prefixes */
+.hd-input,
+.hd-select {
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+}
+
+/* ==========================================================================
+   PROGRESSIVE ENHANCEMENT
+   ========================================================================== */
+
+/* Feature detection for modern features */
+@supports (display: grid) {
+    .hd-grid--enhanced {
+        display: grid;
+        gap: var(--hd-spacing-6);
+    }
+    
+    .hd-grid--enhanced.hd-grid--2 {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    
+    .hd-grid--enhanced.hd-grid--3 {
+        grid-template-columns: repeat(3, 1fr);
+    }
+    
+    .hd-grid--enhanced.hd-grid--4 {
+        grid-template-columns: repeat(4, 1fr);
+    }
+}
+
+/* CSS Custom Properties fallback */
+@supports not (--css: variables) {
+    :root {
+        /* Fallback values */
+    }
+    
+    .hd-card {
+        background: #ffffff;
+        border-color: #e5e7eb;
+        border-radius: 8px;
+        padding: 24px;
+    }
+    
+    .hd-input {
+        border-color: #d1d5db;
+        border-radius: 6px;
+        padding: 12px;
+        min-height: 44px;
+    }
+    
+    .hd-btn {
+        border-radius: 6px;
+        padding: 12px 24px;
+    }
+    
+    .hd-btn--primary {
+        background: #3b82f6;
+        color: white;
+    }
+}
+
+/* Sticky position fallback */
+@supports not (position: sticky) {
+    .hd-header {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        z-index: 40;
+    }
+    
+    .main-content {
+        margin-top: 64px; /* Header height */
+    }
+}
+
+/* Object-fit fallback */
+@supports not (object-fit: cover) {
+    .hd-image--cover {
+        background-size: cover;
+        background-position: center;
+        background-repeat: no-repeat;
+    }
+    
+    .hd-image--cover img {
+        opacity: 0;
+        width: 100%;
+        height: 100%;
+    }
+}
+
+/* Clip-path fallback */
+@supports not (clip-path: polygon(0 0)) {
+    .hd-clip {
+        overflow: hidden;
+        position: relative;
+    }
+    
+    .hd-clip::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: inherit;
+    }
+}
+
+/* ==========================================================================
+   PERFORMANCE OPTIMIZATIONS
+   ========================================================================== */
+
+/* GPU acceleration for supported browsers */
+.hd-card--interactive,
+.hd-stat-card--interactive,
+.hd-modal__content {
+    -webkit-transform: translateZ(0);
+    -moz-transform: translateZ(0);
+    -ms-transform: translateZ(0);
+    transform: translateZ(0);
+    -webkit-backface-visibility: hidden;
+    backface-visibility: hidden;
+    -webkit-perspective: 1000px;
+    perspective: 1000px;
+}
+
+/* Will-change optimization */
+.hd-card--interactive:hover,
+.hd-stat-card--interactive:hover {
+    will-change: transform;
+}
+
+.hd-card--interactive,
+.hd-stat-card--interactive {
+    will-change: auto;
+}
+
+/* ==========================================================================
+   HIGH CONTRAST & ACCESSIBILITY
+   ========================================================================== */
+
+/* Windows High Contrast Mode */
+@media (prefers-contrast: high), (-ms-high-contrast: active) {
+    .hd-card,
+    .hd-stat-card,
+    .hd-input,
+    .hd-btn {
+        border: 2px solid;
+        background: ButtonFace;
+        color: ButtonText;
+    }
+    
+    .hd-btn--primary {
+        background: Highlight;
+        color: HighlightText;
+        border-color: Highlight;
+    }
+    
+    .hd-card--interactive:focus,
+    .hd-stat-card--interactive:focus,
+    .hd-input:focus,
+    .hd-btn:focus {
+        outline: 3px solid Highlight;
+        outline-offset: 2px;
+    }
+}
+
+/* Forced colors mode (Edge/Chrome) */
+@media (forced-colors: active) {
+    .hd-card,
+    .hd-stat-card {
+        border: 1px solid CanvasText;
+        background: Canvas;
+        color: CanvasText;
+    }
+    
+    .hd-btn {
+        border: 1px solid ButtonText;
+        background: ButtonFace;
+        color: ButtonText;
+    }
+    
+    .hd-btn--primary {
+        background: Highlight;
+        color: HighlightText;
+        border-color: Highlight;
+    }
+}
+
+/* ==========================================================================
+   PRINT STYLES
+   ========================================================================== */
+
+@media print {
+    .hd-card,
+    .hd-stat-card {
+        -webkit-box-shadow: none;
+        -moz-box-shadow: none;
+        box-shadow: none;
+        border: 1px solid #000;
+        page-break-inside: avoid;
+    }
+    
+    .hd-card--interactive:hover,
+    .hd-stat-card--interactive:hover {
+        -webkit-transform: none;
+        -moz-transform: none;
+        -ms-transform: none;
+        transform: none;
+    }
+    
+    .hd-modal,
+    .hd-loading--overlay {
+        display: none !important;
+    }
+}
+
+/* ==========================================================================
+   BROWSER-SPECIFIC BUG FIXES
+   ========================================================================== */
+
+/* Chrome/Blink specific fixes */
+@media screen and (-webkit-min-device-pixel-ratio: 0) and (min-resolution: 0.001dpcm) {
+    .hd-input[type="search"] {
+        -webkit-appearance: textfield;
+    }
+    
+    .hd-input[type="search"]::-webkit-search-decoration,
+    .hd-input[type="search"]::-webkit-search-cancel-button {
+        display: none;
+    }
+}
+
+/* Opera specific fixes */
+@media all and (-webkit-min-device-pixel-ratio: 0) and (min-resolution: 0.001dpcm) {
+    _::-webkit-full-page-media, _:future, :root .opera-only {
+        .hd-card {
+            display: block;
+        }
+    }
+}
+
+/* ==========================================================================
+   FALLBACK STYLES FOR UNSUPPORTED FEATURES
+   ========================================================================== */
+
+/* No JavaScript fallback */
+.no-js .hd-modal {
+    display: none;
+}
+
+.no-js .hd-loading {
+    display: none;
+}
+
+.no-js .hd-card--interactive {
+    cursor: default;
+}
+
+.no-js .hd-card--interactive:hover {
+    -webkit-transform: none;
+    -moz-transform: none;
+    -ms-transform: none;
+    transform: none;
+}
+
+/* CSS Grid not supported */
+@supports not (display: grid) {
+    .hd-grid-fallback {
+        display: table;
+        width: 100%;
+        table-layout: fixed;
+    }
+    
+    .hd-grid-fallback > * {
+        display: table-cell;
+        vertical-align: top;
+        padding: var(--hd-spacing-3, 12px);
+    }
+}
+
+/* Flexbox not supported */
+@supports not (display: flex) {
+    .hd-flex-fallback {
+        display: table;
+        width: 100%;
+    }
+    
+    .hd-flex-fallback > * {
+        display: table-cell;
+        vertical-align: middle;
+    }
+}

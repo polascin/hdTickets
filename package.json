@@ -16,7 +16,9 @@
     "format": "prettier --write resources/**/*.{js,ts,css,scss}",
     "format:check": "prettier --check resources/**/*.{js,ts,css,scss}",
     "clean": "rm -rf public/build",
-    "type-check": "tsc --noEmit"
+    "type-check": "tsc --noEmit",
+    "e2e:install": "playwright install chromium",
+    "test:e2e": "playwright test --project=chromium"
   },
   "dependencies": {
     "@alpinejs/focus": "^3.14.1",
@@ -33,12 +35,12 @@
   },
   "devDependencies": {
     "@eslint/js": "^9.34.0",
+    "@playwright/test": "^1.47.2",
     "@tailwindcss/aspect-ratio": "^0.4.2",
     "@tailwindcss/forms": "^0.5.10",
     "@tailwindcss/line-clamp": "^0.4.4",
     "@tailwindcss/typography": "^0.5.16",
     "@types/alpinejs": "^3.13.10",
-    "@types/chart.js": "^2.9.41",
     "@types/node": "^22.18.0",
     "@types/pusher-js": "^5.1.0",
     "@typescript-eslint/eslint-plugin": "^8.28.1",

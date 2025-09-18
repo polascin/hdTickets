@@ -8,6 +8,10 @@ import AppLifecycleManager from './app-lifecycle-manager';
 
 window.addEventListener('DOMContentLoaded', () => {
   try {
+    // Mark JS-enabled state (for a11y and CSS hooks)
+    document.documentElement.classList.remove('no-js');
+    document.documentElement.classList.add('js');
+
     // Initialize native-like navigation
     const nav = new AppShellNav({ contentSelector: 'main', transition: 'fade' });
     window.__appShellNav = nav;
@@ -165,49 +169,51 @@ import './utils/gridLayout';
 import './utils/touchSupport';
 import './utils/performanceOptimizer';
 
+// Migrated legacy utilities (from public)
+import './migrated/assets/feature-detection.js';
+import './migrated/assets/performance-monitor.js';
+import './migrated/assets/lazy-loading.js';
+import './migrated/accessibility.js';
+import './migrated/pwa-manager.js';
+
 // Ticket system components (conditional loading)
 if (document.querySelector('[data-ticket-system]')) {
-    import('./tickets/index.js');
+  import('./tickets/index.js');
 }
 
 // Initialize Alpine
 Alpine.start();
 
-// Service Worker Registration for PWA
+// Service Worker Registration for PWA (single source)
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
-    navigator.serviceWorker
-      .register('/sw.js')
-      .then(registration => {
-        console.info('SW registered: ', registration);
-      })
-      .catch(registrationError => {
-        console.error('SW registration failed: ', registrationError);
-      });
+    if (!navigator.serviceWorker.controller) {
+      navigator.serviceWorker
+        .register('/sw.js')
+        .then(registration => {
+          console.info('SW registered: ', registration);
+        })
+        .catch(registrationError => {
+          console.error('SW registration failed: ', registrationError);
+        });
+    }
   });
 }
 
-// Install prompt for PWA
+// Install prompt for PWA (single handler)
 let deferredPrompt;
 window.addEventListener('beforeinstallprompt', e => {
   e.preventDefault();
   deferredPrompt = e;
+  document.dispatchEvent(new CustomEvent('pwa:install-available'));
+});
 
-  // Show install button
-  const installBtn = document.getElementById('install-app-btn');
-  if (installBtn) {
-    installBtn.style.display = 'block';
-    installBtn.addEventListener('click', () => {
-      installBtn.style.display = 'none';
-      deferredPrompt.prompt();
-      deferredPrompt.userChoice.then(choiceResult => {
-        if (choiceResult.outcome === 'accepted') {
-          console.info('User accepted the install prompt');
-        } else {
-          console.warn('User dismissed the install prompt');
-        }
-        deferredPrompt = null;
-      });
+// Optional: hook up a global install button if present
+document.addEventListener('pwa:install', () => {
+  if (deferredPrompt) {
+    deferredPrompt.prompt();
+    deferredPrompt.userChoice.finally(() => {
+      deferredPrompt = null;
     });
   }
 });

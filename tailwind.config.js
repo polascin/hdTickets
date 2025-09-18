@@ -9,6 +9,13 @@ export default {
   darkMode: 'class',
   theme: {
     extend: {
+      zIndex: {
+        header: 20,
+        dropdown: 30,
+        overlay: 40,
+        modal: 50,
+        tooltip: 60,
+      },
       fontFamily: {
         sans: ['Plus Jakarta Sans', 'Inter', 'ui-sans-serif', 'system-ui'],
         mono: ['JetBrains Mono', 'ui-monospace', 'SFMono-Regular'],

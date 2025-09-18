@@ -21,72 +21,12 @@
 <link rel="stylesheet" href="{{ asset('css/accessibility.css') }}">
 <script src="{{ asset('js/accessibility.js') }}" defer></script>
 
-<nav x-data="navigationData()" x-init="console.log('🔧 Navigation initialized:', $data)" class="bg-white border-b border-gray-200 shadow-sm sticky top-0"
-  style="z-index: 10000 !important;"
+<nav x-data="navigationData()" x-init="console.log('🔧 Navigation initialized:', $data)" class="bg-white border-b border-gray-200 shadow-sm sticky top-0 z-header"
   :class="{ 'nav-scrolled': isScrolled }" role="banner" aria-label="Primary navigation" id="main-navigation">
 
   <!-- Primary Navigation Menu -->
   <div class="hd-container">
     <div class="flex justify-between items-center" style="height: var(--hd-header-height-desktop);">
-      <style>
-        @media (max-width: 767px) {
-          #main-navigation .hd-container>div {
-            height: var(--hd-header-height-mobile) !important;
-          }
-        }
-
-        /* Navigation scrolled state */
-        .nav-scrolled {
-          @apply shadow-md;
-        }
-
-        /* Better focus indicators */
-        .nav-link:focus {
-          @apply outline-none ring-2 ring-blue-500 ring-offset-2 rounded;
-        }
-
-        /* Enhanced dropdown animations */
-        .dropdown-enter {
-          @apply opacity-0 scale-95;
-        }
-
-        .dropdown-enter-active {
-          @apply transition duration-200 ease-out;
-        }
-
-        .dropdown-enter-to {
-          @apply opacity-100 scale-100;
-        }
-
-        /* CRITICAL: Force dropdown z-index above everything */
-        .nav-dropdown,
-        [data-dropdown],
-        [data-dropdown="admin"],
-        [data-dropdown="profile"] {
-          z-index: 999999 !important;
-          position: absolute !important;
-          isolation: isolate !important;
-        }
-
-        /* Ensure navigation container has proper stacking context */
-        #main-navigation {
-          z-index: 1000 !important;
-          position: sticky !important;
-        }
-
-        /* Override any backdrop-filter issues */
-        .customer-dashboard * {
-          backdrop-filter: none !important;
-        }
-
-        /* Apply backdrop-filter only when safe */
-        .customer-dashboard:not(.dropdown-active) .dashboard-header,
-        .customer-dashboard:not(.dropdown-active) .stat-card,
-        .customer-dashboard:not(.dropdown-active) .action-card,
-        .customer-dashboard:not(.dropdown-active) .dashboard-card {
-          backdrop-filter: blur(10px) !important;
-        }
-      </style>
 
       <div class="flex">
         <!-- Logo -->

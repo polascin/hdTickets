@@ -1,127 +1,57 @@
-@import './design-system.css';
-@import './components.css';
-@import './container-queries.css';
-@import './grid-layout-system.css';
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-/* App shell additions */
+/* External design system and component layers */
+@import './design-system.css';
+@import './components.css';
+@import './container-queries.css';
+@import './grid-layout-system.css';
 @import './app-shell.css';
+
+/* Migrated public CSS bundles (to be pruned gradually) */
+@import './migrated/ui-v2.css';
+@import './migrated/navigation-enhanced.css';
+@import './migrated/navigation-dashboard-fixes.css';
+@import './migrated/theme-system.css';
+@import './migrated/hd-notifications.css';
+@import './migrated/loading-states.css';
+@import './migrated/enhanced-forms.css';
+@import './migrated/mobile-enhancements.css';
 
 /* Custom component styles */
 @layer components {
-  .btn-primary {
-    @apply inline-flex items-center justify-center rounded-md border border-transparent bg-primary-600 px-4 py-2 text-sm font-medium text-white transition-colors duration-200 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2;
-  }
+  .btn-primary { @apply inline-flex items-center justify-center rounded-md border border-transparent bg-primary-600 px-4 py-2 text-sm font-medium text-white transition-colors duration-200 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2; }
+  .btn-secondary { @apply inline-flex items-center justify-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 transition-colors duration-200 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2; }
+  .btn-success { @apply inline-flex items-center justify-center rounded-md border border-transparent bg-green-600 px-4 py-2 text-sm font-medium text-white transition-colors duration-200 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2; }
+  .btn-danger { @apply inline-flex items-center justify-center rounded-md border border-transparent bg-red-600 px-4 py-2 text-sm font-medium text-white transition-colors duration-200 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2; }
+  .btn-ghost { @apply inline-flex items-center justify-center rounded-md border border-transparent bg-transparent px-4 py-2 text-sm font-medium text-gray-700 transition-colors duration-200 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2; }
 
-  .btn-secondary {
-    @apply inline-flex items-center justify-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 transition-colors duration-200 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2;
-  }
+  /* Bootstrap-compat base button alias for residual classes */
+  .btn { @apply inline-flex items-center justify-center px-4 py-2 text-sm font-medium rounded-md transition-colors; }
 
-  .btn-success {
-    @apply inline-flex items-center justify-center rounded-md border border-transparent bg-green-600 px-4 py-2 text-sm font-medium text-white transition-colors duration-200 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2;
-  }
+  .card { @apply overflow-hidden rounded-lg border border-gray-200 bg-white shadow-sm; }
+  .card-dark { @apply overflow-hidden rounded-lg border border-gray-700 bg-gray-800 shadow-sm; }
 
-  .btn-danger {
-    @apply inline-flex items-center justify-center rounded-md border border-transparent bg-red-600 px-4 py-2 text-sm font-medium text-white transition-colors duration-200 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2;
-  }
+  .text-gradient { @apply bg-gradient-to-r from-primary-600 to-secondary-600 bg-clip-text text-transparent; }
+  .glass-effect { @apply border border-white/20 bg-white/10 backdrop-blur-md; }
 
-  .btn-ghost {
-    @apply inline-flex items-center justify-center rounded-md border border-transparent bg-transparent px-4 py-2 text-sm font-medium text-gray-700 transition-colors duration-200 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2;
-  }
+  .dashboard-card { @apply bg-white rounded-lg border border-gray-200 shadow-sm transition-all duration-200 hover:shadow-md; }
+  .dashboard-card-dark { @apply bg-gray-800 rounded-lg border border-gray-700 shadow-sm transition-all duration-200 hover:shadow-md; }
 
-  .card {
-    @apply overflow-hidden rounded-lg border border-gray-200 bg-white shadow-sm;
-  }
+  .form-input { @apply block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 sm:text-sm; }
+  .form-select { @apply block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 sm:text-sm; }
 
-  .card-dark {
-    @apply overflow-hidden rounded-lg border border-gray-700 bg-gray-800 shadow-sm;
-  }
+  .stadium-bg { @apply bg-gradient-to-br from-primary-600 via-blue-700 to-purple-800; }
 
-  .text-gradient {
-    @apply bg-gradient-to-r from-primary-600 to-secondary-600 bg-clip-text text-transparent;
-  }
+  .ticket-stub { @apply relative overflow-hidden; }
 
-  .glass-effect {
-    @apply border border-white/20 bg-white/10 backdrop-blur-md;
-  }
+  .loading-skeleton { @apply animate-pulse bg-gray-200 rounded; }
+  .loading-skeleton-dark { @apply animate-pulse bg-gray-700 rounded; }
 
-  /* Dashboard specific components */
-  .dashboard-card {
-    @apply bg-white rounded-lg border border-gray-200 shadow-sm transition-all duration-200 hover:shadow-md;
-  }
+  .status-online { @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800; }
+  .status-offline { @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800; }
+  .status-warning { @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800; }
 
-  .dashboard-card-dark {
-    @apply bg-gray-800 rounded-lg border border-gray-700 shadow-sm transition-all duration-200 hover:shadow-md;
-  }
-
-  /* Form components */
-  .form-input {
-    @apply block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 sm:text-sm;
-  }
-
-  .form-select {
-    @apply block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 sm:text-sm;
-  }
-
-  /* Sports-themed components */
-  .stadium-bg {
-    @apply bg-gradient-to-br from-primary-600 via-blue-700 to-purple-800;
-  }
-
-  .field-pattern {
-    background-image: 
-      linear-gradient(90deg, rgba(255,255,255,0.1) 50%, transparent 50%),
-      linear-gradient(rgba(255,255,255,0.05) 50%, transparent 50%);
-    background-size: 20px 20px;
-  }
-
-  .ticket-stub {
-    @apply relative overflow-hidden;
-  }
-
-  .ticket-stub::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: linear-gradient(45deg, transparent 30%, rgba(255,255,255,0.1) 50%, transparent 70%);
-    transform: translateX(-100%);
-    transition: transform 0.6s ease;
-  }
-
-  .ticket-stub:hover::before {
-    transform: translateX(100%);
-  }
-
-  /* Loading states */
-  .loading-skeleton {
-    @apply animate-pulse bg-gray-200 rounded;
-  }
-
-  .loading-skeleton-dark {
-    @apply animate-pulse bg-gray-700 rounded;
-  }
-
-  /* Status indicators */
-  .status-online {
-    @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800;
-  }
-
-  .status-offline {
-    @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800;
-  }
-
-  .status-warning {
-    @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800;
-  }
-
-  /* Responsive utilities */
-  .container-responsive {
-    @apply mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl;
-  }
+  .container-responsive { @apply mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl; }
 }

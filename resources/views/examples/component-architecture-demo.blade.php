@@ -5,7 +5,7 @@
     Blade, Alpine.js, and Vue.js components working together.
 --}}
 
-@extends('layouts.master')
+@extends('layouts.app-v2')
 
 @section('title', 'Component Architecture Demo')
 

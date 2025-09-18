@@ -1,0 +1,119 @@
+{
+  "_alpine.CJ7ePfyg.js": {
+    "file": "assets/js/alpine.CJ7ePfyg.js",
+    "name": "alpine"
+  },
+  "_app-utils.ChIKtZRd.js": {
+    "file": "assets/js/app-utils.ChIKtZRd.js",
+    "name": "app-utils"
+  },
+  "_charts.CVV2ciRB.js": {
+    "file": "assets/js/charts.CVV2ciRB.js",
+    "name": "charts",
+    "imports": [
+      "_vendor.D8fDXNIl.js"
+    ]
+  },
+  "_components.C67tSh7_.js": {
+    "file": "assets/js/components.C67tSh7_.js",
+    "name": "components",
+    "imports": [
+      "_alpine.CJ7ePfyg.js",
+      "_charts.CVV2ciRB.js"
+    ]
+  },
+  "_http.NIGUFBhG.js": {
+    "file": "assets/js/http.NIGUFBhG.js",
+    "name": "http"
+  },
+  "_realtime.gXXUreaj.js": {
+    "file": "assets/js/realtime.gXXUreaj.js",
+    "name": "realtime"
+  },
+  "_vendor.D8fDXNIl.js": {
+    "file": "assets/js/vendor.D8fDXNIl.js",
+    "name": "vendor"
+  },
+  "resources/css/app.css": {
+    "file": "assets/css/app.z8l0tbJe.css",
+    "src": "resources/css/app.css",
+    "isEntry": true
+  },
+  "resources/css/components.css": {
+    "file": "assets/css/components.BRlVUSRe.css",
+    "src": "resources/css/components.css",
+    "isEntry": true
+  },
+  "resources/css/design-system.css": {
+    "file": "assets/css/design-system.DcrWUjo2.css",
+    "src": "resources/css/design-system.css",
+    "isEntry": true
+  },
+  "resources/css/tickets.css": {
+    "file": "assets/css/tickets.BGBY_-In.css",
+    "src": "resources/css/tickets.css",
+    "isEntry": true
+  },
+  "resources/css/welcome.css": {
+    "file": "assets/css/welcome.DziuxVIO.css",
+    "src": "resources/css/welcome.css",
+    "isEntry": true
+  },
+  "resources/js/app.js": {
+    "file": "assets/js/app.C-k04xby.js",
+    "name": "app",
+    "src": "resources/js/app.js",
+    "isEntry": true,
+    "imports": [
+      "resources/js/tickets/index.js",
+      "_alpine.CJ7ePfyg.js",
+      "_http.NIGUFBhG.js",
+      "_realtime.gXXUreaj.js",
+      "_components.C67tSh7_.js",
+      "_app-utils.ChIKtZRd.js",
+      "_charts.CVV2ciRB.js",
+      "_vendor.D8fDXNIl.js"
+    ],
+    "dynamicImports": [
+      "resources/js/tickets/index.js"
+    ]
+  },
+  "resources/js/tickets/PriceMonitor.js": {
+    "file": "assets/js/PriceMonitor.CE49XFuP.js",
+    "name": "PriceMonitor",
+    "src": "resources/js/tickets/PriceMonitor.js",
+    "isEntry": true,
+    "imports": [
+      "resources/js/tickets/index.js"
+    ]
+  },
+  "resources/js/tickets/TicketFilters.js": {
+    "file": "assets/js/TicketFilters.CE49XFuP.js",
+    "name": "TicketFilters",
+    "src": "resources/js/tickets/TicketFilters.js",
+    "isEntry": true,
+    "imports": [
+      "resources/js/tickets/index.js"
+    ]
+  },
+  "resources/js/tickets/index.js": {
+    "file": "assets/js/index.CYHJt075.js",
+    "name": "index",
+    "src": "resources/js/tickets/index.js",
+    "isEntry": true,
+    "isDynamicEntry": true,
+    "dynamicImports": [
+      "resources/js/tickets/TicketFilters.js",
+      "resources/js/tickets/PriceMonitor.js"
+    ]
+  },
+  "resources/js/welcome.js": {
+    "file": "assets/js/welcome.BoXY0H37.js",
+    "name": "welcome",
+    "src": "resources/js/welcome.js",
+    "isEntry": true,
+    "imports": [
+      "_alpine.CJ7ePfyg.js"
+    ]
+  }
+}

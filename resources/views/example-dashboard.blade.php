@@ -2,7 +2,7 @@
     Example Dashboard - Demonstrates Unified Layout System
     Shows how to use the master layout with role-based variants
 --}}
-@extends('layouts.master')
+@extends('layouts.app-v2')
 
 @section('title', 'Dashboard')
 
