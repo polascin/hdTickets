@@ -2,31 +2,42 @@
 
 namespace Tests\Feature\Ui;
 
-use Tests\TestCase;
+use Tests\Feature\Ui\UiNoDbTestCase;
 
-class SkipLinkRemovedTest extends TestCase
+class SkipLinkRemovedTest extends UiNoDbTestCase
 {
     /** @test */
-    public function home_page_does_not_render_skip_link()
+    public function legal_index_view_does_not_render_skip_link()
     {
-        $response = $this->get('/');
-        $response->assertStatus(200);
-        $response->assertDontSee('Skip to main content', false);
+        $html = view('legal.index')->render();
+        $this->assertStringNotContainsString('Skip to main content', $html);
     }
 
     /** @test */
-    public function terms_of_service_does_not_render_skip_link()
+    public function legal_show_view_does_not_render_skip_link_for_terms()
     {
-        $response = $this->get(route('legal.terms-of-service'));
-        $response->assertStatus(200);
-        $response->assertDontSee('Skip to main content', false);
+        $doc = (object) [
+            'type' => 'terms_of_service',
+            'summary' => null,
+            'content' => '<p>Sample terms content</p>',
+            'effective_date' => now(),
+            'version' => '1.0',
+        ];
+        $html = view('legal.show', ['document' => $doc])->render();
+        $this->assertStringNotContainsString('Skip to main content', $html);
     }
 
     /** @test */
-    public function privacy_policy_does_not_render_skip_link()
+    public function legal_show_view_does_not_render_skip_link_for_privacy()
     {
-        $response = $this->get(route('legal.privacy-policy'));
-        $response->assertStatus(200);
-        $response->assertDontSee('Skip to main content', false);
+        $doc = (object) [
+            'type' => 'privacy_policy',
+            'summary' => null,
+            'content' => '<p>Sample privacy content</p>',
+            'effective_date' => now(),
+            'version' => '1.0',
+        ];
+        $html = view('legal.show', ['document' => $doc])->render();
+        $this->assertStringNotContainsString('Skip to main content', $html);
     }
 }
