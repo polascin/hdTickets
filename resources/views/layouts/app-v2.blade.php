@@ -9,6 +9,7 @@
       }
       return in_array($role, (array) $roles, true);
   };
+  \Illuminate\Support\Str::class; // ensure Str alias available
 @endphp
 <!DOCTYPE html>
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}" class="h-full" x-data="{ sidebar: false, theme: localStorage.getItem('theme') || 'light', toggleTheme() { this.theme = this.theme === 'light' ? 'dark' : 'light';
@@ -43,10 +44,11 @@
       <nav class="uiv2-nav" aria-label="Primary">
         <div class="uiv2-nav__section">
           <p class="uiv2-nav__label">Main</p>
-          @foreach ($nav['primary'] as $item)
+@foreach ($nav['primary'] as $item)
             @if ($canSee($item['roles']))
               <a href="{{ route($item['route']) }}" class="uiv2-nav__link {{ $isActive($item['route']) }}"
-                aria-current="{{ request()->routeIs($item['route']) ? 'page' : 'false' }}">
+                aria-current="{{ request()->routeIs($item['route']) ? 'page' : 'false' }}"
+                data-testid="nav-{{ \Illuminate\Support\Str::slug($item['label']) }}">
                 <span class="uiv2-nav__icon">
                   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
                     stroke-linejoin="round">
@@ -60,9 +62,10 @@
         </div>
         <div class="uiv2-nav__section mt-6">
           <p class="uiv2-nav__label">User</p>
-          @foreach ($nav['secondary'] as $item)
+@foreach ($nav['secondary'] as $item)
             @if ($canSee($item['roles']))
-              <a href="{{ route($item['route']) }}" class="uiv2-nav__link {{ $isActive($item['route']) }}">
+              <a href="{{ route($item['route']) }}" class="uiv2-nav__link {{ $isActive($item['route']) }}"
+                 data-testid="nav-{{ \Illuminate\Support\Str::slug($item['label']) }}">
                 <span class="uiv2-nav__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
                     stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <path d="{{ $item['icon'] }}" />
