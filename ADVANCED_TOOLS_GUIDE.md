@@ -220,22 +220,14 @@ Set up automated maintenance and monitoring:
 0 9-17 * * 1-5 /var/www/hdtickets/scripts/performance-monitor.sh --duration=60 --output=/var/www/hdtickets/storage/logs/performance-$(date +\%H).html
 ```
 
-### CI/CD Integration
-Use development tools in your CI/CD pipeline:
+### Automation Integration
+You can wire these tools into your local automation (e.g., Makefile or cron) as needed. Example bash snippet to run key tasks:
 
-```yaml
-# Example GitHub Actions workflow
-- name: Quality Checks
-  run: ./scripts/dev-tools.sh quality
-
-- name: Run Tests
-  run: ./scripts/dev-tools.sh test --coverage
-
-- name: Build Assets
-  run: ./scripts/dev-tools.sh build production
-
-- name: Deployment Preparation
-  run: ./scripts/dev-tools.sh deploy-prep
+```bash
+./scripts/dev-tools.sh quality
+./scripts/dev-tools.sh test --coverage
+./scripts/dev-tools.sh build production
+./scripts/dev-tools.sh deploy-prep
 ```
 
 ### Monitoring Integration

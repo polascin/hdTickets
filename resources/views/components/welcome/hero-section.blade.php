@@ -1,4 +1,7 @@
 <section class="hero fade-in">
+    <div class="hero-illustration">
+        <img src="{{ Vite::asset('resources/illustrations/stadium.svg') }}" alt="Stadium illustration" width="160" height="160" />
+    </div>
     <div class="hero-badge">
         <span class="badge-icon">🚀</span>
         <span class="badge-text">The Future of Sports Ticketing</span>
@@ -52,6 +55,8 @@
 </section>
 
 <style>
+.hero-illustration { display: flex; justify-content: center; margin-bottom: 16px; }
+
 /* Hero Badge Styling */
 .hero-badge {
     display: inline-flex;

@@ -60,6 +60,8 @@ abstract class TestCase extends BaseTestCase
         config(['app.debug' => TRUE]);
         config(['mail.default' => 'array']);
         config(['queue.default' => 'sync']);
+        // Ensure default free access is disabled in tests unless explicitly set in a test
+        config(['subscription.free_access_days' => 0]);
 
         // Clear caches
         Cache::flush();

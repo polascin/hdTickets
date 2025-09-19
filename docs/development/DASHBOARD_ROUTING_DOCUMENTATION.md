@@ -119,12 +119,12 @@ Route::get('/dashboard', [App\Http\Controllers\HomeController::class, 'index'])
 #### Customer Dashboard
 ```php
 // Route: /dashboard/customer
-Route::middleware(['auth', 'verified', 'role:customer,admin'])->get('/dashboard/customer', 
-    [DashboardController::class, 'index'])->name('dashboard.customer');
+Route::middleware(['auth', 'verified', App\Http\Middleware\CustomerMiddleware::class])->get('/dashboard/customer', 
+    [App\Http\Controllers\EnhancedDashboardController::class, 'index'])->name('dashboard.customer');
 ```
-- **Controller:** `DashboardController@index`
-- **View:** `resources/views/dashboard/customer.blade.php`  
-- **Features:** Sports events monitoring, ticket alerts, basic analytics
+- **Controller:** `EnhancedDashboardController@index`
+- **View:** `resources/views/dashboard/customer-v3.blade.php`  
+- **Features:** Sports events monitoring, real-time updates, alerts, recommendations
 
 #### Agent Dashboard  
 ```php
@@ -358,6 +358,13 @@ Authorization: Bearer {api_token}
 ```
 
 ### Dashboard API Routes
+
+#### Customer Dashboard Realtime API
+```php
+// Route: /api/v1/dashboard/realtime
+// Name: api.dashboard.realtime
+// Middleware: ['api', 'auth:sanctum', 'verified', 'role:customer,admin', 'throttle:dashboard-realtime']
+```
 
 #### Scraper Dashboard APIs
 ```php

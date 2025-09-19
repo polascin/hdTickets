@@ -26,7 +26,7 @@ class TestDataFactory
             'email_verified_at' => now(),
             'password'          => Hash::make('password'),
             'role'              => $role,
-            'status'            => 'active',
+            'is_active'         => TRUE,
             'preferences'       => [
                 'notifications' => [
                     'email' => TRUE,
@@ -43,7 +43,15 @@ class TestDataFactory
 
         $userData = array_merge($defaultAttributes, $attributes);
 
-        return User::create($userData);
+        $user = User::create($userData);
+
+        // Allow overriding timestamps like created_at in tests
+        if (isset($attributes['created_at'])) {
+            $user->created_at = $attributes['created_at'];
+            $user->saveQuietly();
+        }
+
+        return $user;
     }
 
     /**
@@ -80,8 +88,15 @@ class TestDataFactory
      */
     public function createTicket(array $attributes = []): Ticket
     {
+        // Ensure we have a requester to satisfy NOT NULL constraint
+        $requester = $attributes['requester_id'] ?? $this->createUser();
+
         $defaultAttributes = [
+            'uuid'               => (string) Str::uuid(),
+            'requester_id'       => $requester instanceof User ? $requester->id : $requester,
             'title'              => fake()->sentence(4),
+            'description'        => fake()->sentence(8),
+            'priority'           => 'medium',
             'event_date'         => fake()->dateTimeBetween('+1 week', '+6 months'),
             'venue'              => fake()->company() . ' Stadium',
             'city'               => fake()->city(),
@@ -89,22 +104,36 @@ class TestDataFactory
             'sport_type'         => fake()->randomElement(['football', 'basketball', 'baseball', 'hockey', 'soccer']),
             'team_home'          => fake()->words(2, TRUE),
             'team_away'          => fake()->words(2, TRUE),
-            'price_min'          => fake()->numberBetween(25, 100),
-            'price_max'          => fake()->numberBetween(100, 500),
+            'price'              => fake()->randomFloat(2, 25, 500),
             'currency'           => 'USD',
             'available_quantity' => fake()->numberBetween(1, 1000),
-            'status'             => fake()->randomElement(['available', 'limited', 'sold_out']),
-            'source_platform'    => fake()->randomElement(['ticketmaster', 'stubhub', 'seatgeek']),
-            'source_url'         => fake()->url(),
-            'last_scraped_at'    => now(),
-            'metadata'           => [
+            'is_available'       => true,
+            // Use an allowed enum value for current tickets schema
+            'status'             => 'open',
+            'platform'           => fake()->randomElement(['ticketmaster', 'stubhub', 'seatgeek']),
+            'source'             => 'scraper',
+            'ticket_url'         => fake()->url(),
+            'scraping_metadata'  => [
                 'section'      => fake()->randomElement(['A', 'B', 'C', 'VIP']),
                 'row'          => fake()->numberBetween(1, 30),
                 'seat_numbers' => fake()->randomElements([1, 2, 3, 4, 5, 6, 7, 8], 2),
             ],
+            'last_activity_at'   => now(),
         ];
 
         $ticketData = array_merge($defaultAttributes, $attributes);
+
+        // Map sports-style availability statuses to allowed ticket enum to satisfy schema while preserving intent
+        if (isset($ticketData['status'])) {
+            $map = [
+                'available' => 'open',
+                'limited'   => 'pending',
+                'sold_out'  => 'resolved',
+            ];
+            if (isset($map[$ticketData['status']])) {
+                $ticketData['status'] = $map[$ticketData['status']];
+            }
+        }
 
         return Ticket::create($ticketData);
     }

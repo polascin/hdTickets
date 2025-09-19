@@ -29,10 +29,7 @@
         </button>
         <button @click="showPreferences = true" 
                 class="flex items-center bg-gray-100 text-gray-700 px-3 py-2 rounded-lg text-sm font-medium hover:bg-gray-200 transition">
-          <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path>
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
-          </svg>
+          <x-icon name="cog" class="w-4 h-4 mr-2" />
           Settings
         </button>
       </div>
@@ -182,10 +179,8 @@
 
                 <!-- Notification Actions Menu -->
                 <div class="relative" x-data="{ open: false }">
-                  <button @click="open = !open" class="text-gray-400 hover:text-gray-600 transition">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 5v.01M12 12v.01M12 19v.01"></path>
-                    </svg>
+                  <button @click="open = !open" class="text-gray-400 hover:text-gray-600 transition" aria-label="Open actions menu">
+                    <x-icon name="dots-vertical" class="w-5 h-5" />
                   </button>
                   
                   <div x-show="open" @click.away="open = false" x-cloak 
@@ -214,10 +209,9 @@
 
           <!-- Empty State -->
           <div x-show="filteredNotifications.length === 0" class="p-12 text-center">
-            <svg class="mx-auto w-12 h-12 text-gray-300 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-5 5v-5zM4.343 12.344l1.414-1.414L6.5 11.5"></path>
-            </svg>
-            <h3 class="text-lg font-medium text-gray-900 mb-2">No notifications</h3>
+            <x-ui.empty-state title="No notifications"
+                              description="You're all caught up. New notifications will appear here."
+                              illustration="trophy.svg" />
             <p class="text-gray-500" x-text="getEmptyStateMessage()"></p>
           </div>
         </div>

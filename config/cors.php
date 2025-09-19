@@ -18,7 +18,15 @@ return [
 
     'allowed_methods' => ['*'],
 
-    'allowed_origins' => ['*'],
+    // Explicitly list origins when using credentials; do not use '*'
+    'allowed_origins' => [
+        env('APP_URL', 'http://hdtickets.local'),
+        'http://hdtickets.local',
+        'http://localhost',
+        'http://127.0.0.1',
+        'http://localhost:5173',
+        'http://127.0.0.1:5173',
+    ],
 
     'allowed_origins_patterns' => [],
 
@@ -28,5 +36,5 @@ return [
 
     'max_age' => 0,
 
-    'supports_credentials' => FALSE,
+    'supports_credentials' => TRUE,
 ];

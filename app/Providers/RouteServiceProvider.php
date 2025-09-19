@@ -31,6 +31,11 @@ class RouteServiceProvider extends ServiceProvider
     {
         RateLimiter::for('api', fn (Request $request) => Limit::perMinute(60)->by($request->user()?->id ?: $request->ip()));
 
+        // Specific rate limiter for dashboard realtime endpoint
+        RateLimiter::for('dashboard-realtime', function (Request $request) {
+            return Limit::perMinute(120)->by($request->user()?->id ?: $request->ip());
+        });
+
         $this->routes(function (): void {
             Route::middleware('api')
                 ->prefix('api')

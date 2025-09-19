@@ -78,7 +78,7 @@ npm audit
 - Monitor for security patches in pinned packages
 
 ### Monitoring
-- Set up automated security audit checks in CI/CD pipeline
+- Consider scheduling automated security audit checks via cron or local scripts
 - Subscribe to security advisories for critical packages
 - Review dependency security status monthly
 
@@ -105,7 +105,7 @@ If sweetalert2 continues to have security issues, consider these Vue.js-compatib
 - Native browser APIs: `window.confirm()`, `window.alert()` for simple cases
 
 2. **Security Monitoring:**
-   - Integrate security audits into CI/CD pipeline
+   - Run regular security audits locally or via scheduled jobs
    - Set up notifications for new security advisories
 
 3. **Documentation:**

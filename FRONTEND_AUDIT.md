@@ -283,6 +283,5 @@ This update makes the UI/UX stack consistent and simplifies operations:
 - Accessibility: zoom enabled, `no-js` toggled to `js`, skip link to `#main-content`, focus-visible verified in smoke tests
 - Navigation cleanup: inline Tailwind `@apply` removed from Blade; styles compiled via Vite
 - E2E coverage: Playwright smoke tests (public pages, navigation, tickets, profile, keyboard nav) with screenshots; basic axe-core scan on login
-- CI: GitHub Actions workflow runs Playwright on push/PR and uploads artifacts
 
-See `tests/e2e/*` and `.github/workflows/e2e.yml` for details.
+See `tests/e2e/*` for details. The GitHub Actions workflow has been removed; run `npm run e2e` locally.

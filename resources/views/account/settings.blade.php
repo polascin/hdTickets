@@ -1,4 +1,4 @@
-@extends('layouts.modern')
+@extends('layouts.app-v2')
 
 @section('title', 'Account Settings')
 @section('description', 'Manage your Sports Events Tickets account settings, security, and preferences')

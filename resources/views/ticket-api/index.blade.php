@@ -1,4 +1,4 @@
-@extends('layouts.modern')
+@extends('layouts.app-v2')
 
 @section('title', 'Ticket API Integration')
 @section('description', 'Integrate with external ticket platforms - Ticketmaster, StubHub, and more')

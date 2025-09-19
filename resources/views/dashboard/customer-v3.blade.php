@@ -1,5 +1,9 @@
 @extends('layouts.app-v2')
 @section('title', 'Customer Dashboard')
+@push('styles')
+  <meta name="dashboard-realtime-url" content="{{ route('api.dashboard.realtime') }}">
+@endpush
+
 @section('content')
   <div x-data="customerDashboard()" x-init="init()" class="space-y-8">
     {{-- Error notification --}}
@@ -42,9 +46,9 @@
                  x-show="!loading"></p>
               <div x-show="loading" class="mt-1 h-7 w-12 bg-slate-200 dark:bg-slate-700 rounded animate-pulse"></div>
             </div>
-            <div class="w-10 h-10 rounded-lg bg-gradient-to-br"
+            <div class="w-8 h-8 rounded-lg bg-gradient-to-br"
               :class="card.color + ' flex items-center justify-center text-white'">
-              <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+              <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
                 stroke-linecap="round" stroke-linejoin="round">
                 <path :d="card.icon" />
               </svg>
@@ -183,7 +187,8 @@ function customerDashboard() {
           throw new Error('CSRF token not found. Please refresh the page.');
         }
 
-        const response = await fetch('/api/v1/dashboard/realtime', {
+        const realtimeUrl = document.querySelector('meta[name="dashboard-realtime-url"]')?.getAttribute('content') || '/api/v1/dashboard/realtime';
+        const response = await fetch(realtimeUrl, {
           method: 'GET',
           headers: {
             'X-Requested-With': 'XMLHttpRequest',

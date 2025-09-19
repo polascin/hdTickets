@@ -1,4 +1,4 @@
-@extends('layouts.modern')
+@extends('layouts.app-v2')
 
 @section('title', 'User Profile - ' . $user->name)
 @section('description', 'Detailed view of user profile for ' . $user->name)

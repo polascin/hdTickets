@@ -8,10 +8,14 @@ This document describes the customer dashboard (sports ticket monitoring/purchas
 - Fast, mobile-first experience with accessibility and performance focus
 
 ## Architecture Overview
-- Blade views: enhanced customer dashboard template served at /dashboard/customer
+- Blade views: canonical customer dashboard served at /dashboard/customer
+  - Canonical view: resources/views/dashboard/customer-v3.blade.php
+  - Legacy variants (customer.blade.php, customer-enhanced*.blade.php) are deprecated
 - Controller: EnhancedDashboardController rendering the enhanced dashboard view
 - Frontend stack: Blade + Alpine.js + Tailwind CSS + custom CSS (glass theme)
 - Real-time: Laravel Echo + broadcasting (with polling fallback)
+  - Realtime endpoint: GET /api/v1/dashboard/realtime (route name: api.dashboard.realtime)
+  - Auth: Sanctum stateful (cookie-based) + verified email + role: customer, admin
 - Data: Aggregated metrics from services (AnalyticsService, RecommendationService, etc.)
 
 ## Key UI Modules

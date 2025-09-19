@@ -1,0 +1,8 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+# Resolve project root (bin/..)
+ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+
+# Forward all arguments to Laravel's Artisan
+exec php "$ROOT_DIR/artisan" "$@"

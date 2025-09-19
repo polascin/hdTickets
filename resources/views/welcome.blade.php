@@ -14,14 +14,16 @@
     <meta property="og:description" content="Never miss your team again! Professional sports ticket monitoring with role-based access, subscription plans, and enterprise security.">
     <meta property="og:type" content="website">
     <meta property="og:url" content="{{ url('/') }}">
-    <meta property="og:image" content="{{ asset('images/og-image.jpg') }}">
+    <meta property="og:image" content="{{ asset('assets/images/social/og-image.png') }}">
     <meta property="og:site_name" content="HD Tickets">
     
     <!-- Twitter Card Meta Tags -->
+    <meta property="og:image:alt" content="HD Tickets - Sports ticket monitoring platform">
+    <meta name="twitter:image:alt" content="HD Tickets - Sports ticket monitoring platform">
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:title" content="HD Tickets - Professional Sports Ticket Monitoring">
     <meta name="twitter:description" content="Monitor 50+ platforms, role-based access, GDPR compliant, 7-day free trial">
-    <meta name="twitter:image" content="{{ asset('images/twitter-card.jpg') }}">
+    <meta name="twitter:image" content="{{ asset('assets/images/social/twitter-card.png') }}">
     
     <!-- Structured Data -->
     <script type="application/ld+json">

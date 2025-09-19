@@ -331,7 +331,7 @@ if ('serviceWorker' in navigator) {
 ```
 
 ### Performance Budgets
-Set performance budgets in your CI/CD:
+Set performance budgets in your development workflow or tooling:
 ```json
 {
   "performanceBudgets": {

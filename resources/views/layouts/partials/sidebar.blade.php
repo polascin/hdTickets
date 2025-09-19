@@ -8,7 +8,7 @@
         <div class="flex items-center justify-between">
             <div class="flex items-center space-x-3">
                 <div class="w-10 h-10 rounded-lg bg-white/20 flex items-center justify-center">
-                    <i class="fas fa-ticket-alt text-white text-lg"></i>
+                    <x-icon name="ticket" class="text-white w-5 h-5" />
                 </div>
                 <div class="text-white">
                     <h3 class="font-semibold">{{ ucfirst(auth()->user()->getRoleNames()->first()) }} Panel</h3>
@@ -19,7 +19,7 @@
             {{-- Desktop Collapse Toggle --}}
             <button @click="$dispatch('toggle-sidebar-collapse')" 
                     class="hidden lg:block p-2 rounded-lg text-white/80 hover:text-white hover:bg-white/10 transition-colors">
-                <i class="fas fa-chevron-left w-4 h-4"></i>
+                <x-icon name="chevron-left" class="w-4 h-4" />
             </button>
         </div>
     </div>
@@ -29,7 +29,7 @@
         {{-- Dashboard --}}
         <a href="{{ route('dashboard') }}" 
            class="sidebar-nav-item {{ request()->routeIs('dashboard') ? 'active' : '' }}">
-            <i class="fas fa-tachometer-alt"></i>
+            <x-icon name="dashboard" class="w-5 h-5 mr-3 flex-shrink-0" />
             <span>Dashboard</span>
         </a>
 
@@ -37,14 +37,14 @@
             {{-- Tickets Section --}}
             <div class="sidebar-section">
                 <div class="sidebar-section-header">
-                    <i class="fas fa-ticket-alt"></i>
+                    <x-icon name="ticket" class="w-4 h-4 mr-2" />
                     <span>Tickets Management</span>
                 </div>
                 
                 <div class="sidebar-section-items">
                     <a href="{{ route('tickets.scraping.index') }}" 
                        class="sidebar-nav-item {{ request()->routeIs('tickets.scraping.*') ? 'active' : '' }}">
-                        <i class="fas fa-search"></i>
+                        <x-icon name="search" class="w-5 h-5 mr-3 flex-shrink-0" />
                         <span>Browse Tickets</span>
                         @if(request()->routeIs('tickets.scraping.*'))
                             <span class="ml-auto w-2 h-2 bg-blue-400 rounded-full"></span>
@@ -53,21 +53,21 @@
 
                     <a href="{{ route('tickets.alerts.index') }}" 
                        class="sidebar-nav-item {{ request()->routeIs('tickets.alerts.*') ? 'active' : '' }}">
-                        <i class="fas fa-bell"></i>
+                        <x-icon name="bell" class="w-5 h-5 mr-3 flex-shrink-0" />
                         <span>My Alerts</span>
                         <span class="ml-auto badge badge-sm bg-red-500 text-white">3</span>
                     </a>
 
                     <a href="{{ route('purchase-decisions.index') }}" 
                        class="sidebar-nav-item {{ request()->routeIs('purchase-decisions.*') ? 'active' : '' }}">
-                        <i class="fas fa-shopping-cart"></i>
+                        <x-icon name="cart" class="w-5 h-5 mr-3 flex-shrink-0" />
                         <span>Purchase Queue</span>
                         <span class="ml-auto badge badge-sm bg-green-500 text-white">5</span>
                     </a>
 
                     <a href="{{ route('ticket-sources.index') }}" 
                        class="sidebar-nav-item {{ request()->routeIs('ticket-sources.*') ? 'active' : '' }}">
-                        <i class="fas fa-link"></i>
+                        <x-icon name="link" class="w-5 h-5 mr-3 flex-shrink-0" />
                         <span>Ticket Sources</span>
                     </a>
                 </div>
@@ -76,23 +76,23 @@
             {{-- Analytics Section --}}
             <div class="sidebar-section">
                 <div class="sidebar-section-header">
-                    <i class="fas fa-chart-line"></i>
+                    <x-icon name="analytics" class="w-4 h-4 mr-2" />
                     <span>Analytics</span>
                 </div>
                 
                 <div class="sidebar-section-items">
                     <a href="#" class="sidebar-nav-item">
-                        <i class="fas fa-chart-bar"></i>
+                        <x-icon name="chart-bar" class="w-5 h-5 mr-3 flex-shrink-0" />
                         <span>Performance</span>
                     </a>
 
                     <a href="#" class="sidebar-nav-item">
-                        <i class="fas fa-trending-up"></i>
+                        <x-icon name="trending-up" class="w-5 h-5 mr-3 flex-shrink-0" />
                         <span>Price Trends</span>
                     </a>
 
                     <a href="#" class="sidebar-nav-item">
-                        <i class="fas fa-clock"></i>
+                        <x-icon name="clock" class="w-5 h-5 mr-3 flex-shrink-0" />
                         <span>Real-time Data</span>
                         <span class="ml-auto w-2 h-2 bg-green-400 rounded-full animate-pulse"></span>
                     </a>
@@ -103,46 +103,46 @@
                 {{-- Admin Only Section --}}
                 <div class="sidebar-section">
                     <div class="sidebar-section-header">
-                        <i class="fas fa-cogs"></i>
+                        <x-icon name="cog" class="w-4 h-4 mr-2" />
                         <span>Administration</span>
                     </div>
                     
                     <div class="sidebar-section-items">
                         <a href="{{ route('admin.dashboard') }}" 
                            class="sidebar-nav-item {{ request()->routeIs('admin.dashboard') ? 'active' : '' }}">
-                            <i class="fas fa-tachometer-alt"></i>
+                            <x-icon name="dashboard" class="w-5 h-5 mr-3 flex-shrink-0" />
                             <span>Admin Dashboard</span>
                         </a>
 
                         @if(auth()->user()->canManageUsers())
                             <a href="{{ route('admin.users.index') }}" 
                                class="sidebar-nav-item {{ request()->routeIs('admin.users.*') ? 'active' : '' }}">
-                                <i class="fas fa-users"></i>
+                                <x-icon name="users" class="w-5 h-5 mr-3 flex-shrink-0" />
                                 <span>User Management</span>
                             </a>
                         @endif
 
                         <a href="{{ route('admin.reports.index') }}" 
                            class="sidebar-nav-item {{ request()->routeIs('admin.reports.*') ? 'active' : '' }}">
-                            <i class="fas fa-file-alt"></i>
+                            <x-icon name="document" class="w-5 h-5 mr-3 flex-shrink-0" />
                             <span>Reports</span>
                         </a>
 
                         <a href="{{ route('admin.categories.index') }}" 
                            class="sidebar-nav-item {{ request()->routeIs('admin.categories.*') ? 'active' : '' }}">
-                            <i class="fas fa-tags"></i>
+                            <x-icon name="tags" class="w-5 h-5 mr-3 flex-shrink-0" />
                             <span>Categories</span>
                         </a>
 
                         <a href="{{ route('admin.system.index') }}" 
                            class="sidebar-nav-item {{ request()->routeIs('admin.system.*') ? 'active' : '' }}">
-                            <i class="fas fa-server"></i>
+                            <x-icon name="server" class="w-5 h-5 mr-3 flex-shrink-0" />
                             <span>System Settings</span>
                         </a>
 
                         <a href="{{ route('admin.scraping.index') }}" 
                            class="sidebar-nav-item {{ request()->routeIs('admin.scraping.*') ? 'active' : '' }}">
-                            <i class="fas fa-robot"></i>
+                            <x-icon name="robot" class="w-5 h-5 mr-3 flex-shrink-0" />
                             <span>Scraping Management</span>
                         </a>
                     </div>
@@ -153,32 +153,32 @@
         {{-- Account Section --}}
         <div class="sidebar-section">
             <div class="sidebar-section-header">
-                <i class="fas fa-user"></i>
+                <x-icon name="user" class="w-4 h-4 mr-2" />
                 <span>Account</span>
             </div>
             
             <div class="sidebar-section-items">
                 <a href="{{ route('profile.show') }}" 
                    class="sidebar-nav-item {{ request()->routeIs('profile.*') ? 'active' : '' }}">
-                    <i class="fas fa-user-edit"></i>
+                    <x-icon name="user-edit" class="w-5 h-5 mr-3 flex-shrink-0" />
                     <span>Profile Settings</span>
                     @php
                         $profileCompletion = auth()->user()->getProfileCompletion();
                     @endphp
                     @if($profileCompletion['percentage'] < 90)
                         <span class="ml-auto text-yellow-300">
-                            <i class="fas fa-exclamation-triangle text-xs"></i>
+                            <x-icon name="warning" class="w-3 h-3" />
                         </span>
                     @endif
                 </a>
 
                 <a href="#" class="sidebar-nav-item">
-                    <i class="fas fa-bell"></i>
+                    <x-icon name="bell" class="w-5 h-5 mr-3 flex-shrink-0" />
                     <span>Notifications</span>
                 </a>
 
                 <a href="#" class="sidebar-nav-item">
-                    <i class="fas fa-shield-alt"></i>
+                    <x-icon name="shield" class="w-5 h-5 mr-3 flex-shrink-0" />
                     <span>Security</span>
                 </a>
             </div>
@@ -208,7 +208,7 @@
 
         {{-- Support Link --}}
         <a href="#" class="sidebar-nav-item text-center">
-            <i class="fas fa-question-circle"></i>
+            <x-icon name="info" class="w-5 h-5 mr-2 inline-block align-middle" />
             <span>Help & Support</span>
         </a>
 
@@ -229,7 +229,7 @@
     @apply bg-white/20 text-white shadow-sm;
 }
 
-.sidebar-nav-item i {
+.sidebar-nav-item svg {
     @apply w-5 h-5 mr-3 flex-shrink-0;
 }
 
@@ -241,7 +241,7 @@
     @apply flex items-center px-4 py-2 text-xs font-semibold text-white/60 uppercase tracking-wider mb-2;
 }
 
-.sidebar-section-header i {
+.sidebar-section-header svg {
     @apply w-4 h-4 mr-2;
 }
 

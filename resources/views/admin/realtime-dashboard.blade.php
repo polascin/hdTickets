@@ -1,4 +1,4 @@
-@extends('layouts.modern')
+@extends('layouts.app-v2')
 
 @section('title', 'Real-time Monitoring Dashboard')
 @section('description', 'Live sports ticket monitoring with real-time updates and comprehensive analytics')

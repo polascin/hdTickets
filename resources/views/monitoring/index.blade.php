@@ -1,4 +1,4 @@
-@extends('layouts.modern')
+@extends('layouts.app-v2')
 
 @section('title', 'Ticket Monitoring & Alerts')
 @section('description', 'Monitor sports event ticket prices and set up intelligent alerts for your favorite events')

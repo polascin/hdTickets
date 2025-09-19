@@ -91,7 +91,6 @@ make security-check
 make metrics
 make full-check
 make pre-commit
-make ci-pipeline
 make clean
 ```
 

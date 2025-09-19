@@ -35,9 +35,9 @@
         <nav class="hidden lg:flex items-center space-x-6 ml-8">
             @auth
                 {{-- Dashboard Link --}}
-                <a href="{{ route('dashboard') }}" 
+                    <a href="{{ route('dashboard') }}" 
                    class="nav-link {{ request()->routeIs('dashboard') ? 'nav-link-active' : 'nav-link-inactive' }}">
-                    <i class="fas fa-tachometer-alt mr-2"></i>
+                    <x-icon name="dashboard" class="w-4 h-4 mr-2" />
                     Dashboard
                 </a>
 
@@ -45,21 +45,21 @@
                     {{-- Sports Tickets --}}
                     <a href="{{ route('tickets.scraping.index') }}" 
                        class="nav-link {{ request()->routeIs('tickets.scraping.*') ? 'nav-link-active' : 'nav-link-inactive' }}">
-                        <i class="fas fa-ticket-alt mr-2"></i>
+                        <x-icon name="ticket" class="w-4 h-4 mr-2" />
                         Tickets
                     </a>
 
                     {{-- Alerts --}}
                     <a href="{{ route('tickets.alerts.index') }}" 
                        class="nav-link {{ request()->routeIs('tickets.alerts.*') ? 'nav-link-active' : 'nav-link-inactive' }}">
-                        <i class="fas fa-bell mr-2"></i>
+                        <x-icon name="bell" class="w-4 h-4 mr-2" />
                         Alerts
                     </a>
 
                     {{-- Sources --}}
                     <a href="{{ route('ticket-sources.index') }}" 
                        class="nav-link {{ request()->routeIs('ticket-sources.*') ? 'nav-link-active' : 'nav-link-inactive' }}">
-                        <i class="fas fa-link mr-2"></i>
+                        <x-icon name="link" class="w-4 h-4 mr-2" />
                         Sources
                     </a>
                 @endif
@@ -76,7 +76,7 @@
                     <input type="search" 
                            placeholder="Search tickets, events..." 
                            class="form-input pl-10 pr-4 py-2 w-64 bg-gray-50 dark:bg-gray-700 border-0 focus:ring-2 focus:ring-blue-500">
-                    <i class="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+                    <x-icon name="search" class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
                 </div>
             </div>
         @endauth
@@ -85,8 +85,9 @@
         @auth
             <div class="relative" x-data="{ notificationsOpen: false }">
                 <button @click="notificationsOpen = !notificationsOpen"
+                        aria-label="Open notifications"
                         class="relative p-2 rounded-lg text-gray-600 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700 transition-colors">
-                    <i class="fas fa-bell w-5 h-5"></i>
+                    <x-icon name="bell" class="w-5 h-5" />
                     {{-- Notification badge --}}
                     <span class="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
                         3
@@ -115,7 +116,7 @@
                             <div class="flex items-start space-x-3">
                                 <div class="flex-shrink-0">
                                     <div class="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center">
-                                        <i class="fas fa-ticket-alt text-white text-xs"></i>
+                                        <x-icon name="ticket" class="text-white text-xs w-3.5 h-3.5" />
                                     </div>
                                 </div>
                                 <div class="flex-1 min-w-0">
@@ -137,10 +138,11 @@
 
         {{-- Theme Toggle --}}
         <button @click="$dispatch('toggle-theme')" 
+                aria-label="Toggle theme"
                 class="p-2 rounded-lg text-gray-600 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700 transition-colors"
                 title="Toggle Dark Mode">
-            <i class="fas fa-moon dark:hidden w-5 h-5"></i>
-            <i class="fas fa-sun hidden dark:block w-5 h-5"></i>
+            <x-icon name="moon" class="dark:hidden w-5 h-5" />
+            <x-icon name="sun" class="hidden dark:block w-5 h-5" />
         </button>
 
         {{-- User Menu --}}
@@ -180,7 +182,7 @@
                         </div>
                     </div>
                     
-                    <i class="fas fa-chevron-down w-3 h-3"></i>
+                    <x-icon name="chevron-down" class="w-3 h-3" />
                 </button>
 
                 {{-- User Dropdown --}}
@@ -227,13 +229,13 @@
                     <div class="py-1">
                         <a href="{{ route('profile.show') }}" 
                            class="flex items-center px-4 py-3 text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-gray-700 transition-colors">
-                            <i class="fas fa-user mr-3 w-4"></i>
+                            <x-icon name="user" class="mr-3 w-4 h-4" />
                             Profile Settings
                         </a>
                         
                         <a href="{{ route('dashboard') }}" 
                            class="flex items-center px-4 py-3 text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-gray-700 transition-colors">
-                            <i class="fas fa-tachometer-alt mr-3 w-4"></i>
+                            <x-icon name="dashboard" class="mr-3 w-4 h-4" />
                             Dashboard
                         </a>
 
@@ -241,7 +243,7 @@
                             <div class="border-t border-gray-200 dark:border-gray-700 my-1"></div>
                             <a href="{{ route('admin.dashboard') }}" 
                                class="flex items-center px-4 py-3 text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-gray-700 transition-colors">
-                                <i class="fas fa-cogs mr-3 w-4"></i>
+                                <x-icon name="cog" class="mr-3 w-4 h-4" />
                                 Admin Panel
                             </a>
                         @endif
@@ -252,7 +254,7 @@
                             @csrf
                             <button type="submit" 
                                     class="flex items-center w-full text-left px-4 py-3 text-sm text-red-600 hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-900/20 transition-colors">
-                                <i class="fas fa-sign-out-alt mr-3 w-4"></i>
+                                <x-icon name="logout" class="mr-3 w-4 h-4" />
                                 Sign Out
                             </button>
                         </form>

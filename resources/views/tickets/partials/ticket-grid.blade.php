@@ -47,28 +47,21 @@
                     <div class="space-y-2 text-sm text-gray-600 mb-4">
                         @if($ticket->venue)
                             <div class="ticket-venue flex items-center">
-                                <svg class="w-4 h-4 mr-2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
-                                </svg>
+<x-icon name="map-pin" class="w-4 h-4 mr-2 text-gray-400" />
                                 {{ $ticket->venue }}
                             </div>
                         @endif
                         
                         @if($ticket->location)
                             <div class="ticket-city flex items-center">
-                                <svg class="w-4 h-4 mr-2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
-                                </svg>
+<x-icon name="building" class="w-4 h-4 mr-2 text-gray-400" />
                                 {{ $ticket->location }}
                             </div>
                         @endif
                         
                         @if($ticket->event_date)
                             <div class="ticket-date flex items-center">
-                                <svg class="w-4 h-4 mr-2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
-                                </svg>
+<x-icon name="calendar" class="w-4 h-4 mr-2 text-gray-400" />
                                 {{ \Carbon\Carbon::parse($ticket->event_date)->format('M j, Y g:i A') }}
                             </div>
                         @endif
@@ -105,10 +98,7 @@
                         
                         @if($ticket->popularity_score && $ticket->popularity_score > 50)
                             <div class="flex items-center text-xs text-gray-500">
-                                <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
-                                </svg>
+<x-icon name="eye" class="w-4 h-4 mr-1" />
                                 {{ number_format($ticket->popularity_score) }}% popular
                             </div>
                         @endif
@@ -121,9 +111,7 @@
                             <button class="bookmark-toggle text-gray-400 hover:text-yellow-500 transition-colors" 
                                     data-ticket-id="{{ $ticket->id }}"
                                     title="Bookmark this ticket">
-                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"></path>
-                                </svg>
+<x-icon name="bookmark" class="w-5 h-5" />
                             </button>
                             
                             {{-- Share Button --}}
@@ -132,9 +120,7 @@
                                     data-title="{{ $ticket->title }}"
                                     data-url="{{ url('/tickets/' . $ticket->id) }}"
                                     title="Share this ticket">
-                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.367 2.684 3 3 0 00-5.367-2.684z"></path>
-                                </svg>
+<x-icon name="share" class="w-5 h-5" />
                             </button>
                         </div>
                         
@@ -154,9 +140,7 @@
                                    class="inline-flex items-center px-3 py-1 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-md transition-colors"
                                    data-track="buy_ticket">
                                     Buy Now
-                                    <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path>
-                                    </svg>
+<x-icon name="external-link" class="w-4 h-4 ml-1" />
                                 </a>
                             @endif
                         </div>
@@ -189,16 +173,11 @@
     </div>
 @else
     {{-- No Results State --}}
-    <div class="text-center py-12" id="no-results">
-        <svg class="mx-auto w-24 h-24 text-gray-400 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.172 16.172a4 4 0 015.656 0M9 12h6m-6-4h6m2 5.291A7.962 7.962 0 0112 15c-2.34 0-4.44-1.01-5.879-2.621M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-        </svg>
-        <h3 class="text-lg font-semibold text-gray-900 mb-2">No tickets found</h3>
-        <p class="text-gray-600 mb-6">
-            We couldn't find any sports event tickets matching your current filters.
-        </p>
+    <x-ui.empty-state id="no-results"
+                      title="No tickets found"
+                      description="We couldn't find any sports event tickets matching your current filters. Try adjusting your search criteria."
+                      illustration="search-empty.svg">
         <div class="space-y-2 text-sm text-gray-500">
-            <p>Try adjusting your search criteria:</p>
             <ul class="list-disc list-inside space-y-1 max-w-md mx-auto">
                 <li>Remove some filters to see more results</li>
                 <li>Try different keywords or event names</li>
@@ -210,7 +189,7 @@
                 class="mt-6 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-md transition-colors">
             Clear All Filters
         </button>
-    </div>
+    </x-ui.empty-state>
 @endif
 
 {{-- Loading Skeleton Template (hidden by default) --}}

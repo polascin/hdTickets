@@ -43,9 +43,9 @@
                     <h3 class="text-sm font-medium text-gray-700 dark:text-gray-300">Table Options</h3>
                     
                     @if($customizable)
-                        <button type="button" 
+<button type="button" 
                                 class="reset-table-btn btn-secondary text-xs px-3 py-1 rounded-md border border-gray-300 dark:border-slate-600 hover:bg-gray-100 dark:hover:bg-slate-600 transition-colors">
-                            <i class="fas fa-undo mr-1"></i>Reset
+                            <x-icon name="undo" class="w-3.5 h-3.5 mr-1" />Reset
                         </button>
                     @endif
                 </div>
@@ -56,21 +56,21 @@
                             <input type="text" 
                                    class="global-search form-input text-xs w-48 pl-8 pr-3 py-1.5" 
                                    placeholder="{{ $searchPlaceholder }}">
-                            <i class="fas fa-search absolute left-2.5 top-1/2 transform -translate-y-1/2 text-gray-400 text-xs"></i>
+<x-icon name="search" class="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-gray-400" />
                         </div>
                     @endif
                     
                     @if($customizable)
-                        <button type="button" 
+<button type="button" 
                                 class="column-settings-btn btn-secondary text-xs px-3 py-1 rounded-md border border-gray-300 dark:border-slate-600 hover:bg-gray-100 dark:hover:bg-slate-600 transition-colors">
-                            <i class="fas fa-columns mr-1"></i>Columns
+                            <x-icon name="view-columns" class="w-3.5 h-3.5 mr-1" />Columns
                         </button>
                     @endif
                     
                     @if($exportable)
-                        <button type="button" 
+<button type="button" 
                                 class="export-table-btn btn-secondary text-xs px-3 py-1 rounded-md border border-gray-300 dark:border-slate-600 hover:bg-gray-100 dark:hover:bg-slate-600 transition-colors">
-                            <i class="fas fa-download mr-1"></i>Export
+                            <x-icon name="download" class="w-3.5 h-3.5 mr-1" />Export
                         </button>
                     @endif
                 </div>
@@ -111,8 +111,8 @@
         @elseif(empty($data))
             <!-- Empty State -->
             <div class="p-8 text-center">
-                <div class="inline-flex items-center justify-center w-12 h-12 bg-gray-100 dark:bg-slate-700 rounded-full mb-4">
-                    <i class="fas fa-table text-gray-400 dark:text-gray-500 text-xl"></i>
+<div class="inline-flex items-center justify-center w-12 h-12 bg-gray-100 dark:bg-slate-700 rounded-full mb-4">
+                    <x-icon name="table" class="text-gray-400 dark:text-gray-500 w-6 h-6" />
                 </div>
                 <h4 class="text-lg font-medium text-gray-900 dark:text-white mb-2">No Data Available</h4>
                 <p class="text-gray-500 dark:text-gray-400">{{ $emptyMessage }}</p>
@@ -140,15 +140,15 @@
                                 @if($isSortable) title="Click to sort" @endif>
                                 
                                 @if($resizable && $isResizable)
-                                    <span class="drag-handle cursor-move text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-400 mr-2 inline-block">
-                                        <i class="fas fa-grip-vertical text-xs"></i>
+<span class="drag-handle cursor-move text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-400 mr-2 inline-block">
+                                        <x-icon name="grip-vertical" class="w-3.5 h-3.5" />
                                     </span>
                                 @endif
                                 
                                 <span class="header-text">{{ $headerConfig['label'] ?? $header }}</span>
                                 
                                 @if($isSortable)
-                                    <i class="fas fa-sort sort-icon ml-2 text-gray-400 dark:text-gray-500"></i>
+<x-icon name="arrows-up-down" class="sort-icon ml-2 w-3.5 h-3.5 text-gray-400 dark:text-gray-500" />
                                 @endif
                                 
                                 @if($resizable && $isResizable)

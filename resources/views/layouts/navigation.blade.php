@@ -17,9 +17,6 @@
 @endphp
 
 
-{{-- Include Accessibility CSS --}}
-<link rel="stylesheet" href="{{ asset('css/accessibility.css') }}">
-<script src="{{ asset('js/accessibility.js') }}" defer></script>
 
 <nav x-data="navigationData()" x-init="console.log('🔧 Navigation initialized:', $data)" class="bg-white border-b border-gray-200 shadow-sm sticky top-0 z-header"
   :class="{ 'nav-scrolled': isScrolled }" role="banner" aria-label="Primary navigation" id="main-navigation">
@@ -42,93 +39,58 @@
         <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex items-center desktop-nav-links" role="navigation" aria-label="Main menu">
           <div role="menubar" aria-label="Primary navigation menu" class="flex space-x-8 items-center">
             {{-- Dashboard Link - Available to all users --}}
-            <x-nav-link :href="route('dashboard')" :active="Request::routeIs('dashboard')" role="menuitem" class="nav-link"
+<x-nav-link :href="route('dashboard')" :active="Request::routeIs('dashboard')" role="menuitem" class="nav-link"
               aria-describedby="dashboard-desc" tabindex="0">
-              <svg class="w-4 h-4 mr-2 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24"
-                aria-hidden="true" focusable="false">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                  d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2H5a2 2 0 00-2-2v0"></path>
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                  d="M8 5a2 2 0 012-2h4a2 2 0 012 2v0M8 5a2 2 0 012-2h4a2 2 0 012 2v0"></path>
-              </svg>
+              <x-icon name="dashboard" class="w-4 h-4 mr-2 inline" />
               <span>{{ __('Dashboard') }}</span>
               <span id="dashboard-desc" class="sr-only">Navigate to main dashboard</span>
             </x-nav-link>
 
           @if (Auth::check() && (Auth::user()->isAdmin() || Auth::user()->isAgent()))
             {{-- Sports Tickets --}}
-            <x-nav-link :href="route('tickets.scraping.index')" :active="Request::routeIs('tickets.scraping.*')" role="menuitem" class="nav-link"
+<x-nav-link :href="route('tickets.scraping.index')" :active="Request::routeIs('tickets.scraping.*')" role="menuitem" class="nav-link"
               aria-describedby="sports-tickets-desc" tabindex="0">
-              <svg class="w-4 h-4 mr-2 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24"
-                aria-hidden="true" focusable="false">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                  d="M15 5v2m0 4v2m0 4v2M5 5a2 2 0 00-2 2v3a1 1 0 001 1h1a1 1 0 001-1V7a2 2 0 00-2-2H5zM5 14a2 2 0 00-2 2v3a1 1 0 001 1h1a1 1 0 001-1v-3a2 2 0 00-2-2H5z">
-                </path>
-              </svg>
+              <x-icon name="ticket" class="w-4 h-4 mr-2 inline" />
               <span>{{ __('Sports Tickets') }}</span>
               <span id="sports-tickets-desc" class="sr-only">Browse and monitor sports event tickets</span>
             </x-nav-link>
 
             {{-- Ticket Monitoring & Alerts --}}
-            <x-nav-link :href="route('monitoring.index')" :active="Request::routeIs('monitoring.*')" role="menuitem" class="nav-link"
+<x-nav-link :href="route('monitoring.index')" :active="Request::routeIs('monitoring.*')" role="menuitem" class="nav-link"
               aria-describedby="monitoring-desc" tabindex="0">
-              <svg class="w-4 h-4 mr-2 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24"
-                aria-hidden="true" focusable="false">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                  d="M13 7h8m0 0v8m0-8l-8 8-4-4-4 4"></path>
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                  d="M9 12l2 2 4-4"></path>
-              </svg>
+              <x-icon name="monitoring" class="w-4 h-4 mr-2 inline" />
               <span>{{ __('Monitoring') }}</span>
               <span id="monitoring-desc" class="sr-only">Monitor ticket prices and manage intelligent alerts</span>
             </x-nav-link>
 
             {{-- Purchase Queue --}}
-            <x-nav-link :href="route('purchase-decisions.index')" :active="Request::routeIs('purchase-decisions.*')" role="menuitem" class="nav-link"
+<x-nav-link :href="route('purchase-decisions.index')" :active="Request::routeIs('purchase-decisions.*')" role="menuitem" class="nav-link"
               aria-describedby="queue-desc" tabindex="0">
-              <svg class="w-4 h-4 mr-2 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24"
-                aria-hidden="true" focusable="false">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                  d="M3 3h2l.4 2M7 13h10l4-8H5.4m0 0L7 13m0 0l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17M17 13a2 2 0 100 4 2 2 0 000-4zm-8 4a2 2 0 11-4 0 2 2 0 014 0z">
-                </path>
-              </svg>
+              <x-icon name="queue" class="w-4 h-4 mr-2 inline" />
               <span>{{ __('Purchase Queue') }}</span>
               <span id="queue-desc" class="sr-only">View and manage your ticket purchase queue</span>
             </x-nav-link>
 
             {{-- Ticket Sources --}}
-            <x-nav-link :href="route('ticket-sources.index')" :active="Request::routeIs('ticket-sources.*')" role="menuitem" class="nav-link"
+<x-nav-link :href="route('ticket-sources.index')" :active="Request::routeIs('ticket-sources.*')" role="menuitem" class="nav-link"
               aria-describedby="sources-desc" tabindex="0">
-              <svg class="w-4 h-4 mr-2 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24"
-                aria-hidden="true" focusable="false">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                  d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1">
-                </path>
-              </svg>
+              <x-icon name="sources" class="w-4 h-4 mr-2 inline" />
               <span>{{ __('Sources') }}</span>
               <span id="sources-desc" class="sr-only">Manage ticket sources and scraping configurations</span>
             </x-nav-link>
           @endif
 
           {{-- Personal Analytics --}}
-          <x-nav-link :href="route('dashboard.analytics')" :active="Request::routeIs('dashboard.analytics')" role="menuitem" class="nav-link"
+<x-nav-link :href="route('dashboard.analytics')" :active="Request::routeIs('dashboard.analytics')" role="menuitem" class="nav-link"
             aria-describedby="analytics-desc" tabindex="0">
-            <svg class="w-4 h-4 mr-2 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24"
-              aria-hidden="true" focusable="false">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
-            </svg>
+            <x-icon name="analytics" class="w-4 h-4 mr-2 inline" />
             <span>{{ __('Analytics') }}</span>
             <span id="analytics-desc" class="sr-only">View your personal analytics and insights</span>
           </x-nav-link>
 
           {{-- Profile Link with Completion Indicator - Available to all users --}}
-          <x-nav-link :href="route('profile.show')" :active="Request::routeIs('profile.*')" class="relative nav-link" role="menuitem">
-            <svg class="w-4 h-4 mr-2 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24"
-              aria-hidden="true">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
-            </svg>
+<x-nav-link :href="route('profile.show')" :active="Request::routeIs('profile.*')" class="relative nav-link" role="menuitem">
+            <x-icon name="user" class="w-4 h-4 mr-2 inline" />
             <span>{{ __('Profile') }}</span>
 
             {{-- Profile completion indicator --}}

@@ -48,6 +48,32 @@ class AdvancedRBACService
     }
 
     /**
+     * Check if a user has any of the given roles.
+     */
+    public function hasAnyRole(User $user, array $roles): bool
+    {
+        // Direct role attribute check (common in this codebase)
+        if ($user->role && in_array($user->role, $roles, TRUE)) {
+            return TRUE;
+        }
+
+        // Relationship-based roles (if available)
+        try {
+            $userRoles = method_exists($user, 'roles') ? $user->roles->pluck('name')->all() : [];
+        } catch (\Throwable $e) {
+            $userRoles = [];
+        }
+
+        foreach ($roles as $role) {
+            if (in_array($role, $userRoles, TRUE)) {
+                return TRUE;
+            }
+        }
+
+        return FALSE;
+    }
+
+    /**
      * Check if user has permission for specific action and resource
      */
     public function hasPermission(User $user, string $permission, ?string $resource = NULL, array $context = []): bool

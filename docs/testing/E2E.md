@@ -29,9 +29,8 @@ Artifacts
 - Screenshots: `tests/e2e/screenshots/`
 - Traces on failure are retained; you can open them with `npx playwright show-trace <trace.zip>`
 
-CI
-- `.github/workflows/e2e.yml` runs on push/PR to `main`.
-- Secrets used: `E2E_EMAIL`, `E2E_PASSWORD` (optional).
+Automation
+- No hosted CI workflows are configured. Run E2E tests locally with `npm run e2e`.
 
 Tips
 - Set `E2E_BASE_URL` if your dev server runs on a different host/port.

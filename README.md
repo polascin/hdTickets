@@ -308,7 +308,7 @@ We welcome contributions to improve the HD Tickets platform:
 - Use TypeScript for all new JavaScript code
 - Write comprehensive test coverage for new features
 - Follow semantic commit message conventions
-- Ensure all CI/CD checks pass before merging
+- Ensure all local checks pass before merging (e.g., make full-check)
 
 ## 📄 License
 

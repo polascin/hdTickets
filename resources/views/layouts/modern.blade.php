@@ -19,14 +19,9 @@
     <!-- Preload Critical Resources -->
     <link rel="preconnect" href="https://fonts.bunny.net" crossorigin>
     <link rel="preload" href="https://fonts.bunny.net/css?family=inter:400,500,600,700&display=swap" as="style">
-    <link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
-      as="style">
 
     <!-- Fonts -->
     <link href="https://fonts.bunny.net/css?family=inter:400,500,600,700&display=swap" rel="stylesheet">
-
-    <!-- Font Awesome -->
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
 
     <!-- PWA Manifest -->
     <link rel="manifest" href="{{ asset('manifest.json') }}">
@@ -34,8 +29,6 @@
     <!-- Main Assets -->
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 
-    <!-- UI Enhancement Scripts -->
-    <script src="{{ asset('js/ui-enhancements.js') }}" defer></script>
 
     <!-- Custom Styles with Timestamp -->
     @stack('styles')
@@ -173,7 +166,7 @@
             <div class="bg-green-50 dark:bg-green-900 border border-green-200 dark:border-green-700 rounded-md p-4">
               <div class="flex">
                 <div class="flex-shrink-0">
-                  <i class="fas fa-check-circle text-green-400"></i>
+                  <x-icon name="check-circle" class="text-green-400 w-5 h-5" />
                 </div>
                 <div class="ml-3">
                   <p class="text-sm font-medium text-green-800 dark:text-green-200">
@@ -181,8 +174,8 @@
                   </p>
                 </div>
                 <div class="ml-auto pl-3">
-                  <button @click="show = false" class="text-green-400 hover:text-green-600">
-                    <i class="fas fa-times"></i>
+                  <button @click="show = false" class="text-green-400 hover:text-green-600" aria-label="Dismiss">
+                    <x-icon name="x" class="w-4 h-4" />
                   </button>
                 </div>
               </div>
@@ -195,7 +188,7 @@
             <div class="bg-red-50 dark:bg-red-900 border border-red-200 dark:border-red-700 rounded-md p-4">
               <div class="flex">
                 <div class="flex-shrink-0">
-                  <i class="fas fa-exclamation-circle text-red-400"></i>
+                  <x-icon name="warning" class="text-red-400 w-5 h-5" />
                 </div>
                 <div class="ml-3">
                   <p class="text-sm font-medium text-red-800 dark:text-red-200">
@@ -203,8 +196,8 @@
                   </p>
                 </div>
                 <div class="ml-auto pl-3">
-                  <button @click="show = false" class="text-red-400 hover:text-red-600">
-                    <i class="fas fa-times"></i>
+                  <button @click="show = false" class="text-red-400 hover:text-red-600" aria-label="Dismiss">
+                    <x-icon name="x" class="w-4 h-4" />
                   </button>
                 </div>
               </div>

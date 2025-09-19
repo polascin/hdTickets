@@ -860,7 +860,7 @@ This comprehensive checklist ensures the HD Tickets sports events entry tickets 
 - [ ] Document any remediation needed
 
 ### Continuous Monitoring
-- [ ] Automated tests in CI/CD pipeline
+- [ ] Automated tests in local workflow
 - [ ] User feedback collection for accessibility issues
 - [ ] Regular browser compatibility testing
 - [ ] Monitor assistive technology updates

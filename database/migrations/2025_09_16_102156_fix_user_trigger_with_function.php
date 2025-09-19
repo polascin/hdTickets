@@ -15,7 +15,8 @@ return new class extends Migration
         // Drop the existing problematic trigger
         DB::statement('DROP TRIGGER IF EXISTS log_user_changes');
         
-        // Create a stored function to get next aggregate version
+        // Ensure function is dropped then create a stored function to get next aggregate version
+        DB::statement('DROP FUNCTION IF EXISTS GetNextAggregateVersion');
         DB::statement('
             CREATE FUNCTION GetNextAggregateVersion(p_aggregate_type VARCHAR(100), p_aggregate_id VARCHAR(100))
             RETURNS BIGINT UNSIGNED

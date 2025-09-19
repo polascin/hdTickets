@@ -122,6 +122,14 @@
   opacity: .75;
 }
 
+/* Ensure inline SVGs inside nav icons don’t overflow and keep a square proportion */
+.uiv2-nav__icon svg {
+  width: 18px;
+  height: 18px;
+  display: block;
+  flex-shrink: 0;
+}
+
 .uiv2-header {
   height: 56px;
   background: #ffffff;

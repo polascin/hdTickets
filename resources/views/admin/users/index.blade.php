@@ -1,4 +1,4 @@
-@extends('layouts.modern')
+@extends('layouts.app-v2')
 
 @section('title', 'User Management')
 @section('description', 'Manage users, roles, and permissions in the Sports Events Tickets platform')

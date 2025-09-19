@@ -6,6 +6,7 @@ use App\Http\Middleware\TicketPurchaseValidationMiddleware;
 use App\Models\Ticket;
 use App\Models\User;
 use App\Models\UserSubscription;
+use App\Models\PaymentPlan;
 use App\Services\TicketPurchaseService;
 use Exception;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -32,24 +33,26 @@ class TicketPurchaseValidationMiddlewareTest extends TestCase
     #[Test]
     public function it_allows_purchase_for_customer_with_active_subscription(): void
     {
-        // Create active subscription
+        // Create active subscription with a valid payment plan
+        $plan = PaymentPlan::factory()->create(['max_tickets_per_month' => 100]);
         UserSubscription::create([
-            'user_id'      => $this->customerUser->id,
-            'status'       => 'active',
-            'starts_at'    => now()->subDay(),
-            'ends_at'      => now()->addMonth(),
-            'ticket_limit' => 100,
+            'user_id'         => $this->customerUser->id,
+            'payment_plan_id' => $plan->id,
+            'status'          => 'active',
+            'starts_at'       => now()->subDay(),
+            'ends_at'         => now()->addMonth(),
         ]);
 
         $request = Request::create('/tickets/' . $this->ticket->id . '/purchase', 'POST', [
-            'quantity' => 2,
+            'quantity'  => 2,
+            'ticket_id' => $this->ticket->id,
         ]);
         $request->setUserResolver(fn (): User => $this->customerUser);
-        $request->route()->setParameter('ticket', $this->ticket);
+        $request->headers->set('Accept', 'application/json');
 
         $response = $this->middleware->handle($request, fn ($req): Response => new Response('Purchase allowed', 200));
 
-        $this->assertEquals(200, $response->getStatusCode());
+        $this->assertEquals(200, $response->getStatusCode(), $response->getContent());
         $this->assertEquals('Purchase allowed', $response->getContent());
     }
 
@@ -57,10 +60,11 @@ class TicketPurchaseValidationMiddlewareTest extends TestCase
     public function it_blocks_purchase_for_customer_without_active_subscription(): void
     {
         $request = Request::create('/tickets/' . $this->ticket->id . '/purchase', 'POST', [
-            'quantity' => 1,
+            'quantity'  => 1,
+            'ticket_id' => $this->ticket->id,
         ]);
         $request->setUserResolver(fn (): User => $this->customerUser);
-        $request->route()->setParameter('ticket', $this->ticket);
+        $request->headers->set('Accept', 'application/json');
 
         $response = $this->middleware->handle($request, fn ($req): Response => new Response('Should not reach here', 200));
 
@@ -75,34 +79,37 @@ class TicketPurchaseValidationMiddlewareTest extends TestCase
     public function it_allows_unlimited_purchases_for_agent(): void
     {
         $request = Request::create('/tickets/' . $this->ticket->id . '/purchase', 'POST', [
-            'quantity' => 50,  // Large quantity
+            'quantity'  => 50,  // Large quantity
+            'ticket_id' => $this->ticket->id,
         ]);
         $request->setUserResolver(fn (): User => $this->agentUser);
-        $request->route()->setParameter('ticket', $this->ticket);
+        $request->headers->set('Accept', 'application/json');
 
         $response = $this->middleware->handle($request, fn ($req): Response => new Response('Agent purchase allowed', 200));
 
-        $this->assertEquals(200, $response->getStatusCode());
+        $this->assertEquals(200, $response->getStatusCode(), $response->getContent());
         $this->assertEquals('Agent purchase allowed', $response->getContent());
     }
 
     #[Test]
     public function it_blocks_purchase_when_exceeding_ticket_limit(): void
     {
-        // Create subscription with low limit
+        // Create subscription with low limit via payment plan
+        $plan = PaymentPlan::factory()->create(['max_tickets_per_month' => 3]);
         UserSubscription::create([
-            'user_id'      => $this->customerUser->id,
-            'status'       => 'active',
-            'starts_at'    => now()->subDay(),
-            'ends_at'      => now()->addMonth(),
-            'ticket_limit' => 3,
+            'user_id'         => $this->customerUser->id,
+            'payment_plan_id' => $plan->id,
+            'status'          => 'active',
+            'starts_at'       => now()->subDay(),
+            'ends_at'         => now()->addMonth(),
         ]);
 
         $request = Request::create('/tickets/' . $this->ticket->id . '/purchase', 'POST', [
-            'quantity' => 5,  // Exceeds limit
+            'quantity'  => 5,  // Exceeds limit
+            'ticket_id' => $this->ticket->id,
         ]);
         $request->setUserResolver(fn (): User => $this->customerUser);
-        $request->route()->setParameter('ticket', $this->ticket);
+        $request->headers->set('Accept', 'application/json');
 
         $response = $this->middleware->handle($request, fn ($req): Response => new Response('Should not reach here', 200));
 
@@ -118,19 +125,21 @@ class TicketPurchaseValidationMiddlewareTest extends TestCase
     {
         $unavailableTicket = $this->createTestTicket(['is_available' => FALSE]);
 
+        $plan = PaymentPlan::factory()->create(['max_tickets_per_month' => 100]);
         UserSubscription::create([
-            'user_id'      => $this->customerUser->id,
-            'status'       => 'active',
-            'starts_at'    => now()->subDay(),
-            'ends_at'      => now()->addMonth(),
-            'ticket_limit' => 100,
+            'user_id'         => $this->customerUser->id,
+            'payment_plan_id' => $plan->id,
+            'status'          => 'active',
+            'starts_at'       => now()->subDay(),
+            'ends_at'         => now()->addMonth(),
         ]);
 
         $request = Request::create('/tickets/' . $unavailableTicket->id . '/purchase', 'POST', [
-            'quantity' => 1,
+            'quantity'  => 1,
+            'ticket_id' => $unavailableTicket->id,
         ]);
         $request->setUserResolver(fn (): User => $this->customerUser);
-        $request->route()->setParameter('ticket', $unavailableTicket);
+        $request->headers->set('Accept', 'application/json');
 
         $response = $this->middleware->handle($request, fn ($req): Response => new Response('Should not reach here', 200));
 
@@ -149,19 +158,21 @@ class TicketPurchaseValidationMiddlewareTest extends TestCase
             'is_available'       => TRUE,
         ]);
 
+        $plan = PaymentPlan::factory()->create(['max_tickets_per_month' => 100]);
         UserSubscription::create([
-            'user_id'      => $this->customerUser->id,
-            'status'       => 'active',
-            'starts_at'    => now()->subDay(),
-            'ends_at'      => now()->addMonth(),
-            'ticket_limit' => 100,
+            'user_id'         => $this->customerUser->id,
+            'payment_plan_id' => $plan->id,
+            'status'          => 'active',
+            'starts_at'       => now()->subDay(),
+            'ends_at'         => now()->addMonth(),
         ]);
 
         $request = Request::create('/tickets/' . $limitedTicket->id . '/purchase', 'POST', [
-            'quantity' => 5,  // More than available
+            'quantity'  => 5,  // More than available
+            'ticket_id' => $limitedTicket->id,
         ]);
         $request->setUserResolver(fn (): User => $this->customerUser);
-        $request->route()->setParameter('ticket', $limitedTicket);
+        $request->headers->set('Accept', 'application/json');
 
         $response = $this->middleware->handle($request, fn ($req): Response => new Response('Should not reach here', 200));
 
@@ -175,17 +186,20 @@ class TicketPurchaseValidationMiddlewareTest extends TestCase
     #[Test]
     public function it_handles_missing_quantity_parameter(): void
     {
+        $plan = PaymentPlan::factory()->create(['max_tickets_per_month' => 100]);
         UserSubscription::create([
-            'user_id'      => $this->customerUser->id,
-            'status'       => 'active',
-            'starts_at'    => now()->subDay(),
-            'ends_at'      => now()->addMonth(),
-            'ticket_limit' => 100,
+            'user_id'         => $this->customerUser->id,
+            'payment_plan_id' => $plan->id,
+            'status'          => 'active',
+            'starts_at'       => now()->subDay(),
+            'ends_at'         => now()->addMonth(),
         ]);
 
-        $request = Request::create('/tickets/' . $this->ticket->id . '/purchase', 'POST');
+        $request = Request::create('/tickets/' . $this->ticket->id . '/purchase', 'POST', [
+            'ticket_id' => $this->ticket->id,
+        ]);
         $request->setUserResolver(fn (): User => $this->customerUser);
-        $request->route()->setParameter('ticket', $this->ticket);
+        $request->headers->set('Accept', 'application/json');
 
         $response = $this->middleware->handle($request, fn ($req): Response => new Response('Should not reach here', 200));
 
@@ -199,19 +213,21 @@ class TicketPurchaseValidationMiddlewareTest extends TestCase
     #[Test]
     public function it_handles_invalid_quantity_parameter(): void
     {
+        $plan = PaymentPlan::factory()->create(['max_tickets_per_month' => 100]);
         UserSubscription::create([
-            'user_id'      => $this->customerUser->id,
-            'status'       => 'active',
-            'starts_at'    => now()->subDay(),
-            'ends_at'      => now()->addMonth(),
-            'ticket_limit' => 100,
+            'user_id'         => $this->customerUser->id,
+            'payment_plan_id' => $plan->id,
+            'status'          => 'active',
+            'starts_at'       => now()->subDay(),
+            'ends_at'         => now()->addMonth(),
         ]);
 
         $request = Request::create('/tickets/' . $this->ticket->id . '/purchase', 'POST', [
-            'quantity' => 'invalid',
+            'quantity'  => 'invalid',
+            'ticket_id' => $this->ticket->id,
         ]);
         $request->setUserResolver(fn (): User => $this->customerUser);
-        $request->route()->setParameter('ticket', $this->ticket);
+        $request->headers->set('Accept', 'application/json');
 
         $response = $this->middleware->handle($request, fn ($req): Response => new Response('Should not reach here', 200));
 
@@ -225,19 +241,21 @@ class TicketPurchaseValidationMiddlewareTest extends TestCase
     #[Test]
     public function it_handles_zero_quantity(): void
     {
+        $plan = PaymentPlan::factory()->create(['max_tickets_per_month' => 100]);
         UserSubscription::create([
-            'user_id'      => $this->customerUser->id,
-            'status'       => 'active',
-            'starts_at'    => now()->subDay(),
-            'ends_at'      => now()->addMonth(),
-            'ticket_limit' => 100,
+            'user_id'         => $this->customerUser->id,
+            'payment_plan_id' => $plan->id,
+            'status'          => 'active',
+            'starts_at'       => now()->subDay(),
+            'ends_at'         => now()->addMonth(),
         ]);
 
         $request = Request::create('/tickets/' . $this->ticket->id . '/purchase', 'POST', [
-            'quantity' => 0,
+            'quantity'  => 0,
+            'ticket_id' => $this->ticket->id,
         ]);
         $request->setUserResolver(fn (): User => $this->customerUser);
-        $request->route()->setParameter('ticket', $this->ticket);
+        $request->headers->set('Accept', 'application/json');
 
         $response = $this->middleware->handle($request, fn ($req): Response => new Response('Should not reach here', 200));
 
@@ -257,6 +275,7 @@ class TicketPurchaseValidationMiddlewareTest extends TestCase
         $request->setUserResolver(fn (): User => $this->customerUser);
         // Not setting ticket parameter to simulate missing ticket
 
+        $request->headers->set('Accept', 'application/json');
         $response = $this->middleware->handle($request, fn ($req): Response => new Response('Should not reach here', 200));
 
         $this->assertEquals(HttpResponse::HTTP_NOT_FOUND, $response->getStatusCode());
@@ -270,12 +289,13 @@ class TicketPurchaseValidationMiddlewareTest extends TestCase
     public function it_handles_unauthenticated_user(): void
     {
         $request = Request::create('/tickets/' . $this->ticket->id . '/purchase', 'POST', [
-            'quantity' => 1,
+            'quantity'  => 1,
+            'ticket_id' => $this->ticket->id,
         ]);
         $request->setUserResolver(function (): void {
             // No authenticated user
         });
-        $request->route()->setParameter('ticket', $this->ticket);
+        $request->headers->set('Accept', 'application/json');
 
         $response = $this->middleware->handle($request, fn ($req): Response => new Response('Should not reach here', 200));
 
@@ -289,19 +309,21 @@ class TicketPurchaseValidationMiddlewareTest extends TestCase
     #[Test]
     public function it_provides_eligibility_information_in_response(): void
     {
+        $plan = PaymentPlan::factory()->create(['max_tickets_per_month' => 50]);
         UserSubscription::create([
-            'user_id'      => $this->customerUser->id,
-            'status'       => 'active',
-            'starts_at'    => now()->subDay(),
-            'ends_at'      => now()->addMonth(),
-            'ticket_limit' => 50,
+            'user_id'         => $this->customerUser->id,
+            'payment_plan_id' => $plan->id,
+            'status'          => 'active',
+            'starts_at'       => now()->subDay(),
+            'ends_at'         => now()->addMonth(),
         ]);
 
         $request = Request::create('/tickets/' . $this->ticket->id . '/purchase', 'POST', [
-            'quantity' => 60,  // Exceeds limit
+            'quantity'  => 60,  // Exceeds limit
+            'ticket_id' => $this->ticket->id,
         ]);
         $request->setUserResolver(fn (): User => $this->customerUser);
-        $request->route()->setParameter('ticket', $this->ticket);
+        $request->headers->set('Accept', 'application/json');
 
         $response = $this->middleware->handle($request, fn ($req): Response => new Response('Should not reach here', 200));
 
@@ -326,10 +348,11 @@ class TicketPurchaseValidationMiddlewareTest extends TestCase
         config(['subscription.free_access_days' => 7]);
 
         $request = Request::create('/tickets/' . $this->ticket->id . '/purchase', 'POST', [
-            'quantity' => 1,
+            'quantity'  => 1,
+            'ticket_id' => $this->ticket->id,
         ]);
         $request->setUserResolver(fn (): User => $newCustomer);
-        $request->route()->setParameter('ticket', $this->ticket);
+        $request->headers->set('Accept', 'application/json');
 
         $response = $this->middleware->handle($request, fn ($req): Response => new Response('Free access purchase allowed', 200));
 
@@ -348,10 +371,11 @@ class TicketPurchaseValidationMiddlewareTest extends TestCase
         config(['subscription.free_access_days' => 7]);
 
         $request = Request::create('/tickets/' . $this->ticket->id . '/purchase', 'POST', [
-            'quantity' => 1,
+            'quantity'  => 1,
+            'ticket_id' => $this->ticket->id,
         ]);
         $request->setUserResolver(fn (): User => $oldCustomer);
-        $request->route()->setParameter('ticket', $this->ticket);
+        $request->headers->set('Accept', 'application/json');
 
         $response = $this->middleware->handle($request, fn ($req): Response => new Response('Should not reach here', 200));
 
@@ -360,6 +384,7 @@ class TicketPurchaseValidationMiddlewareTest extends TestCase
         $responseData = json_decode($response->getContent(), TRUE);
         $this->assertFalse($responseData['success']);
         $this->assertContains('Active subscription required', $responseData['reasons']);
+        $this->assertEquals('An active subscription is required to purchase tickets.', $responseData['message']);
     }
 
     #[Test]
@@ -373,10 +398,11 @@ class TicketPurchaseValidationMiddlewareTest extends TestCase
         $middleware = new TicketPurchaseValidationMiddleware($mockService);
 
         $request = Request::create('/tickets/' . $this->ticket->id . '/purchase', 'POST', [
-            'quantity' => 1,
+            'quantity'  => 1,
+            'ticket_id' => $this->ticket->id,
         ]);
         $request->setUserResolver(fn (): User => $this->customerUser);
-        $request->route()->setParameter('ticket', $this->ticket);
+        $request->headers->set('Accept', 'application/json');
 
         $response = $middleware->handle($request, fn ($req): Response => new Response('Should not reach here', 200));
 

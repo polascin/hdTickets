@@ -165,15 +165,13 @@
                                             </div>
                                         </div>
 
-                                        <div class="flex items-center text-sm text-gray-500">
-                                            <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                                            </svg>
-                                            Created {{ $alert->created_at->diffForHumans() }}
-                                            @if($alert->last_checked_at)
-                                                • Last checked {{ $alert->last_checked_at->diffForHumans() }}
-                                            @endif
-                                        </div>
+                        <div class="flex items-center text-sm text-gray-500">
+                            <x-icon name="clock" class="w-4 h-4 mr-1" />
+                            Created {{ $alert->created_at->diffForHumans() }}
+                            @if($alert->last_checked_at)
+                                • Last checked {{ $alert->last_checked_at->diffForHumans() }}
+                            @endif
+                        </div>
                                     </div>
 
                                     <!-- Actions -->
@@ -199,21 +197,13 @@
                         {{ $alerts->links() }}
                     </div>
                 @else
-                    <div class="text-center py-12">
-                        <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-5 5v-5zM9 12l2 2 4-4m5-7a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                        </svg>
-                        <h3 class="mt-2 text-sm font-medium text-gray-900">No alerts yet</h3>
-                        <p class="mt-1 text-sm text-gray-500">Create your first ticket alert to get notified when tickets matching your criteria become available.</p>
-                        <div class="mt-6">
-                            <button id="createFirstAlertBtn" class="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500">
-                                <svg class="-ml-1 mr-2 h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-5 5v-5zM12 17H7a3 3 0 01-3-3V5a3 3 0 013-3h5"></path>
-                                </svg>
-                                Create Your First Alert
-                            </button>
-                        </div>
-                    </div>
+                    <x-ui.empty-state title="No alerts yet"
+                                      description="Create your first ticket alert to get notified when tickets matching your criteria become available."
+                                      illustration="ticket.svg">
+                        <button id="createFirstAlertBtn" class="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500">
+                            Create Your First Alert
+                        </button>
+                    </x-ui.empty-state>
                 @endif
             </div>
         </div>
