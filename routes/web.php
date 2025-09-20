@@ -64,6 +64,7 @@ use App\Http\Middleware\CustomerMiddleware;
 use App\Http\Middleware\ScraperMiddleware;
 use App\Models\User;
 use App\Services\AnalyticsService;
+use App\Services\Dashboard\DashboardCacheService;
 use App\Services\RecommendationService;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -443,9 +444,6 @@ Route::get('/tickets', function () {
 // Legacy redirect for backwards compatibility
 Route::middleware(['auth', 'verified'])->group(function (): void {
     Route::get('/tickets-legacy', fn () => redirect()->route('tickets.scraping.index'))->name('tickets.redirect');
-
-    // Temporary test route for debugging dashboard and navigation
-    Route::get('/dashboard-test', fn () => view('dashboard-test'))->name('dashboard.test');
 });
 
 Route::middleware(['auth', 'verified'])->group(function (): void {
@@ -753,6 +751,7 @@ Route::middleware(['auth', 'verified'])->group(function (): void {
 require __DIR__ . '/auth.php';
 require __DIR__ . '/admin.php';
 
+// Temporary test route for verifying dashboard functionality (REMOVE IN PRODUCTION)
 Route::get('/dashboard-test', function () {
     $user = User::where('email', 'admin@hdtickets.local')->first();
     if (!$user) {
@@ -764,7 +763,8 @@ Route::get('/dashboard-test', function () {
     try {
         $analytics = app(AnalyticsService::class);
         $recommendations = app(RecommendationService::class);
-        $controller = new EnhancedDashboardController($analytics, $recommendations);
+        $cacheService = app(DashboardCacheService::class);
+        $controller = new EnhancedDashboardController($analytics, $recommendations, $cacheService);
 
         return $controller->index();
     } catch (Exception $e) {
