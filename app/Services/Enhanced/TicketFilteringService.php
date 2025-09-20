@@ -246,6 +246,7 @@ class TicketFilteringService
 
         return $this;
     }
+
     /**
      * Filter by league
      */

@@ -6,11 +6,16 @@ use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
+use Throwable;
+
+use function get_class;
 
 class DashboardException extends Exception
 {
     protected array $context;
+
     protected string $userMessage;
+
     protected int $statusCode;
 
     public function __construct(
@@ -18,10 +23,10 @@ class DashboardException extends Exception
         string $userMessage = 'Unable to load dashboard data',
         int $statusCode = 500,
         array $context = [],
-        ?\Throwable $previous = null
+        ?Throwable $previous = NULL,
     ) {
         parent::__construct($message, 0, $previous);
-        
+
         $this->userMessage = $userMessage;
         $this->statusCode = $statusCode;
         $this->context = $context;
@@ -30,28 +35,28 @@ class DashboardException extends Exception
     /**
      * Create exception for data retrieval errors
      */
-    public static function dataRetrievalFailed(string $dataType, ?\Throwable $previous = null, array $context = []): self
+    public static function dataRetrievalFailed(string $dataType, ?Throwable $previous = NULL, array $context = []): self
     {
         return new self(
             message: "Failed to retrieve {$dataType} data",
             userMessage: "Unable to load {$dataType}. Please try again later.",
             statusCode: 503,
             context: array_merge(['data_type' => $dataType], $context),
-            previous: $previous
+            previous: $previous,
         );
     }
 
     /**
      * Create exception for cache errors
      */
-    public static function cacheError(string $operation, ?\Throwable $previous = null, array $context = []): self
+    public static function cacheError(string $operation, ?Throwable $previous = NULL, array $context = []): self
     {
         return new self(
             message: "Cache {$operation} operation failed",
-            userMessage: "Service temporarily unavailable. Please refresh the page.",
+            userMessage: 'Service temporarily unavailable. Please refresh the page.',
             statusCode: 503,
             context: array_merge(['cache_operation' => $operation], $context),
-            previous: $previous
+            previous: $previous,
         );
     }
 
@@ -61,10 +66,10 @@ class DashboardException extends Exception
     public static function authenticationRequired(): self
     {
         return new self(
-            message: "Dashboard access requires authentication",
-            userMessage: "Please log in to access the dashboard.",
+            message: 'Dashboard access requires authentication',
+            userMessage: 'Please log in to access the dashboard.',
             statusCode: 401,
-            context: ['authentication' => 'required']
+            context: ['authentication' => 'required'],
         );
     }
 
@@ -74,38 +79,38 @@ class DashboardException extends Exception
     public static function insufficientPermissions(string $requiredRole, array $context = []): self
     {
         return new self(
-            message: "Insufficient permissions for dashboard access",
+            message: 'Insufficient permissions for dashboard access',
             userMessage: "You don't have permission to access this dashboard.",
             statusCode: 403,
-            context: array_merge(['required_role' => $requiredRole], $context)
+            context: array_merge(['required_role' => $requiredRole], $context),
         );
     }
 
     /**
      * Create exception for API errors
      */
-    public static function apiError(string $endpoint, ?\Throwable $previous = null, array $context = []): self
+    public static function apiError(string $endpoint, ?Throwable $previous = NULL, array $context = []): self
     {
         return new self(
             message: "API request to {$endpoint} failed",
-            userMessage: "Unable to load real-time data. Please try again.",
+            userMessage: 'Unable to load real-time data. Please try again.',
             statusCode: 502,
             context: array_merge(['api_endpoint' => $endpoint], $context),
-            previous: $previous
+            previous: $previous,
         );
     }
 
     /**
      * Create exception for database errors
      */
-    public static function databaseError(string $operation, ?\Throwable $previous = null, array $context = []): self
+    public static function databaseError(string $operation, ?Throwable $previous = NULL, array $context = []): self
     {
         return new self(
             message: "Database {$operation} operation failed",
-            userMessage: "Data temporarily unavailable. Please try again later.",
+            userMessage: 'Data temporarily unavailable. Please try again later.',
             statusCode: 503,
             context: array_merge(['database_operation' => $operation], $context),
-            previous: $previous
+            previous: $previous,
         );
     }
 
@@ -139,11 +144,11 @@ class DashboardException extends Exception
     public function report(): void
     {
         Log::error($this->getMessage(), [
-            'exception' => get_class($this),
-            'status_code' => $this->statusCode,
+            'exception'    => get_class($this),
+            'status_code'  => $this->statusCode,
             'user_message' => $this->userMessage,
-            'context' => $this->context,
-            'trace' => $this->getTraceAsString(),
+            'context'      => $this->context,
+            'trace'        => $this->getTraceAsString(),
         ]);
     }
 
@@ -154,17 +159,17 @@ class DashboardException extends Exception
     {
         if ($request->expectsJson() || $request->is('api/*')) {
             return response()->json([
-                'success' => false,
-                'error' => $this->userMessage,
-                'message' => $this->userMessage,
-                'code' => $this->statusCode,
+                'success'   => FALSE,
+                'error'     => $this->userMessage,
+                'message'   => $this->userMessage,
+                'code'      => $this->statusCode,
                 'timestamp' => now()->toISOString(),
             ], $this->statusCode);
         }
 
         // For web requests, you could redirect with error message
         return response()->json([
-            'error' => $this->userMessage,
+            'error'  => $this->userMessage,
             'status' => $this->statusCode,
         ], $this->statusCode);
     }
@@ -175,17 +180,17 @@ class DashboardException extends Exception
     public function toArray(): array
     {
         return [
-            'message' => $this->getMessage(),
+            'message'      => $this->getMessage(),
             'user_message' => $this->userMessage,
-            'status_code' => $this->statusCode,
-            'context' => $this->context,
-            'file' => $this->getFile(),
-            'line' => $this->getLine(),
-            'previous' => $this->getPrevious() ? [
+            'status_code'  => $this->statusCode,
+            'context'      => $this->context,
+            'file'         => $this->getFile(),
+            'line'         => $this->getLine(),
+            'previous'     => $this->getPrevious() ? [
                 'message' => $this->getPrevious()->getMessage(),
-                'file' => $this->getPrevious()->getFile(),
-                'line' => $this->getPrevious()->getLine(),
-            ] : null,
+                'file'    => $this->getPrevious()->getFile(),
+                'line'    => $this->getPrevious()->getLine(),
+            ] : NULL,
         ];
     }
 }

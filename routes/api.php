@@ -380,7 +380,7 @@ Route::prefix('v1')->middleware(['auth:sanctum', ApiRateLimit::class . ':api,120
     // Session Management Routes for Professional Auth Features
     Route::post('/session/extend', function (Request $request) {
         try {
-            if (! Auth::check()) {
+            if (!Auth::check()) {
                 return response()->json([
                     'success' => FALSE,
                     'message' => 'User not authenticated',
@@ -419,7 +419,7 @@ Route::prefix('v1')->middleware(['auth:sanctum', ApiRateLimit::class . ':api,120
     });
 
     Route::get('/session/status', function (Request $request) {
-        if (! Auth::check()) {
+        if (!Auth::check()) {
             return response()->json([
                 'success'       => FALSE,
                 'authenticated' => FALSE,
@@ -744,7 +744,7 @@ Route::prefix('v1')->middleware(['auth:sanctum', ApiRateLimit::class . ':api,120
         // Download route for API exports
         Route::get('/download/{file}', function (string $file) {
             $path = storage_path('app/analytics/exports/api/' . $file);
-            if (! file_exists($path)) {
+            if (!file_exists($path)) {
                 return response()->json([
                     'success' => FALSE,
                     'message' => 'Export file not found or has expired',

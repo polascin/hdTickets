@@ -755,7 +755,7 @@ class CrossReferencedLegalDocumentSeeder extends Seeder
 
     // Continue with other cross-referenced documents...
     // Due to length constraints, I'll provide abbreviated versions of the remaining methods
-    
+
     private function getCrossReferencedDisclaimerContent(): string
     {
         return '<h1>Service Disclaimer</h1>

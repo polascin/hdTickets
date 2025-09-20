@@ -1,9 +1,11 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace App\Console\Commands;
 
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
+
+use function count;
 
 class MonitorDomainEvents extends Command
 {
@@ -56,7 +58,7 @@ class MonitorDomainEvents extends Command
     {
         $this->info('📊 Checking Domain Events Integrity...');
 
-        $aggregateType = $this->option('aggregate-type') ?: null;
+        $aggregateType = $this->option('aggregate-type') ?: NULL;
         $whereClause = $aggregateType ? "WHERE aggregate_type = '{$aggregateType}'" : '';
 
         // Check for duplicate aggregate versions
@@ -78,7 +80,7 @@ class MonitorDomainEvents extends Command
         }
 
         // Check for version gaps
-        $gaps = DB::select("
+        $gaps = DB::select('
             SELECT DISTINCT
                 de1.aggregate_type,
                 de1.aggregate_id,
@@ -95,10 +97,10 @@ class MonitorDomainEvents extends Command
                     WHERE de3.aggregate_type = de1.aggregate_type 
                         AND de3.aggregate_id = de1.aggregate_id
                 )
-                " . ($aggregateType ? "AND de1.aggregate_type = '{$aggregateType}'" : '') . "
+                ' . ($aggregateType ? "AND de1.aggregate_type = '{$aggregateType}'" : '') . '
             ORDER BY de1.aggregate_type, de1.aggregate_id, missing_version
             LIMIT 20
-        ");
+        ');
 
         if (empty($gaps)) {
             $this->info('✅ No version gaps found');
@@ -137,22 +139,22 @@ class MonitorDomainEvents extends Command
         $this->info('⚡ Checking Domain Events Performance...');
 
         // Check table size
-        $tableSize = DB::selectOne("
+        $tableSize = DB::selectOne('
             SELECT 
                 COUNT(*) as total_events,
                 AVG(LENGTH(event_data)) as avg_event_size,
                 MAX(occurred_at) as latest_event,
                 MIN(occurred_at) as earliest_event
             FROM domain_events
-        ");
+        ');
 
-        $this->info("📊 Table Statistics:");
-        $this->line("   - Total events: " . number_format($tableSize->total_events));
-        $this->line("   - Average event size: " . round($tableSize->avg_event_size) . " bytes");
+        $this->info('📊 Table Statistics:');
+        $this->line('   - Total events: ' . number_format($tableSize->total_events));
+        $this->line('   - Average event size: ' . round($tableSize->avg_event_size) . ' bytes');
         $this->line("   - Event date range: {$tableSize->earliest_event} to {$tableSize->latest_event}");
 
         // Check for slow aggregates (many events)
-        $heavyAggregates = DB::select("
+        $heavyAggregates = DB::select('
             SELECT 
                 aggregate_type, 
                 aggregate_id,
@@ -163,7 +165,7 @@ class MonitorDomainEvents extends Command
             HAVING COUNT(*) > 100
             ORDER BY event_count DESC
             LIMIT 10
-        ");
+        ');
 
         if (!empty($heavyAggregates)) {
             $this->warn('⚠️  Aggregates with high event counts (potential performance impact):');
@@ -173,17 +175,17 @@ class MonitorDomainEvents extends Command
         }
 
         // Check recent event creation rate
-        $recentEvents = DB::selectOne("
+        $recentEvents = DB::selectOne('
             SELECT 
                 COUNT(*) as recent_count,
                 COUNT(*) / 24 as events_per_hour
             FROM domain_events
             WHERE occurred_at >= DATE_SUB(NOW(), INTERVAL 24 HOUR)
-        ");
+        ');
 
-        $this->info("🕒 Recent Activity (last 24h):");
-        $this->line("   - Events created: " . $recentEvents->recent_count);
-        $this->line("   - Events per hour: " . round($recentEvents->events_per_hour, 2));
+        $this->info('🕒 Recent Activity (last 24h):');
+        $this->line('   - Events created: ' . $recentEvents->recent_count);
+        $this->line('   - Events per hour: ' . round($recentEvents->events_per_hour, 2));
     }
 
     private function fixVersionGaps(): void

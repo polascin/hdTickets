@@ -59,7 +59,7 @@ class AgentDashboardController extends Controller
 
     /**
      * Get agent-specific metrics for sports events tickets
-     * @param User $user
+     * @param  User  $user
      * @return array
      */
     private function getAgentMetrics(User $user): array
@@ -77,13 +77,14 @@ class AgentDashboardController extends Controller
             ];
         } catch (Exception $e) {
             Log::warning('Could not fetch agent metrics: ' . $e->getMessage());
+
             return $this->getDefaultAgentMetrics();
         }
     }
 
     /**
      * Get ticket monitoring data for sports events
-     * @param User $user
+     * @param  User  $user
      * @return array
      */
     private function getTicketMonitoringData(User $user): array
@@ -98,13 +99,14 @@ class AgentDashboardController extends Controller
             ];
         } catch (Exception $e) {
             Log::warning('Could not fetch ticket monitoring data: ' . $e->getMessage());
+
             return $this->getDefaultTicketData();
         }
     }
 
     /**
      * Get purchase queue data
-     * @param User $user
+     * @param  User  $user
      * @return array
      */
     private function getPurchaseQueueData(User $user): array
@@ -118,13 +120,14 @@ class AgentDashboardController extends Controller
             ];
         } catch (Exception $e) {
             Log::warning('Could not fetch purchase queue data: ' . $e->getMessage());
+
             return $this->getDefaultPurchaseData();
         }
     }
 
     /**
      * Get alert data for the agent
-     * @param User $user
+     * @param  User  $user
      * @return array
      */
     private function getAlertData(User $user): array
@@ -138,13 +141,14 @@ class AgentDashboardController extends Controller
             ];
         } catch (Exception $e) {
             Log::warning('Could not fetch alert data: ' . $e->getMessage());
+
             return $this->getDefaultAlertData();
         }
     }
 
     /**
      * Get recent activity for the agent
-     * @param User $user
+     * @param  User  $user
      * @return array
      */
     private function getRecentActivity(User $user): array
@@ -197,27 +201,29 @@ class AgentDashboardController extends Controller
             return array_slice($activities, 0, 20);
         } catch (Exception $e) {
             Log::warning('Could not fetch recent activity: ' . $e->getMessage());
+
             return [];
         }
     }
 
     /**
      * Get performance metrics for the agent
-     * @param User $user
+     * @param  User  $user
      * @return array
      */
     private function getPerformanceMetrics(User $user): array
     {
         try {
             return [
-                'success_rate'           => $this->getAgentSuccessRate($user),
-                'average_response_time'  => $this->getAverageResponseTime($user),
-                'total_purchases'        => $this->getTotalPurchases($user),
+                'success_rate'          => $this->getAgentSuccessRate($user),
+                'average_response_time' => $this->getAverageResponseTime($user),
+                'total_purchases'       => $this->getTotalPurchases($user),
                 'money_saved'           => $this->getMoneySpotted($user),
-                'alerts_effectiveness'   => $this->getAlertsEffectiveness($user),
+                'alerts_effectiveness'  => $this->getAlertsEffectiveness($user),
             ];
         } catch (Exception $e) {
             Log::warning('Could not fetch performance metrics: ' . $e->getMessage());
+
             return $this->getDefaultPerformanceMetrics();
         }
     }
@@ -398,7 +404,7 @@ class AgentDashboardController extends Controller
             'success_rate'          => 0.0,
             'average_response_time' => 0.0,
             'total_purchases'       => 0,
-            'money_saved'          => 0.0,
+            'money_saved'           => 0.0,
             'alerts_effectiveness'  => 0.0,
         ];
     }

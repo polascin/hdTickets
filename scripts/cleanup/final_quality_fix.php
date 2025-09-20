@@ -1,23 +1,22 @@
-<?php
+<?php declare(strict_types=1);
 
 /**
  * Final Parse Error Fix
  */
-
 echo "🔧 Final Parse Error Resolution\n";
 
 // Fix 1: PerformanceLogger method signature
 $performanceLoggerFile = 'app/Logging/PerformanceLogger.php';
 if (file_exists($performanceLoggerFile)) {
     $content = file_get_contents($performanceLoggerFile);
-    
+
     // Fix malformed method signature
     $content = str_replace(
         'public function addPerformanceContext(array $record): array$record)',
         'public function addPerformanceContext(array $record): array',
         $content
     );
-    
+
     file_put_contents($performanceLoggerFile, $content);
     echo "  ✓ Fixed PerformanceLogger method signature\n";
 }
@@ -26,7 +25,7 @@ if (file_exists($performanceLoggerFile)) {
 $duskTestFile = 'tests/DuskTestCase.php';
 if (file_exists($duskTestFile)) {
     $content = file_get_contents($duskTestFile);
-    
+
     // Fix the malformed class structure
     $fixedContent = "<?php
 
@@ -88,7 +87,7 @@ abstract class DuskTestCase extends BaseTestCase
     }
 }
 ";
-    
+
     file_put_contents($duskTestFile, $fixedContent);
     echo "  ✓ Fixed DuskTestCase class structure\n";
 }
@@ -98,17 +97,17 @@ echo "\n🔍 Checking syntax...\n";
 
 $filesToCheck = [
     'app/Logging/PerformanceLogger.php',
-    'tests/DuskTestCase.php'
+    'tests/DuskTestCase.php',
 ];
 
 foreach ($filesToCheck as $file) {
     if (file_exists($file)) {
         $output = shell_exec("php -l $file 2>&1");
-        if (strpos($output, 'No syntax errors detected') !== false) {
-            echo "  ✅ Syntax OK: " . basename($file) . "\n";
+        if (strpos($output, 'No syntax errors detected') !== FALSE) {
+            echo '  ✅ Syntax OK: ' . basename($file) . "\n";
         } else {
-            echo "  ❌ Syntax Error: " . basename($file) . "\n";
-            echo "      " . trim($output) . "\n";
+            echo '  ❌ Syntax Error: ' . basename($file) . "\n";
+            echo '      ' . trim($output) . "\n";
         }
     }
 }
@@ -117,16 +116,16 @@ echo "\n📊 Final PHPStan Check...\n";
 
 // Check final results
 $output = shell_exec('vendor/bin/phpstan analyse --error-format=json 2>&1');
-if (strpos($output, '"file_errors":') !== false) {
+if (strpos($output, '"file_errors":') !== FALSE) {
     preg_match('/"file_errors":(\d+)/', $output, $matches);
     $errorCount = $matches[1] ?? 0;
     echo "✅ Final error count: $errorCount\n";
-    
+
     // Check if parse errors are eliminated
     $parseErrors = substr_count($output, 'phpstan.parse');
     if ($parseErrors === 0) {
         echo "🎉 All parse errors eliminated!\n";
-        
+
         if ($errorCount > 0) {
             echo "\nRemaining error breakdown:\n";
             $identifiers = shell_exec('vendor/bin/phpstan analyse --error-format=json 2>/dev/null | grep -o \'"identifier":"[^"]*"\' | sort | uniq -c | sort -nr | head -10');

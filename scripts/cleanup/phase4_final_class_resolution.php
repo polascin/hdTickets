@@ -1,16 +1,15 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * Phase 4: Final Class Resolution
  * Target: Reduce class.notFound errors from 151 to ~50
  */
-
 echo "🚀 Phase 4: Final Class Resolution Starting\n";
 echo "==========================================\n\n";
 
 $phase4Classes = [
     // Core Service Classes
     'App\\Services\\Core\\UserService' => [
-        'file' => 'app/Services/Core/UserService.php',
+        'file'     => 'app/Services/Core/UserService.php',
         'template' => '<?php declare(strict_types=1);
 
 namespace App\\Services\\Core;
@@ -43,11 +42,11 @@ class UserService
     {
         return User::where("role", $role)->get();
     }
-}'
+}',
     ],
-    
+
     'App\\Services\\Core\\QueueService' => [
-        'file' => 'app/Services/Core/QueueService.php',
+        'file'     => 'app/Services/Core/QueueService.php',
         'template' => '<?php declare(strict_types=1);
 
 namespace App\\Services\\Core;
@@ -74,11 +73,11 @@ class QueueService
     {
         return $this->queueManager->size($queue);
     }
-}'
+}',
     ],
-    
+
     'App\\Services\\Core\\CacheService' => [
-        'file' => 'app/Services/Core/CacheService.php', 
+        'file'     => 'app/Services/Core/CacheService.php',
         'template' => '<?php declare(strict_types=1);
 
 namespace App\\Services\\Core;
@@ -115,11 +114,11 @@ class CacheService
     {
         return $this->cache->remember($key, $ttl, $callback);
     }
-}'
+}',
     ],
-    
+
     'App\\Services\\Core\\AuthenticationService' => [
-        'file' => 'app/Services/Core/AuthenticationService.php',
+        'file'     => 'app/Services/Core/AuthenticationService.php',
         'template' => '<?php declare(strict_types=1);
 
 namespace App\\Services\\Core;
@@ -157,12 +156,12 @@ class AuthenticationService
     {
         return $this->auth->check();
     }
-}'
+}',
     ],
-    
+
     // Additional Mail Classes
     'App\\Mail\\WelcomeUser' => [
-        'file' => 'app/Mail/WelcomeUser.php',
+        'file'     => 'app/Mail/WelcomeUser.php',
         'template' => '<?php declare(strict_types=1);
 
 namespace App\\Mail;
@@ -188,11 +187,11 @@ class WelcomeUser extends Mailable
                 "loginUrl" => url("/login"),
             ]);
     }
-}'
+}',
     ],
-    
+
     'App\\Mail\\TicketNotification' => [
-        'file' => 'app/Mail/TicketNotification.php',
+        'file'     => 'app/Mail/TicketNotification.php',
         'template' => '<?php declare(strict_types=1);
 
 namespace App\\Mail;
@@ -214,11 +213,11 @@ class TicketNotification extends Mailable
             ->view("emails.ticket-notification")
             ->with($this->ticketData);
     }
-}'
+}',
     ],
-    
+
     'App\\Mail\\SubscriptionConfirmation' => [
-        'file' => 'app/Mail/SubscriptionConfirmation.php',
+        'file'     => 'app/Mail/SubscriptionConfirmation.php',
         'template' => '<?php declare(strict_types=1);
 
 namespace App\\Mail;
@@ -240,11 +239,11 @@ class SubscriptionConfirmation extends Mailable
             ->view("emails.subscription-confirmation")
             ->with($this->subscriptionData);
     }
-}'
+}',
     ],
-    
+
     'App\\Mail\\PurchaseConfirmation' => [
-        'file' => 'app/Mail/PurchaseConfirmation.php',
+        'file'     => 'app/Mail/PurchaseConfirmation.php',
         'template' => '<?php declare(strict_types=1);
 
 namespace App\\Mail;
@@ -266,11 +265,11 @@ class PurchaseConfirmation extends Mailable
             ->view("emails.purchase-confirmation")
             ->with($this->purchaseData);
     }
-}'
+}',
     ],
-    
+
     'App\\Mail\\BulkNotification' => [
-        'file' => 'app/Mail/BulkNotification.php',
+        'file'     => 'app/Mail/BulkNotification.php',
         'template' => '<?php declare(strict_types=1);
 
 namespace App\\Mail;
@@ -296,11 +295,11 @@ class BulkNotification extends Mailable
                 "recipients" => $this->recipients,
             ]);
     }
-}'
+}',
     ],
-    
+
     'App\\Mail\\AccountDeletionRequested' => [
-        'file' => 'app/Mail/AccountDeletionRequested.php',
+        'file'     => 'app/Mail/AccountDeletionRequested.php',
         'template' => '<?php declare(strict_types=1);
 
 namespace App\\Mail;
@@ -327,12 +326,12 @@ class AccountDeletionRequested extends Mailable
                 "confirmationUrl" => url("/account/delete/confirm/" . $this->confirmationToken),
             ]);
     }
-}'
+}',
     ],
-    
+
     // Job Classes
     'App\\Jobs\\SendDelayedNotification' => [
-        'file' => 'app/Jobs/SendDelayedNotification.php',
+        'file'     => 'app/Jobs/SendDelayedNotification.php',
         'template' => '<?php declare(strict_types=1);
 
 namespace App\\Jobs;
@@ -363,7 +362,7 @@ class SendDelayedNotification implements ShouldQueue
             Mail::to($this->recipientEmail)->send($mailable);
         }
     }
-}'
+}',
     ],
 ];
 
@@ -374,12 +373,12 @@ $skipped = 0;
 foreach ($phase4Classes as $className => $config) {
     $fullPath = "/var/www/hdtickets/{$config['file']}";
     $dir = dirname($fullPath);
-    
+
     if (!is_dir($dir)) {
-        mkdir($dir, 0755, true);
+        mkdir($dir, 0755, TRUE);
         echo "📁 Created directory: $dir\n";
     }
-    
+
     if (!file_exists($fullPath)) {
         file_put_contents($fullPath, $config['template']);
         echo "✅ Created: {$config['file']}\n";

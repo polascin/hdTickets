@@ -90,7 +90,7 @@ class TicketApiController extends Controller
         try {
             $event = $this->apiManager->getEvent($platform, $eventId);
 
-            if (! $event) {
+            if (!$event) {
                 return response()->json([
                     'success' => FALSE,
                     'message' => 'Event not found',
@@ -498,7 +498,7 @@ class TicketApiController extends Controller
      */
     public function toggleBookmark(Request $request, $ticketId)
     {
-        if (! Auth::check()) {
+        if (!Auth::check()) {
             return response()->json([
                 'success' => FALSE,
                 'message' => 'Authentication required',

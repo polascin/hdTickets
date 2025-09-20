@@ -16,7 +16,7 @@ class EmailChannel implements NotificationChannelInterface
     public function send(User $user, array $notification): bool
     {
         try {
-            if (! $user->email || ! $user->email_verified_at) {
+            if (!$user->email || !$user->email_verified_at) {
                 Log::info('Skipping email notification for unverified user', [
                     'user_id' => $user->id,
                     'type'    => $notification['type'],
@@ -53,6 +53,6 @@ class EmailChannel implements NotificationChannelInterface
      */
     public function isAvailable(): bool
     {
-        return ! empty(config('mail.default'));
+        return !empty(config('mail.default'));
     }
 }

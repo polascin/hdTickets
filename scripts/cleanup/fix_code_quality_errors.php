@@ -1,10 +1,9 @@
-<?php
+<?php declare(strict_types=1);
 
 /**
  * Comprehensive Code Quality Error Fixer
  * Fixes the remaining 137 PHPStan errors systematically
  */
-
 echo "🚀 Starting Code Quality Error Resolution\n";
 echo "📊 Current errors: 137\n";
 echo "🎯 Target: < 50 errors\n\n";
@@ -14,40 +13,40 @@ echo "🔍 Phase 1: Creating Missing Classes (42 errors)\n";
 
 $missingClasses = [
     'App\\Exceptions\\DatabaseErrorHandler' => [
-        'file' => 'app/Exceptions/DatabaseErrorHandler.php',
-        'content' => generateErrorHandlerClass('DatabaseErrorHandler')
+        'file'    => 'app/Exceptions/DatabaseErrorHandler.php',
+        'content' => generateErrorHandlerClass('DatabaseErrorHandler'),
     ],
     'App\\Exceptions\\ApiErrorHandler' => [
-        'file' => 'app/Exceptions/ApiErrorHandler.php',
-        'content' => generateErrorHandlerClass('ApiErrorHandler')
+        'file'    => 'app/Exceptions/ApiErrorHandler.php',
+        'content' => generateErrorHandlerClass('ApiErrorHandler'),
     ],
     'App\\Exceptions\\ScrapingErrorHandler' => [
-        'file' => 'app/Exceptions/ScrapingErrorHandler.php',
-        'content' => generateErrorHandlerClass('ScrapingErrorHandler')
+        'file'    => 'app/Exceptions/ScrapingErrorHandler.php',
+        'content' => generateErrorHandlerClass('ScrapingErrorHandler'),
     ],
     'App\\Exceptions\\PaymentErrorHandler' => [
-        'file' => 'app/Exceptions/PaymentErrorHandler.php',
-        'content' => generateErrorHandlerClass('PaymentErrorHandler')
+        'file'    => 'app/Exceptions/PaymentErrorHandler.php',
+        'content' => generateErrorHandlerClass('PaymentErrorHandler'),
     ],
     'App\\Logging\\ErrorTrackingLogger' => [
-        'file' => 'app/Logging/ErrorTrackingLogger.php',
-        'content' => generateErrorTrackingLoggerClass()
+        'file'    => 'app/Logging/ErrorTrackingLogger.php',
+        'content' => generateErrorTrackingLoggerClass(),
     ],
     'Tests\\DuskTestCase' => [
-        'file' => 'tests/DuskTestCase.php',
-        'content' => generateDuskTestCaseClass()
-    ]
+        'file'    => 'tests/DuskTestCase.php',
+        'content' => generateDuskTestCaseClass(),
+    ],
 ];
 
 foreach ($missingClasses as $className => $classInfo) {
     $filePath = $classInfo['file'];
-    
+
     if (!file_exists($filePath)) {
         $directory = dirname($filePath);
         if (!is_dir($directory)) {
-            mkdir($directory, 0755, true);
+            mkdir($directory, 0755, TRUE);
         }
-        
+
         file_put_contents($filePath, $classInfo['content']);
         echo "  ✓ Created $className\n";
     }
@@ -60,48 +59,48 @@ $iterableTypeFixes = [
     'app/Http/Controllers/ProductionHealthController.php' => [
         // Methods returning arrays without value types
         'return type has no value type specified in iterable type array' => [
-            ': array' => ': array<string, mixed>',
+            ': array'      => ': array<string, mixed>',
             'return array' => 'return array<string, mixed>',
-        ]
+        ],
     ],
     'app/Http/Middleware/SecureErrorMessages.php' => [
         'has parameter $messages with no value type specified in iterable type array' => [
-            'array $messages' => 'array<string, mixed> $messages'
+            'array $messages' => 'array<string, mixed> $messages',
         ],
         'return type has no value type specified in iterable type array' => [
-            '): array' => '): array<string, mixed>'
-        ]
+            '): array' => '): array<string, mixed>',
+        ],
     ],
     'app/Logging/QueryLogger.php' => [
         'has parameter $record with no value type specified in iterable type array' => [
-            'array $record' => 'array<string, mixed> $record'
+            'array $record' => 'array<string, mixed> $record',
         ],
         'return type has no value type specified in iterable type array' => [
-            '): array' => '): array<string, mixed>'
-        ]
+            '): array' => '): array<string, mixed>',
+        ],
     ],
     'tests/validation_test_suite.php' => [
         'type has no value type specified in iterable type array' => [
             'array $' => 'array<string, mixed> $',
-            ': array' => ': array<string, mixed>'
-        ]
-    ]
+            ': array' => ': array<string, mixed>',
+        ],
+    ],
 ];
 
 foreach ($iterableTypeFixes as $filePath => $fixes) {
     if (file_exists($filePath)) {
         $content = file_get_contents($filePath);
         $originalContent = $content;
-        
+
         foreach ($fixes as $pattern => $replacements) {
             foreach ($replacements as $search => $replace) {
                 $content = str_replace($search, $replace, $content);
             }
         }
-        
+
         if ($content !== $originalContent) {
             file_put_contents($filePath, $content);
-            echo "  ✓ Fixed iterable types in " . basename($filePath) . "\n";
+            echo '  ✓ Fixed iterable types in ' . basename($filePath) . "\n";
         }
     }
 }
@@ -112,7 +111,7 @@ echo "\n🛡️ Phase 3: Fixing Argument Type Issues (23 errors)\n";
 $argumentTypeFixes = [
     'app/Http/Controllers/ProductionHealthController.php' => [
         // Fix Carbon createFromFormat with string|false
-        'Carbon::createFromFormat(' => function($content) {
+        'Carbon::createFromFormat(' => function ($content) {
             return preg_replace(
                 '/Carbon::createFromFormat\(([^,]+),\s*([^)]+)\)/',
                 'Carbon::createFromFormat($1, (string) $2)',
@@ -120,41 +119,41 @@ $argumentTypeFixes = [
             );
         },
         // Fix diffForHumans on potentially null Carbon
-        '->diffForHumans()' => function($content) {
+        '->diffForHumans()' => function ($content) {
             return preg_replace(
                 '/(\$[a-zA-Z_][a-zA-Z0-9_]*)->diffForHumans\(\)/',
                 '$1?->diffForHumans() ?? \'Unknown\'',
                 $content
             );
-        }
+        },
     ],
     'app/Http/Middleware/SecureErrorMessages.php' => [
         // Fix json_decode with string|false
-        'json_decode(' => function($content) {
+        'json_decode(' => function ($content) {
             return preg_replace(
                 '/json_decode\(([^)]+)\)/',
                 'json_decode((string) $1)',
                 $content
             );
-        }
+        },
     ],
     'app/Logging/PerformanceLogger.php' => [
         // Fix fetchColumn on PDOStatement|false
-        '->fetchColumn()' => function($content) {
+        '->fetchColumn()' => function ($content) {
             return preg_replace(
                 '/(\$[a-zA-Z_][a-zA-Z0-9_]*)->fetchColumn\(\)/',
                 '$1?->fetchColumn() ?? 0',
                 $content
             );
-        }
-    ]
+        },
+    ],
 ];
 
 foreach ($argumentTypeFixes as $filePath => $fixes) {
     if (file_exists($filePath)) {
         $content = file_get_contents($filePath);
         $originalContent = $content;
-        
+
         foreach ($fixes as $pattern => $fix) {
             if (is_callable($fix)) {
                 $content = $fix($content);
@@ -162,10 +161,10 @@ foreach ($argumentTypeFixes as $filePath => $fixes) {
                 $content = str_replace($pattern, $fix, $content);
             }
         }
-        
+
         if ($content !== $originalContent) {
             file_put_contents($filePath, $content);
-            echo "  ✓ Fixed argument types in " . basename($filePath) . "\n";
+            echo '  ✓ Fixed argument types in ' . basename($filePath) . "\n";
         }
     }
 }
@@ -175,30 +174,30 @@ echo "\n🏗️ Phase 4: Fixing Uninitialized Properties (6 errors)\n";
 
 $propertyFixes = [
     'tests/Browser/CrossBrowserTest.php' => [
-        'property $testUser' => 'protected ?\\App\\Models\\User $testUser = null;'
+        'property $testUser' => 'protected ?\\App\\Models\\User $testUser = null;',
     ],
     'tests/Feature/AccessibilityTest.php' => [
-        'property $testUser' => 'protected ?\\App\\Models\\User $testUser = null;'
+        'property $testUser' => 'protected ?\\App\\Models\\User $testUser = null;',
     ],
     'tests/Feature/LoginValidationTest.php' => [
-        'property $validUser' => 'protected ?\\App\\Models\\User $validUser = null;',
+        'property $validUser'    => 'protected ?\\App\\Models\\User $validUser = null;',
         'property $inactiveUser' => 'protected ?\\App\\Models\\User $inactiveUser = null;',
-        'property $lockedUser' => 'protected ?\\App\\Models\\User $lockedUser = null;'
+        'property $lockedUser'   => 'protected ?\\App\\Models\\User $lockedUser = null;',
     ],
     'tests/Performance/LoginPerformanceTest.php' => [
-        'property $testUser' => 'protected ?\\App\\Models\\User $testUser = null;'
+        'property $testUser' => 'protected ?\\App\\Models\\User $testUser = null;',
     ],
     'tests/Feature/SportsTicketSystemTest.php' => [
-        'property $user' => 'protected \\App\\Models\\User $user;',
-        'property $admin' => 'protected \\App\\Models\\User $admin;'
-    ]
+        'property $user'  => 'protected \\App\\Models\\User $user;',
+        'property $admin' => 'protected \\App\\Models\\User $admin;',
+    ],
 ];
 
 foreach ($propertyFixes as $filePath => $fixes) {
     if (file_exists($filePath)) {
         $content = file_get_contents($filePath);
         $originalContent = $content;
-        
+
         foreach ($fixes as $search => $replacement) {
             // Find and replace untyped property declarations
             $content = preg_replace(
@@ -207,10 +206,10 @@ foreach ($propertyFixes as $filePath => $fixes) {
                 $content
             );
         }
-        
+
         if ($content !== $originalContent) {
             file_put_contents($filePath, $content);
-            echo "  ✓ Fixed property initialization in " . basename($filePath) . "\n";
+            echo '  ✓ Fixed property initialization in ' . basename($filePath) . "\n";
         }
     }
 }
@@ -222,14 +221,14 @@ echo "\n🔧 Phase 5: Fixing Laravel-specific Issues (4 errors)\n";
 $envFile = 'app/Providers/EnvServiceProvider.php';
 if (file_exists($envFile)) {
     $content = file_get_contents($envFile);
-    
+
     // Replace env() calls with config() calls
     $content = preg_replace(
         '/env\([\'"]([^\'"]+)[\'"]\)/',
         'config(\'$1\')',
         $content
     );
-    
+
     file_put_contents($envFile, $content);
     echo "  ✓ Fixed env() calls in EnvServiceProvider.php\n";
 }
@@ -241,16 +240,16 @@ echo "\n✨ Phase 6: Additional Type Improvements\n";
 $userModel = 'app/Models/User.php';
 if (file_exists($userModel)) {
     $content = file_get_contents($userModel);
-    
+
     // Add missing interface implementation
-    if (strpos($content, 'implements') === false) {
+    if (strpos($content, 'implements') === FALSE) {
         $content = str_replace(
             'class User extends Authenticatable',
             'class User extends Authenticatable implements \\Laravel\\Passport\\Contracts\\OAuthenticatable',
             $content
         );
     }
-    
+
     file_put_contents($userModel, $content);
     echo "  ✓ Fixed User model interface implementation\n";
 }
@@ -259,20 +258,21 @@ if (file_exists($userModel)) {
 $horizonProvider = 'app/Providers/HorizonServiceProvider.php';
 if (file_exists($horizonProvider)) {
     $content = file_get_contents($horizonProvider);
-    
+
     // Fix empty array check
     $content = str_replace(
         'in_array(mixed, array{}, true)',
         'in_array($value, $allowedValues, true)',
         $content
     );
-    
+
     file_put_contents($horizonProvider, $content);
     echo "  ✓ Fixed HorizonServiceProvider array check\n";
 }
 
 // Generate missing class templates
-function generateErrorHandlerClass($className) {
+function generateErrorHandlerClass($className)
+{
     return "<?php
 
 namespace App\\Exceptions;
@@ -296,7 +296,8 @@ class {$className}
 ";
 }
 
-function generateErrorTrackingLoggerClass() {
+function generateErrorTrackingLoggerClass()
+{
     return "<?php
 
 namespace App\\Logging;
@@ -323,7 +324,8 @@ class ErrorTrackingLogger
 ";
 }
 
-function generateDuskTestCaseClass() {
+function generateDuskTestCaseClass()
+{
     return "<?php
 
 namespace Tests;
@@ -373,16 +375,16 @@ echo "\n📊 Running PHPStan to check results...\n";
 
 // Check final error count
 $output = shell_exec('vendor/bin/phpstan analyse --error-format=json 2>&1');
-if (strpos($output, '"file_errors":') !== false) {
+if (strpos($output, '"file_errors":') !== FALSE) {
     preg_match('/"file_errors":(\d+)/', $output, $matches);
     $errorCount = $matches[1] ?? 0;
     echo "✅ Final error count: $errorCount\n";
-    
+
     if ($errorCount < 50) {
         echo "🎉 SUCCESS: Achieved target of < 50 errors!\n";
     } else {
         echo "📈 PROGRESS: Reduced from 137 to $errorCount errors\n";
-        
+
         // Show remaining error breakdown
         $identifiers = shell_exec('vendor/bin/phpstan analyse --error-format=json 2>/dev/null | grep -o \'"identifier":"[^"]*"\' | sort | uniq -c | sort -nr | head -5');
         echo "\nTop remaining error types:\n";

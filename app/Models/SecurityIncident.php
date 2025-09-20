@@ -137,7 +137,7 @@ class SecurityIncident extends Model
      */
     public function getResolutionTime(): ?CarbonInterval
     {
-        if (! $this->resolved_at) {
+        if (!$this->resolved_at) {
             return NULL;
         }
 

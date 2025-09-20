@@ -96,7 +96,7 @@ class PurchaseController extends Controller
 
         $ticket = ScrapedTicket::where('uuid', $request->ticket_uuid)->first();
 
-        if (! $ticket->is_available) {
+        if (!$ticket->is_available) {
             return response()->json([
                 'success' => FALSE,
                 'message' => 'Ticket is no longer available',
@@ -148,7 +148,7 @@ class PurchaseController extends Controller
             ->where('selected_by_user_id', auth()->id())
             ->first();
 
-        if (! $queueItem) {
+        if (!$queueItem) {
             return response()->json([
                 'success' => FALSE,
                 'message' => 'Queue item not found',
@@ -200,7 +200,7 @@ class PurchaseController extends Controller
             ->where('selected_by_user_id', auth()->id())
             ->first();
 
-        if (! $queueItem) {
+        if (!$queueItem) {
             return response()->json([
                 'success' => FALSE,
                 'message' => 'Queue item not found',
@@ -304,7 +304,7 @@ class PurchaseController extends Controller
 
         $ticket = ScrapedTicket::where('uuid', $request->ticket_uuid)->first();
 
-        if (! $ticket->is_available) {
+        if (!$ticket->is_available) {
             return response()->json([
                 'success' => FALSE,
                 'message' => 'Ticket is no longer available',
@@ -313,7 +313,7 @@ class PurchaseController extends Controller
 
         // Check if user has sufficient credits/permissions for automated purchase
         $user = auth()->user();
-        if (! $this->purchaseEngine->canInitiatePurchase($user, $ticket)) {
+        if (!$this->purchaseEngine->canInitiatePurchase($user, $ticket)) {
             return response()->json([
                 'success' => FALSE,
                 'message' => 'Insufficient permissions or credits for automated purchase',
@@ -368,7 +368,7 @@ class PurchaseController extends Controller
             ->with(['ticket'])
             ->first();
 
-        if (! $attempt) {
+        if (!$attempt) {
             return response()->json([
                 'success' => FALSE,
                 'message' => 'Purchase attempt not found',
@@ -408,7 +408,7 @@ class PurchaseController extends Controller
             ->where('user_id', auth()->id())
             ->first();
 
-        if (! $attempt) {
+        if (!$attempt) {
             return response()->json([
                 'success' => FALSE,
                 'message' => 'Purchase attempt not found',

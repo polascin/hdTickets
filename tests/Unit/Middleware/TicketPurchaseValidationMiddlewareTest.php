@@ -3,10 +3,10 @@
 namespace Tests\Unit\Middleware;
 
 use App\Http\Middleware\TicketPurchaseValidationMiddleware;
+use App\Models\PaymentPlan;
 use App\Models\Ticket;
 use App\Models\User;
 use App\Models\UserSubscription;
-use App\Models\PaymentPlan;
 use App\Services\TicketPurchaseService;
 use Exception;
 use Illuminate\Foundation\Testing\RefreshDatabase;

@@ -1,23 +1,40 @@
-<?php
+<?php declare(strict_types=1);
 
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 
-return new class extends Migration
-{
+return new class() extends Migration {
     /**
      * Run the migrations.
      */
     public function up(): void
     {
+        // Check if we're using SQLite and handle differently
+        if (config('database.default') === 'sqlite') {
+            // SQLite doesn't support stored functions like MySQL
+            // Just create the error_log table for SQLite
+            if (!Schema::hasTable('error_log')) {
+                Schema::create('error_log', function (Blueprint $table): void {
+                    $table->id();
+                    $table->text('error_message');
+                    $table->string('error_type')->default('domain_event_retry_failure');
+                    $table->json('error_context')->nullable();
+                    $table->timestamp('occurred_at');
+                    $table->index(['error_type', 'occurred_at']);
+                });
+            }
+
+            return;
+        }
+
         // Step 1: Drop the existing problematic trigger
         DB::statement('DROP TRIGGER IF EXISTS log_user_changes');
-        
+
         // Step 2: Drop the function if it exists (clean slate)
         DB::statement('DROP FUNCTION IF EXISTS GetNextAggregateVersion');
-        
+
         // Step 3: Create a simpler stored function for getting next aggregate version
         DB::statement('
             CREATE FUNCTION GetNextAggregateVersion(p_aggregate_type VARCHAR(100), p_aggregate_id VARCHAR(100))
@@ -35,7 +52,7 @@ return new class extends Migration
                 RETURN next_version;
             END
         ');
-        
+
         // Step 4: Create a new trigger with proper aggregate versioning
         DB::statement('
             CREATE TRIGGER log_user_changes
@@ -79,10 +96,10 @@ return new class extends Migration
                 );
             END
         ');
-        
+
         // Step 5: Create error_log table if it doesn\'t exist for logging retry failures
         if (!Schema::hasTable('error_log')) {
-            Schema::create('error_log', function (Blueprint $table) {
+            Schema::create('error_log', function (Blueprint $table): void {
                 $table->id();
                 $table->text('error_message');
                 $table->string('error_type')->default('domain_event_retry_failure');
@@ -98,10 +115,18 @@ return new class extends Migration
      */
     public function down(): void
     {
+        // Check if we're using SQLite
+        if (config('database.default') === 'sqlite') {
+            // Drop the error log table if we created it
+            Schema::dropIfExists('error_log');
+
+            return;
+        }
+
         // Drop the enhanced trigger and function
         DB::statement('DROP TRIGGER IF EXISTS log_user_changes');
         DB::statement('DROP FUNCTION IF EXISTS GetNextAggregateVersion');
-        
+
         // Restore the original broken trigger (for rollback purposes only)
         // NOTE: This will have the same constraint violation issue
         DB::statement('
@@ -124,7 +149,7 @@ return new class extends Migration
                 NOW()
             )
         ');
-        
+
         // Drop the error log table if we created it
         Schema::dropIfExists('error_log');
     }

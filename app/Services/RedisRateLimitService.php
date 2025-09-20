@@ -166,7 +166,7 @@ class RedisRateLimitService
             'email_attempts' => $emailLimit['current_count'],
             'ip_attempts'    => $ipLimit['current_count'],
             'retry_after'    => max($emailLimit['retry_after'], $ipLimit['retry_after']),
-            'blocked_by'     => $emailLimit['allowed'] ? (! $ipLimit['allowed'] ? 'ip' : NULL) : ('email'),
+            'blocked_by'     => $emailLimit['allowed'] ? (!$ipLimit['allowed'] ? 'ip' : NULL) : ('email'),
         ];
     }
 
@@ -239,7 +239,7 @@ class RedisRateLimitService
             // Get all keys matching the pattern
             $keys = $this->redis->keys($pattern);
 
-            if (! empty($keys)) {
+            if (!empty($keys)) {
                 $this->redis->del($keys);
             }
 

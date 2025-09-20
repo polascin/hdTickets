@@ -111,7 +111,7 @@ class PublicRegistrationController extends Controller
     {
         $user = Auth::user();
 
-        if (! $user || ! $user->phone) {
+        if (!$user || !$user->phone) {
             return redirect()->route('dashboard');
         }
 
@@ -129,7 +129,7 @@ class PublicRegistrationController extends Controller
 
         $user = Auth::user();
 
-        if (! $user || ! $user->phone) {
+        if (!$user || !$user->phone) {
             return redirect()->route('dashboard');
         }
 
@@ -151,7 +151,7 @@ class PublicRegistrationController extends Controller
     {
         $user = Auth::user();
 
-        if (! $user || ! $user->phone) {
+        if (!$user || !$user->phone) {
             return redirect()->route('dashboard');
         }
 
@@ -173,7 +173,7 @@ class PublicRegistrationController extends Controller
     {
         $user = Auth::user();
 
-        if (! $user || ! $user->two_factor_secret || $user->two_factor_enabled) {
+        if (!$user || !$user->two_factor_secret || $user->two_factor_enabled) {
             return redirect()->route('dashboard');
         }
 
@@ -193,7 +193,7 @@ class PublicRegistrationController extends Controller
 
         $user = Auth::user();
 
-        if (! $user || ! $user->two_factor_secret || $user->two_factor_enabled) {
+        if (!$user || !$user->two_factor_secret || $user->two_factor_enabled) {
             return redirect()->route('dashboard');
         }
 
@@ -220,7 +220,7 @@ class PublicRegistrationController extends Controller
         $legalDocuments = LegalDocument::getActiveRequiredDocuments();
 
         foreach ($requiredTypes as $type) {
-            if (! $request->boolean("accept_{$type}")) {
+            if (!$request->boolean("accept_{$type}")) {
                 throw new Exception("You must accept the {$legalDocuments[$type]->type_name} to register.");
             }
         }

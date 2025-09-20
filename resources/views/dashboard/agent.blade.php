@@ -1,6 +1,14 @@
-@extends('layouts.app-v2')
+@extends('layouts.dashboard-full')
 @section('title', 'Agent Dashboard')
+@section('dashboard-type', 'agent')
 @section('content')
+<div class="agent-dashboard" x-data="{ 
+    isLoading: false, 
+    refreshData() {
+        this.isLoading = true;
+        setTimeout(() => this.isLoading = false, 2000);
+    }
+}" x-cloak>
   <div class="flex items-center justify-between mb-6">
     <div>
       <h1 class="text-2xl font-bold text-slate-800 dark:text-slate-100">Agent Dashboard</h1>
@@ -10,13 +18,13 @@
       <div class="text-sm text-slate-600 dark:text-slate-300">
         Online: <span class="text-green-600 font-semibold">{{ now()->format('H:i:s') }}</span>
       </div>
-      <button onclick="refreshAgentDashboard()" class="uiv2-action-btn bg-blue-600 hover:bg-blue-700 text-white">
-        <svg class="w-4 h-4 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <button @click="refreshData()" :disabled="isLoading" class="bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white px-4 py-2 rounded-lg transition-all">
+        <svg :class="{ 'animate-spin': isLoading }" class="w-4 h-4 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
             d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15">
           </path>
         </svg>
-        Refresh
+        <span x-text="isLoading ? 'Refreshing...' : 'Refresh'">Refresh</span>
       </button>
     </div>
   </div>
@@ -253,8 +261,26 @@
       @else
         <div class="text-center py-8 text-gray-500">
           <p class="text-sm">Platform status information not available</p>
-        </div>
-      @endif
+  </div>
+</div>
+@endsection
+
+@push('scripts')
+<script>
+// Agent dashboard specific functionality
+document.addEventListener('alpine:init', () => {
+    console.log('Agent dashboard scripts loaded');
+    
+    // Add any agent-specific functionality here
+    function updateAgentStatus() {
+        // Update agent status indicators
+        console.log('Updating agent status');
+    }
+    
+    setInterval(updateAgentStatus, 60000); // Update every minute
+});
+</script>
+@endpush
     </div>
   </div>
 

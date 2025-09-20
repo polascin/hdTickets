@@ -19,7 +19,7 @@ class UserRoleSeeder extends Seeder
     {
         Log::info('Starting User Role assignment seeding');
 
-        DB::transaction(function () {
+        DB::transaction(function (): void {
             $this->assignRolesToExistingUsers();
         });
 
@@ -32,25 +32,25 @@ class UserRoleSeeder extends Seeder
     private function assignRolesToExistingUsers(): void
     {
         $users = User::all();
-        
+
         foreach ($users as $user) {
             // Clear existing role assignments for this user
             DB::table('user_roles')->where('user_id', $user->id)->delete();
-            
+
             if (!empty($user->role)) {
                 $role = Role::where('name', $user->role)->first();
-                
+
                 if ($role) {
                     // Assign the role to the user
                     DB::table('user_roles')->insert([
-                        'user_id' => $user->id,
-                        'role_id' => $role->id,
+                        'user_id'     => $user->id,
+                        'role_id'     => $role->id,
                         'assigned_at' => now(),
                         'assigned_by' => 1, // System assignment
-                        'created_at' => now(),
-                        'updated_at' => now(),
+                        'created_at'  => now(),
+                        'updated_at'  => now(),
                     ]);
-                    
+
                     Log::info("Assigned role '{$user->role}' to user '{$user->email}' (ID: {$user->id})");
                 } else {
                     Log::warning("Role '{$user->role}' not found for user '{$user->email}' (ID: {$user->id})");
@@ -59,7 +59,7 @@ class UserRoleSeeder extends Seeder
                 Log::info("User '{$user->email}' (ID: {$user->id}) has no role assigned");
             }
         }
-        
+
         // Count assignments
         $totalAssignments = DB::table('user_roles')->count();
         Log::info("Total role assignments created: {$totalAssignments}");

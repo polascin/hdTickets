@@ -1,20 +1,23 @@
-<?php
+<?php declare(strict_types=1);
 
 use Illuminate\Database\Migrations\Migration;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Schema;
 
-return new class extends Migration
-{
+return new class() extends Migration {
     /**
      * Run the migrations.
      */
     public function up(): void
     {
+        // Check if we're using SQLite and skip this migration
+        if (config('database.default') === 'sqlite') {
+            // SQLite doesn't support stored functions like MySQL
+            return;
+        }
+
         // Drop the existing problematic trigger
         DB::statement('DROP TRIGGER IF EXISTS log_user_changes');
-        
+
         // Ensure function is dropped then create a stored function to get next aggregate version
         DB::statement('DROP FUNCTION IF EXISTS GetNextAggregateVersion');
         DB::statement('
@@ -33,7 +36,7 @@ return new class extends Migration
                 RETURN next_version;
             END
         ');
-        
+
         // Create a new trigger using the function
         DB::statement('
             CREATE TRIGGER log_user_changes
@@ -66,10 +69,16 @@ return new class extends Migration
      */
     public function down(): void
     {
+        // Check if we're using SQLite and skip this migration
+        if (config('database.default') === 'sqlite') {
+            // SQLite doesn't support stored functions like MySQL
+            return;
+        }
+
         // Drop the fixed trigger and function
         DB::statement('DROP TRIGGER IF EXISTS log_user_changes');
         DB::statement('DROP FUNCTION IF EXISTS GetNextAggregateVersion');
-        
+
         // Restore the original broken trigger (for rollback purposes)
         DB::statement('
             CREATE TRIGGER log_user_changes

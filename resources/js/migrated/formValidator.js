@@ -838,7 +838,7 @@ class FormValidator {
         const formData = new FormData(form);
         const data = {};
         
-        for (let [name, value] of formData.entries()) {
+        for (const [name, value] of formData.entries()) {
             data[name] = value;
         }
 
@@ -1100,7 +1100,7 @@ class FormValidator {
         const formElement = formData.element;
         const formDataObj = new FormData(formElement);
 
-        for (let [name, value] of formDataObj.entries()) {
+        for (const [name, value] of formDataObj.entries()) {
             data[name] = value;
         }
 

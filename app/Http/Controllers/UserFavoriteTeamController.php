@@ -288,7 +288,7 @@ class UserFavoriteTeamController extends Controller
     {
         $sport = $request->get('sport');
 
-        if (! $sport) {
+        if (!$sport) {
             return response()->json(['error' => 'Sport parameter required'], 400);
         }
 

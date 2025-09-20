@@ -13,7 +13,8 @@ use function count;
 
 class ViagogoController extends Controller
 {
-    public function __construct() {
+    public function __construct()
+    {
         $this->middleware('api.rate_limit:viagogo,30,1')->only(['search', 'getEventDetails']);
         $this->middleware('api.rate_limit:viagogo_import,10,1')->only(['import', 'importUrls']);
         $this->middleware('auth:sanctum')->only(['import', 'importUrls']);
@@ -22,7 +23,7 @@ class ViagogoController extends Controller
 
     /**
      * Search Viagogo events (without importing)
-     * @param Request $request
+     * @param  Request      $request
      * @return JsonResponse
      */
     public function search(Request $request): JsonResponse
@@ -74,7 +75,7 @@ class ViagogoController extends Controller
 
     /**
      * Get detailed event information
-     * @param Request $request
+     * @param  Request      $request
      * @return JsonResponse
      */
     public function getEventDetails(Request $request): JsonResponse
@@ -123,7 +124,7 @@ class ViagogoController extends Controller
 
     /**
      * Import Viagogo events as tickets (agent/admin only)
-     * @param Request $request
+     * @param  Request      $request
      * @return JsonResponse
      */
     public function import(Request $request): JsonResponse
@@ -198,7 +199,7 @@ class ViagogoController extends Controller
 
     /**
      * Import specific events by URLs
-     * @param Request $request
+     * @param  Request      $request
      * @return JsonResponse
      */
     public function importUrls(Request $request): JsonResponse
@@ -276,9 +277,9 @@ class ViagogoController extends Controller
     {
         try {
             $stats = [
-                'platform'          => 'viagogo',
-                'total_scraped'     => \App\Models\Ticket::where('platform', 'viagogo')->count(),
-                'last_scrape'       => \App\Models\Ticket::where('platform', 'viagogo')
+                'platform'      => 'viagogo',
+                'total_scraped' => \App\Models\Ticket::where('platform', 'viagogo')->count(),
+                'last_scrape'   => \App\Models\Ticket::where('platform', 'viagogo')
                     ->latest('created_at')
                     ->value('created_at'),
                 'success_rate'      => $this->calculateSuccessRate('viagogo'),
@@ -299,7 +300,7 @@ class ViagogoController extends Controller
 
     /**
      * Import event as ticket (private helper method)
-     * @param array $eventData
+     * @param  array $eventData
      * @return bool
      */
     private function importEventAsTicket(array $eventData): bool
@@ -314,19 +315,19 @@ class ViagogoController extends Controller
             }
 
             $ticket = new \App\Models\Ticket([
-                'platform'     => 'viagogo',
-                'external_id'  => $eventData['id'] ?? NULL,
-                'title'        => $eventData['name'] ?? 'Unknown Event',
-                'price'        => $eventData['price'] ?? 0.00,
-                'currency'     => $eventData['currency'] ?? 'USD',
-                'venue'        => $eventData['venue'] ?? '',
-                'event_date'   => $eventData['date'] ?? now(),
-                'category'     => $eventData['category'] ?? 'General',
-                'description'  => $eventData['description'] ?? '',
-                'url'          => $eventData['url'] ?? '',
-                'status'       => 'available',
-                'created_at'   => now(),
-                'updated_at'   => now(),
+                'platform'    => 'viagogo',
+                'external_id' => $eventData['id'] ?? NULL,
+                'title'       => $eventData['name'] ?? 'Unknown Event',
+                'price'       => $eventData['price'] ?? 0.00,
+                'currency'    => $eventData['currency'] ?? 'USD',
+                'venue'       => $eventData['venue'] ?? '',
+                'event_date'  => $eventData['date'] ?? now(),
+                'category'    => $eventData['category'] ?? 'General',
+                'description' => $eventData['description'] ?? '',
+                'url'         => $eventData['url'] ?? '',
+                'status'      => 'available',
+                'created_at'  => now(),
+                'updated_at'  => now(),
             ]);
 
             $ticket->save();
@@ -344,7 +345,7 @@ class ViagogoController extends Controller
 
     /**
      * Calculate success rate for platform
-     * @param string $platform
+     * @param  string $platform
      * @return float
      */
     private function calculateSuccessRate(string $platform): float
@@ -354,7 +355,7 @@ class ViagogoController extends Controller
 
     /**
      * Get average response time for platform
-     * @param string $platform
+     * @param  string $platform
      * @return float
      */
     private function getAverageResponseTime(string $platform): float

@@ -1,0 +1,486 @@
+/**
+ * Dashboard Loading States and Skeleton Screens
+ * HD Tickets Sports Events Entry System
+ */
+
+/* Loading Spinner */
+.loading-spinner {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+}
+
+.spinner {
+    width: 24px;
+    height: 24px;
+    border: 2px solid #f3f4f6;
+    border-top: 2px solid #3b82f6;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* Loading Indicator */
+.loading-indicator {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(10px);
+    border-radius: 12px;
+    padding: 24px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+    z-index: 9999;
+    display: none;
+}
+
+.loading-indicator.show {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Skeleton Screens */
+.skeleton {
+    background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+    background-size: 200% 100%;
+    animation: shimmer 1.5s infinite;
+    border-radius: 4px;
+}
+
+@keyframes shimmer {
+    0% { background-position: -200% 0; }
+    100% { background-position: 200% 0; }
+}
+
+.skeleton-card {
+    background: white;
+    border-radius: 12px;
+    padding: 24px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.skeleton-header {
+    height: 24px;
+    width: 70%;
+    margin-bottom: 16px;
+}
+
+.skeleton-text {
+    height: 16px;
+    width: 100%;
+    margin-bottom: 8px;
+}
+
+.skeleton-text.short {
+    width: 60%;
+}
+
+.skeleton-metric {
+    height: 48px;
+    width: 100%;
+    margin-bottom: 12px;
+}
+
+.skeleton-chart {
+    height: 200px;
+    width: 100%;
+}
+
+.skeleton-list-item {
+    display: flex;
+    align-items: center;
+    padding: 12px 0;
+    border-bottom: 1px solid #f3f4f6;
+}
+
+.skeleton-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    margin-right: 12px;
+}
+
+.skeleton-content {
+    flex: 1;
+}
+
+.skeleton-title {
+    height: 16px;
+    width: 80%;
+    margin-bottom: 4px;
+}
+
+.skeleton-subtitle {
+    height: 12px;
+    width: 60%;
+}
+
+/* Pulse Animation for Active Elements */
+.pulse {
+    animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+@keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.5; }
+}
+
+/* Loading States for Components */
+.component-loading {
+    position: relative;
+    pointer-events: none;
+    opacity: 0.7;
+}
+
+.component-loading::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 20px;
+    height: 20px;
+    margin: -10px 0 0 -10px;
+    border: 2px solid #f3f4f6;
+    border-top: 2px solid #3b82f6;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    z-index: 1;
+}
+
+/* Metric Card Loading */
+.metric-card.loading {
+    position: relative;
+    overflow: hidden;
+}
+
+.metric-card.loading::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(
+        90deg,
+        transparent,
+        rgba(255, 255, 255, 0.6),
+        transparent
+    );
+    animation: loading-wave 1.5s infinite;
+}
+
+@keyframes loading-wave {
+    0% { left: -100%; }
+    100% { left: 100%; }
+}
+
+/* Chart Loading Placeholder */
+.chart-loading {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 200px;
+    background: #f8f9fa;
+    border-radius: 8px;
+    color: #6b7280;
+}
+
+.chart-loading svg {
+    width: 24px;
+    height: 24px;
+    margin-right: 8px;
+    animation: spin 1s linear infinite;
+}
+
+/* Error States */
+.error-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 40px 20px;
+    text-align: center;
+    color: #6b7280;
+}
+
+.error-state svg {
+    width: 48px;
+    height: 48px;
+    margin-bottom: 16px;
+    color: #ef4444;
+}
+
+.error-state h3 {
+    margin: 0 0 8px 0;
+    font-size: 18px;
+    font-weight: 600;
+    color: #374151;
+}
+
+.error-state p {
+    margin: 0 0 16px 0;
+    color: #6b7280;
+}
+
+.error-retry-btn {
+    background: #3b82f6;
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 500;
+    transition: background-color 0.2s;
+}
+
+.error-retry-btn:hover {
+    background: #2563eb;
+}
+
+/* Empty States */
+.empty-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 60px 20px;
+    text-align: center;
+}
+
+.empty-state svg {
+    width: 64px;
+    height: 64px;
+    margin-bottom: 16px;
+    color: #d1d5db;
+}
+
+.empty-state h3 {
+    margin: 0 0 8px 0;
+    font-size: 20px;
+    font-weight: 600;
+    color: #374151;
+}
+
+.empty-state p {
+    margin: 0 0 24px 0;
+    color: #6b7280;
+    max-width: 400px;
+}
+
+.empty-state-btn {
+    background: #3b82f6;
+    color: white;
+    border: none;
+    padding: 12px 24px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 500;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    transition: background-color 0.2s;
+}
+
+.empty-state-btn:hover {
+    background: #2563eb;
+}
+
+.empty-state-btn svg {
+    width: 16px;
+    height: 16px;
+    margin-right: 8px;
+}
+
+/* Mobile Optimizations */
+@media (max-width: 768px) {
+    .skeleton-card {
+        padding: 16px;
+    }
+    
+    .skeleton-header {
+        height: 20px;
+        margin-bottom: 12px;
+    }
+    
+    .skeleton-text {
+        height: 14px;
+        margin-bottom: 6px;
+    }
+    
+    .skeleton-metric {
+        height: 40px;
+        margin-bottom: 8px;
+    }
+    
+    .skeleton-chart {
+        height: 150px;
+    }
+    
+    .empty-state {
+        padding: 40px 16px;
+    }
+    
+    .empty-state svg {
+        width: 48px;
+        height: 48px;
+    }
+    
+    .empty-state h3 {
+        font-size: 18px;
+    }
+    
+    .error-state {
+        padding: 32px 16px;
+    }
+    
+    .error-state svg {
+        width: 40px;
+        height: 40px;
+    }
+}
+
+/* Dark Mode Support */
+@media (prefers-color-scheme: dark) {
+    .skeleton {
+        background: linear-gradient(90deg, #374151 25%, #4b5563 50%, #374151 75%);
+        background-size: 200% 100%;
+    }
+    
+    .skeleton-card {
+        background: #1f2937;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+    }
+    
+    .skeleton-list-item {
+        border-bottom-color: #374151;
+    }
+    
+    .chart-loading {
+        background: #1f2937;
+        color: #9ca3af;
+    }
+    
+    .error-state h3 {
+        color: #f3f4f6;
+    }
+    
+    .error-state p {
+        color: #9ca3af;
+    }
+    
+    .empty-state h3 {
+        color: #f3f4f6;
+    }
+    
+    .empty-state p {
+        color: #9ca3af;
+    }
+    
+    .empty-state svg {
+        color: #4b5563;
+    }
+}
+
+/* Accessibility Improvements */
+@media (prefers-reduced-motion: reduce) {
+    .skeleton,
+    .spinner,
+    .loading-wave,
+    .pulse,
+    .component-loading::before {
+        animation: none;
+    }
+    
+    .skeleton {
+        background: #f0f0f0;
+    }
+    
+    @media (prefers-color-scheme: dark) {
+        .skeleton {
+            background: #374151;
+        }
+    }
+}
+
+/* High Contrast Mode */
+@media (prefers-contrast: high) {
+    .skeleton {
+        background: #e5e7eb;
+    }
+    
+    .error-retry-btn,
+    .empty-state-btn {
+        border: 2px solid currentColor;
+    }
+    
+    @media (prefers-color-scheme: dark) {
+        .skeleton {
+            background: #4b5563;
+        }
+    }
+}
+
+/* Focus Indicators for Interactive Loading States */
+.error-retry-btn:focus,
+.empty-state-btn:focus {
+    outline: 2px solid #3b82f6;
+    outline-offset: 2px;
+}
+
+/* Toast Notifications for Loading States */
+.toast {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+    border-left: 4px solid #3b82f6;
+    padding: 16px;
+    max-width: 400px;
+    z-index: 9999;
+    transform: translateX(100%);
+    transition: transform 0.3s ease-in-out;
+}
+
+.toast.toast-show {
+    transform: translateX(0);
+}
+
+.toast.toast-hide {
+    transform: translateX(100%);
+}
+
+.toast.toast-success {
+    border-left-color: #10b981;
+}
+
+.toast.toast-warning {
+    border-left-color: #f59e0b;
+}
+
+.toast.toast-error {
+    border-left-color: #ef4444;
+}
+
+.toast.toast-info {
+    border-left-color: #3b82f6;
+}
+
+@media (max-width: 768px) {
+    .toast {
+        top: 16px;
+        right: 16px;
+        left: 16px;
+        max-width: none;
+    }
+}

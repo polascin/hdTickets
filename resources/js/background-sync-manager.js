@@ -8,16 +8,16 @@ export default class BackgroundSyncManager {
       USER_PREFERENCES: 'user-preferences-sync',
       PURCHASE_QUEUE: 'purchase-queue-sync',
       WATCHLIST_SYNC: 'watchlist-sync',
-      ANALYTICS_SYNC: 'analytics-sync'
+      ANALYTICS_SYNC: 'analytics-sync',
     };
-    
+
     this.endpoints = {
       alerts: '/api/sync/alerts',
       prices: '/api/sync/prices',
       preferences: '/api/sync/preferences',
       purchases: '/api/sync/purchases',
       watchlist: '/api/sync/watchlist',
-      analytics: '/api/sync/analytics'
+      analytics: '/api/sync/analytics',
     };
 
     this.syncIntervals = new Map();
@@ -27,8 +27,13 @@ export default class BackgroundSyncManager {
   }
 
   async init() {
-    if (!('serviceWorker' in navigator) || !('sync' in window.ServiceWorkerRegistration.prototype)) {
-      console.warn('Background Sync not supported, falling back to periodic sync');
+    if (
+      !('serviceWorker' in navigator) ||
+      !('sync' in window.ServiceWorkerRegistration.prototype)
+    ) {
+      console.warn(
+        'Background Sync not supported, falling back to periodic sync'
+      );
       this.initPeriodicSync();
       return;
     }
@@ -46,7 +51,7 @@ export default class BackgroundSyncManager {
 
   initEventListeners() {
     // Listen for data changes that trigger sync
-    document.addEventListener('data:changed', (e) => {
+    document.addEventListener('data:changed', e => {
       this.scheduleSync(e.detail.type, e.detail.data);
     });
 
@@ -67,7 +72,7 @@ export default class BackgroundSyncManager {
     });
 
     // Listen for custom sync requests
-    document.addEventListener('sync:request', (e) => {
+    document.addEventListener('sync:request', e => {
       this.scheduleSync(e.detail.tag, e.detail.data);
     });
   }
@@ -84,10 +89,10 @@ export default class BackgroundSyncManager {
       if (data && Object.keys(data).length > 0) {
         await this.storeSyncData(tag, data);
       }
-      
+
       await this.registration.sync.register(tag);
       console.log(`Scheduled background sync: ${tag}`);
-      
+
       // Also attempt immediate sync if online
       if (navigator.onLine) {
         this.attemptImmediateSync(type, data);
@@ -104,8 +109,8 @@ export default class BackgroundSyncManager {
       'price-updates': this.syncTags.PRICE_UPDATES,
       'user-preferences': this.syncTags.USER_PREFERENCES,
       'purchase-queue': this.syncTags.PURCHASE_QUEUE,
-      'watchlist': this.syncTags.WATCHLIST_SYNC,
-      'analytics': this.syncTags.ANALYTICS_SYNC
+      watchlist: this.syncTags.WATCHLIST_SYNC,
+      analytics: this.syncTags.ANALYTICS_SYNC,
     };
     return tagMap[type] || type;
   }
@@ -116,9 +121,9 @@ export default class BackgroundSyncManager {
         tag,
         data,
         timestamp: Date.now(),
-        retries: 0
+        retries: 0,
       };
-      
+
       localStorage.setItem(`sync_${tag}`, JSON.stringify(syncData));
     } catch (error) {
       console.error('Failed to store sync data:', error);
@@ -127,11 +132,13 @@ export default class BackgroundSyncManager {
 
   async storeForLaterSync(type, data) {
     try {
-      const pendingSync = JSON.parse(localStorage.getItem('pending_sync') || '[]');
+      const pendingSync = JSON.parse(
+        localStorage.getItem('pending_sync') || '[]'
+      );
       pendingSync.push({
         type,
         data,
-        timestamp: Date.now()
+        timestamp: Date.now(),
       });
       localStorage.setItem('pending_sync', JSON.stringify(pendingSync));
     } catch (error) {
@@ -149,10 +156,11 @@ export default class BackgroundSyncManager {
         headers: {
           'Content-Type': 'application/json',
           'X-Requested-With': 'XMLHttpRequest',
-          'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content || ''
+          'X-CSRF-TOKEN':
+            document.querySelector('meta[name="csrf-token"]')?.content || '',
         },
         credentials: 'same-origin',
-        body: JSON.stringify(data)
+        body: JSON.stringify(data),
       });
 
       if (response.ok) {
@@ -174,8 +182,8 @@ export default class BackgroundSyncManager {
       'price-updates': this.endpoints.prices,
       'user-preferences': this.endpoints.preferences,
       'purchase-queue': this.endpoints.purchases,
-      'watchlist': this.endpoints.watchlist,
-      'analytics': this.endpoints.analytics
+      watchlist: this.endpoints.watchlist,
+      analytics: this.endpoints.analytics,
     };
     return endpointMap[type];
   }
@@ -201,12 +209,14 @@ export default class BackgroundSyncManager {
 
   async processPendingSyncs() {
     try {
-      const pendingSync = JSON.parse(localStorage.getItem('pending_sync') || '[]');
-      
+      const pendingSync = JSON.parse(
+        localStorage.getItem('pending_sync') || '[]'
+      );
+
       for (const item of pendingSync) {
         await this.scheduleSync(item.type, item.data);
       }
-      
+
       localStorage.removeItem('pending_sync');
       console.log(`Processed ${pendingSync.length} pending syncs`);
     } catch (error) {
@@ -215,14 +225,10 @@ export default class BackgroundSyncManager {
   }
 
   async syncCriticalData() {
-    const criticalSyncs = [
-      'ticket-alerts',
-      'price-updates',
-      'watchlist'
-    ];
+    const criticalSyncs = ['ticket-alerts', 'price-updates', 'watchlist'];
 
     console.log('Syncing critical data...');
-    
+
     for (const syncType of criticalSyncs) {
       await this.scheduleSync(syncType);
     }
@@ -231,28 +237,46 @@ export default class BackgroundSyncManager {
   // Periodic sync fallback for browsers without Background Sync
   initPeriodicSync() {
     console.log('Initializing periodic sync fallback');
-    
+
     // Sync critical data every 2 minutes
-    this.syncIntervals.set('critical', setInterval(() => {
-      if (navigator.onLine && !document.hidden) {
-        this.syncCriticalData();
-      }
-    }, 2 * 60 * 1000));
+    this.syncIntervals.set(
+      'critical',
+      setInterval(
+        () => {
+          if (navigator.onLine && !document.hidden) {
+            this.syncCriticalData();
+          }
+        },
+        2 * 60 * 1000
+      )
+    );
 
     // Sync user data every 5 minutes
-    this.syncIntervals.set('user', setInterval(() => {
-      if (navigator.onLine && !document.hidden) {
-        this.scheduleSync('user-preferences');
-        this.scheduleSync('analytics');
-      }
-    }, 5 * 60 * 1000));
+    this.syncIntervals.set(
+      'user',
+      setInterval(
+        () => {
+          if (navigator.onLine && !document.hidden) {
+            this.scheduleSync('user-preferences');
+            this.scheduleSync('analytics');
+          }
+        },
+        5 * 60 * 1000
+      )
+    );
 
     // Sync less critical data every 10 minutes
-    this.syncIntervals.set('background', setInterval(() => {
-      if (navigator.onLine) {
-        this.scheduleSync('purchase-queue');
-      }
-    }, 10 * 60 * 1000));
+    this.syncIntervals.set(
+      'background',
+      setInterval(
+        () => {
+          if (navigator.onLine) {
+            this.scheduleSync('purchase-queue');
+          }
+        },
+        10 * 60 * 1000
+      )
+    );
   }
 
   // Public API methods
@@ -284,11 +308,11 @@ export default class BackgroundSyncManager {
     console.log('Force syncing all data...');
     const syncTypes = [
       'ticket-alerts',
-      'price-updates', 
+      'price-updates',
       'user-preferences',
       'watchlist',
       'purchase-queue',
-      'analytics'
+      'analytics',
     ];
 
     const promises = syncTypes.map(type => this.scheduleSync(type));
@@ -309,15 +333,17 @@ export default class BackgroundSyncManager {
 
   // Get sync status for UI
   getSyncStatus() {
-    const pendingSync = JSON.parse(localStorage.getItem('pending_sync') || '[]');
+    const pendingSync = JSON.parse(
+      localStorage.getItem('pending_sync') || '[]'
+    );
     const hasPendingSync = pendingSync.length > 0;
-    
+
     return {
       online: navigator.onLine,
       hasPendingSync,
       pendingCount: pendingSync.length,
       lastSync: localStorage.getItem('last_sync_timestamp'),
-      supportsBgSync: 'sync' in window.ServiceWorkerRegistration.prototype
+      supportsBgSync: 'sync' in window.ServiceWorkerRegistration.prototype,
     };
   }
 }

@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * Fix Remaining Parse Errors Script
  * This script fixes all remaining parse errors in the Laravel application
@@ -18,9 +18,9 @@ $fixes = [
             '} catch',
             'return new \\\\App\\\\Models\\\\Ticket(',
             '} \\1',
-        ]
+        ],
     ],
-    
+
     // Fix AgentDashboardController.php
     'app/Http/Controllers/Admin/AgentDashboardController.php' => [
         'search' => [
@@ -28,7 +28,7 @@ $fixes = [
         ],
         'replace' => [
             '} catch',
-        ]
+        ],
     ],
 ];
 
@@ -36,24 +36,25 @@ echo "Starting to fix remaining parse errors...\n";
 
 foreach ($fixes as $file => $patterns) {
     $filePath = "/var/www/hdtickets/{$file}";
-    
+
     if (!file_exists($filePath)) {
         echo "File not found: {$file}\n";
+
         continue;
     }
-    
+
     echo "Processing: {$file}\n";
     $content = file_get_contents($filePath);
-    
+
     // Apply regex patterns
     foreach ($patterns['search'] as $index => $pattern) {
         $replacement = $patterns['replace'][$index];
         $newContent = preg_replace($pattern, $replacement, $content);
-        if ($newContent !== null) {
+        if ($newContent !== NULL) {
             $content = $newContent;
         }
     }
-    
+
     // Save the fixed content
     file_put_contents($filePath, $content);
     echo "Fixed: {$file}\n";
@@ -62,17 +63,17 @@ foreach ($fixes as $file => $patterns) {
 // Create clean versions of remaining problematic controllers
 $cleanControllers = [
     'TickPickController' => [
-        'path' => 'app/Http/Controllers/Api/TickPickController.php',
-        'class' => 'TickPickController',
+        'path'     => 'app/Http/Controllers/Api/TickPickController.php',
+        'class'    => 'TickPickController',
         'platform' => 'tickpick',
-        'client' => 'TickPickClient',
-        'regex' => 'tickpick\.com',
-    ]
+        'client'   => 'TickPickClient',
+        'regex'    => 'tickpick\.com',
+    ],
 ];
 
 foreach ($cleanControllers as $controllerName => $config) {
     echo "Creating clean {$controllerName}...\n";
-    
+
     $template = "<?php declare(strict_types=1);
 
 namespace App\\Http\\Controllers\\Api;

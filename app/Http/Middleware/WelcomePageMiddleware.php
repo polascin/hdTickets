@@ -34,7 +34,7 @@ class WelcomePageMiddleware
         $response = $next($request);
 
         // Add cache headers for public content
-        if (! Auth::check()) {
+        if (!Auth::check()) {
             $this->addPublicCacheHeaders($response);
         }
 
@@ -136,7 +136,7 @@ class WelcomePageMiddleware
         $visitorHash = hash('sha256', $request->ip() . $request->userAgent());
         $cacheKey = 'unique_visitor_' . date('Y-m-d') . '_' . $visitorHash;
 
-        if (! Cache::has($cacheKey)) {
+        if (!Cache::has($cacheKey)) {
             // Mark as seen for today
             Cache::put($cacheKey, TRUE, 86400); // 24 hours
 
@@ -149,6 +149,8 @@ class WelcomePageMiddleware
 
     /**
      * Add cache headers for public content
+     *
+     * @param mixed $response
      */
     protected function addPublicCacheHeaders($response): void
     {
@@ -166,6 +168,8 @@ class WelcomePageMiddleware
 
     /**
      * Add performance headers
+     *
+     * @param mixed $response
      */
     protected function addPerformanceHeaders($response): void
     {

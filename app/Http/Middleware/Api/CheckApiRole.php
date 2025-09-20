@@ -25,12 +25,12 @@ class CheckApiRole
     {
         $user = $request->user();
 
-        if (! $user) {
+        if (!$user) {
             return response()->json(['message' => 'Unauthorized'], 401);
         }
 
         // Check if user has any of the required roles
-        if (! in_array($user->role, $roles, TRUE)) {
+        if (!in_array($user->role, $roles, TRUE)) {
             return response()->json([
                 'message' => 'Forbidden. Required roles: ' . implode(', ', $roles),
             ], 403);

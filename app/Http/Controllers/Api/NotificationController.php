@@ -93,7 +93,7 @@ class NotificationController extends Controller
                 'user_id' => $user->id,
             ])->firstOrFail();
 
-            if (! $notification->read_at) {
+            if (!$notification->read_at) {
                 $notification->update(['read_at' => now()]);
             }
 
@@ -326,7 +326,7 @@ class NotificationController extends Controller
             $user = Auth::user();
             $format = $request->get('format', 'csv'); // csv, json, pdf
 
-            if (! in_array($format, ['csv', 'json', 'pdf'], TRUE)) {
+            if (!in_array($format, ['csv', 'json', 'pdf'], TRUE)) {
                 return response()->json([
                     'success' => FALSE,
                     'message' => 'Invalid export format. Use csv, json, or pdf.',
@@ -394,7 +394,7 @@ class NotificationController extends Controller
             $type = $request->get('type', 'system');
 
             // Only allow in non-production environments or for admins
-            if (app()->isProduction() && ! $user->isAdmin()) {
+            if (app()->isProduction() && !$user->isAdmin()) {
                 return response()->json([
                     'success' => FALSE,
                     'message' => 'Test notifications not allowed in production.',
@@ -463,7 +463,7 @@ class NotificationController extends Controller
             $user = Auth::user();
             $duration = $request->get('duration', '1h'); // 15m, 1h, 4h, 1d
 
-            $snoozeUntil = match($duration) {
+            $snoozeUntil = match ($duration) {
                 '15m'   => now()->addMinutes(15),
                 '1h'    => now()->addHour(),
                 '4h'    => now()->addHours(4),

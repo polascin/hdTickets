@@ -21,9 +21,9 @@ use Illuminate\View\View;
 class EnhancedDashboardController extends Controller
 {
     public function __construct(
-        protected AnalyticsService $analytics, 
+        protected AnalyticsService $analytics,
         protected RecommendationService $recommendations,
-        protected DashboardCacheService $cacheService
+        protected DashboardCacheService $cacheService,
     ) {
     }
 
@@ -34,7 +34,7 @@ class EnhancedDashboardController extends Controller
     {
         $user = Auth::user();
 
-        if (! $user) {
+        if (!$user) {
             abort(401, 'Authentication required');
         }
 
@@ -53,7 +53,7 @@ class EnhancedDashboardController extends Controller
     {
         $user = Auth::user();
 
-        if (! $user) {
+        if (!$user) {
             return response()->json(['error' => 'Authentication required'], 401);
         }
 
@@ -74,8 +74,8 @@ class EnhancedDashboardController extends Controller
                     'engagement_score' => $this->getUserEngagementScore(),
                 ],
                 'subscription' => $this->getSubscriptionData($user),
-                'timestamp'        => Carbon::now()->toISOString(),
-                'last_updated'     => Carbon::now()->toISOString(),
+                'timestamp'    => Carbon::now()->toISOString(),
+                'last_updated' => Carbon::now()->toISOString(),
             ];
 
             return response()->json([
@@ -97,32 +97,6 @@ class EnhancedDashboardController extends Controller
                 'success' => FALSE,
                 'error'   => 'Unable to fetch realtime data',
             ], 500);
-        }
-    }
-
-    /**
-     * Get subscription data with safe fallbacks
-     */
-    private function getSubscriptionData(User $user): array
-    {
-        try {
-            return [
-                'monthly_limit'   => $user->getMonthlyTicketLimit() ?? 100,
-                'current_usage'   => $user->getMonthlyTicketUsage() ?? 0,
-                'percentage_used' => min(100, (($user->getMonthlyTicketUsage() ?? 0) / max(1, $user->getMonthlyTicketLimit() ?? 100)) * 100),
-                'has_active'      => $user->hasActiveSubscription() ?? false,
-                'days_remaining'  => method_exists($user, 'getFreeTrialDaysRemaining') ? $user->getFreeTrialDaysRemaining() : null,
-            ];
-        } catch (Exception $e) {
-            Log::debug('Failed to get subscription data, using defaults', ['error' => $e->getMessage()]);
-
-            return [
-                'monthly_limit'   => 100,
-                'current_usage'   => 0,
-                'percentage_used' => 0,
-                'has_active'      => false,
-                'days_remaining'  => null,
-            ];
         }
     }
 
@@ -162,6 +136,32 @@ class EnhancedDashboardController extends Controller
     }
 
     /**
+     * Get subscription data with safe fallbacks
+     */
+    private function getSubscriptionData(User $user): array
+    {
+        try {
+            return [
+                'monthly_limit'   => $user->getMonthlyTicketLimit() ?? 100,
+                'current_usage'   => $user->getMonthlyTicketUsage() ?? 0,
+                'percentage_used' => min(100, (($user->getMonthlyTicketUsage() ?? 0) / max(1, $user->getMonthlyTicketLimit() ?? 100)) * 100),
+                'has_active'      => $user->hasActiveSubscription() ?? FALSE,
+                'days_remaining'  => method_exists($user, 'getFreeTrialDaysRemaining') ? $user->getFreeTrialDaysRemaining() : NULL,
+            ];
+        } catch (Exception $e) {
+            Log::debug('Failed to get subscription data, using defaults', ['error' => $e->getMessage()]);
+
+            return [
+                'monthly_limit'   => 100,
+                'current_usage'   => 0,
+                'percentage_used' => 0,
+                'has_active'      => FALSE,
+                'days_remaining'  => NULL,
+            ];
+        }
+    }
+
+    /**
      * Get comprehensive dashboard data with caching
      */
     private function getComprehensiveDashboardData(User $user): array
@@ -169,7 +169,7 @@ class EnhancedDashboardController extends Controller
         try {
             // Use the cache service for optimized data retrieval
             $cachedData = $this->cacheService->getComprehensiveDashboardData($user);
-            
+
             // Get additional data that's not cached by the service
             $additionalData = [
                 'user'                        => $user,
@@ -181,18 +181,18 @@ class EnhancedDashboardController extends Controller
                 'performanceMetrics'          => $this->getPerformanceMetrics(),
                 'userPreferences'             => $this->getUserPreferences($user),
             ];
-            
+
             // Merge cached data with additional data
             return array_merge($cachedData, $additionalData, [
-                'stats' => $cachedData['statistics'], // Alias for backward compatibility
+                'stats'         => $cachedData['statistics'], // Alias for backward compatibility
                 'recentTickets' => $cachedData['recent_tickets'],
             ]);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             Log::error('Failed to get comprehensive dashboard data', [
                 'user_id' => $user->id,
-                'error' => $e->getMessage(),
+                'error'   => $e->getMessage(),
             ]);
-            
+
             // Fallback to original method if cache service fails
             return $this->getFallbackDashboardData($user);
         }
@@ -309,16 +309,16 @@ class EnhancedDashboardController extends Controller
                 ->get()
                 ->map(function ($ticket): array {
                     return [
-                        'id'         => (int) $ticket->id,
-                        'title'      => (string) ($ticket->title ?? 'Sports Event'),
-                        'venue'      => (string) ($ticket->venue ?? 'TBD'),
-                        'price'      => (float) ($ticket->min_price ?? 0),
-                        'platform'   => (string) ($ticket->platform ?? 'Unknown'),
-                        'sport'      => (string) ($ticket->sport ?? 'Sports'),
-                        'event_date' => $ticket->event_date ? $ticket->event_date->format('Y-m-d') : null,
-                        'scraped_at' => $ticket->scraped_at ? $ticket->scraped_at->diffForHumans() : 'Recently',
-                        'available'  => (bool) $ticket->is_available,
-                        'high_demand' => (bool) ($ticket->is_high_demand ?? false),
+                        'id'          => (int) $ticket->id,
+                        'title'       => (string) ($ticket->title ?? 'Sports Event'),
+                        'venue'       => (string) ($ticket->venue ?? 'TBD'),
+                        'price'       => (float) ($ticket->min_price ?? 0),
+                        'platform'    => (string) ($ticket->platform ?? 'Unknown'),
+                        'sport'       => (string) ($ticket->sport ?? 'Sports'),
+                        'event_date'  => $ticket->event_date ? $ticket->event_date->format('Y-m-d') : NULL,
+                        'scraped_at'  => $ticket->scraped_at ? $ticket->scraped_at->diffForHumans() : 'Recently',
+                        'available'   => (bool) $ticket->is_available,
+                        'high_demand' => (bool) ($ticket->is_high_demand ?? FALSE),
                     ];
                 })
                 ->toArray();
@@ -345,7 +345,7 @@ class EnhancedDashboardController extends Controller
             ->orderBy('popularity_score', 'desc');
 
         // Apply user preferences
-        if (! empty($favoriteTeams)) {
+        if (!empty($favoriteTeams)) {
             $query->where(function ($q) use ($favoriteTeams): void {
                 foreach ($favoriteTeams as $team) {
                     $q->orWhere('title', 'like', "%{$team}%")
@@ -354,7 +354,7 @@ class EnhancedDashboardController extends Controller
             });
         }
 
-        if (! empty($priceRange) && isset($priceRange['max'])) {
+        if (!empty($priceRange) && isset($priceRange['max'])) {
             $query->where('min_price', '<=', $priceRange['max']);
         }
 
@@ -424,14 +424,14 @@ class EnhancedDashboardController extends Controller
         return ScrapedTicket::available()
             ->where('event_date', '>', Carbon::now())
             ->where('event_date', '<=', Carbon::now()->addMonths(3))
-            ->when(! empty($favoriteTeams), function ($query) use ($favoriteTeams): void {
+            ->when(!empty($favoriteTeams), function ($query) use ($favoriteTeams): void {
                 $query->where(function ($q) use ($favoriteTeams): void {
                     foreach ($favoriteTeams as $team) {
                         $q->orWhere('title', 'like', "%{$team}%");
                     }
                 });
             })
-            ->when(! empty($favoriteVenues), function ($query) use ($favoriteVenues): void {
+            ->when(!empty($favoriteVenues), function ($query) use ($favoriteVenues): void {
                 $query->whereIn('venue', $favoriteVenues);
             })
             ->orderBy('event_date')
@@ -790,7 +790,7 @@ class EnhancedDashboardController extends Controller
         $query = ScrapedTicket::available()
             ->selectRaw('COUNT(DISTINCT CONCAT(title, venue, event_date)) as unique_events');
 
-        if (! empty($favoriteTeams)) {
+        if (!empty($favoriteTeams)) {
             $query->where(function ($q) use ($favoriteTeams): void {
                 foreach ($favoriteTeams as $team) {
                     $q->orWhere('title', 'like', "%{$team}%")
@@ -869,44 +869,44 @@ class EnhancedDashboardController extends Controller
                 'userPreferences'             => $this->getUserPreferences($user),
                 'system_status'               => $this->getSystemStatus(),
                 'user_data'                   => [
-                    'preferences' => $user->preferences ?? [],
+                    'preferences'  => $user->preferences ?? [],
                     'subscription' => $this->getSubscriptionData($user),
                 ],
-                'generated_at'                => Carbon::now()->toISOString(),
+                'generated_at' => Carbon::now()->toISOString(),
             ];
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             Log::error('Fallback dashboard data generation failed', [
                 'user_id' => $user->id,
-                'error' => $e->getMessage(),
+                'error'   => $e->getMessage(),
             ]);
 
             // Return minimal safe data
             return [
-                'user' => $user,
+                'user'       => $user,
                 'statistics' => [
                     'available_tickets' => 0,
-                    'new_today' => 0,
-                    'monitored_events' => 0,
-                    'active_alerts' => 0,
-                    'price_alerts' => 0,
-                    'triggered_today' => 0,
+                    'new_today'         => 0,
+                    'monitored_events'  => 0,
+                    'active_alerts'     => 0,
+                    'price_alerts'      => 0,
+                    'triggered_today'   => 0,
                 ],
                 'stats' => [
                     'available_tickets' => 0,
-                    'new_today' => 0,
-                    'monitored_events' => 0,
-                    'active_alerts' => 0,
-                    'price_alerts' => 0,
-                    'triggered_today' => 0,
+                    'new_today'         => 0,
+                    'monitored_events'  => 0,
+                    'active_alerts'     => 0,
+                    'price_alerts'      => 0,
+                    'triggered_today'   => 0,
                 ],
-                'recentTickets' => [],
+                'recentTickets'  => [],
                 'recent_tickets' => [],
-                'system_status' => [
-                    'scraping_active' => false,
-                    'api_responsive' => false,
-                    'database_healthy' => false,
-                    'cache_healthy' => false,
-                    'last_check' => Carbon::now()->toISOString(),
+                'system_status'  => [
+                    'scraping_active'  => FALSE,
+                    'api_responsive'   => FALSE,
+                    'database_healthy' => FALSE,
+                    'cache_healthy'    => FALSE,
+                    'last_check'       => Carbon::now()->toISOString(),
                 ],
                 'generated_at' => Carbon::now()->toISOString(),
             ];

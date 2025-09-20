@@ -1,14 +1,13 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * Final Missing Classes Creation
  * Address the remaining class.notFound errors specifically
  */
-
 echo "🏗️ Creating final batch of missing classes...\n";
 
 $finalMissingClasses = [
     'App\\Mail\\TicketAlert' => [
-        'file' => 'app/Mail/TicketAlert.php',
+        'file'     => 'app/Mail/TicketAlert.php',
         'template' => '<?php declare(strict_types=1);
 
 namespace App\\Mail;
@@ -30,11 +29,11 @@ class TicketAlert extends Mailable
             ->view("emails.ticket-alert")
             ->with($this->alertData);
     }
-}'
+}',
     ],
-    
+
     'App\\Services\\AdvancedAlertSystem' => [
-        'file' => 'app/Services/AdvancedAlertSystem.php',
+        'file'     => 'app/Services/AdvancedAlertSystem.php',
         'template' => '<?php declare(strict_types=1);
 
 namespace App\\Services;
@@ -52,11 +51,11 @@ class AdvancedAlertSystem
     {
         // Process pending alerts
     }
-}'
+}',
     ],
-    
+
     'App\\Services\\NotificationChannels\\ChannelFactory' => [
-        'file' => 'app/Services/NotificationChannels/ChannelFactory.php',
+        'file'     => 'app/Services/NotificationChannels/ChannelFactory.php',
         'template' => '<?php declare(strict_types=1);
 
 namespace App\\Services\\NotificationChannels;
@@ -67,11 +66,11 @@ class ChannelFactory
     {
         return new class {};
     }
-}'
+}',
     ],
-    
+
     'App\\Services\\Scraping\\Adapters\\PlatformAdapterFactory' => [
-        'file' => 'app/Services/Scraping/Adapters/PlatformAdapterFactory.php',
+        'file'     => 'app/Services/Scraping/Adapters/PlatformAdapterFactory.php',
         'template' => '<?php declare(strict_types=1);
 
 namespace App\\Services\\Scraping\\Adapters;
@@ -84,11 +83,11 @@ class PlatformAdapterFactory
             public function scrape(): array { return []; }
         };
     }
-}'
+}',
     ],
-    
+
     'App\\Services\\Patterns\\Strategy\\PurchaseStrategyFactory' => [
-        'file' => 'app/Services/Patterns/Strategy/PurchaseStrategyFactory.php',
+        'file'     => 'app/Services/Patterns/Strategy/PurchaseStrategyFactory.php',
         'template' => '<?php declare(strict_types=1);
 
 namespace App\\Services\\Patterns\\Strategy;
@@ -101,11 +100,11 @@ class PurchaseStrategyFactory
             public function execute(): bool { return true; }
         };
     }
-}'
+}',
     ],
-    
+
     'App\\Services\\Patterns\\ChainOfResponsibility\\PurchaseDecisionChain' => [
-        'file' => 'app/Services/Patterns/ChainOfResponsibility/PurchaseDecisionChain.php',
+        'file'     => 'app/Services/Patterns/ChainOfResponsibility/PurchaseDecisionChain.php',
         'template' => '<?php declare(strict_types=1);
 
 namespace App\\Services\\Patterns\\ChainOfResponsibility;
@@ -116,11 +115,11 @@ class PurchaseDecisionChain
     {
         return true;
     }
-}'
+}',
     ],
-    
+
     'App\\Services\\Core\\ScrapingService' => [
-        'file' => 'app/Services/Core/ScrapingService.php',
+        'file'     => 'app/Services/Core/ScrapingService.php',
         'template' => '<?php declare(strict_types=1);
 
 namespace App\\Services\\Core;
@@ -137,11 +136,11 @@ class ScrapingService
     {
         return [];
     }
-}'
+}',
     ],
-    
+
     'App\\Services\\Core\\PurchaseAutomationService' => [
-        'file' => 'app/Services/Core/PurchaseAutomationService.php', 
+        'file'     => 'app/Services/Core/PurchaseAutomationService.php',
         'template' => '<?php declare(strict_types=1);
 
 namespace App\\Services\\Core;
@@ -160,19 +159,19 @@ class PurchaseAutomationService
     {
         return $this->decisionChain->handle($data);
     }
-}'
+}',
     ],
 ];
 
 foreach ($finalMissingClasses as $className => $config) {
     $fullPath = "/var/www/hdtickets/{$config['file']}";
     $dir = dirname($fullPath);
-    
+
     if (!is_dir($dir)) {
-        mkdir($dir, 0755, true);
+        mkdir($dir, 0755, TRUE);
         echo "📁 Created directory: $dir\n";
     }
-    
+
     if (!file_exists($fullPath)) {
         file_put_contents($fullPath, $config['template']);
         echo "✅ Created: {$config['file']}\n";
@@ -185,26 +184,26 @@ echo "\n🔧 Fixing malformed type declarations...\n";
 $typeFixFiles = [
     'app/Services/Enhanced/ViewFragmentCachingService.php',
     'app/Services/AnalyticsInsightsService.php',
-    'app/Http/Middleware/TrackUserActivity.php'
+    'app/Http/Middleware/TrackUserActivity.php',
 ];
 
 foreach ($typeFixFiles as $file) {
     $fullPath = "/var/www/hdtickets/$file";
     if (file_exists($fullPath)) {
         $content = file_get_contents($fullPath);
-        
+
         // Fix malformed namespace references like "App\Services\Enhanced\App\Models\User"
         $fixes = [
             '/App\\\\Services\\\\Enhanced\\\\App\\\\Models\\\\User/' => 'App\\Models\\User',
-            '/App\\\\Services\\\\App\\\\Models\\\\User/' => 'App\\Models\\User', 
-            '/App\\\\Http\\\\Middleware\\\\App\\\\Models\\\\User/' => 'App\\Models\\User',
+            '/App\\\\Services\\\\App\\\\Models\\\\User/'             => 'App\\Models\\User',
+            '/App\\\\Http\\\\Middleware\\\\App\\\\Models\\\\User/'   => 'App\\Models\\User',
         ];
-        
+
         $originalContent = $content;
         foreach ($fixes as $pattern => $replacement) {
             $content = preg_replace($pattern, $replacement, $content);
         }
-        
+
         if ($content !== $originalContent) {
             file_put_contents($fullPath, $content);
             echo "🔧 Fixed type declarations in: $file\n";

@@ -1,15 +1,14 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * Targeted PHPStan Error Fixes - Safe Approach
  * Focus on remaining major error categories without breaking syntax
  */
-
 echo "🎯 Starting Targeted PHPStan Error Resolution\n";
 
 // Create additional missing classes that are still causing errors
 $additionalMissingClasses = [
     'App\\Services\\Enhanced\\AdvancedCacheService' => [
-        'file' => 'app/Services/Enhanced/AdvancedCacheService.php',
+        'file'     => 'app/Services/Enhanced/AdvancedCacheService.php',
         'template' => '<?php declare(strict_types=1);
 
 namespace App\\Services\\Enhanced;
@@ -32,11 +31,11 @@ class AdvancedCacheService
     {
         return app("cache")->flush();
     }
-}'
+}',
     ],
-    
+
     'App\\Services\\Enhanced\\PerformanceMonitoringService' => [
-        'file' => 'app/Services/Enhanced/PerformanceMonitoringService.php',
+        'file'     => 'app/Services/Enhanced/PerformanceMonitoringService.php',
         'template' => '<?php declare(strict_types=1);
 
 namespace App\\Services\\Enhanced;
@@ -55,11 +54,11 @@ class PerformanceMonitoringService
     {
         return [];
     }
-}'
+}',
     ],
-    
+
     'App\\Services\\ActivityLogger' => [
-        'file' => 'app/Services/ActivityLogger.php',
+        'file'     => 'app/Services/ActivityLogger.php',
         'template' => '<?php declare(strict_types=1);
 
 namespace App\\Services;
@@ -70,11 +69,11 @@ class ActivityLogger
     {
         logger("Activity: {$activity}", $data);
     }
-}'
+}',
     ],
-    
+
     'App\\Services\\EncryptionService' => [
-        'file' => 'app/Services/EncryptionService.php',
+        'file'     => 'app/Services/EncryptionService.php',
         'template' => '<?php declare(strict_types=1);
 
 namespace App\\Services;
@@ -90,11 +89,11 @@ class EncryptionService
     {
         return decrypt($data);
     }
-}'
+}',
     ],
-    
+
     'App\\Services\\SecurityService' => [
-        'file' => 'app/Services/SecurityService.php',
+        'file'     => 'app/Services/SecurityService.php',
         'template' => '<?php declare(strict_types=1);
 
 namespace App\\Services;
@@ -110,11 +109,11 @@ class SecurityService
     {
         return htmlspecialchars($input, ENT_QUOTES, "UTF-8");
     }
-}'
+}',
     ],
-    
+
     'App\\Services\\RedisRateLimitService' => [
-        'file' => 'app/Services/RedisRateLimitService.php', 
+        'file'     => 'app/Services/RedisRateLimitService.php',
         'template' => '<?php declare(strict_types=1);
 
 namespace App\\Services;
@@ -125,11 +124,11 @@ class RedisRateLimitService
     {
         return true; // Simple implementation
     }
-}'
+}',
     ],
-    
+
     'App\\Services\\NotificationSystem\\NotificationManager' => [
-        'file' => 'app/Services/NotificationSystem/NotificationManager.php',
+        'file'     => 'app/Services/NotificationSystem/NotificationManager.php',
         'template' => '<?php declare(strict_types=1);
 
 namespace App\\Services\\NotificationSystem;
@@ -145,11 +144,11 @@ class NotificationManager
     {
         // Queue notification for later processing
     }
-}'
+}',
     ],
-    
+
     'App\\Services\\TicketScrapingService' => [
-        'file' => 'app/Services/TicketScrapingService.php',
+        'file'     => 'app/Services/TicketScrapingService.php',
         'template' => '<?php declare(strict_types=1);
 
 namespace App\\Services;
@@ -165,19 +164,19 @@ class TicketScrapingService
     {
         return "active";
     }
-}'
+}',
     ],
 ];
 
 foreach ($additionalMissingClasses as $className => $config) {
     $fullPath = "/var/www/hdtickets/{$config['file']}";
     $dir = dirname($fullPath);
-    
+
     if (!is_dir($dir)) {
-        mkdir($dir, 0755, true);
+        mkdir($dir, 0755, TRUE);
         echo "📁 Created directory: $dir\n";
     }
-    
+
     if (!file_exists($fullPath)) {
         file_put_contents($fullPath, $config['template']);
         echo "✅ Created: {$config['file']}\n";
@@ -191,31 +190,31 @@ echo "\n🔧 Fixing method visibility and argument count issues...\n";
 $userModelPath = '/var/www/hdtickets/app/Models/User.php';
 if (file_exists($userModelPath)) {
     $content = file_get_contents($userModelPath);
-    
+
     // Add missing User methods if not present
     $missingMethods = [
-        'isAdmin()' => 'public function isAdmin(): bool { return $this->role === "admin"; }',
-        'isAgent()' => 'public function isAgent(): bool { return $this->role === "agent"; }', 
-        'isCustomer()' => 'public function isCustomer(): bool { return $this->role === "customer"; }',
-        'isScraper()' => 'public function isScraper(): bool { return $this->role === "scraper"; }',
-        'hasRole(' => 'public function hasRole(string $role): bool { return $this->role === $role; }',
-        'isVerified()' => 'public function isVerified(): bool { return !is_null($this->email_verified_at); }',
+        'isAdmin()'      => 'public function isAdmin(): bool { return $this->role === "admin"; }',
+        'isAgent()'      => 'public function isAgent(): bool { return $this->role === "agent"; }',
+        'isCustomer()'   => 'public function isCustomer(): bool { return $this->role === "customer"; }',
+        'isScraper()'    => 'public function isScraper(): bool { return $this->role === "scraper"; }',
+        'hasRole('       => 'public function hasRole(string $role): bool { return $this->role === $role; }',
+        'isVerified()'   => 'public function isVerified(): bool { return !is_null($this->email_verified_at); }',
         'hasPermission(' => 'public function hasPermission(string $permission): bool { return true; }',
     ];
-    
+
     $methodsAdded = [];
     foreach ($missingMethods as $check => $method) {
-        if (strpos($content, $check) === false) {
+        if (strpos($content, $check) === FALSE) {
             $methodsAdded[] = "    $method\n";
         }
     }
-    
+
     if (!empty($methodsAdded)) {
         // Add methods before the last closing brace
         $lastBrace = strrpos($content, '}');
         $beforeBrace = substr($content, 0, $lastBrace);
         $afterBrace = substr($content, $lastBrace);
-        
+
         $newContent = $beforeBrace . "\n" . implode("\n", $methodsAdded) . $afterBrace;
         file_put_contents($userModelPath, $newContent);
         echo "✅ Added missing methods to User model\n";

@@ -91,7 +91,7 @@ class UserRotationService
         while ($users->count() < $count && $attempts < $maxAttempts) {
             $user = $this->getRotatedUser($platform, $operation);
 
-            if ($user && ! $users->contains('id', $user->id)) {
+            if ($user && !$users->contains('id', $user->id)) {
                 $users->push($user);
             }
 

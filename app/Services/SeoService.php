@@ -85,7 +85,7 @@ class SeoService
             $xml .= '        <changefreq>' . $urlData['changefreq'] . "</changefreq>\n";
             $xml .= '        <priority>' . $urlData['priority'] . "</priority>\n";
 
-            if (isset($urlData['images']) && ! empty($urlData['images'])) {
+            if (isset($urlData['images']) && !empty($urlData['images'])) {
                 foreach ($urlData['images'] as $image) {
                     $xml .= "        <image:image>\n";
                     $xml .= '            <image:loc>' . htmlspecialchars((string) $image['loc']) . "</image:loc>\n";
@@ -206,7 +206,7 @@ class SeoService
     public function isValidSitemapUrl(string $url): bool
     {
         // Check if URL is valid
-        if (! filter_var($url, FILTER_VALIDATE_URL)) {
+        if (!filter_var($url, FILTER_VALIDATE_URL)) {
             return FALSE;
         }
 

@@ -1,6 +1,6 @@
 <section class="hero fade-in">
     <div class="hero-illustration">
-        <img src="{{ Vite::asset('resources/illustrations/stadium.svg') }}" alt="Stadium illustration" width="160" height="160" />
+        <img src="{{ asset('illustrations/stadium.svg') }}" alt="Stadium illustration" width="160" height="160" />
     </div>
     <div class="hero-badge">
         <span class="badge-icon">🚀</span>
@@ -61,14 +61,16 @@
 .hero-badge {
     display: inline-flex;
     align-items: center;
+    justify-content: center;
     gap: 8px;
     background: rgba(255, 255, 255, 0.1);
     backdrop-filter: blur(10px);
     border: 1px solid rgba(255, 255, 255, 0.2);
     border-radius: 30px;
     padding: 8px 16px;
-    margin-bottom: 24px;
+    margin: 0 auto 24px auto;
     animation: float 3s ease-in-out infinite;
+    text-align: center;
 }
 
 .badge-icon {

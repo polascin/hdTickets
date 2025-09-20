@@ -49,13 +49,13 @@ class AuditLog extends Model
      */
     public function getResource(): ?Model
     {
-        if (! $this->resource_type || ! $this->resource_id) {
+        if (!$this->resource_type || !$this->resource_id) {
             return NULL;
         }
 
         try {
             $modelClass = $this->getResourceModelClass();
-            if (! $modelClass) {
+            if (!$modelClass) {
                 return NULL;
             }
 

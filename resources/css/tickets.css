@@ -2,476 +2,487 @@
 
 /* Base Components */
 .ticket-card {
-    transition: all 0.3s ease-in-out;
+  transition: all 0.3s ease-in-out;
 }
 
 .ticket-card:hover {
-    transform: translateY(-0.25rem);
-    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+  transform: translateY(-0.25rem);
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
 }
 
 .ticket-card .ticket-image {
-    transition: transform 0.3s ease;
+  transition: transform 0.3s ease;
 }
 
 .ticket-card:hover .ticket-image {
-    transform: scale(1.05);
+  transform: scale(1.05);
 }
 
 /* Price Animation */
 .price-updated {
-    animation: priceFlash 1s ease-in-out;
+  animation: priceFlash 1s ease-in-out;
 }
 
 @keyframes priceFlash {
-    0%, 100% { 
-        transform: scale(1); 
-        box-shadow: 0 0 0 rgba(59, 130, 246, 0);
-    }
-    50% { 
-        transform: scale(1.05); 
-        background-color: #fef3cd;
-        box-shadow: 0 0 20px rgba(59, 130, 246, 0.3);
-    }
+  0%,
+  100% {
+    transform: scale(1);
+    box-shadow: 0 0 0 rgba(59, 130, 246, 0);
+  }
+  50% {
+    transform: scale(1.05);
+    background-color: #fef3cd;
+    box-shadow: 0 0 20px rgba(59, 130, 246, 0.3);
+  }
 }
 
 /* Availability Status Badges */
 .availability-status {
-    display: inline-flex;
-    align-items: center;
-    padding: 0.125rem 0.625rem;
-    border-radius: 9999px;
-    font-size: 0.75rem;
-    font-weight: 500;
-    transition: all 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+  padding: 0.125rem 0.625rem;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  transition: all 0.2s ease;
 }
 
 .availability-status.available {
-    background-color: #dcfce7;
-    color: #166534;
-    box-shadow: 0 0 0 1px rgba(34, 197, 94, 0.1);
+  background-color: #dcfce7;
+  color: #166534;
+  box-shadow: 0 0 0 1px rgba(34, 197, 94, 0.1);
 }
 
 .availability-status.limited {
-    background-color: #fef3c7;
-    color: #92400e;
-    box-shadow: 0 0 0 1px rgba(245, 158, 11, 0.1);
-    animation: pulse-warning 2s infinite;
+  background-color: #fef3c7;
+  color: #92400e;
+  box-shadow: 0 0 0 1px rgba(245, 158, 11, 0.1);
+  animation: pulse-warning 2s infinite;
 }
 
 .availability-status.sold-out {
-    background-color: #fee2e2;
-    color: #991b1b;
-    box-shadow: 0 0 0 1px rgba(239, 68, 68, 0.1);
+  background-color: #fee2e2;
+  color: #991b1b;
+  box-shadow: 0 0 0 1px rgba(239, 68, 68, 0.1);
 }
 
 @keyframes pulse-warning {
-    0%, 100% { opacity: 1; }
-    50% { opacity: 0.7; }
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.7;
+  }
 }
 
 /* Loading States */
 .loading-shimmer {
-    background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
-    background-size: 200% 100%;
-    animation: shimmer 2s infinite;
+  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+  background-size: 200% 100%;
+  animation: shimmer 2s infinite;
 }
 
 @keyframes shimmer {
-    0% { background-position: -200% 0; }
-    100% { background-position: 200% 0; }
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
 }
 
 .skeleton {
-    background-color: #d1d5db;
-    animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
-    border-radius: 0.25rem;
+  background-color: #d1d5db;
+  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  border-radius: 0.25rem;
 }
 
 .skeleton.text {
-    height: 1rem;
-    margin-bottom: 0.5rem;
+  height: 1rem;
+  margin-bottom: 0.5rem;
 }
 
 .skeleton.text.large {
-    height: 1.5rem;
+  height: 1.5rem;
 }
 
 .skeleton.image {
-    width: 100%;
-    height: 12rem;
-    border-radius: 0.5rem 0.5rem 0 0;
+  width: 100%;
+  height: 12rem;
+  border-radius: 0.5rem 0.5rem 0 0;
 }
 
 .skeleton.button {
-    width: 5rem;
-    height: 2rem;
-    border-radius: 0.375rem;
+  width: 5rem;
+  height: 2rem;
+  border-radius: 0.375rem;
 }
 
 /* Search & Filter Animations */
 .filter-slide-enter {
-    transform: translateX(-100%);
-    opacity: 0;
+  transform: translateX(-100%);
+  opacity: 0;
 }
 
 .filter-slide-enter-active {
-    transform: translateX(0);
-    opacity: 1;
-    transition: all 0.3s ease-out;
+  transform: translateX(0);
+  opacity: 1;
+  transition: all 0.3s ease-out;
 }
 
 .filter-slide-exit {
-    transform: translateX(0);
-    opacity: 1;
+  transform: translateX(0);
+  opacity: 1;
 }
 
 .filter-slide-exit-active {
-    transform: translateX(-100%);
-    opacity: 0;
-    transition: all 0.3s ease-in;
+  transform: translateX(-100%);
+  opacity: 0;
+  transition: all 0.3s ease-in;
 }
 
 /* Search Suggestions */
 .search-suggestions {
-    max-height: 300px;
-    overflow-y: auto;
-    scrollbar-width: thin;
-    scrollbar-color: rgba(156, 163, 175, 0.5) transparent;
+  max-height: 300px;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(156, 163, 175, 0.5) transparent;
 }
 
 .search-suggestions::-webkit-scrollbar {
-    width: 6px;
+  width: 6px;
 }
 
 .search-suggestions::-webkit-scrollbar-track {
-    background: transparent;
+  background: transparent;
 }
 
 .search-suggestions::-webkit-scrollbar-thumb {
-    background-color: rgba(156, 163, 175, 0.5);
-    border-radius: 3px;
+  background-color: rgba(156, 163, 175, 0.5);
+  border-radius: 3px;
 }
 
 .search-suggestions::-webkit-scrollbar-thumb:hover {
-    background-color: rgba(156, 163, 175, 0.7);
+  background-color: rgba(156, 163, 175, 0.7);
 }
 
 /* Price Change Indicators */
 .price-change {
-    display: inline-flex;
-    align-items: center;
-    padding: 0.125rem 0.375rem;
-    border-radius: 0.25rem;
-    font-size: 0.75rem;
-    font-weight: 500;
-    transition: all 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+  padding: 0.125rem 0.375rem;
+  border-radius: 0.25rem;
+  font-size: 0.75rem;
+  font-weight: 500;
+  transition: all 0.2s ease;
 }
 
 .price-change.positive {
-    color: #b91c1c;
-    background-color: #fef2f2;
+  color: #b91c1c;
+  background-color: #fef2f2;
 }
 
 .price-change.negative {
-    color: #166534;
-    background-color: #f0fdf4;
+  color: #166534;
+  background-color: #f0fdf4;
 }
 
 .price-change.neutral {
-    color: #374151;
-    background-color: #f9fafb;
+  color: #374151;
+  background-color: #f9fafb;
 }
 
 /* Filter Tags */
 .filter-tag {
-    display: inline-flex;
-    align-items: center;
-    padding: 0.125rem 0.625rem;
-    border-radius: 9999px;
-    font-size: 0.75rem;
-    font-weight: 500;
-    background-color: #dbeafe;
-    color: #1e40af;
-    animation: slideIn 0.2s ease-out;
+  display: inline-flex;
+  align-items: center;
+  padding: 0.125rem 0.625rem;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  background-color: #dbeafe;
+  color: #1e40af;
+  animation: slideIn 0.2s ease-out;
 }
 
 .filter-tag button {
-    margin-left: 0.375rem;
-    flex-shrink: 0;
-    height: 1rem;
-    width: 1rem;
-    border-radius: 50%;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    color: #60a5fa;
-    transition: all 0.15s ease-in-out;
+  margin-left: 0.375rem;
+  flex-shrink: 0;
+  height: 1rem;
+  width: 1rem;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: #60a5fa;
+  transition: all 0.15s ease-in-out;
 }
 
 .filter-tag button:hover {
-    background-color: #bfdbfe;
-    color: #3b82f6;
+  background-color: #bfdbfe;
+  color: #3b82f6;
 }
 
 .filter-tag button:focus {
-    outline: none;
-    background-color: #3b82f6;
-    color: white;
+  outline: none;
+  background-color: #3b82f6;
+  color: white;
 }
 
 @keyframes slideIn {
-    from {
-        opacity: 0;
-        transform: translateX(-10px);
-    }
-    to {
-        opacity: 1;
-        transform: translateX(0);
-    }
+  from {
+    opacity: 0;
+    transform: translateX(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
 }
 
 /* Sticky Filters */
 .sticky-filters {
-    position: sticky;
-    top: 0;
-    z-index: 40;
-    background: rgba(255, 255, 255, 0.95);
-    backdrop-filter: blur(10px);
-    border-bottom: 1px solid rgba(229, 231, 235, 0.8);
+  position: sticky;
+  top: 0;
+  z-index: 40;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid rgba(229, 231, 235, 0.8);
 }
 
 /* View Toggle Buttons */
 .view-toggle {
-    padding: 0.5rem 1rem;
-    border: 1px solid #d1d5db;
-    background-color: white;
-    color: #6b7280;
-    font-size: 0.875rem;
-    font-weight: 500;
-    cursor: pointer;
-    transition: all 0.2s ease;
+  padding: 0.5rem 1rem;
+  border: 1px solid #d1d5db;
+  background-color: white;
+  color: #6b7280;
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
 }
 
 .view-toggle:hover {
-    color: #1f2937;
-    background-color: #f9fafb;
+  color: #1f2937;
+  background-color: #f9fafb;
 }
 
 .view-toggle.active {
-    background-color: white;
-    color: #1f2937;
-    box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  background-color: white;
+  color: #1f2937;
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
 }
 
 .view-toggle:not(.active) {
-    background-color: #f9fafb;
-    color: #6b7280;
+  background-color: #f9fafb;
+  color: #6b7280;
 }
 
 .view-toggle:not(.active):hover {
-    color: #1f2937;
-    background-color: #f9fafb;
+  color: #1f2937;
+  background-color: #f9fafb;
 }
 
 /* Bookmark Toggle */
 .bookmark-toggle {
-    transition: all 0.2s ease;
+  transition: all 0.2s ease;
 }
 
 .bookmark-toggle:hover {
-    transform: scale(1.1);
+  transform: scale(1.1);
 }
 
 .bookmark-toggle.bookmarked {
-    color: #f59e0b;
+  color: #f59e0b;
 }
 
 /* Share Button */
 .share-button {
-    transition: all 0.2s ease;
+  transition: all 0.2s ease;
 }
 
 .share-button:hover {
-    transform: scale(1.1) rotate(12deg);
+  transform: scale(1.1) rotate(12deg);
 }
 
 /* Toast Notifications */
 .toast {
-    padding: 1rem 1rem;
-    border-radius: 0.5rem;
-    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
-    transition: all 0.3s ease;
+  padding: 1rem 1rem;
+  border-radius: 0.5rem;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
 }
 
 .toast.entering {
-    transform: translateX(100%);
-    opacity: 0;
+  transform: translateX(100%);
+  opacity: 0;
 }
 
 .toast.entered {
-    transform: translateX(0);
-    opacity: 1;
+  transform: translateX(0);
+  opacity: 1;
 }
 
 .toast.exiting {
-    transform: translateX(100%);
-    opacity: 0;
+  transform: translateX(100%);
+  opacity: 0;
 }
 
 .toast.success {
-    background-color: #10b981;
-    color: white;
+  background-color: #10b981;
+  color: white;
 }
 
 .toast.error {
-    background-color: #ef4444;
-    color: white;
+  background-color: #ef4444;
+  color: white;
 }
 
 .toast.warning {
-    background-color: #f59e0b;
-    color: black;
+  background-color: #f59e0b;
+  color: black;
 }
 
 .toast.info {
-    background-color: #3b82f6;
-    color: white;
+  background-color: #3b82f6;
+  color: white;
 }
 
 /* Modal Overlay */
 .modal-overlay {
-    position: fixed;
-    inset: 0;
-    background-color: rgba(0, 0, 0, 0.75);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    z-index: 50;
+  position: fixed;
+  inset: 0;
+  background-color: rgba(0, 0, 0, 0.75);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 50;
 }
 
 /* Responsive Styles */
 @media (max-width: 768px) {
-    .ticket-card {
-        margin: 0 0.5rem;
-    }
-    
-    .filter-sidebar {
-        position: fixed;
-        inset: 0;
-        z-index: 50;
-        background: white;
-        transform: translateX(-100%);
-        transition: transform 0.3s ease-in-out;
-    }
-    
-    .filter-sidebar.open {
-        transform: translateX(0);
-    }
-    
-    .search-suggestions {
-        position: fixed;
-        left: 1rem;
-        right: 1rem;
-    }
-    
-    .connection-status {
-        bottom: 4rem;
-        left: 0.5rem;
-        right: 0.5rem;
-        justify-content: center;
-    }
-    
-    .price-notification {
-        top: 0.5rem;
-        left: 0.5rem;
-        right: 0.5rem;
-        max-width: none;
-    }
+  .ticket-card {
+    margin: 0 0.5rem;
+  }
+
+  .filter-sidebar {
+    position: fixed;
+    inset: 0;
+    z-index: 50;
+    background: white;
+    transform: translateX(-100%);
+    transition: transform 0.3s ease-in-out;
+  }
+
+  .filter-sidebar.open {
+    transform: translateX(0);
+  }
+
+  .search-suggestions {
+    position: fixed;
+    left: 1rem;
+    right: 1rem;
+  }
+
+  .connection-status {
+    bottom: 4rem;
+    left: 0.5rem;
+    right: 0.5rem;
+    justify-content: center;
+  }
+
+  .price-notification {
+    top: 0.5rem;
+    left: 0.5rem;
+    right: 0.5rem;
+    max-width: none;
+  }
 }
 
 /* Dark Mode Support */
 @media (prefers-color-scheme: dark) {
-    .ticket-card {
-        background-color: #1f2937;
-        border-color: #374151;
-        color: white;
-    }
-    
-    .search-suggestions {
-        background-color: #1f2937;
-        border-color: #374151;
-    }
-    
-    .connection-status {
-        background-color: #1f2937;
-        color: white;
-        border-color: #374151;
-    }
-    
-    .modal-content {
-        background-color: #1f2937;
-        color: white;
-    }
-    
-    .form-input, .form-select {
-        background-color: #1f2937;
-        border-color: #4b5563;
-        color: white;
-    }
-    
-    .btn-secondary {
-        background-color: #1f2937;
-        color: white;
-        border-color: #4b5563;
-    }
+  .ticket-card {
+    background-color: #1f2937;
+    border-color: #374151;
+    color: white;
+  }
+
+  .search-suggestions {
+    background-color: #1f2937;
+    border-color: #374151;
+  }
+
+  .connection-status {
+    background-color: #1f2937;
+    color: white;
+    border-color: #374151;
+  }
+
+  .modal-content {
+    background-color: #1f2937;
+    color: white;
+  }
+
+  .form-input,
+  .form-select {
+    background-color: #1f2937;
+    border-color: #4b5563;
+    color: white;
+  }
+
+  .btn-secondary {
+    background-color: #1f2937;
+    color: white;
+    border-color: #4b5563;
+  }
 }
 
 /* High Contrast Mode */
 @media (prefers-contrast: high) {
-    .ticket-card {
-        border: 2px solid #1f2937;
-    }
-    
-    .btn-primary {
-        background-color: #1d4ed8;
-        border-color: #1d4ed8;
-    }
-    
-    .availability-status.available {
-        background-color: #15803d;
-        color: white;
-        border: 1px solid #15803d;
-    }
-    
-    .availability-status.limited {
-        background-color: #d97706;
-        color: white;
-        border: 1px solid #d97706;
-    }
-    
-    .availability-status.sold-out {
-        background-color: #dc2626;
-        color: white;
-        border: 1px solid #dc2626;
-    }
+  .ticket-card {
+    border: 2px solid #1f2937;
+  }
+
+  .btn-primary {
+    background-color: #1d4ed8;
+    border-color: #1d4ed8;
+  }
+
+  .availability-status.available {
+    background-color: #15803d;
+    color: white;
+    border: 1px solid #15803d;
+  }
+
+  .availability-status.limited {
+    background-color: #d97706;
+    color: white;
+    border: 1px solid #d97706;
+  }
+
+  .availability-status.sold-out {
+    background-color: #dc2626;
+    color: white;
+    border: 1px solid #dc2626;
+  }
 }
 
 /* Reduced Motion Support */
 @media (prefers-reduced-motion: reduce) {
-    .ticket-card,
-    .filter-tag,
-    .bookmark-toggle,
-    .share-button {
-        transition: none;
-    }
-    
-    .ticket-card:hover {
-        transform: none;
-    }
-    
-    .loading-shimmer {
-        animation: none;
-        background-color: #f3f4f6;
-    }
+  .ticket-card,
+  .filter-tag,
+  .bookmark-toggle,
+  .share-button {
+    transition: none;
+  }
+
+  .ticket-card:hover {
+    transform: none;
+  }
+
+  .loading-shimmer {
+    animation: none;
+    background-color: #f3f4f6;
+  }
 }

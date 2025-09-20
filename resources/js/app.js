@@ -13,47 +13,60 @@ window.addEventListener('DOMContentLoaded', () => {
     document.documentElement.classList.add('js');
 
     // Initialize native-like navigation
-    const nav = new AppShellNav({ contentSelector: 'main', transition: 'fade' });
+    const nav = new AppShellNav({
+      contentSelector: 'main',
+      transition: 'fade',
+    });
     window.__appShellNav = nav;
-    
+
     // Initialize background sync for PWA
     const syncManager = new BackgroundSyncManager();
     window.__syncManager = syncManager;
-    
+
     // Initialize auto-refresh for real-time updates
     const refreshManager = new AutoRefreshManager();
     window.__refreshManager = refreshManager;
-    
+
     // Initialize install prompt manager
     const installManager = new InstallPromptManager();
     window.__installManager = installManager;
-    
+
     // Initialize app lifecycle manager
     const lifecycleManager = new AppLifecycleManager();
     window.__lifecycleManager = lifecycleManager;
-    
+
     // Setup global event handlers
-    setupEventHandlers(syncManager, refreshManager, installManager, lifecycleManager);
-    
+    setupEventHandlers(
+      syncManager,
+      refreshManager,
+      installManager,
+      lifecycleManager
+    );
+
     console.log('HD Tickets PWA initialized successfully');
   } catch (error) {
     console.error('Failed to initialize HD Tickets PWA:', error);
   }
 });
 
-function setupEventHandlers(syncManager, refreshManager, installManager, lifecycleManager) {
+function setupEventHandlers(
+  syncManager,
+  refreshManager,
+  installManager,
+  lifecycleManager
+) {
   // Handle data changes that need syncing
-  document.addEventListener('data:changed', (e) => {
+  document.addEventListener('data:changed', e => {
     syncManager.scheduleSync(e.detail.type, e.detail.data);
   });
 
   // Handle manual refresh requests
-  document.addEventListener('refresh:request', (e) => {
+  document.addEventListener('refresh:request', e => {
     refreshManager.forceRefresh(e.detail.type);
   });
 
   // Handle sync success notifications
-  document.addEventListener('sync:success', (e) => {
+  document.addEventListener('sync:success', e => {
     // Show success notification if notifications system is available
     if (window.showNotification) {
       window.showNotification('Data synced successfully', 'success');
@@ -76,8 +89,10 @@ function setupEventHandlers(syncManager, refreshManager, installManager, lifecyc
   });
 
   // Handle install prompts and app lifecycle
-  document.addEventListener('beforeinstallprompt', (e) => {
-    document.dispatchEvent(new CustomEvent('install:prompt-available', { detail: e }));
+  document.addEventListener('beforeinstallprompt', e => {
+    document.dispatchEvent(
+      new CustomEvent('install:prompt-available', { detail: e })
+    );
   });
 
   document.addEventListener('appinstalled', () => {
@@ -87,9 +102,9 @@ function setupEventHandlers(syncManager, refreshManager, installManager, lifecyc
   });
 
   // Handle lifecycle state changes
-  document.addEventListener('lifecycle:state-change', (e) => {
+  document.addEventListener('lifecycle:state-change', e => {
     console.log('App lifecycle state changed:', e.detail.state);
-    
+
     // Pause/resume managers based on lifecycle
     if (e.detail.state === 'hidden' || e.detail.state === 'frozen') {
       refreshManager.pauseNonCriticalRefreshers();
@@ -102,14 +117,16 @@ function setupEventHandlers(syncManager, refreshManager, installManager, lifecyc
   });
 
   // Handle high-value actions for install prompts
-  const trackHighValueAction = (action) => {
-    document.dispatchEvent(new CustomEvent(`${action}:completed`, { 
-      detail: { timestamp: Date.now() } 
-    }));
+  const trackHighValueAction = action => {
+    document.dispatchEvent(
+      new CustomEvent(`${action}:completed`, {
+        detail: { timestamp: Date.now() },
+      })
+    );
   };
 
   // Track user interactions that matter for install prompts
-  document.addEventListener('submit', (e) => {
+  document.addEventListener('submit', e => {
     if (e.target.closest('[data-track="purchase"]')) {
       trackHighValueAction('ticket:purchased');
     } else if (e.target.closest('[data-track="alert"]')) {
@@ -121,7 +138,7 @@ function setupEventHandlers(syncManager, refreshManager, installManager, lifecyc
 
   // Handle unsaved data warnings
   let hasUnsavedData = false;
-  document.addEventListener('data:changed', (e) => {
+  document.addEventListener('data:changed', e => {
     if (e.detail.hasUnsavedChanges) {
       hasUnsavedData = true;
       lifecycleManager.markUnsavedChanges(true);
@@ -141,12 +158,12 @@ function setupEventHandlers(syncManager, refreshManager, installManager, lifecyc
   });
 
   // Global error handling
-  window.addEventListener('error', (e) => {
+  window.addEventListener('error', e => {
     console.error('Global error:', e.error);
     // Could send to error tracking service
   });
 
-  window.addEventListener('unhandledrejection', (e) => {
+  window.addEventListener('unhandledrejection', e => {
     console.error('Unhandled promise rejection:', e.reason);
     // Could send to error tracking service
   });

@@ -1,20 +1,24 @@
-<?php
+<?php declare(strict_types=1);
 
 use Illuminate\Database\Migrations\Migration;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Schema;
 
-return new class extends Migration
-{
+return new class() extends Migration {
     /**
      * Run the migrations.
      */
     public function up(): void
     {
+        // Check if we're using SQLite and skip this migration
+        if (config('database.default') === 'sqlite') {
+            // SQLite doesn't support complex triggers like MySQL
+            // We'll handle event logging differently for SQLite
+            return;
+        }
+
         // Drop the existing trigger
         DB::statement('DROP TRIGGER IF EXISTS log_user_changes');
-        
+
         // Create a new trigger that properly calculates the aggregate version
         DB::statement('
             CREATE TRIGGER log_user_changes
@@ -52,9 +56,15 @@ return new class extends Migration
      */
     public function down(): void
     {
+        // Check if we're using SQLite and skip this migration
+        if (config('database.default') === 'sqlite') {
+            // SQLite doesn't support complex triggers like MySQL
+            return;
+        }
+
         // Drop the fixed trigger
         DB::statement('DROP TRIGGER IF EXISTS log_user_changes');
-        
+
         // Restore the original trigger
         DB::statement('
             CREATE TRIGGER log_user_changes

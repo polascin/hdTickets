@@ -4,10 +4,10 @@ namespace App\Services;
 
 use App\Models\User;
 use Exception;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Carbon;
 
 use function array_slice;
 use function count;
@@ -54,7 +54,7 @@ class LoginAnalyticsService
         }
 
         // Track unique IPs (limit to prevent memory issues)
-        if (! in_array($ip, $hourlyMetrics['unique_ips'], TRUE) && count($hourlyMetrics['unique_ips']) < 1000) {
+        if (!in_array($ip, $hourlyMetrics['unique_ips'], TRUE) && count($hourlyMetrics['unique_ips']) < 1000) {
             $hourlyMetrics['unique_ips'][] = $ip;
         }
 
@@ -104,7 +104,7 @@ class LoginAnalyticsService
         $securityMetrics['events'][] = $event;
         $securityMetrics['event_counts'][$eventType] = ($securityMetrics['event_counts'][$eventType] ?? 0) + 1;
 
-        if (! in_array($ip, $securityMetrics['affected_ips'], TRUE)) {
+        if (!in_array($ip, $securityMetrics['affected_ips'], TRUE)) {
             $securityMetrics['affected_ips'][] = $ip;
         }
 
@@ -218,10 +218,10 @@ class LoginAnalyticsService
         $cutoff = now()->subMinutes(5);
         $metrics['active_ips'] = array_filter(
             $metrics['active_ips'],
-            fn (array $entry) => Carbon::parse($entry['timestamp'])->gt($cutoff)
+            fn (array $entry) => Carbon::parse($entry['timestamp'])->gt($cutoff),
         );
 
-        if (! collect($metrics['active_ips'])->contains('ip', $ip)) {
+        if (!collect($metrics['active_ips'])->contains('ip', $ip)) {
             $metrics['active_ips'][] = [
                 'ip'        => $ip,
                 'timestamp' => now()->toISOString(),
@@ -331,7 +331,7 @@ class LoginAnalyticsService
             $securityKey = "security_events:hourly:{$hour}";
             $hourlyEvents = Cache::get($securityKey, []);
 
-            if (! empty($hourlyEvents['event_counts'])) {
+            if (!empty($hourlyEvents['event_counts'])) {
                 foreach ($hourlyEvents['event_counts'] as $eventType => $count) {
                     $securityEvents[$eventType] = ($securityEvents[$eventType] ?? 0) + $count;
 
@@ -379,7 +379,7 @@ class LoginAnalyticsService
             $hourlyKey = "login_metrics:hourly:{$hour}";
             $hourlyMetrics = Cache::get($hourlyKey, []);
 
-            if (! empty($hourlyMetrics['user_agents'])) {
+            if (!empty($hourlyMetrics['user_agents'])) {
                 foreach ($hourlyMetrics['user_agents'] as $ua => $count) {
                     $userAgents[$ua] = ($userAgents[$ua] ?? 0) + $count;
 

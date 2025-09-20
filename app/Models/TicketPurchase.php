@@ -270,7 +270,7 @@ class TicketPurchase extends Model
     public function canBeRetried(): bool
     {
         return $this->hasFailed()
-               && ! in_array($this->external_error_code, ['PAYMENT_DECLINED', 'TICKET_NO_LONGER_AVAILABLE'], TRUE);
+               && !in_array($this->external_error_code, ['PAYMENT_DECLINED', 'TICKET_NO_LONGER_AVAILABLE'], TRUE);
     }
 
     /**

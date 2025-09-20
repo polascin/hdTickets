@@ -20,7 +20,7 @@ class RBACSeeder extends Seeder
     {
         Log::info('Starting RBAC seeding process');
 
-        DB::transaction(function () {
+        DB::transaction(function (): void {
             $this->seedRoles();
             $this->seedPermissions();
             $this->assignPermissionsToRoles();
@@ -35,18 +35,18 @@ class RBACSeeder extends Seeder
     private function seedRoles(): void
     {
         $systemRoles = config('rbac.system_roles', ['admin', 'agent', 'customer', 'scraper']);
-        
+
         foreach ($systemRoles as $roleName) {
             $existingRole = Role::where('name', $roleName)->first();
-            
+
             if (!$existingRole) {
                 Role::create([
-                    'name' => $roleName,
-                    'display_name' => ucfirst($roleName),
-                    'description' => $this->getRoleDescription($roleName),
-                    'is_system_role' => true,
+                    'name'           => $roleName,
+                    'display_name'   => ucfirst($roleName),
+                    'description'    => $this->getRoleDescription($roleName),
+                    'is_system_role' => TRUE,
                 ]);
-                
+
                 Log::info("Created system role: {$roleName}");
             } else {
                 Log::info("System role already exists: {$roleName}");
@@ -60,18 +60,18 @@ class RBACSeeder extends Seeder
     private function seedPermissions(): void
     {
         $systemPermissions = config('rbac.system_permissions', []);
-        
+
         foreach ($systemPermissions as $permissionName => $config) {
             $existingPermission = Permission::where('name', $permissionName)->first();
-            
+
             if (!$existingPermission) {
                 Permission::create([
-                    'name' => $permissionName,
+                    'name'         => $permissionName,
                     'display_name' => $config['display_name'] ?? ucwords(str_replace(['.', '_'], ' ', $permissionName)),
-                    'description' => $config['description'] ?? null,
-                    'category' => $config['category'] ?? 'general',
+                    'description'  => $config['description'] ?? NULL,
+                    'category'     => $config['category'] ?? 'general',
                 ]);
-                
+
                 Log::info("Created permission: {$permissionName}");
             } else {
                 Log::info("Permission already exists: {$permissionName}");
@@ -85,21 +85,22 @@ class RBACSeeder extends Seeder
     private function assignPermissionsToRoles(): void
     {
         $defaultRolePermissions = config('rbac.default_role_permissions', []);
-        
+
         foreach ($defaultRolePermissions as $roleName => $permissions) {
             $role = Role::where('name', $roleName)->first();
-            
+
             if (!$role) {
                 Log::warning("Role not found: {$roleName}");
+
                 continue;
             }
 
             // Clear existing permissions for this role
             $role->permissions()->detach();
-            
+
             foreach ($permissions as $permissionName) {
                 $permission = Permission::where('name', $permissionName)->first();
-                
+
                 if ($permission) {
                     // Check if the role already has this permission
                     if (!$role->permissions()->where('permission_id', $permission->id)->exists()) {
@@ -107,7 +108,7 @@ class RBACSeeder extends Seeder
                             'granted_at' => now(),
                             'granted_by' => 1, // System user
                         ]);
-                        
+
                         Log::info("Assigned permission '{$permissionName}' to role '{$roleName}'");
                     }
                 } else {
@@ -123,10 +124,10 @@ class RBACSeeder extends Seeder
     private function getRoleDescription(string $roleName): string
     {
         $descriptions = [
-            'admin' => 'System Administrator with full access to all features and settings',
-            'agent' => 'Ticket Agent with access to ticket operations, monitoring, and purchase decisions',
+            'admin'    => 'System Administrator with full access to all features and settings',
+            'agent'    => 'Ticket Agent with access to ticket operations, monitoring, and purchase decisions',
             'customer' => 'Customer with basic ticket monitoring and purchase access',
-            'scraper' => 'Automated scraper account for data collection (API-only access)',
+            'scraper'  => 'Automated scraper account for data collection (API-only access)',
         ];
 
         return $descriptions[$roleName] ?? "System role: {$roleName}";

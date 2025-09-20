@@ -1,8 +1,8 @@
-<?php
+<?php declare(strict_types=1);
 
 /**
  * Fix incorrect class namespaces created by automated scripts
- * 
+ *
  * This script fixes patterns like:
  * App\Http\Controllers\Admin\Illuminate\Http\JsonResponse -> \Illuminate\Http\JsonResponse
  * App\Http\Controllers\Illuminate\Contracts\View\View -> \Illuminate\Contracts\View\View
@@ -21,73 +21,73 @@ foreach ($finder as $file) {
     if ($file->getExtension() !== 'php') {
         continue;
     }
-    
+
     $filepath = $file->getRealPath();
     $content = file_get_contents($filepath);
     $originalContent = $content;
-    
+
     // Pattern 1: Fix malformed Laravel class references in return types
     $patterns = [
         // Return type patterns
         '/App\\\\Http\\\\Controllers\\\\[^\\\\]*\\\\(Illuminate\\\\[^\\s{;]+)/' => '\\\\$1',
-        '/App\\\\Models\\\\[^\\\\]*\\\\(Illuminate\\\\[^\\s{;]+)/' => '\\\\$1',
-        '/App\\\\Services\\\\[^\\\\]*\\\\(Illuminate\\\\[^\\s{;]+)/' => '\\\\$1',
-        '/App\\\\Mail\\\\[^\\\\]*\\\\(Illuminate\\\\[^\\s{;]+)/' => '\\\\$1',
-        '/App\\\\Http\\\\Middleware\\\\[^\\\\]*\\\\(Illuminate\\\\[^\\s{;]+)/' => '\\\\$1',
-        '/App\\\\Exports\\\\[^\\\\]*\\\\(App\\\\Models\\\\[^\\s{;]+)/' => '\\\\$1',
-        
+        '/App\\\\Models\\\\[^\\\\]*\\\\(Illuminate\\\\[^\\s{;]+)/'              => '\\\\$1',
+        '/App\\\\Services\\\\[^\\\\]*\\\\(Illuminate\\\\[^\\s{;]+)/'            => '\\\\$1',
+        '/App\\\\Mail\\\\[^\\\\]*\\\\(Illuminate\\\\[^\\s{;]+)/'                => '\\\\$1',
+        '/App\\\\Http\\\\Middleware\\\\[^\\\\]*\\\\(Illuminate\\\\[^\\s{;]+)/'  => '\\\\$1',
+        '/App\\\\Exports\\\\[^\\\\]*\\\\(App\\\\Models\\\\[^\\s{;]+)/'          => '\\\\$1',
+
         // Parameter type patterns
         '/\\$[a-zA-Z_][a-zA-Z0-9_]*\\s+of\\s+method\\s+[^\\s]+\\s+has\\s+invalid\\s+type\\s+App\\\\[^\\\\]+\\\\(App\\\\Models\\\\[^\\s\\.]+)/' => '\\\\$1',
-        
+
         // Fix specific common incorrect patterns
-        '/App\\\\Http\\\\Controllers\\\\[^\\\\]*\\\\Illuminate\\\\Http\\\\JsonResponse/' => '\\\\Illuminate\\\\Http\\\\JsonResponse',
-        '/App\\\\Http\\\\Controllers\\\\[^\\\\]*\\\\Illuminate\\\\Http\\\\RedirectResponse/' => '\\\\Illuminate\\\\Http\\\\RedirectResponse',
+        '/App\\\\Http\\\\Controllers\\\\[^\\\\]*\\\\Illuminate\\\\Http\\\\JsonResponse/'      => '\\\\Illuminate\\\\Http\\\\JsonResponse',
+        '/App\\\\Http\\\\Controllers\\\\[^\\\\]*\\\\Illuminate\\\\Http\\\\RedirectResponse/'  => '\\\\Illuminate\\\\Http\\\\RedirectResponse',
         '/App\\\\Http\\\\Controllers\\\\[^\\\\]*\\\\Illuminate\\\\Contracts\\\\View\\\\View/' => '\\\\Illuminate\\\\Contracts\\\\View\\\\View',
-        '/App\\\\Http\\\\Controllers\\\\[^\\\\]*\\\\Illuminate\\\\Http\\\\Request/' => '\\\\Illuminate\\\\Http\\\\Request',
-        
+        '/App\\\\Http\\\\Controllers\\\\[^\\\\]*\\\\Illuminate\\\\Http\\\\Request/'           => '\\\\Illuminate\\\\Http\\\\Request',
+
         // Model reference fixes
-        '/App\\\\Exports\\\\App\\\\Models\\\\/' => '\\\\App\\\\Models\\\\',
-        '/App\\\\Mail\\\\App\\\\Models\\\\/' => '\\\\App\\\\Models\\\\',
+        '/App\\\\Exports\\\\App\\\\Models\\\\/'                         => '\\\\App\\\\Models\\\\',
+        '/App\\\\Mail\\\\App\\\\Models\\\\/'                            => '\\\\App\\\\Models\\\\',
         '/App\\\\Http\\\\Controllers\\\\[^\\\\]*\\\\App\\\\Models\\\\/' => '\\\\App\\\\Models\\\\',
-        '/App\\\\Services\\\\[^\\\\]*\\\\App\\\\Models\\\\/' => '\\\\App\\\\Models\\\\',
-        '/App\\\\Http\\\\Middleware\\\\App\\\\Models\\\\/' => '\\\\App\\\\Models\\\\',
+        '/App\\\\Services\\\\[^\\\\]*\\\\App\\\\Models\\\\/'            => '\\\\App\\\\Models\\\\',
+        '/App\\\\Http\\\\Middleware\\\\App\\\\Models\\\\/'              => '\\\\App\\\\Models\\\\',
     ];
-    
+
     foreach ($patterns as $pattern => $replacement) {
         $content = preg_replace($pattern, $replacement, $content);
     }
-    
+
     // Additional specific fixes for common Laravel class references
     $specificFixes = [
         // Fix return type declarations
-        ': App\\Http\\Controllers\\Admin\\Illuminate\\Http\\JsonResponse' => ': \\Illuminate\\Http\\JsonResponse',
-        ': App\\Http\\Controllers\\Admin\\Illuminate\\Http\\RedirectResponse' => ': \\Illuminate\\Http\\RedirectResponse', 
-        ': App\\Http\\Controllers\\Admin\\Illuminate\\Contracts\\View\\View' => ': \\Illuminate\\Contracts\\View\\View',
-        ': App\\Http\\Controllers\\Illuminate\\Http\\JsonResponse' => ': \\Illuminate\\Http\\JsonResponse',
-        ': App\\Http\\Controllers\\Illuminate\\Http\\RedirectResponse' => ': \\Illuminate\\Http\\RedirectResponse',
-        ': App\\Http\\Controllers\\Illuminate\\Contracts\\View\\View' => ': \\Illuminate\\Contracts\\View\\View',
-        
+        ': App\\Http\\Controllers\\Admin\\Illuminate\\Http\\JsonResponse'     => ': \\Illuminate\\Http\\JsonResponse',
+        ': App\\Http\\Controllers\\Admin\\Illuminate\\Http\\RedirectResponse' => ': \\Illuminate\\Http\\RedirectResponse',
+        ': App\\Http\\Controllers\\Admin\\Illuminate\\Contracts\\View\\View'  => ': \\Illuminate\\Contracts\\View\\View',
+        ': App\\Http\\Controllers\\Illuminate\\Http\\JsonResponse'            => ': \\Illuminate\\Http\\JsonResponse',
+        ': App\\Http\\Controllers\\Illuminate\\Http\\RedirectResponse'        => ': \\Illuminate\\Http\\RedirectResponse',
+        ': App\\Http\\Controllers\\Illuminate\\Contracts\\View\\View'         => ': \\Illuminate\\Contracts\\View\\View',
+
         // Fix parameter declarations
         '(App\\Http\\Controllers\\Admin\\Illuminate\\Http\\Request $' => '(\\Illuminate\\Http\\Request $',
-        '(App\\Http\\Controllers\\Illuminate\\Http\\Request $' => '(\\Illuminate\\Http\\Request $',
-        
+        '(App\\Http\\Controllers\\Illuminate\\Http\\Request $'        => '(\\Illuminate\\Http\\Request $',
+
         // Fix specific model references
-        'App\\Exports\\App\\Models\\' => '\\App\\Models\\',
-        'App\\Mail\\App\\Models\\' => '\\App\\Models\\',
-        'App\\Services\\App\\Models\\' => '\\App\\Models\\',
+        'App\\Exports\\App\\Models\\'           => '\\App\\Models\\',
+        'App\\Mail\\App\\Models\\'              => '\\App\\Models\\',
+        'App\\Services\\App\\Models\\'          => '\\App\\Models\\',
         'App\\Http\\Controllers\\App\\Models\\' => '\\App\\Models\\',
-        'App\\Http\\Middleware\\App\\Models\\' => '\\App\\Models\\',
+        'App\\Http\\Middleware\\App\\Models\\'  => '\\App\\Models\\',
     ];
-    
+
     foreach ($specificFixes as $search => $replace) {
         $content = str_replace($search, $replace, $content);
     }
-    
+
     if ($content !== $originalContent) {
         file_put_contents($filepath, $content);
         $filesFixed++;
         $totalFixed += substr_count($originalContent, 'App\\Http\\Controllers\\') - substr_count($content, 'App\\Http\\Controllers\\');
-        echo "Fixed: " . $file->getFilename() . "\n";
+        echo 'Fixed: ' . $file->getFilename() . "\n";
     }
 }
 
@@ -129,30 +129,30 @@ foreach ($targetedFiles as $file) {
     if (!file_exists($file)) {
         continue;
     }
-    
+
     $content = file_get_contents($file);
     $originalContent = $content;
-    
+
     // Very specific pattern matching for the most common issues
     $targeted_patterns = [
         // Method return type fixes
         '/:\s*App\\\\Http\\\\Controllers\\\\[^\\\\]*\\\\(Illuminate\\\\[^\\s{;]+)/' => ': \\\\$1',
-        '/:\s*App\\\\Models\\\\[^\\\\]*\\\\(Illuminate\\\\[^\\s{;]+)/' => ': \\\\$1',
-        '/:\s*App\\\\Services\\\\[^\\\\]*\\\\(Illuminate\\\\[^\\s{;]+)/' => ': \\\\$1',
-        
+        '/:\s*App\\\\Models\\\\[^\\\\]*\\\\(Illuminate\\\\[^\\s{;]+)/'              => ': \\\\$1',
+        '/:\s*App\\\\Services\\\\[^\\\\]*\\\\(Illuminate\\\\[^\\s{;]+)/'            => ': \\\\$1',
+
         // Parameter type fixes in method signatures
         '/\\(([^)]*?)App\\\\Http\\\\Controllers\\\\[^\\\\]*\\\\(Illuminate\\\\Http\\\\Request)\\s+\\$/' => '($1\\\\$2 $',
-        '/\\(([^)]*?)App\\\\[^\\\\]*\\\\(App\\\\Models\\\\[^\\s]+)\\s+\\$/' => '($1\\\\$2 $',
+        '/\\(([^)]*?)App\\\\[^\\\\]*\\\\(App\\\\Models\\\\[^\\s]+)\\s+\\$/'                             => '($1\\\\$2 $',
     ];
-    
+
     foreach ($targeted_patterns as $pattern => $replacement) {
         $content = preg_replace($pattern, $replacement, $content);
     }
-    
+
     if ($content !== $originalContent) {
         file_put_contents($file, $content);
         $targetedFixed++;
-        echo "Targeted fix applied to: " . basename($file) . "\n";
+        echo 'Targeted fix applied to: ' . basename($file) . "\n";
     }
 }
 

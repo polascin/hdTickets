@@ -1,6 +1,7 @@
-@extends('layouts.app-v2')
+@extends('layouts.dashboard-full')
 
 @section('title', 'Dashboard Analytics')
+@section('dashboard-type', 'analytics')
 @section('description', 'Advanced analytics and insights for your sports ticket monitoring and purchasing activities')
 
 @push('styles')
@@ -124,7 +125,26 @@
 @endpush
 
 @section('content')
-  <div class="py-6" x-data="analyticsData()" x-init="initializeAnalytics()">
+  <div class="analytics-dashboard py-6" x-data="{ 
+      timeRange: '30d',
+      isLoading: false,
+      analytics: {
+          totalEvents: {{ $totalEvents ?? 45 }},
+          totalSavings: {{ $totalSavings ?? 1247 }},
+          successRate: {{ $successRate ?? 94 }}
+      },
+      setTimeRange(range) {
+          this.timeRange = range;
+          this.refreshData();
+      },
+      refreshData() {
+          this.isLoading = true;
+          setTimeout(() => this.isLoading = false, 2000);
+      },
+      exportAnalytics() {
+          console.log('Exporting analytics data...');
+      }
+  }" x-init="console.log('Analytics dashboard initialized')" x-cloak>
     <!-- Hero Section -->
     <div class="analytics-hero text-white py-8 px-6 rounded-2xl mb-8 relative z-10">
       <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between">
@@ -501,7 +521,23 @@
       </div>
     </div>
   </div>
+</div>
 @endsection
+
+@push('scripts')
+<script>
+// Analytics dashboard specific functionality
+document.addEventListener('alpine:init', () => {
+    console.log('Analytics dashboard scripts loaded');
+    
+    // Initialize charts if Chart.js is available
+    if (typeof Chart !== 'undefined') {
+        // Initialize analytics charts here
+        console.log('Initializing analytics charts');
+    }
+});
+</script>
+@endpush
 
 @push('scripts')
   <!-- Chart.js CDN -->

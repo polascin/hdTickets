@@ -253,7 +253,7 @@
 }
 
 .hd-form-label--required::after {
-  content: " *";
+  content: ' *';
   color: #dc2626;
 }
 
@@ -266,7 +266,9 @@
   line-height: 1.25rem;
   color: #111827;
   background-color: white;
-  transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+  transition:
+    border-color 0.15s ease-in-out,
+    box-shadow 0.15s ease-in-out;
 }
 
 .hd-form-input:focus {
@@ -402,11 +404,11 @@
     width: 100%;
     justify-content: center;
   }
-  
+
   .hd-card {
     margin: 0 0.5rem;
   }
-  
+
   .hd-form-input {
     font-size: 1rem; /* Prevent zoom on iOS */
   }
@@ -422,17 +424,17 @@
     border-color: #374151;
     color: #f9fafb;
   }
-  
+
   .hd-form-input {
     background-color: #1f2937;
     border-color: #374151;
     color: #f9fafb;
   }
-  
+
   .hd-form-input:focus {
     border-color: #3b82f6;
   }
-  
+
   .hd-form-label {
     color: #e5e7eb;
   }

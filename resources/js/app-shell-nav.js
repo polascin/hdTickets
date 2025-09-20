@@ -1,7 +1,11 @@
 /* Native-like navigation controller for HD Tickets PWA */
 
 export default class AppShellNav {
-  constructor({ contentSelector = 'main', transition = 'fade', cacheSize = 10 } = {}) {
+  constructor({
+    contentSelector = 'main',
+    transition = 'fade',
+    cacheSize = 10,
+  } = {}) {
     this.container = document.querySelector(contentSelector);
     this.transition = transition;
     this.cache = new Map();
@@ -13,17 +17,26 @@ export default class AppShellNav {
   }
 
   prefetchLinks() {
-    const links = document.querySelectorAll('a[href^="/"]:not([data-no-prefetch])');
+    const links = document.querySelectorAll(
+      'a[href^="/"]:not([data-no-prefetch])'
+    );
     links.forEach(link => {
-      link.addEventListener('mouseenter', () => this.prefetch(link.href), { passive: true });
-      link.addEventListener('touchstart', () => this.prefetch(link.href), { passive: true });
+      link.addEventListener('mouseenter', () => this.prefetch(link.href), {
+        passive: true,
+      });
+      link.addEventListener('touchstart', () => this.prefetch(link.href), {
+        passive: true,
+      });
     });
   }
 
   async prefetch(url) {
     if (this.cache.has(url)) return;
     try {
-      const res = await fetch(url, { headers: { 'X-Prefetch': '1' }, credentials: 'same-origin' });
+      const res = await fetch(url, {
+        headers: { 'X-Prefetch': '1' },
+        credentials: 'same-origin',
+      });
       if (!res.ok) return;
       const html = await res.text();
       this.saveCache(url, html);
@@ -33,12 +46,17 @@ export default class AppShellNav {
   }
 
   bindClicks() {
-    document.addEventListener('click', (e) => {
+    document.addEventListener('click', e => {
       const a = e.target.closest('a');
       if (!a) return;
       const url = new URL(a.href, location.origin);
       if (url.origin !== location.origin) return;
-      if (a.target === '_blank' || a.hasAttribute('download') || a.dataset.noSpa === 'true') return;
+      if (
+        a.target === '_blank' ||
+        a.hasAttribute('download') ||
+        a.dataset.noSpa === 'true'
+      )
+        return;
       e.preventDefault();
       this.navigate(url.pathname + url.search + url.hash, { push: true });
     });
@@ -46,7 +64,9 @@ export default class AppShellNav {
 
   bindPopstate() {
     window.addEventListener('popstate', () => {
-      this.navigate(location.pathname + location.search + location.hash, { push: false });
+      this.navigate(location.pathname + location.search + location.hash, {
+        push: false,
+      });
     });
   }
 
@@ -54,7 +74,10 @@ export default class AppShellNav {
     try {
       let html = this.cache.get(url);
       if (!html) {
-        const res = await fetch(url, { headers: { 'X-Partial': '1' }, credentials: 'same-origin' });
+        const res = await fetch(url, {
+          headers: { 'X-Partial': '1' },
+          credentials: 'same-origin',
+        });
         html = await res.text();
         this.saveCache(url, html);
       }
@@ -81,7 +104,10 @@ export default class AppShellNav {
     const tpl = document.createElement('template');
     tpl.innerHTML = html.trim();
     const next = tpl.content.querySelector('main');
-    if (!next) { this.container.innerHTML = html; return; }
+    if (!next) {
+      this.container.innerHTML = html;
+      return;
+    }
 
     this.animateOut(this.container, () => {
       this.container.replaceWith(next);
@@ -97,7 +123,8 @@ export default class AppShellNav {
       el.style.transform = 'translateX(10px)';
       el.style.opacity = '0.001';
       setTimeout(done, 200);
-    } else { // fade
+    } else {
+      // fade
       el.style.transition = 'opacity 120ms ease';
       el.style.opacity = '0.001';
       setTimeout(done, 120);
@@ -134,4 +161,3 @@ export default class AppShellNav {
     window.scrollTo({ top: 0, behavior: 'instant' });
   }
 }
-

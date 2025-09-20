@@ -1,9 +1,8 @@
-<?php
+<?php declare(strict_types=1);
 /**
- * Phase 5: Variable & Method Cleanup  
+ * Phase 5: Variable & Method Cleanup
  * Target: Fix undefined variables (69) and argument count issues (18)
  */
-
 echo "🔧 Phase 5: Variable & Method Cleanup Starting\n";
 echo "=============================================\n\n";
 
@@ -17,9 +16,9 @@ echo "----------------------------------------\n";
 // Fix common uninitialized property issues
 $propertyFixes = [
     'tests/Unit/Services/ScrapingServiceTest.php' => [
-        'search' => 'private $scrapingService;',
-        'replace' => 'private \\App\\Services\\ScrapingService $scrapingService;'
-    ]
+        'search'  => 'private $scrapingService;',
+        'replace' => 'private \\App\\Services\\ScrapingService $scrapingService;',
+    ],
 ];
 
 $propertiesFixed = 0;
@@ -27,7 +26,7 @@ foreach ($propertyFixes as $file => $fix) {
     $fullPath = "/var/www/hdtickets/$file";
     if (file_exists($fullPath)) {
         $content = file_get_contents($fullPath);
-        if (strpos($content, $fix['search']) !== false) {
+        if (strpos($content, $fix['search']) !== FALSE) {
             $content = str_replace($fix['search'], $fix['replace'], $content);
             file_put_contents($fullPath, $content);
             echo "🏗️ Fixed property initialization in: $file\n";
@@ -43,20 +42,20 @@ echo "--------------------------------------\n";
 $argumentFixes = [
     // Common constructor parameter mismatches
     'NotificationService' => [
-        'pattern' => '/new NotificationService\([^)]+\)/',
-        'replacement' => 'new NotificationService()'
+        'pattern'     => '/new NotificationService\([^)]+\)/',
+        'replacement' => 'new NotificationService()',
     ],
     'RedisRateLimitService' => [
-        'pattern' => '/new RedisRateLimitService\([^)]+\)/',
-        'replacement' => 'new RedisRateLimitService()'
-    ]
+        'pattern'     => '/new RedisRateLimitService\([^)]+\)/',
+        'replacement' => 'new RedisRateLimitService()',
+    ],
 ];
 
 $argumentsFixed = 0;
 $filesToScan = [
     'app/Http/Controllers',
-    'app/Services', 
-    'app/Providers'
+    'app/Services',
+    'app/Providers',
 ];
 
 foreach ($filesToScan as $dir) {
@@ -65,19 +64,19 @@ foreach ($filesToScan as $dir) {
         $files = new RecursiveIteratorIterator(
             new RecursiveDirectoryIterator($fullDir)
         );
-        
+
         foreach ($files as $file) {
             if ($file->getExtension() === 'php') {
                 $content = file_get_contents($file->getRealPath());
                 $originalContent = $content;
-                
+
                 foreach ($argumentFixes as $className => $fix) {
                     $content = preg_replace($fix['pattern'], $fix['replacement'], $content);
                 }
-                
+
                 if ($content !== $originalContent) {
                     file_put_contents($file->getRealPath(), $content);
-                    echo "🔧 Fixed argument counts in: " . $file->getRelativePathname() . "\n";
+                    echo '🔧 Fixed argument counts in: ' . $file->getRelativePathname() . "\n";
                     $argumentsFixed++;
                 }
             }
@@ -85,7 +84,7 @@ foreach ($filesToScan as $dir) {
     }
 }
 
-echo "\n🎯 Phase 5.3: Add Missing Use Statements\n";  
+echo "\n🎯 Phase 5.3: Add Missing Use Statements\n";
 echo "---------------------------------------\n";
 
 // Add commonly missing use statements to reduce class.notFound errors
@@ -94,18 +93,18 @@ $useStatementFixes = [
         'use Illuminate\\Http\\Request;',
         'use Illuminate\\Support\\Facades\\Auth;',
         'use Illuminate\\Support\\Facades\\Cache;',
-        'use App\\Models\\User;'
+        'use App\\Models\\User;',
     ],
     'app/Http/Controllers/PaymentPlanController.php' => [
         'use Illuminate\\Http\\Request;',
         'use Illuminate\\Http\\JsonResponse;',
-        'use App\\Models\\User;'
+        'use App\\Models\\User;',
     ],
     'app/Http/Controllers/PurchaseDecisionController.php' => [
         'use Illuminate\\Http\\Request;',
         'use Illuminate\\Http\\JsonResponse;',
-        'use App\\Models\\User;'
-    ]
+        'use App\\Models\\User;',
+    ],
 ];
 
 $useStatementsAdded = 0;
@@ -113,24 +112,24 @@ foreach ($useStatementFixes as $file => $statements) {
     $fullPath = "/var/www/hdtickets/$file";
     if (file_exists($fullPath)) {
         $content = file_get_contents($fullPath);
-        
+
         // Find the namespace line and add use statements after it
         if (preg_match('/namespace [^;]+;/', $content, $matches, PREG_OFFSET_CAPTURE)) {
             $namespaceEnd = $matches[0][1] + strlen($matches[0][0]);
-            
+
             $existingUseStatements = '';
             foreach ($statements as $statement) {
-                if (strpos($content, $statement) === false) {
+                if (strpos($content, $statement) === FALSE) {
                     $existingUseStatements .= "\n$statement";
                     $useStatementsAdded++;
                 }
             }
-            
+
             if ($existingUseStatements) {
-                $content = substr($content, 0, $namespaceEnd) . 
-                          $existingUseStatements . "\n" . 
+                $content = substr($content, 0, $namespaceEnd) .
+                          $existingUseStatements . "\n" .
                           substr($content, $namespaceEnd);
-                
+
                 file_put_contents($fullPath, $content);
                 echo "📦 Added use statements to: $file\n";
             }
@@ -145,9 +144,9 @@ echo "-----------------------------------\n";
 $returnTypeFixes = [
     // Add return types to methods that need them
     'public function index()' => 'public function index(): \\Illuminate\\Contracts\\View\\View',
-    'public function show()' => 'public function show(): \\Illuminate\\Http\\JsonResponse',  
-    'public function store(' => 'public function store(\\Illuminate\\Http\\Request $request): \\Illuminate\\Http\\JsonResponse',
-    'public function update(' => 'public function update(\\Illuminate\\Http\\Request $request): \\Illuminate\\Http\\JsonResponse'
+    'public function show()'  => 'public function show(): \\Illuminate\\Http\\JsonResponse',
+    'public function store('  => 'public function store(\\Illuminate\\Http\\Request $request): \\Illuminate\\Http\\JsonResponse',
+    'public function update(' => 'public function update(\\Illuminate\\Http\\Request $request): \\Illuminate\\Http\\JsonResponse',
 ];
 
 $returnTypesFixed = 0;
@@ -157,25 +156,25 @@ foreach ($filesToScan as $dir) {
         $files = new RecursiveIteratorIterator(
             new RecursiveDirectoryIterator($fullDir)
         );
-        
+
         foreach ($files as $file) {
-            if ($file->getExtension() === 'php' && strpos($file->getRelativePathname(), 'Controller') !== false) {
+            if ($file->getExtension() === 'php' && strpos($file->getRelativePathname(), 'Controller') !== FALSE) {
                 $content = file_get_contents($file->getRealPath());
                 $originalContent = $content;
-                
+
                 // Only apply safe return type fixes to avoid breaking existing code
-                if (strpos($content, 'public function index()') !== false && 
-                    strpos($content, 'return view(') !== false) {
+                if (strpos($content, 'public function index()') !== FALSE &&
+                    strpos($content, 'return view(') !== FALSE) {
                     $content = str_replace(
                         'public function index()',
                         'public function index(): \\Illuminate\\Contracts\\View\\View',
                         $content
                     );
                 }
-                
+
                 if ($content !== $originalContent) {
                     file_put_contents($file->getRealPath(), $content);
-                    echo "📝 Fixed return types in: " . $file->getRelativePathname() . "\n";
+                    echo '📝 Fixed return types in: ' . $file->getRelativePathname() . "\n";
                     $returnTypesFixed++;
                 }
             }
@@ -185,7 +184,7 @@ foreach ($filesToScan as $dir) {
 
 echo "\n📊 Phase 5 Summary:\n";
 echo "✅ Properties fixed: $propertiesFixed\n";
-echo "🔧 Arguments fixed: $argumentsFixed\n"; 
+echo "🔧 Arguments fixed: $argumentsFixed\n";
 echo "📦 Use statements added: $useStatementsAdded\n";
 echo "📝 Return types fixed: $returnTypesFixed\n";
 

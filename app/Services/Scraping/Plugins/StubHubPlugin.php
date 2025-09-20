@@ -147,21 +147,21 @@ class StubHubPlugin extends BaseScraperPlugin
         $params = [];
 
         // Add keyword search
-        if (! empty($criteria['keyword'])) {
+        if (!empty($criteria['keyword'])) {
             $searchUrl = $this->baseUrl . '/find/s/' . urlencode((string) $criteria['keyword']);
         }
 
         // Add price range
-        if (! empty($criteria['price_min'])) {
+        if (!empty($criteria['price_min'])) {
             $params['priceMin'] = $criteria['price_min'];
         }
 
-        if (! empty($criteria['price_max'])) {
+        if (!empty($criteria['price_max'])) {
             $params['priceMax'] = $criteria['price_max'];
         }
 
         // Add sort parameter
-        if (! empty($criteria['sort'])) {
+        if (!empty($criteria['sort'])) {
             $sortMap = [
                 'price_low'  => 'price_asc',
                 'price_high' => 'price_desc',
@@ -240,7 +240,7 @@ class StubHubPlugin extends BaseScraperPlugin
 
             // Extract URL
             $url = $this->extractUrl($node);
-            if ($url && ! filter_var($url, FILTER_VALIDATE_URL)) {
+            if ($url && !filter_var($url, FILTER_VALIDATE_URL)) {
                 $url = $this->baseUrl . $url;
             }
 
@@ -330,23 +330,23 @@ class StubHubPlugin extends BaseScraperPlugin
         // Additional StubHub-specific filtering
         return array_filter($filteredEvents, function (array $event) use ($criteria): bool {
             // Price range filtering
-            if (! empty($criteria['price_min'])
-                && ! empty($event['price_min'])
+            if (!empty($criteria['price_min'])
+                && !empty($event['price_min'])
                 && $event['price_min'] < $criteria['price_min']) {
                 return FALSE;
             }
 
-            if (! empty($criteria['price_max'])
-                && ! empty($event['price_max'])
+            if (!empty($criteria['price_max'])
+                && !empty($event['price_max'])
                 && $event['price_max'] > $criteria['price_max']) {
                 return FALSE;
             }
 
             // Venue filtering
-            if (! empty($criteria['venue'])) {
+            if (!empty($criteria['venue'])) {
                 $venueKeyword = strtolower((string) $criteria['venue']);
                 $eventVenue = strtolower($event['venue'] ?? '');
-                if (! str_contains($eventVenue, $venueKeyword)) {
+                if (!str_contains($eventVenue, $venueKeyword)) {
                     return FALSE;
                 }
             }
@@ -394,7 +394,7 @@ class StubHubPlugin extends BaseScraperPlugin
                     $parsed = Carbon::createFromFormat($format, $dateText);
                     if ($parsed instanceof Carbon) {
                         // If year is not specified, assume current year
-                        if (! preg_match('/\d{4}/', (string) $dateText)) {
+                        if (!preg_match('/\d{4}/', (string) $dateText)) {
                             $parsed->year(now()->year);
                         }
 

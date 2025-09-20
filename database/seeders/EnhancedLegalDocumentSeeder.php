@@ -817,7 +817,7 @@ class EnhancedLegalDocumentSeeder extends Seeder
 
     // Due to length constraints, I'll continue with abbreviated versions of the remaining methods
     // In a real implementation, each would be similarly comprehensive
-    
+
     private function getEnhancedDataProcessingAgreementContent(): string
     {
         return '<h1>Data Processing Agreement</h1>

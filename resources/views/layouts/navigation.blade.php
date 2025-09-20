@@ -22,7 +22,7 @@
   :class="{ 'nav-scrolled': isScrolled }" role="banner" aria-label="Primary navigation" id="main-navigation">
 
   <!-- Primary Navigation Menu -->
-  <div class="hd-container">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
     <div class="flex justify-between items-center" style="height: var(--hd-header-height-desktop);">
 
       <div class="flex">
@@ -369,7 +369,7 @@
         });
       }
     })">
-    <div class="container mx-auto px-4">
+    <div class="px-4 sm:px-6 lg:px-8">
       <div class="pt-2 pb-3 space-y-1" role="menu" aria-label="Mobile menu items">
         {{-- Dashboard Link --}}
         <x-responsive-nav-link :href="route('dashboard')" :active="Request::routeIs('dashboard')" class="mobile-nav-link" 
@@ -528,35 +528,6 @@
         @endif
       </div>
 
-      @if (Auth::check() && Auth::user()->isAdmin())
-        {{-- Admin Section --}}
-        <div class="border-t border-gray-200 mt-3 pt-3">
-          <div class="px-4 py-2">
-            <div class="font-medium text-sm text-gray-800 uppercase tracking-wide">
-              {{ __('Administration') }}</div>
-          </div>
-
-          {{-- Admin Dashboard --}}
-          <x-responsive-nav-link :href="route('admin.dashboard')" :active="Request::routeIs('admin.dashboard')">
-            <svg class="w-4 h-4 mr-2 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z">
-              </path>
-            </svg>
-            {{ __('Admin Dashboard') }}
-          </x-responsive-nav-link>
-
-          {{-- Reports --}}
-          <x-responsive-nav-link :href="route('admin.reports.index')" :active="Request::routeIs('admin.reports.*')">
-            <svg class="w-4 h-4 mr-2 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z">
-              </path>
-            </svg>
-            {{ __('Reports') }}
-          </x-responsive-nav-link>
-        </div>
-      @endif
 
       {{-- User Profile Section --}}
       <!-- Responsive Settings Options -->

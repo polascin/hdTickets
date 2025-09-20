@@ -2,21 +2,29 @@
 
 namespace App\Services\Dashboard;
 
+use Exception;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
+use Throwable;
+
+use function count;
+use function in_array;
 
 class CircuitBreakerService
 {
     private const CACHE_PREFIX = 'circuit_breaker:';
+
     private const DEFAULT_FAILURE_THRESHOLD = 5;
+
     private const DEFAULT_RECOVERY_TIMEOUT = 60; // seconds
+
     private const DEFAULT_REQUEST_TIMEOUT = 10; // seconds
 
-    /**
-     * Circuit breaker states
-     */
+    /** Circuit breaker states */
     private const STATE_CLOSED = 'closed';      // Normal operation
+
     private const STATE_OPEN = 'open';          // Circuit is open, failing fast
+
     private const STATE_HALF_OPEN = 'half_open'; // Testing if service is back
 
     /**
@@ -34,16 +42,16 @@ class CircuitBreakerService
             case self::STATE_OPEN:
                 if ($this->shouldAttemptReset($serviceName, $recoveryTimeout)) {
                     $this->setCircuitState($serviceName, self::STATE_HALF_OPEN);
+
                     return $this->executeWithTimeout($serviceName, $callback, $requestTimeout, $failureThreshold);
                 }
-                
+
                 // Circuit is open, fail fast
                 Log::warning("Circuit breaker is OPEN for service: {$serviceName}");
-                throw new \Exception("Service {$serviceName} is currently unavailable (circuit breaker is open)");
 
+                throw new Exception("Service {$serviceName} is currently unavailable (circuit breaker is open)");
             case self::STATE_HALF_OPEN:
                 return $this->executeWithTimeout($serviceName, $callback, $requestTimeout, $failureThreshold);
-
             case self::STATE_CLOSED:
             default:
                 return $this->executeWithTimeout($serviceName, $callback, $requestTimeout, $failureThreshold);
@@ -51,50 +59,96 @@ class CircuitBreakerService
     }
 
     /**
+     * Get circuit breaker statistics
+     */
+    public function getStats(string $serviceName): array
+    {
+        return [
+            'service_name'  => $serviceName,
+            'state'         => $this->getCircuitState($serviceName),
+            'failure_count' => Cache::get($this->getFailureKey($serviceName), 0),
+            'opened_at'     => Cache::get($this->getOpenedAtKey($serviceName)),
+            'last_check'    => time(),
+        ];
+    }
+
+    /**
+     * Reset circuit breaker for a service
+     */
+    public function reset(string $serviceName): void
+    {
+        Cache::forget($this->getStateKey($serviceName));
+        Cache::forget($this->getFailureKey($serviceName));
+        Cache::forget($this->getOpenedAtKey($serviceName));
+
+        Log::info("Circuit breaker RESET for service: {$serviceName}");
+    }
+
+    /**
+     * Get all circuit breaker statistics
+     */
+    public function getAllStats(): array
+    {
+        $keys = Cache::getRedis()->keys(self::CACHE_PREFIX . '*');
+        $services = [];
+
+        foreach ($keys as $key) {
+            $keyParts = explode(':', $key);
+            if (count($keyParts) >= 3) {
+                $serviceName = $keyParts[2];
+                if (!in_array($serviceName, $services, TRUE)) {
+                    $services[] = $serviceName;
+                }
+            }
+        }
+
+        return array_map(fn ($service) => $this->getStats($service), $services);
+    }
+
+    /**
      * Execute callback with timeout and failure tracking
      */
     private function executeWithTimeout(string $serviceName, callable $callback, int $timeout, int $failureThreshold): mixed
     {
-        $startTime = microtime(true);
+        $startTime = microtime(TRUE);
 
         try {
             // Set a timeout for the operation
             $result = $this->executeWithTimeLimit($callback, $timeout);
-            
-            $executionTime = microtime(true) - $startTime;
-            
+
+            $executionTime = microtime(TRUE) - $startTime;
+
             // Record successful execution
             $this->recordSuccess($serviceName);
-            
+
             Log::debug("Circuit breaker SUCCESS for service: {$serviceName}", [
                 'execution_time' => $executionTime,
-                'state' => $this->getCircuitState($serviceName),
+                'state'          => $this->getCircuitState($serviceName),
             ]);
-            
+
             return $result;
-            
-        } catch (\Throwable $e) {
-            $executionTime = microtime(true) - $startTime;
-            
+        } catch (Throwable $e) {
+            $executionTime = microtime(TRUE) - $startTime;
+
             // Record failure
             $failures = $this->recordFailure($serviceName);
-            
+
             Log::warning("Circuit breaker FAILURE for service: {$serviceName}", [
-                'error' => $e->getMessage(),
-                'execution_time' => $executionTime,
-                'total_failures' => $failures,
+                'error'             => $e->getMessage(),
+                'execution_time'    => $executionTime,
+                'total_failures'    => $failures,
                 'failure_threshold' => $failureThreshold,
             ]);
-            
+
             // Check if we should open the circuit
             if ($failures >= $failureThreshold) {
                 $this->openCircuit($serviceName);
                 Log::error("Circuit breaker OPENED for service: {$serviceName}", [
-                    'failures' => $failures,
+                    'failures'  => $failures,
                     'threshold' => $failureThreshold,
                 ]);
             }
-            
+
             throw $e;
         }
     }
@@ -107,14 +161,14 @@ class CircuitBreakerService
         // This is a simplified timeout implementation
         // In production, you would use proper async execution with timeouts
         $startTime = time();
-        
+
         $result = $callback();
-        
+
         $executionTime = time() - $startTime;
         if ($executionTime > $timeout) {
-            throw new \Exception("Operation timed out after {$executionTime} seconds");
+            throw new Exception("Operation timed out after {$executionTime} seconds");
         }
-        
+
         return $result;
     }
 
@@ -141,7 +195,7 @@ class CircuitBreakerService
     {
         // Reset failure count on success
         Cache::forget($this->getFailureKey($serviceName));
-        
+
         // If we were in half-open state, close the circuit
         if ($this->getCircuitState($serviceName) === self::STATE_HALF_OPEN) {
             $this->setCircuitState($serviceName, self::STATE_CLOSED);
@@ -156,9 +210,9 @@ class CircuitBreakerService
     {
         $failureKey = $this->getFailureKey($serviceName);
         $failures = Cache::get($failureKey, 0) + 1;
-        
+
         Cache::put($failureKey, $failures, 3600); // 1 hour TTL
-        
+
         return $failures;
     }
 
@@ -177,59 +231,12 @@ class CircuitBreakerService
     private function shouldAttemptReset(string $serviceName, int $recoveryTimeout): bool
     {
         $openedAt = Cache::get($this->getOpenedAtKey($serviceName));
-        
+
         if (!$openedAt) {
-            return true; // No record of when it was opened, allow reset
+            return TRUE; // No record of when it was opened, allow reset
         }
-        
+
         return (time() - $openedAt) >= $recoveryTimeout;
-    }
-
-    /**
-     * Get circuit breaker statistics
-     */
-    public function getStats(string $serviceName): array
-    {
-        return [
-            'service_name' => $serviceName,
-            'state' => $this->getCircuitState($serviceName),
-            'failure_count' => Cache::get($this->getFailureKey($serviceName), 0),
-            'opened_at' => Cache::get($this->getOpenedAtKey($serviceName)),
-            'last_check' => time(),
-        ];
-    }
-
-    /**
-     * Reset circuit breaker for a service
-     */
-    public function reset(string $serviceName): void
-    {
-        Cache::forget($this->getStateKey($serviceName));
-        Cache::forget($this->getFailureKey($serviceName));
-        Cache::forget($this->getOpenedAtKey($serviceName));
-        
-        Log::info("Circuit breaker RESET for service: {$serviceName}");
-    }
-
-    /**
-     * Get all circuit breaker statistics
-     */
-    public function getAllStats(): array
-    {
-        $keys = Cache::getRedis()->keys(self::CACHE_PREFIX . '*');
-        $services = [];
-        
-        foreach ($keys as $key) {
-            $keyParts = explode(':', $key);
-            if (count($keyParts) >= 3) {
-                $serviceName = $keyParts[2];
-                if (!in_array($serviceName, $services)) {
-                    $services[] = $serviceName;
-                }
-            }
-        }
-        
-        return array_map(fn($service) => $this->getStats($service), $services);
     }
 
     /**

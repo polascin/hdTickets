@@ -107,18 +107,18 @@ class TestDataFactory
             'price'              => fake()->randomFloat(2, 25, 500),
             'currency'           => 'USD',
             'available_quantity' => fake()->numberBetween(1, 1000),
-            'is_available'       => true,
+            'is_available'       => TRUE,
             // Use an allowed enum value for current tickets schema
-            'status'             => 'open',
-            'platform'           => fake()->randomElement(['ticketmaster', 'stubhub', 'seatgeek']),
-            'source'             => 'scraper',
-            'ticket_url'         => fake()->url(),
-            'scraping_metadata'  => [
+            'status'            => 'open',
+            'platform'          => fake()->randomElement(['ticketmaster', 'stubhub', 'seatgeek']),
+            'source'            => 'scraper',
+            'ticket_url'        => fake()->url(),
+            'scraping_metadata' => [
                 'section'      => fake()->randomElement(['A', 'B', 'C', 'VIP']),
                 'row'          => fake()->numberBetween(1, 30),
                 'seat_numbers' => fake()->randomElements([1, 2, 3, 4, 5, 6, 7, 8], 2),
             ],
-            'last_activity_at'   => now(),
+            'last_activity_at' => now(),
         ];
 
         $ticketData = array_merge($defaultAttributes, $attributes);

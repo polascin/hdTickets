@@ -262,7 +262,7 @@ class UserFavoriteVenue extends Model
      */
     public function distanceFrom(float $latitude, float $longitude): ?float
     {
-        if (! $this->latitude || ! $this->longitude) {
+        if (!$this->latitude || !$this->longitude) {
             return NULL;
         }
 
@@ -371,7 +371,7 @@ class UserFavoriteVenue extends Model
     protected function capacityTier(): Attribute
     {
         return Attribute::make(get: function (): string {
-            if (! $this->capacity) {
+            if (!$this->capacity) {
                 return 'unknown';
             }
             if ($this->capacity >= 50000) {

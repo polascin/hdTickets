@@ -2,9 +2,9 @@
 
 namespace App\Logging;
 
-use DB;
 use Exception;
 use Illuminate\Log\Logger;
+use Illuminate\Support\Facades\DB;
 use Monolog\Formatter\LineFormatter;
 use Monolog\Handler\StreamHandler;
 use Monolog\LogRecord;
@@ -95,7 +95,9 @@ class PerformanceLogger
     private function getConnectionCount(): int
     {
         try {
-            return DB::connection()->getPdo()->query('SHOW STATUS LIKE "Threads_connected"')->fetchColumn(1) ?? 0;
+            $result = DB::connection()->getPdo()->query('SHOW STATUS LIKE "Threads_connected"')->fetchColumn(1);
+
+            return (int) ($result ?? 0);
         } catch (Exception) {
             return 0;
         }

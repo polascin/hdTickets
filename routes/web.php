@@ -290,7 +290,7 @@ Route::middleware(['auth', 'verified'])->prefix('dashboard')->name('dashboard.')
         // Download route for exports
         Route::get('/download/{file}', function (string $file) {
             $path = storage_path('app/analytics/exports/' . $file);
-            if (! file_exists($path)) {
+            if (!file_exists($path)) {
                 abort(404);
             }
 
@@ -755,7 +755,7 @@ require __DIR__ . '/admin.php';
 
 Route::get('/dashboard-test', function () {
     $user = User::where('email', 'admin@hdtickets.local')->first();
-    if (! $user) {
+    if (!$user) {
         return response()->json(['error' => 'Admin user not found']);
     }
 

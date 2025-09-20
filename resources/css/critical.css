@@ -1,8 +1,8 @@
-/* HD Tickets Login Page Critical CSS - Above-the-fold optimization */
+/* HD Tickets Dashboard Critical CSS - Above-the-fold optimization */
 /* This CSS is inlined to prevent render-blocking and improve LCP */
 
 /* ========================================
-   CRITICAL LOGIN PAGE STYLES (ABOVE THE FOLD)
+   CRITICAL DASHBOARD STYLES (ABOVE THE FOLD)
 ======================================== */
 
 /* Reset and Base Styles */
@@ -23,8 +23,19 @@ html {
 
 body {
   margin: 0;
-  font-family: 'Figtree', ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, 'Noto Sans', sans-serif;
-  font-feature-settings: 'cv02','cv03','cv04','cv11';
+  font-family:
+    'Figtree',
+    ui-sans-serif,
+    system-ui,
+    -apple-system,
+    BlinkMacSystemFont,
+    'Segoe UI',
+    Roboto,
+    'Helvetica Neue',
+    Arial,
+    'Noto Sans',
+    sans-serif;
+  font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11';
   font-variation-settings: normal;
   line-height: 1.6;
   color: #1f2937;
@@ -40,28 +51,29 @@ body {
   --color-primary: #3b82f6;
   --color-primary-dark: #2563eb;
   --color-primary-light: #93c5fd;
-  
+
   /* Backgrounds */
   --bg-primary: #ffffff;
   --bg-elevated: #f8fafc;
   --bg-tertiary: #f1f5f9;
-  
+
   /* Text Colors */
   --text-primary: #1f2937;
   --text-secondary: #6b7280;
   --text-tertiary: #9ca3af;
-  
+
   /* Borders */
   --border-primary: #e5e7eb;
   --border-secondary: #d1d5db;
-  
+
   /* Shadows */
   --shadow-base: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
-  --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+  --shadow-lg:
+    0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
 }
 
 /* Dark theme variables */
-[data-theme="dark"] {
+[data-theme='dark'] {
   --bg-primary: #111827;
   --bg-elevated: #1f2937;
   --bg-tertiary: #374151;
@@ -191,8 +203,12 @@ body {
 }
 
 @keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
 }
 
 /* Page loading overlay */
@@ -209,7 +225,9 @@ body {
   z-index: 9999;
   opacity: 1;
   visibility: visible;
-  transition: opacity 0.3s ease, visibility 0.3s ease;
+  transition:
+    opacity 0.3s ease,
+    visibility 0.3s ease;
 }
 
 .page-loading.hidden {
@@ -226,7 +244,7 @@ body {
   display: block;
 }
 
-[data-theme="dark"] .loading-skeleton {
+[data-theme='dark'] .loading-skeleton {
   background: linear-gradient(90deg, #374151 25%, #4b5563 50%, #374151 75%);
   background-size: 200% 100%;
 }
@@ -395,7 +413,9 @@ body {
   font-size: 1rem;
   color: var(--text-primary);
   background-color: var(--bg-primary);
-  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+  transition:
+    border-color 0.15s ease,
+    box-shadow 0.15s ease;
 }
 
 .form-input:focus {
@@ -441,7 +461,7 @@ img {
 .animate-spin,
 .loading-spinner,
 .loading-skeleton,
-*[class*="transition"] {
+*[class*='transition'] {
   will-change: transform, opacity;
 }
 
@@ -460,7 +480,7 @@ img {
 *,
 *::before,
 *::after {
-  transition: 
+  transition:
     background-color 0.2s ease,
     border-color 0.2s ease,
     color 0.2s ease,
@@ -512,13 +532,13 @@ img {
   .page-loading {
     display: none !important;
   }
-  
+
   /* Ensure readable colors */
   body {
     background: white !important;
     color: black !important;
   }
-  
+
   /* Optimize fonts for print */
   body {
     font-family: serif;
@@ -540,22 +560,22 @@ img {
     transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
   }
-  
+
   .loading-spinner,
   .loading-skeleton {
     animation: none;
   }
-  
+
   .loading-spinner {
     border-color: var(--color-primary);
     border-top-color: transparent;
   }
-  
+
   .loading-skeleton {
     background: var(--bg-tertiary);
   }
-  
-  [data-theme="dark"] .loading-skeleton {
+
+  [data-theme='dark'] .loading-skeleton {
     background: #4b5563;
   }
 }
@@ -566,23 +586,23 @@ img {
     --border-primary: #000000;
     --border-secondary: #000000;
   }
-  
-  [data-theme="dark"] {
+
+  [data-theme='dark'] {
     --border-primary: #ffffff;
     --border-secondary: #ffffff;
   }
-  
+
   .nav-link:hover,
   .nav-link.active {
     text-decoration: underline;
   }
-  
+
   .loading-skeleton {
     background: #cccccc;
     border: 1px solid #000000;
   }
-  
-  [data-theme="dark"] .loading-skeleton {
+
+  [data-theme='dark'] .loading-skeleton {
     background: #666666;
     border: 1px solid #ffffff;
   }

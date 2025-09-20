@@ -1,9 +1,9 @@
-<?php
-#!/usr/bin/env php
+<?php declare(strict_types=1);
+//!/usr/bin/env php
 
 /**
  * HD Tickets Quality Assurance Test Runner
- * 
+ *
  * This script runs comprehensive testing for Step 9:
  * - Login validation tests
  * - Cross-browser compatibility tests
@@ -18,18 +18,20 @@ require_once __DIR__ . '/vendor/autoload.php';
 class QualityAssuranceRunner
 {
     private array $testResults = [];
+
     private string $reportPath;
+
     private float $startTime;
 
     public function __construct()
     {
-        $this->startTime = microtime(true);
+        $this->startTime = microtime(TRUE);
         $this->reportPath = storage_path('quality/testing/qa_report_' . date('Y_m_d_His') . '.html');
-        
+
         // Ensure report directory exists
         $reportDir = dirname($this->reportPath);
         if (!is_dir($reportDir)) {
-            mkdir($reportDir, 0755, true);
+            mkdir($reportDir, 0755, TRUE);
         }
     }
 
@@ -44,7 +46,7 @@ class QualityAssuranceRunner
         $this->runSecurityTests();
         $this->runCrossCompatibilityTests();
         $this->generateQualityReport();
-        
+
         echo "\n✅ All tests completed!\n";
         echo "📊 Report generated: {$this->reportPath}\n\n";
     }
@@ -52,110 +54,111 @@ class QualityAssuranceRunner
     private function runLoginValidationTests(): void
     {
         echo "🔐 Running Login Validation Tests...\n";
-        
+
         $output = $this->executeCommand('./vendor/bin/phpunit tests/Feature/LoginValidationTest.php --verbose');
         $this->testResults['login_validation'] = $this->parseTestOutput($output);
-        
+
         echo "✓ Login validation tests completed\n\n";
     }
 
     private function runPerformanceTests(): void
     {
         echo "⚡ Running Performance Tests...\n";
-        
+
         $output = $this->executeCommand('./vendor/bin/phpunit tests/Performance/LoginPerformanceTest.php --verbose');
         $this->testResults['performance'] = $this->parseTestOutput($output);
-        
+
         echo "✓ Performance tests completed\n\n";
     }
 
     private function runAccessibilityTests(): void
     {
         echo "♿ Running Accessibility Tests...\n";
-        
+
         $output = $this->executeCommand('./vendor/bin/phpunit tests/Feature/AccessibilityTest.php --verbose');
         $this->testResults['accessibility'] = $this->parseTestOutput($output);
-        
+
         echo "✓ Accessibility tests completed\n\n";
     }
 
     private function runSecurityTests(): void
     {
         echo "🔒 Running Security Tests...\n";
-        
+
         // Test CSRF protection
         echo "  - Testing CSRF protection...\n";
-        
+
         // Test rate limiting
         echo "  - Testing rate limiting...\n";
-        
+
         // Test honeypot protection
         echo "  - Testing honeypot protection...\n";
-        
+
         // Test session security
         echo "  - Testing session security...\n";
-        
+
         $this->testResults['security'] = [
-            'csrf_protection' => 'PASS',
-            'rate_limiting' => 'PASS', 
+            'csrf_protection'     => 'PASS',
+            'rate_limiting'       => 'PASS',
             'honeypot_protection' => 'PASS',
-            'session_security' => 'PASS'
+            'session_security'    => 'PASS',
         ];
-        
+
         echo "✓ Security tests completed\n\n";
     }
 
     private function runCrossCompatibilityTests(): void
     {
         echo "🌐 Running Cross-Browser Compatibility Tests...\n";
-        
+
         // Simulate browser testing (would require actual browser testing setup)
         echo "  - Testing Chrome compatibility...\n";
-        echo "  - Testing Firefox compatibility...\n"; 
+        echo "  - Testing Firefox compatibility...\n";
         echo "  - Testing Safari compatibility...\n";
         echo "  - Testing Edge compatibility...\n";
         echo "  - Testing mobile browsers...\n";
-        
+
         $this->testResults['cross_browser'] = [
-            'chrome' => 'PASS',
+            'chrome'  => 'PASS',
             'firefox' => 'PASS',
-            'safari' => 'PASS', 
-            'edge' => 'PASS',
-            'mobile' => 'PASS'
+            'safari'  => 'PASS',
+            'edge'    => 'PASS',
+            'mobile'  => 'PASS',
         ];
-        
+
         echo "✓ Cross-browser tests completed\n\n";
     }
 
     private function executeCommand(string $command): string
     {
         $output = shell_exec($command . ' 2>&1');
+
         return $output ?? '';
     }
 
     private function parseTestOutput(string $output): array
     {
         $results = [
-            'total_tests' => 0,
-            'passed' => 0,
-            'failed' => 0,
+            'total_tests'    => 0,
+            'passed'         => 0,
+            'failed'         => 0,
             'execution_time' => 0,
-            'details' => []
+            'details'        => [],
         ];
 
         // Parse PHPUnit output
         if (preg_match('/OK \((\d+) tests?, (\d+) assertions?\)/', $output, $matches)) {
-            $results['total_tests'] = (int)$matches[1];
-            $results['passed'] = (int)$matches[1];
+            $results['total_tests'] = (int) $matches[1];
+            $results['passed'] = (int) $matches[1];
         } elseif (preg_match('/Tests: (\d+), Assertions: (\d+), Failures: (\d+)/', $output, $matches)) {
-            $results['total_tests'] = (int)$matches[1];
-            $results['failed'] = (int)$matches[3];
+            $results['total_tests'] = (int) $matches[1];
+            $results['failed'] = (int) $matches[3];
             $results['passed'] = $results['total_tests'] - $results['failed'];
         }
 
         // Extract execution time
         if (preg_match('/Time: ([0-9.]+)/', $output, $matches)) {
-            $results['execution_time'] = (float)$matches[1];
+            $results['execution_time'] = (float) $matches[1];
         }
 
         return $results;
@@ -164,13 +167,13 @@ class QualityAssuranceRunner
     private function generateQualityReport(): void
     {
         echo "📊 Generating Quality Assurance Report...\n";
-        
-        $totalExecutionTime = microtime(true) - $this->startTime;
-        
+
+        $totalExecutionTime = microtime(TRUE) - $this->startTime;
+
         $html = $this->generateReportHTML($totalExecutionTime);
-        
+
         file_put_contents($this->reportPath, $html);
-        
+
         echo "✓ Report generated successfully\n";
     }
 
@@ -180,7 +183,7 @@ class QualityAssuranceRunner
         $totalTests = array_sum(array_column($this->testResults, 'total_tests'));
         $totalPassed = array_sum(array_column($this->testResults, 'passed'));
         $totalFailed = array_sum(array_column($this->testResults, 'failed'));
-        
+
         return <<<HTML
 <!DOCTYPE html>
 <html lang="en">
@@ -237,7 +240,7 @@ class QualityAssuranceRunner
         <h2>🔐 Login Validation Tests</h2>
         {$this->renderTestSection('login_validation', [
             'Valid credentials login',
-            'Invalid credentials handling', 
+            'Invalid credentials handling',
             'Account lockout after failed attempts',
             'Remember me functionality',
             'CSRF protection',
@@ -245,7 +248,7 @@ class QualityAssuranceRunner
             'Honeypot protection',
             '2FA integration',
             'User activity logging',
-            'Session regeneration'
+            'Session regeneration',
         ])}
     </div>
 
@@ -253,14 +256,14 @@ class QualityAssuranceRunner
         <h2>⚡ Performance Tests</h2>
         {$this->renderTestSection('performance', [
             'Login page load time < 500ms',
-            'Authentication time < 1000ms', 
+            'Authentication time < 1000ms',
             'Concurrent login performance',
             'Database query optimization',
             'Memory usage monitoring',
             'Cache performance',
             'Rate limiting performance',
             'Session handling performance',
-            'Core Web Vitals compliance'
+            'Core Web Vitals compliance',
         ])}
         
         <div class="performance-metrics">
@@ -291,7 +294,7 @@ class QualityAssuranceRunner
             'Focus management',
             'Error handling accessibility',
             'Live region announcements',
-            'Semantic HTML structure'
+            'Semantic HTML structure',
         ])}
     </div>
 
@@ -456,17 +459,17 @@ HTML;
     private function renderTestSection(string $sectionKey, array $testNames): string
     {
         $results = $this->testResults[$sectionKey] ?? ['passed' => count($testNames), 'failed' => 0];
-        
+
         $html = '<table class="table"><thead><tr><th>Test Case</th><th>Status</th></tr></thead><tbody>';
-        
+
         foreach ($testNames as $index => $testName) {
             $status = $index < $results['passed'] ? 'pass' : 'fail';
             $badge = $status === 'pass' ? '<span class="badge pass">PASS</span>' : '<span class="badge fail">FAIL</span>';
             $html .= "<tr><td>{$testName}</td><td>{$badge}</td></tr>";
         }
-        
+
         $html .= '</tbody></table>';
-        
+
         return $html;
     }
 }

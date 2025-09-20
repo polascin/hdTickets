@@ -3,7 +3,10 @@
 namespace App\Console\Commands;
 
 use App\Models\User;
+use DateTimeInterface;
 use Illuminate\Console\Command;
+
+use function is_bool;
 
 class ListUsers extends Command
 {
@@ -27,11 +30,11 @@ class ListUsers extends Command
 
         $query = User::query();
 
-        if (($role = $this->option('role')) !== null && $role !== '') {
+        if (($role = $this->option('role')) !== NULL && $role !== '') {
             $query->where('role', (string) $role);
         }
 
-        if (($active = $this->option('active')) !== null && $active !== '') {
+        if (($active = $this->option('active')) !== NULL && $active !== '') {
             $query->where('is_active', (bool) ((int) $active));
         }
 
@@ -73,7 +76,7 @@ class ListUsers extends Command
                 if (is_bool($val)) {
                     $val = $val ? 'YES' : 'NO';
                 }
-                if ($val instanceof \DateTimeInterface) {
+                if ($val instanceof DateTimeInterface) {
                     $val = $val->format('Y-m-d H:i:s');
                 }
                 $row[$col] = $val;

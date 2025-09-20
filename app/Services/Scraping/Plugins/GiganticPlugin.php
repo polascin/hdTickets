@@ -167,7 +167,7 @@ class GiganticPlugin extends BaseScraperPlugin
         ];
 
         // Remove empty parameters
-        $params = array_filter($params, fn ($value): bool => ! empty($value));
+        $params = array_filter($params, fn ($value): bool => !empty($value));
 
         return $this->baseUrl . '/search?' . http_build_query($params);
     }
@@ -181,7 +181,7 @@ class GiganticPlugin extends BaseScraperPlugin
             Log::info("Gigantic Plugin: Scraping tickets from: {$searchUrl}");
 
             $response = $this->makeHttpRequest($searchUrl);
-            if (! $response) {
+            if (!$response) {
                 return [];
             }
 
@@ -296,7 +296,7 @@ class GiganticPlugin extends BaseScraperPlugin
             $eventDate = $this->parseDate($date);
 
             // Build full URL if relative
-            if ($link && ! filter_var($link, FILTER_VALIDATE_URL)) {
+            if ($link && !filter_var($link, FILTER_VALIDATE_URL)) {
                 $link = rtrim($this->baseUrl, '/') . '/' . ltrim($link, '/');
             }
 

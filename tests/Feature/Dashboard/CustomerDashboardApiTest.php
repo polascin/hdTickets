@@ -12,11 +12,6 @@ class CustomerDashboardApiTest extends TestCase
 {
     use RefreshDatabase;
 
-    private function makeUser(string $role): User
-    {
-        return User::factory()->create(['role' => $role, 'email_verified_at' => now()]);
-    }
-
     #[Test]
     public function guest_gets_401_on_realtime_endpoint(): void
     {
@@ -30,7 +25,7 @@ class CustomerDashboardApiTest extends TestCase
         Sanctum::actingAs($customer);
 
         $res = $this->getJson('/api/v1/dashboard/realtime')->assertOk()->json();
-        $this->assertTrue($res['success'] ?? false);
+        $this->assertTrue($res['success'] ?? FALSE);
         $this->assertArrayHasKey('data', $res);
         $this->assertArrayHasKey('statistics', $res['data']);
         $this->assertArrayHasKey('recent_tickets', $res['data']);
@@ -44,7 +39,7 @@ class CustomerDashboardApiTest extends TestCase
 
         $this->getJson('/api/v1/dashboard/realtime')
             ->assertOk()
-            ->assertJsonPath('success', true);
+            ->assertJsonPath('success', TRUE);
     }
 
     #[Test]
@@ -55,5 +50,10 @@ class CustomerDashboardApiTest extends TestCase
 
         // Depending on role middleware application on the api route
         $this->getJson('/api/v1/dashboard/realtime')->assertStatus(403);
+    }
+
+    private function makeUser(string $role): User
+    {
+        return User::factory()->create(['role' => $role, 'email_verified_at' => now()]);
     }
 }

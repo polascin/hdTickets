@@ -203,7 +203,7 @@ class RoleBasedAccessControlService
      */
     public function getUsersByRole(string $role, int $perPage = 15): Collection
     {
-        if (! array_key_exists($role, self::ROLE_PERMISSIONS)) {
+        if (!array_key_exists($role, self::ROLE_PERMISSIONS)) {
             throw new InvalidArgumentException("Invalid role: {$role}");
         }
 
@@ -221,7 +221,7 @@ class RoleBasedAccessControlService
     public function changeUserRole(User $adminUser, User $targetUser, string $newRole): bool
     {
         // Only admins can change roles
-        if (! $this->isAdmin($adminUser)) {
+        if (!$this->isAdmin($adminUser)) {
             $this->securityMonitoring->recordSecurityEvent(
                 'unauthorized_role_change',
                 'Unauthorized attempt to change user role',
@@ -231,7 +231,7 @@ class RoleBasedAccessControlService
         }
 
         // Validate new role
-        if (! array_key_exists($newRole, self::ROLE_PERMISSIONS)) {
+        if (!array_key_exists($newRole, self::ROLE_PERMISSIONS)) {
             throw new InvalidArgumentException("Invalid role: {$newRole}");
         }
 
@@ -336,11 +336,11 @@ class RoleBasedAccessControlService
      */
     public function bulkRoleAssignment(User $adminUser, array $userIds, string $newRole): array
     {
-        if (! $this->isAdmin($adminUser)) {
+        if (!$this->isAdmin($adminUser)) {
             throw new UnauthorizedActionException('Only admins can perform bulk role assignments');
         }
 
-        if (! array_key_exists($newRole, self::ROLE_PERMISSIONS)) {
+        if (!array_key_exists($newRole, self::ROLE_PERMISSIONS)) {
             throw new InvalidArgumentException("Invalid role: {$newRole}");
         }
 
@@ -395,7 +395,7 @@ class RoleBasedAccessControlService
     private function canAccessSystemResource(User $user, string $resource): bool
     {
         // Only admins can access most system resources
-        if (! $this->isAdmin($user) && ! str_contains($resource, 'scrape')) {
+        if (!$this->isAdmin($user) && !str_contains($resource, 'scrape')) {
             return FALSE;
         }
 
@@ -413,7 +413,7 @@ class RoleBasedAccessControlService
     private function canAccessSecurityResource(User $user, string $resource, array $context): bool
     {
         // Only admins can access security resources
-        if (! $this->isAdmin($user)) {
+        if (!$this->isAdmin($user)) {
             return FALSE;
         }
 
@@ -471,7 +471,7 @@ class RoleBasedAccessControlService
         // Check if within free access period
         $withinFreeAccess = $user->created_at->diffInDays(now()) <= config('subscription.free_access_days', 7);
 
-        if (! $withinFreeAccess && ! $user->hasActiveSubscription()) {
+        if (!$withinFreeAccess && !$user->hasActiveSubscription()) {
             $validation['reasons'][] = 'Active subscription required';
 
             return $validation;
@@ -504,7 +504,7 @@ class RoleBasedAccessControlService
         $restricted = [];
 
         foreach (self::RESTRICTED_ACTIONS as $action) {
-            if (! $this->hasPermission($user, $action)) {
+            if (!$this->hasPermission($user, $action)) {
                 $restricted[] = $action;
             }
         }
@@ -558,7 +558,7 @@ class RoleBasedAccessControlService
     private function validateCriticalAction(User $user, string $action, array $context): bool
     {
         // Require MFA for critical actions
-        if (! $user->mfa_enabled) {
+        if (!$user->mfa_enabled) {
             return FALSE;
         }
 

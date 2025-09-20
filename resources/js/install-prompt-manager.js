@@ -14,9 +14,9 @@ export default class InstallPromptManager {
       // Event thresholds
       purchaseThreshold: 1,
       alertThreshold: 2,
-      watchlistThreshold: 3
+      watchlistThreshold: 3,
     };
-    
+
     this.userStats = this.loadUserStats();
     this.sessionStart = Date.now();
     this.interactionCount = 0;
@@ -32,16 +32,19 @@ export default class InstallPromptManager {
 
   detectInstallState() {
     // Check if already installed via multiple methods
-    if (window.matchMedia && window.matchMedia('(display-mode: standalone)').matches) {
+    if (
+      window.matchMedia &&
+      window.matchMedia('(display-mode: standalone)').matches
+    ) {
       this.isInstalled = true;
       console.log('PWA is running in standalone mode');
     }
-    
+
     if (window.navigator.standalone === true) {
       this.isInstalled = true;
       console.log('PWA is running in iOS standalone mode');
     }
-    
+
     if (document.referrer.startsWith('android-app://')) {
       this.isInstalled = true;
       console.log('PWA is running via Android app intent');
@@ -55,7 +58,7 @@ export default class InstallPromptManager {
 
   bindEventListeners() {
     // Listen for beforeinstallprompt event
-    window.addEventListener('beforeinstallprompt', (e) => {
+    window.addEventListener('beforeinstallprompt', e => {
       console.log('Install prompt available');
       e.preventDefault();
       this.deferredPrompt = e;
@@ -74,7 +77,9 @@ export default class InstallPromptManager {
     // Track user interactions
     const interactionEvents = ['click', 'touchstart', 'keydown', 'scroll'];
     interactionEvents.forEach(event => {
-      document.addEventListener(event, () => this.trackInteraction(), { passive: true });
+      document.addEventListener(event, () => this.trackInteraction(), {
+        passive: true,
+      });
     });
 
     // Track page visibility changes
@@ -85,13 +90,23 @@ export default class InstallPromptManager {
     });
 
     // Track high-value actions
-    document.addEventListener('ticket:purchased', () => this.trackHighValueAction('purchase'));
-    document.addEventListener('alert:created', () => this.trackHighValueAction('alert'));
-    document.addEventListener('watchlist:added', () => this.trackHighValueAction('watchlist'));
-    
+    document.addEventListener('ticket:purchased', () =>
+      this.trackHighValueAction('purchase')
+    );
+    document.addEventListener('alert:created', () =>
+      this.trackHighValueAction('alert')
+    );
+    document.addEventListener('watchlist:added', () =>
+      this.trackHighValueAction('watchlist')
+    );
+
     // Listen for manual install triggers
-    document.addEventListener('install:request', () => this.showInstallPrompt());
-    document.addEventListener('install:dismiss', () => this.dismissInstallPrompt());
+    document.addEventListener('install:request', () =>
+      this.showInstallPrompt()
+    );
+    document.addEventListener('install:dismiss', () =>
+      this.dismissInstallPrompt()
+    );
   }
 
   trackUserEngagement() {
@@ -99,7 +114,7 @@ export default class InstallPromptManager {
     this.userStats.visits++;
     this.userStats.lastVisit = Date.now();
     this.saveUserStats();
-    
+
     // Track session time
     setInterval(() => {
       this.userStats.totalTimeOnSite += 30000; // Add 30 seconds
@@ -125,7 +140,7 @@ export default class InstallPromptManager {
     this.userStats.highValueActions[type]++;
     this.userStats.lastHighValueAction = Date.now();
     this.saveUserStats();
-    
+
     // High-value actions can trigger immediate install prompt evaluation
     setTimeout(() => this.evaluateInstallPrompt(), 2000);
   }
@@ -149,10 +164,12 @@ export default class InstallPromptManager {
   calculateInstallCriteria() {
     const stats = this.userStats;
     const sessionTime = Date.now() - this.sessionStart;
-    
+
     // Check if in cooldown period
-    if (stats.lastPromptDismissed && 
-        (Date.now() - stats.lastPromptDismissed) < this.config.cooldownPeriod) {
+    if (
+      stats.lastPromptDismissed &&
+      Date.now() - stats.lastPromptDismissed < this.config.cooldownPeriod
+    ) {
       return { shouldShow: false, reason: 'cooldown' };
     }
 
@@ -170,35 +187,38 @@ export default class InstallPromptManager {
     }
 
     // Regular engagement criteria
-    const engagementScore = (
+    const engagementScore =
       (stats.visits >= this.config.minVisits ? 1 : 0) +
       (stats.totalTimeOnSite >= this.config.minTimeOnSite ? 1 : 0) +
       (this.interactionCount >= this.config.minInteractions ? 1 : 0) +
-      (sessionTime >= this.config.minTimeOnSite ? 1 : 0)
-    );
+      (sessionTime >= this.config.minTimeOnSite ? 1 : 0);
 
     if (engagementScore >= 3) {
       return { shouldShow: true, reason: 'engagement_threshold' };
     }
 
-    return { shouldShow: false, reason: 'insufficient_engagement', score: engagementScore };
+    return {
+      shouldShow: false,
+      reason: 'insufficient_engagement',
+      score: engagementScore,
+    };
   }
 
   async showSmartInstallPrompt(reason = 'engagement') {
     if (!this.deferredPrompt) return false;
 
     this.installPromptShown = true;
-    
+
     try {
       // Create custom install prompt UI
       const promptUI = this.createInstallPromptUI(reason);
       document.body.appendChild(promptUI);
-      
+
       // Track that we showed a prompt
       this.userStats.promptsShown++;
       this.userStats.lastPromptShown = Date.now();
       this.saveUserStats();
-      
+
       return true;
     } catch (error) {
       console.error('Failed to show install prompt:', error);
@@ -208,15 +228,21 @@ export default class InstallPromptManager {
 
   createInstallPromptUI(reason) {
     const overlay = document.createElement('div');
-    overlay.className = 'fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/50 backdrop-blur-sm';
+    overlay.className =
+      'fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/50 backdrop-blur-sm';
     overlay.setAttribute('data-install-prompt', 'true');
-    
+
     const reasonMessages = {
-      purchase_activity: 'You\'re actively using HD Tickets for purchases! Install the app for faster checkout and real-time alerts.',
-      alert_engagement: 'Stay on top of price drops! Install HD Tickets for instant notifications even when your browser is closed.',
-      watchlist_usage: 'Your watchlist is growing! Get the HD Tickets app for quick access and background monitoring.',
-      engagement_threshold: 'You\'re getting great value from HD Tickets! Install the app for the best experience.',
-      default: 'Get instant access to sports ticket deals! Install HD Tickets for real-time alerts and faster browsing.'
+      purchase_activity:
+        "You're actively using HD Tickets for purchases! Install the app for faster checkout and real-time alerts.",
+      alert_engagement:
+        'Stay on top of price drops! Install HD Tickets for instant notifications even when your browser is closed.',
+      watchlist_usage:
+        'Your watchlist is growing! Get the HD Tickets app for quick access and background monitoring.',
+      engagement_threshold:
+        "You're getting great value from HD Tickets! Install the app for the best experience.",
+      default:
+        'Get instant access to sports ticket deals! Install HD Tickets for real-time alerts and faster browsing.',
     };
 
     const message = reasonMessages[reason] || reasonMessages.default;
@@ -279,14 +305,15 @@ export default class InstallPromptManager {
 
     // Bind actions
     this.bindInstallPromptActions(overlay);
-    
+
     return overlay;
   }
 
   bindInstallPromptActions(overlay) {
-    overlay.addEventListener('click', (e) => {
-      const action = e.target.closest('[data-install-action]')?.dataset.installAction;
-      
+    overlay.addEventListener('click', e => {
+      const action = e.target.closest('[data-install-action]')?.dataset
+        .installAction;
+
       switch (action) {
         case 'install':
           this.executeInstall();
@@ -298,7 +325,7 @@ export default class InstallPromptManager {
           this.dismissInstallPrompt(true);
           break;
       }
-      
+
       // Close on backdrop click
       if (e.target === overlay) {
         this.dismissInstallPrompt(true);
@@ -312,9 +339,9 @@ export default class InstallPromptManager {
     try {
       const result = await this.deferredPrompt.prompt();
       console.log('Install prompt result:', result);
-      
+
       this.userStats.installAttempts++;
-      
+
       if (result.outcome === 'accepted') {
         this.userStats.installAccepted = true;
         this.userStats.installDate = Date.now();
@@ -322,11 +349,10 @@ export default class InstallPromptManager {
       } else {
         console.log('User dismissed the install prompt');
       }
-      
+
       this.deferredPrompt = null;
       this.saveUserStats();
       this.removeInstallPromptUI();
-      
     } catch (error) {
       console.error('Install prompt error:', error);
       this.removeInstallPromptUI();
@@ -336,11 +362,11 @@ export default class InstallPromptManager {
   dismissInstallPrompt(permanent = false) {
     this.userStats.promptsDismissed++;
     this.userStats.lastPromptDismissed = Date.now();
-    
+
     if (permanent) {
       this.userStats.installPermanentlyDismissed = true;
     }
-    
+
     this.saveUserStats();
     this.removeInstallPromptUI();
   }
@@ -368,15 +394,15 @@ export default class InstallPromptManager {
   onInstallComplete() {
     // Show thank you message
     this.showInstallThankYou();
-    
+
     // Track installation analytics
     if (window.gtag) {
       gtag('event', 'app_install', {
         method: 'pwa',
-        content_type: 'sports_tickets'
+        content_type: 'sports_tickets',
       });
     }
-    
+
     // Enable push notifications prompt after short delay
     setTimeout(() => {
       document.dispatchEvent(new CustomEvent('install:complete'));
@@ -385,7 +411,8 @@ export default class InstallPromptManager {
 
   showInstallThankYou() {
     const notification = document.createElement('div');
-    notification.className = 'fixed top-4 right-4 z-50 bg-green-500 text-white p-4 rounded-lg shadow-lg transform translate-x-full transition-transform duration-300';
+    notification.className =
+      'fixed top-4 right-4 z-50 bg-green-500 text-white p-4 rounded-lg shadow-lg transform translate-x-full transition-transform duration-300';
     notification.innerHTML = `
       <div class="flex items-center space-x-3">
         <svg class="w-6 h-6 text-green-100" fill="currentColor" viewBox="0 0 20 20">
@@ -397,13 +424,13 @@ export default class InstallPromptManager {
         </div>
       </div>
     `;
-    
+
     document.body.appendChild(notification);
-    
+
     requestAnimationFrame(() => {
       notification.classList.remove('translate-x-full');
     });
-    
+
     setTimeout(() => {
       notification.classList.add('translate-x-full');
       setTimeout(() => notification.remove(), 300);
@@ -418,7 +445,7 @@ export default class InstallPromptManager {
       highValueActions: {
         purchase: 0,
         alert: 0,
-        watchlist: 0
+        watchlist: 0,
       },
       promptsShown: 0,
       promptsDismissed: 0,
@@ -430,7 +457,7 @@ export default class InstallPromptManager {
       lastPromptShown: null,
       lastPromptDismissed: null,
       lastHighValueAction: null,
-      installDate: null
+      installDate: null,
     };
 
     try {
@@ -444,7 +471,10 @@ export default class InstallPromptManager {
 
   saveUserStats() {
     try {
-      localStorage.setItem('hd_tickets_install_stats', JSON.stringify(this.userStats));
+      localStorage.setItem(
+        'hd_tickets_install_stats',
+        JSON.stringify(this.userStats)
+      );
     } catch (error) {
       console.error('Failed to save install stats:', error);
     }
@@ -452,8 +482,12 @@ export default class InstallPromptManager {
 
   // Public API methods
   canShowInstallPrompt() {
-    return !this.isInstalled && !!this.deferredPrompt && !this.installPromptShown &&
-           !this.userStats.installPermanentlyDismissed;
+    return (
+      !this.isInstalled &&
+      !!this.deferredPrompt &&
+      !this.installPromptShown &&
+      !this.userStats.installPermanentlyDismissed
+    );
   }
 
   getInstallStats() {
@@ -462,7 +496,7 @@ export default class InstallPromptManager {
       canInstall: this.canShowInstallPrompt(),
       userStats: this.userStats,
       sessionInteractions: this.interactionCount,
-      sessionTime: Date.now() - this.sessionStart
+      sessionTime: Date.now() - this.sessionStart,
     };
   }
 

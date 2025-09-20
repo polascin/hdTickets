@@ -178,11 +178,11 @@ class ImapNotificationService
     {
         $issues = [];
 
-        if (! ($healthData['imap_extension'] ?? TRUE)) {
+        if (!($healthData['imap_extension'] ?? TRUE)) {
             $issues[] = 'IMAP extension not loaded';
         }
 
-        if (! ($healthData['redis_connection'] ?? TRUE)) {
+        if (!($healthData['redis_connection'] ?? TRUE)) {
             $issues[] = 'Redis connection failed';
         }
 

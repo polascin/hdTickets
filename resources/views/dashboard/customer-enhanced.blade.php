@@ -1,13 +1,14 @@
 @extends('layouts.dashboard-full')
 
 @section('title', 'Enhanced Customer Dashboard - HD Tickets Sports Events')
+@section('dashboard-type', 'customer')
 
 @push('styles')
     <link href="{{ asset('css/dashboard-common.css') }}" rel="stylesheet">
     <link href="{{ asset('css/customer-dashboard-enhanced.css') }}" rel="stylesheet">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <meta name="dashboard-api" content="{{ route('api.dashboard.realtime') }}">
-    <meta name="analytics-api" content="{{ route('api.dashboard.analytics.data') }}">
+    <meta name="customer-dashboard-api" content="{{ url('/api/dashboard/customer') }}">
+    <meta name="analytics-api" content="{{ url('/api/dashboard/analytics') }}">;
 
     <!-- Dashboard Layout Fixes -->
     <style>
@@ -47,8 +48,35 @@
 @endpush
 
 @section('content')
-    <div class="enhanced-customer-dashboard" x-data="enhancedCustomerDashboard()" x-init="init()" x-cloak
-        data-user-id="{{ $user->id }}">
+    <div class="enhanced-customer-dashboard" 
+         x-data="enhancedCustomerDashboard()" 
+         x-init="init()" 
+         x-cloak
+         data-user-id="{{ Auth::user()?->id ?? 'guest' }}">
+        
+        <!-- Error notification -->
+        <div x-show="errorMessage" 
+             x-transition:enter="transition ease-out duration-300"
+             x-transition:enter-start="opacity-0 transform translate-y-2"
+             x-transition:enter-end="opacity-100 transform translate-y-0"
+             x-transition:leave="transition ease-in duration-200"
+             x-transition:leave-start="opacity-100 transform translate-y-0"
+             x-transition:leave-end="opacity-0 transform translate-y-2"
+             class="fixed top-4 right-4 bg-red-500 text-white px-4 py-3 rounded-md shadow-lg z-50 max-w-md"
+             role="alert"
+             aria-live="polite">
+            <div class="flex items-center">
+                <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
+                </svg>
+                <span x-text="errorMessage"></span>
+                <button @click="clearError()" class="ml-4 text-white hover:text-gray-200">
+                    <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd" />
+                    </svg>
+                </button>
+            </div>
+        </div>
 
         <!-- Dashboard Header -->
         <header class="dashboard-header">
@@ -64,7 +92,7 @@
                                 LIVE
                             </span>
                         </h1>
-                        <p class="dashboard-subtitle">Welcome back, {{ $user->name }}! 🎟️</p>
+                        <p class="dashboard-subtitle">Welcome back, {{ Auth::user()?->name ?? 'Guest' }}! 🎫️</p>
                     </div>
 
                     <div class="stats-summary">
@@ -198,7 +226,7 @@
                 </div>
 
                 <!-- High Demand Card -->
-                <div class="metric-card high-demand" @click="navigateTo('{{ route('tickets.scraping.trending') }}')">
+                <div class="metric-card high-demand" @click="navigateTo('{{ route('tickets.scraping.index', ['filter' => 'trending']) }}')">
                     <div class="metric-header">
                         <div class="metric-icon danger">
                             <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -228,7 +256,7 @@
                 </div>
 
                 <!-- Active Alerts Card -->
-                <div class="metric-card alerts" @click="navigateTo('{{ route('tickets.alerts.index') }}')">
+                <div class="metric-card alerts" @click="navigateTo('{{ route('monitoring.index') }}')">
                     <div class="metric-header">
                         <div class="metric-icon info">
                             <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -392,22 +420,27 @@
                             <div class="skeleton-loader"></div>
                         </div>
 
-                        <template x-for="ticket in recentTickets" :key="ticket.id">
-                            <div class="ticket-item" @click="viewTicket(ticket)">
+                        <template x-for="ticket in (dashboardData.recent_events || [])" :key="ticket.id">
+                            <div class="ticket-item cursor-pointer hover:bg-gray-50 transition-colors" @click="navigateTo('/tickets/' + ticket.id)">
                                 <div class="ticket-header">
-                                    <div class="ticket-title" x-text="ticket.title"></div>
-                                    <div class="ticket-price" x-text="formatPrice(ticket.price)"></div>
+                                    <div class="ticket-title font-medium" x-text="ticket.title || 'Untitled Event'"></div>
+                                    <div class="ticket-price font-bold text-green-600" x-text="HDTickets.Dashboard.utils.formatCurrency(ticket.price || 0)"></div>
                                 </div>
-                                <div class="ticket-details">
-                                    <span class="ticket-platform" x-text="ticket.platform"></span>
-                                    <span class="ticket-venue" x-text="ticket.venue"></span>
-                                    <span class="ticket-date" x-text="formatDate(ticket.event_date)"></span>
+                                <div class="ticket-details text-sm text-gray-600">
+                                    <span class="ticket-platform" x-text="ticket.platform || 'Unknown Platform'"></span>
+                                    <span class="mx-2">•</span>
+                                    <span class="ticket-venue" x-text="ticket.venue || 'TBD'"></span>
+                                    <span class="mx-2">•</span>
+                                    <span class="ticket-date" x-text="HDTickets.Dashboard.utils.formatDateTime(ticket.event_date) || 'TBD'"></span>
                                 </div>
-                                <div class="ticket-indicators">
-                                    <span class="demand-indicator" :class="'demand-' + ticket.demand_indicator"
-                                        x-text="ticket.demand_indicator"></span>
-                                    <span class="urgency-indicator" :class="'urgency-' + ticket.urgency_level"
-                                        x-text="ticket.urgency_level"></span>
+                                <div class="ticket-indicators mt-2">
+                                    <span class="demand-indicator px-2 py-1 rounded-full text-xs font-medium" 
+                                          :class="{
+                                              'bg-red-100 text-red-800': ticket.demand_indicator === 'high',
+                                              'bg-yellow-100 text-yellow-800': ticket.demand_indicator === 'medium',
+                                              'bg-green-100 text-green-800': ticket.demand_indicator === 'low'
+                                          }"
+                                          x-text="ticket.demand_indicator || 'medium'"></span>
                                 </div>
                             </div>
                         </template>
@@ -558,7 +591,15 @@
         </main>
 
         <!-- Notification Panel -->
-        <aside class="notification-panel" x-show="showNotifications" @click.away="showNotifications = false">
+        <aside class="notification-panel" 
+               x-show="hasNotifications && showNotifications" 
+               x-transition:enter="transition ease-out duration-300"
+               x-transition:enter-start="opacity-0 transform translate-x-full"
+               x-transition:enter-end="opacity-100 transform translate-x-0"
+               x-transition:leave="transition ease-in duration-200"
+               x-transition:leave-start="opacity-100 transform translate-x-0"
+               x-transition:leave-end="opacity-0 transform translate-x-full"
+               @click.away="showNotifications = false"
             <div class="notification-header">
                 <h3>Notifications</h3>
                 <button @click="showNotifications = false" class="close-btn">
@@ -569,29 +610,56 @@
             </div>
 
             <div class="notification-content">
-                <template x-for="notification in notifications" :key="notification.id">
-                    <div class="notification-item" :class="notification.type">
-                        <div class="notification-icon">
-                            <svg fill="currentColor" viewBox="0 0 20 20">
-                                <path d="M10 2L3 7v11c0 1.1.9 2 2 2h10c1.1 0 2-.9 2-2V7l-7-5z" />
-                            </svg>
-                        </div>
-                        <div class="notification-details">
-                            <div class="notification-title" x-text="notification.title"></div>
-                            <div class="notification-message" x-text="notification.message"></div>
-                            <div class="notification-time" x-text="notification.time"></div>
+                <template x-for="notification in (dashboardData.alerts || []).slice(0, 5)" :key="notification.id">
+                    <div class="notification-item p-3 border-b border-gray-200 hover:bg-gray-50 cursor-pointer" 
+                         :class="{
+                             'border-l-4 border-l-blue-500': notification.type === 'info',
+                             'border-l-4 border-l-yellow-500': notification.type === 'warning',
+                             'border-l-4 border-l-red-500': notification.type === 'error',
+                             'border-l-4 border-l-green-500': notification.type === 'success'
+                         }"
+                         @click="markNotificationRead(notification.id)">
+                        <div class="flex items-start space-x-3">
+                            <div class="notification-icon flex-shrink-0 w-6 h-6 mt-1">
+                                <svg fill="currentColor" viewBox="0 0 20 20" 
+                                     :class="{
+                                         'text-blue-500': notification.type === 'info',
+                                         'text-yellow-500': notification.type === 'warning',
+                                         'text-red-500': notification.type === 'error',
+                                         'text-green-500': notification.type === 'success'
+                                     }">
+                                    <path d="M10 2L3 7v11c0 1.1.9 2 2 2h10c1.1 0 2-.9 2-2V7l-7-5z" />
+                                </svg>
+                            </div>
+                            <div class="notification-details flex-1 min-w-0">
+                                <div class="notification-title font-medium text-gray-900" x-text="notification.title || 'Notification'"></div>
+                                <div class="notification-message text-sm text-gray-600 mt-1" x-text="notification.message || notification.description"></div>
+                                <div class="notification-time text-xs text-gray-400 mt-2" x-text="HDTickets.Dashboard.utils.timeAgo(notification.created_at || notification.time)"></div>
+                            </div>
                         </div>
                     </div>
                 </template>
 
-                <div x-show="notifications.length === 0" class="empty-notifications">
-                    <p>No new notifications</p>
+                <div x-show="(dashboardData.alerts || []).length === 0" class="empty-notifications p-8 text-center">
+                    <svg class="w-12 h-12 mx-auto text-gray-400 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-5 5v-5zM12 17H7a3 3 0 01-3-3V5a3 3 0 013-3h5" />
+                    </svg>
+                    <p class="text-gray-500">No new notifications</p>
+                    <p class="text-sm text-gray-400 mt-1">You're all caught up!</p>
                 </div>
             </div>
         </aside>
 
         <!-- Settings Modal -->
-        <div class="modal-overlay" x-show="showSettings" @click.self="showSettings = false">
+        <div class="modal-overlay fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center" 
+             x-show="showSettings" 
+             x-transition:enter="transition ease-out duration-300"
+             x-transition:enter-start="opacity-0"
+             x-transition:enter-end="opacity-100"
+             x-transition:leave="transition ease-in duration-200"
+             x-transition:leave-start="opacity-100"
+             x-transition:leave-end="opacity-0"
+             @click.self="showSettings = false"
             <div class="modal-content settings-modal">
                 <div class="modal-header">
                     <h3>Dashboard Settings</h3>

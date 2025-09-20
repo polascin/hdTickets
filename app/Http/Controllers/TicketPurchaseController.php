@@ -29,7 +29,7 @@ class TicketPurchaseController extends Controller
         $user = Auth::user();
 
         // Check if user can access tickets
-        if (! $this->canAccessTickets($user)) {
+        if (!$this->canAccessTickets($user)) {
             return view('tickets.access-denied', ['user' => $user]);
         }
 
@@ -80,11 +80,11 @@ class TicketPurchaseController extends Controller
     {
         $user = Auth::user();
 
-        if (! $this->canAccessTickets($user)) {
+        if (!$this->canAccessTickets($user)) {
             abort(403, 'You do not have access to view tickets.');
         }
 
-        if (! $ticket->is_available || $ticket->expires_at <= now()) {
+        if (!$ticket->is_available || $ticket->expires_at <= now()) {
             abort(404, 'Ticket is no longer available.');
         }
 
@@ -106,12 +106,12 @@ class TicketPurchaseController extends Controller
         ]);
 
         // Verify user can purchase tickets
-        if (! $this->canPurchaseTicket($user, $ticket)) {
+        if (!$this->canPurchaseTicket($user, $ticket)) {
             return back()->withErrors(['error' => 'You cannot purchase this ticket at this time.']);
         }
 
         // Check if ticket is still available
-        if (! $ticket->is_available || $ticket->expires_at <= now()) {
+        if (!$ticket->is_available || $ticket->expires_at <= now()) {
             return back()->withErrors(['error' => 'This ticket is no longer available.']);
         }
 
@@ -223,7 +223,7 @@ class TicketPurchaseController extends Controller
         }
 
         // Customers need verified email and active subscription
-        if (! $user->hasVerifiedEmail()) {
+        if (!$user->hasVerifiedEmail()) {
             return FALSE;
         }
         if ($user->hasActiveSubscription()) {
@@ -239,12 +239,12 @@ class TicketPurchaseController extends Controller
     private function canPurchaseTicket(User $user, ScrapedTicket $ticket): bool
     {
         // Basic access check
-        if (! $this->canAccessTickets($user)) {
+        if (!$this->canAccessTickets($user)) {
             return FALSE;
         }
 
         // Check if user can purchase tickets at all
-        if (! $this->paymentService->canPurchaseTickets($user)) {
+        if (!$this->paymentService->canPurchaseTickets($user)) {
             return FALSE;
         }
 

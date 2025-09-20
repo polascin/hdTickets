@@ -24,12 +24,12 @@ class RecaptchaMiddleware
     public function handle(Request $request, Closure $next, string $action = 'login'): Response
     {
         // Only validate POST requests that might require CAPTCHA
-        if (! $request->isMethod('POST')) {
+        if (!$request->isMethod('POST')) {
             return $next($request);
         }
 
         // Skip if reCAPTCHA is disabled
-        if (! $this->recaptchaService->isEnabled()) {
+        if (!$this->recaptchaService->isEnabled()) {
             return $next($request);
         }
 
@@ -48,7 +48,7 @@ class RecaptchaMiddleware
             );
 
             // Check if verification passed
-            if (! $this->recaptchaService->passes($verification)) {
+            if (!$this->recaptchaService->passes($verification)) {
                 $this->handleFailedVerification($verification, $request);
             }
         } elseif ($shouldChallenge) {

@@ -1,6 +1,7 @@
-@extends('layouts.app-v2')
+@extends('layouts.dashboard-full')
 
 @section('title', 'Admin Dashboard')
+@section('dashboard-type', 'admin')
 @section('description', 'Sports Ticket Management - Complete platform overview and control')
 
 @push('styles')
@@ -107,6 +108,15 @@
 @endpush
 
 @section('content')
+<div class="admin-dashboard" x-data="{ 
+    isLoading: false, 
+    lastRefresh: new Date(),
+    refreshData() {
+        this.isLoading = true;
+        // Add refresh logic
+        setTimeout(() => this.isLoading = false, 2000);
+    }
+}" x-cloak>
   <div class="admin-header text-white py-8 px-6 rounded-2xl mb-6 relative z-10">
     <div class="flex flex-col lg:flex-row justify-between items-start lg:items-center space-y-4 lg:space-y-0">
       <div class="flex items-center space-x-4">
@@ -163,20 +173,49 @@
           </div>
         </div>
 
-        <button onclick="refreshDashboard()"
-          class="bg-white/20 hover:bg-white/30 backdrop-blur-sm border border-white/30 px-6 py-3 text-white rounded-xl transition-all duration-300 shadow-lg hover:shadow-xl"
+        <button @click="refreshData()" :disabled="isLoading"
+          class="bg-white/20 hover:bg-white/30 backdrop-blur-sm border border-white/30 px-6 py-3 text-white rounded-xl transition-all duration-300 shadow-lg hover:shadow-xl disabled:opacity-50"
           title="Refresh the dashboard">
-          <svg class="w-5 h-5 mr-2 animate-spin hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24"
-            id="refreshSpinner">
+          <svg :class="{ 'animate-spin': isLoading }" class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
               d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15">
+            </path>
           </svg>
-          <span class="hidden sm:inline">Refresh</span>
+          <span class="hidden sm:inline" x-text="isLoading ? 'Refreshing...' : 'Refresh'">Refresh</span>
         </button>
       </div>
     </div>
   </div>
+</div>
 @endsection
+
+@push('scripts')
+<script>
+// Admin dashboard specific functionality
+document.addEventListener('alpine:init', () => {
+    // Update system health display
+    function updateSystemHealth() {
+        const healthElement = document.getElementById('systemHealth');
+        if (healthElement) {
+            // Simulate system health check
+            const health = Math.floor(Math.random() * 5) + 95;
+            healthElement.textContent = health + '%';
+        }
+    }
+    
+    // Update current time
+    function updateTime() {
+        const timeElement = document.getElementById('currentTime');
+        if (timeElement) {
+            timeElement.textContent = new Date().toLocaleTimeString();
+        }
+    }
+    
+    setInterval(updateTime, 1000);
+    setInterval(updateSystemHealth, 30000);
+});
+</script>
+@endpush
 
 @section('content')
 

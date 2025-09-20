@@ -2,19 +2,19 @@
 
 namespace Tests\Feature;
 
-use Tests\TestCase;
 use App\Models\LegalDocument;
+use Tests\TestCase;
 
 class LegalDocumentSmokeTest extends TestCase
 {
     /**
      * Test that all legal document routes return 200 OK
      */
-    public function test_all_legal_routes_return_200()
+    public function test_all_legal_routes_return_200(): void
     {
         $routes = [
             'legal.terms-of-service',
-            'legal.disclaimer', 
+            'legal.disclaimer',
             'legal.privacy-policy',
             'legal.gdpr-compliance',
             'legal.data-processing-agreement',
@@ -22,7 +22,7 @@ class LegalDocumentSmokeTest extends TestCase
             'legal.acceptable-use-policy',
             'legal.legal-notices',
         ];
-        
+
         foreach ($routes as $route) {
             $response = $this->get(route($route));
             $response->assertStatus(200);
@@ -30,11 +30,11 @@ class LegalDocumentSmokeTest extends TestCase
             $response->assertSee('Legal'); // Should contain legal-related content
         }
     }
-    
+
     /**
      * Test that the legal index page works
      */
-    public function test_legal_index_page_works()
+    public function test_legal_index_page_works(): void
     {
         $response = $this->get(route('legal.index'));
         $response->assertStatus(200);
@@ -42,11 +42,11 @@ class LegalDocumentSmokeTest extends TestCase
         $response->assertSee('Terms of Service');
         $response->assertSee('Privacy Policy');
     }
-    
+
     /**
      * Test that all legal documents exist in database
      */
-    public function test_all_legal_documents_exist_in_database()
+    public function test_all_legal_documents_exist_in_database(): void
     {
         $expectedTypes = [
             LegalDocument::TYPE_TERMS_OF_SERVICE,
@@ -58,9 +58,9 @@ class LegalDocumentSmokeTest extends TestCase
             LegalDocument::TYPE_ACCEPTABLE_USE_POLICY,
             LegalDocument::TYPE_LEGAL_NOTICES,
         ];
-        
+
         $this->assertCount(8, $expectedTypes);
-        
+
         foreach ($expectedTypes as $type) {
             $document = LegalDocument::getActive($type);
             $this->assertNotNull($document, "Legal document of type {$type} should exist");
@@ -68,11 +68,11 @@ class LegalDocumentSmokeTest extends TestCase
             $this->assertNotEmpty($document->content, "Legal document {$type} should have content");
         }
     }
-    
+
     /**
      * Test that legal document content is properly rendered
      */
-    public function test_legal_document_content_is_rendered()
+    public function test_legal_document_content_is_rendered(): void
     {
         // Test terms of service specifically
         $response = $this->get(route('legal.terms-of-service'));
@@ -80,7 +80,7 @@ class LegalDocumentSmokeTest extends TestCase
         $response->assertSee('Terms of Service');
         $response->assertSee('HD Tickets');
         $response->assertSee('Service provided');
-        
+
         // Test disclaimer specifically
         $response = $this->get(route('legal.disclaimer'));
         $response->assertStatus(200);

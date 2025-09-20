@@ -11,11 +11,6 @@ class CustomerDashboardAccessTest extends TestCase
 {
     use RefreshDatabase;
 
-    private function makeUser(string $role): User
-    {
-        return User::factory()->create(['role' => $role, 'email_verified_at' => now()]);
-    }
-
     #[Test]
     public function guest_is_redirected_to_login_when_accessing_customer_dashboard(): void
     {
@@ -48,5 +43,10 @@ class CustomerDashboardAccessTest extends TestCase
         $this->actingAs($scraper)
             ->get('/dashboard/customer')
             ->assertForbidden();
+    }
+
+    private function makeUser(string $role): User
+    {
+        return User::factory()->create(['role' => $role, 'email_verified_at' => now()]);
     }
 }

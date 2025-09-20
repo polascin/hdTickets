@@ -13,14 +13,18 @@ $changed = 0;
 $filesProcessed = 0;
 
 foreach ($rii as $file) {
-    if ($file->isDir()) continue;
-    if ($file->getExtension() !== 'php') continue;
+    if ($file->isDir()) {
+        continue;
+    }
+    if ($file->getExtension() !== 'php') {
+        continue;
+    }
     $path = $file->getPathname();
     $code = file_get_contents($path);
     $original = $code;
 
     // Skip if already using attributes widely and no @test present
-    if (strpos($code, '@test') === false) {
+    if (strpos($code, '@test') === FALSE) {
         continue;
     }
 
@@ -43,11 +47,14 @@ foreach ($rii as $file) {
         function ($m) {
             $block = $m[0];
             // If attribute already inserted, skip
-            if (str_contains($block, '#[Test]')) return $block; // already done
+            if (str_contains($block, '#[Test]')) {
+                return $block;
+            } // already done
             // Remove @test line(s)
             $block = preg_replace('/^([ \t]*\*[^\n]*@test[^\n]*\n)/m', '', $block);
             // Insert attribute after closing */ if not present
-            $block = preg_replace('/(\*\/[ \t]*\n)/', "\\1" . $m['indent'] . "#[Test]\n", $block, 1);
+            $block = preg_replace('/(\*\/[ \t]*\n)/', '\\1' . $m['indent'] . "#[Test]\n", $block, 1);
+
             return $block;
         },
         $code

@@ -6,22 +6,22 @@ export default class AutoRefreshManager {
     this.refreshCallbacks = new Map();
     this.isActive = true;
     this.networkStatus = navigator.onLine;
-    
+
     this.config = {
       // Refresh intervals in milliseconds
       intervals: {
-        ticketPrices: 30 * 1000,      // 30 seconds
-        ticketAlerts: 45 * 1000,      // 45 seconds
-        watchlist: 60 * 1000,         // 1 minute
-        dashboard: 120 * 1000,        // 2 minutes
-        analytics: 300 * 1000,        // 5 minutes
-        notifications: 15 * 1000      // 15 seconds
+        ticketPrices: 30 * 1000, // 30 seconds
+        ticketAlerts: 45 * 1000, // 45 seconds
+        watchlist: 60 * 1000, // 1 minute
+        dashboard: 120 * 1000, // 2 minutes
+        analytics: 300 * 1000, // 5 minutes
+        notifications: 15 * 1000, // 15 seconds
       },
       // Exponential backoff for failed requests
       retryDelays: [1000, 2000, 5000, 10000], // 1s, 2s, 5s, 10s
-      maxConsecutiveFailures: 3
+      maxConsecutiveFailures: 3,
     };
-    
+
     this.retryCounters = new Map();
     this.lastUpdateTimes = new Map();
     this.init();
@@ -58,13 +58,21 @@ export default class AutoRefreshManager {
     });
 
     // Handle user activity
-    const activityEvents = ['mousedown', 'mousemove', 'keypress', 'scroll', 'touchstart'];
+    const activityEvents = [
+      'mousedown',
+      'mousemove',
+      'keypress',
+      'scroll',
+      'touchstart',
+    ];
     activityEvents.forEach(event => {
-      document.addEventListener(event, () => this.onUserActivity(), { passive: true });
+      document.addEventListener(event, () => this.onUserActivity(), {
+        passive: true,
+      });
     });
 
     // Listen for manual refresh requests
-    document.addEventListener('refresh:request', (e) => {
+    document.addEventListener('refresh:request', e => {
       this.refreshData(e.detail.type, e.detail.force);
     });
   }
@@ -72,32 +80,32 @@ export default class AutoRefreshManager {
   startCriticalRefreshers() {
     // Only start refreshers for data that should always be fresh
     this.startRefresher('notifications');
-    
+
     // Start others based on current page
     this.startContextualRefreshers();
   }
 
   startContextualRefreshers() {
     const path = window.location.pathname;
-    
+
     if (path.includes('/dashboard')) {
       this.startRefresher('dashboard');
       this.startRefresher('ticketAlerts');
     }
-    
+
     if (path.includes('/tickets') || path.includes('/search')) {
       this.startRefresher('ticketPrices');
     }
-    
+
     if (path.includes('/watchlist')) {
       this.startRefresher('watchlist');
       this.startRefresher('ticketPrices');
     }
-    
+
     if (path.includes('/analytics')) {
       this.startRefresher('analytics');
     }
-    
+
     if (path.includes('/alerts') || path.includes('/monitoring')) {
       this.startRefresher('ticketAlerts');
     }
@@ -169,10 +177,10 @@ export default class AutoRefreshManager {
     try {
       const endpoint = this.getEndpoint(type);
       const lastUpdate = this.lastUpdateTimes.get(type) || 0;
-      
+
       const headers = {
         'X-Requested-With': 'XMLHttpRequest',
-        'Content-Type': 'application/json'
+        'Content-Type': 'application/json',
       };
 
       // Add conditional headers for efficiency
@@ -182,7 +190,7 @@ export default class AutoRefreshManager {
 
       const response = await fetch(endpoint, {
         headers,
-        credentials: 'same-origin'
+        credentials: 'same-origin',
       });
 
       if (response.status === 304) {
@@ -196,51 +204,57 @@ export default class AutoRefreshManager {
       }
 
       const data = await response.json();
-      
+
       // Process the updated data
       await this.processRefreshData(type, data);
-      
+
       // Reset retry counter on success
       this.retryCounters.set(type, 0);
       this.lastUpdateTimes.set(type, Date.now());
-      
-      console.log(`Successfully refreshed ${type} data`);
-      
-      // Notify UI of data update
-      document.dispatchEvent(new CustomEvent('data:refreshed', {
-        detail: { type, data, timestamp: Date.now() }
-      }));
 
+      console.log(`Successfully refreshed ${type} data`);
+
+      // Notify UI of data update
+      document.dispatchEvent(
+        new CustomEvent('data:refreshed', {
+          detail: { type, data, timestamp: Date.now() },
+        })
+      );
     } catch (error) {
       console.error(`Failed to refresh ${type} data:`, error);
-      
+
       // Increment failure counter
       const failures = (this.retryCounters.get(type) || 0) + 1;
       this.retryCounters.set(type, failures);
-      
+
       // Implement exponential backoff
       if (failures < this.config.maxConsecutiveFailures) {
-        const delay = this.config.retryDelays[Math.min(failures - 1, this.config.retryDelays.length - 1)];
+        const delay =
+          this.config.retryDelays[
+            Math.min(failures - 1, this.config.retryDelays.length - 1)
+          ];
         setTimeout(() => this.refreshData(type), delay);
       }
 
       // Notify UI of refresh failure
-      document.dispatchEvent(new CustomEvent('data:refresh-failed', {
-        detail: { type, error: error.message, failures }
-      }));
+      document.dispatchEvent(
+        new CustomEvent('data:refresh-failed', {
+          detail: { type, error: error.message, failures },
+        })
+      );
     }
   }
 
   getEndpoint(type) {
     const endpoints = {
       ticketPrices: '/api/refresh/ticket-prices',
-      ticketAlerts: '/api/refresh/ticket-alerts', 
+      ticketAlerts: '/api/refresh/ticket-alerts',
       watchlist: '/api/refresh/watchlist',
       dashboard: '/api/refresh/dashboard',
       analytics: '/api/refresh/analytics',
-      notifications: '/api/refresh/notifications'
+      notifications: '/api/refresh/notifications',
     };
-    
+
     return endpoints[type];
   }
 
@@ -273,14 +287,16 @@ export default class AutoRefreshManager {
     // Update price displays in the DOM
     if (data.prices) {
       data.prices.forEach(priceUpdate => {
-        const priceElements = document.querySelectorAll(`[data-ticket-id="${priceUpdate.ticket_id}"] .price`);
+        const priceElements = document.querySelectorAll(
+          `[data-ticket-id="${priceUpdate.ticket_id}"] .price`
+        );
         priceElements.forEach(el => {
           const oldPrice = parseFloat(el.dataset.price || '0');
           const newPrice = parseFloat(priceUpdate.current_price);
-          
+
           el.textContent = `$${newPrice.toFixed(2)}`;
           el.dataset.price = newPrice;
-          
+
           // Add price change indicator
           if (oldPrice !== newPrice) {
             el.classList.remove('price-up', 'price-down');
@@ -289,7 +305,7 @@ export default class AutoRefreshManager {
             } else if (newPrice < oldPrice) {
               el.classList.add('price-down');
             }
-            
+
             // Trigger price change animation
             el.style.animation = 'none';
             el.offsetHeight; // Force reflow
@@ -307,13 +323,15 @@ export default class AutoRefreshManager {
       if (alertCountEl) {
         alertCountEl.textContent = data.total_active || 0;
       }
-      
+
       const triggeredAlerts = data.alerts.filter(alert => alert.triggered);
       if (triggeredAlerts.length > 0) {
         // Show notification for triggered alerts
-        document.dispatchEvent(new CustomEvent('alerts:triggered', {
-          detail: { alerts: triggeredAlerts }
-        }));
+        document.dispatchEvent(
+          new CustomEvent('alerts:triggered', {
+            detail: { alerts: triggeredAlerts },
+          })
+        );
       }
     }
   }
@@ -324,9 +342,11 @@ export default class AutoRefreshManager {
       const watchlistContainer = document.querySelector('.watchlist-container');
       if (watchlistContainer) {
         // Trigger watchlist update event
-        document.dispatchEvent(new CustomEvent('watchlist:updated', {
-          detail: { items: data.watchlist_items }
-        }));
+        document.dispatchEvent(
+          new CustomEvent('watchlist:updated', {
+            detail: { items: data.watchlist_items },
+          })
+        );
       }
     }
   }
@@ -354,25 +374,30 @@ export default class AutoRefreshManager {
     // Update notification count and list
     if (data.notifications !== undefined) {
       const notifCount = data.unread_count || 0;
-      
+
       // Update notification badge
       const badges = document.querySelectorAll('.notification-badge');
       badges.forEach(badge => {
         badge.style.display = notifCount > 0 ? 'inline-flex' : 'none';
         badge.textContent = notifCount;
       });
-      
+
       // Trigger notification update event
-      document.dispatchEvent(new CustomEvent('notifications:updated', {
-        detail: { notifications: data.notifications, unreadCount: notifCount }
-      }));
+      document.dispatchEvent(
+        new CustomEvent('notifications:updated', {
+          detail: {
+            notifications: data.notifications,
+            unreadCount: notifCount,
+          },
+        })
+      );
     }
   }
 
   onUserActivity() {
     // Reset retry counters on user activity
     this.retryCounters.clear();
-    
+
     // Ensure refreshers are active
     if (!this.isActive) {
       this.isActive = true;
@@ -400,7 +425,7 @@ export default class AutoRefreshManager {
 
   resumeAllRefreshers() {
     if (!this.networkStatus) return;
-    
+
     this.isActive = true;
     this.startContextualRefreshers();
     console.log('Resumed all auto refreshers');
@@ -429,7 +454,7 @@ export default class AutoRefreshManager {
       networkStatus: this.networkStatus,
       activeRefreshers: Array.from(this.refreshIntervals.keys()),
       retryCounters: Object.fromEntries(this.retryCounters),
-      lastUpdateTimes: Object.fromEntries(this.lastUpdateTimes)
+      lastUpdateTimes: Object.fromEntries(this.lastUpdateTimes),
     };
   }
 

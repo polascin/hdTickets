@@ -1,9 +1,8 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * Phase 6: Final Polish & Optimization
  * Target: Reduce from 297 to <50 errors for production-ready state
  */
-
 echo "✨ Phase 6: Final Polish & Optimization\n";
 echo "=====================================\n\n";
 
@@ -16,7 +15,7 @@ system('cd /var/www/hdtickets && vendor/bin/phpstan analyse --level=1 --generate
 echo "\n🎯 Step 2: Laravel-Specific Class Creation\n";
 $laravelClasses = [
     'App\\Models\\PurchaseQueue' => [
-        'file' => 'app/Models/PurchaseQueue.php',
+        'file'    => 'app/Models/PurchaseQueue.php',
         'content' => '<?php declare(strict_types=1);
 
 namespace App\\Models;
@@ -60,11 +59,11 @@ class PurchaseQueue extends Model
     {
         return $query->where("user_id", $userId);
     }
-}'
+}',
     ],
-    
+
     'App\\Http\\Middleware\\SecurityHeadersMiddleware' => [
-        'file' => 'app/Http/Middleware/SecurityHeadersMiddleware.php',
+        'file'    => 'app/Http/Middleware/SecurityHeadersMiddleware.php',
         'content' => '<?php declare(strict_types=1);
 
 namespace App\\Http\\Middleware;
@@ -87,11 +86,11 @@ class SecurityHeadersMiddleware
         
         return $response;
     }
-}'
+}',
     ],
-    
+
     'App\\Http\\Middleware\\TrackUserActivity' => [
-        'file' => 'app/Http/Middleware/TrackUserActivity.php',
+        'file'    => 'app/Http/Middleware/TrackUserActivity.php',
         'content' => '<?php declare(strict_types=1);
 
 namespace App\\Http\\Middleware;
@@ -118,11 +117,11 @@ class TrackUserActivity
     {
         $user->update(["last_active_at" => now()]);
     }
-}'
+}',
     ],
-    
+
     'App\\Services\\AnalyticsInsightsService' => [
-        'file' => 'app/Services/AnalyticsInsightsService.php',
+        'file'    => 'app/Services/AnalyticsInsightsService.php',
         'content' => '<?php declare(strict_types=1);
 
 namespace App\\Services;
@@ -154,11 +153,11 @@ class AnalyticsInsightsService
     {
         return ["stubhub", "ticketmaster"]; // Placeholder
     }
-}'
+}',
     ],
-    
+
     'App\\Services\\Enhanced\\ViewFragmentCachingService' => [
-        'file' => 'app/Services/Enhanced/ViewFragmentCachingService.php',
+        'file'    => 'app/Services/Enhanced/ViewFragmentCachingService.php',
         'content' => '<?php declare(strict_types=1);
 
 namespace App\\Services\\Enhanced;
@@ -184,22 +183,22 @@ class ViewFragmentCachingService
             "cache_misses" => 0
         ];
     }
-}'
-    ]
+}',
+    ],
 ];
 
 $laravelClassesCreated = 0;
 foreach ($laravelClasses as $className => $config) {
     $fullPath = "/var/www/hdtickets/{$config['file']}";
     $dir = dirname($fullPath);
-    
+
     if (!is_dir($dir)) {
-        mkdir($dir, 0755, true);
+        mkdir($dir, 0755, TRUE);
     }
-    
+
     if (!file_exists($fullPath)) {
         file_put_contents($fullPath, $config['content']);
-        echo "✅ Created Laravel class: " . basename($config['file']) . "\n";
+        echo '✅ Created Laravel class: ' . basename($config['file']) . "\n";
         $laravelClassesCreated++;
     }
 }
@@ -209,32 +208,32 @@ echo "\n🎯 Step 3: Enhance Model Relationships\n";
 $userModelPath = '/var/www/hdtickets/app/Models/User.php';
 if (file_exists($userModelPath)) {
     $content = file_get_contents($userModelPath);
-    
+
     // Add common relationships if not present
     $relationships = [
-        'ticketAlerts()' => 'public function ticketAlerts(): \\Illuminate\\Database\\Eloquent\\Relations\\HasMany { return $this->hasMany(TicketAlert::class); }',
-        'scrapedTickets()' => 'public function scrapedTickets(): \\Illuminate\\Database\\Eloquent\\Relations\\HasMany { return $this->hasMany(ScrapedTicket::class); }',
-        'purchaseAttempts()' => 'public function purchaseAttempts(): \\Illuminate\\Database\\Eloquent\\Relations\\HasMany { return $this->hasMany(PurchaseAttempt::class); }',
-        'purchaseQueues()' => 'public function purchaseQueues(): \\Illuminate\\Database\\Eloquent\\Relations\\HasMany { return $this->hasMany(PurchaseQueue::class); }',
-        'unreadNotifications()' => 'public function unreadNotifications(): \\Illuminate\\Database\\Eloquent\\Relations\\MorphMany { return $this->morphMany(\\Illuminate\\Notifications\\DatabaseNotification::class, "notifiable")->whereNull("read_at"); }'
+        'ticketAlerts()'        => 'public function ticketAlerts(): \\Illuminate\\Database\\Eloquent\\Relations\\HasMany { return $this->hasMany(TicketAlert::class); }',
+        'scrapedTickets()'      => 'public function scrapedTickets(): \\Illuminate\\Database\\Eloquent\\Relations\\HasMany { return $this->hasMany(ScrapedTicket::class); }',
+        'purchaseAttempts()'    => 'public function purchaseAttempts(): \\Illuminate\\Database\\Eloquent\\Relations\\HasMany { return $this->hasMany(PurchaseAttempt::class); }',
+        'purchaseQueues()'      => 'public function purchaseQueues(): \\Illuminate\\Database\\Eloquent\\Relations\\HasMany { return $this->hasMany(PurchaseQueue::class); }',
+        'unreadNotifications()' => 'public function unreadNotifications(): \\Illuminate\\Database\\Eloquent\\Relations\\MorphMany { return $this->morphMany(\\Illuminate\\Notifications\\DatabaseNotification::class, "notifiable")->whereNull("read_at"); }',
     ];
-    
+
     $relationshipsAdded = [];
     foreach ($relationships as $check => $method) {
-        if (strpos($content, $check) === false) {
+        if (strpos($content, $check) === FALSE) {
             $relationshipsAdded[] = "    $method\n";
         }
     }
-    
+
     if (!empty($relationshipsAdded)) {
         // Add before the last closing brace
         $lastBrace = strrpos($content, '}');
         $beforeBrace = substr($content, 0, $lastBrace);
         $afterBrace = substr($content, $lastBrace);
-        
+
         $newContent = $beforeBrace . "\n" . implode("\n", $relationshipsAdded) . $afterBrace;
         file_put_contents($userModelPath, $newContent);
-        echo "✅ Added " . count($relationshipsAdded) . " relationships to User model\n";
+        echo '✅ Added ' . count($relationshipsAdded) . " relationships to User model\n";
     }
 }
 
@@ -243,31 +242,31 @@ echo "\n🎯 Step 4: Add Model Scopes\n";
 $scrapedTicketPath = '/var/www/hdtickets/app/Models/ScrapedTicket.php';
 if (file_exists($scrapedTicketPath)) {
     $content = file_get_contents($scrapedTicketPath);
-    
+
     // Add missing scopes
     $scopes = [
-        'scopeAvailable(' => 'public function scopeAvailable($query) { return $query->where("status", "available"); }',
-        'scopeUpcoming(' => 'public function scopeUpcoming($query) { return $query->where("event_date", ">", now()); }',
-        'scopeRecent(' => 'public function scopeRecent($query, int $hours = 24) { return $query->where("created_at", ">=", now()->subHours($hours)); }',
-        'scopePriceRange(' => 'public function scopePriceRange($query, ?float $min = null, ?float $max = null) { if ($min) $query->where("price", ">=", $min); if ($max) $query->where("price", "<=", $max); return $query; }'
+        'scopeAvailable('  => 'public function scopeAvailable($query) { return $query->where("status", "available"); }',
+        'scopeUpcoming('   => 'public function scopeUpcoming($query) { return $query->where("event_date", ">", now()); }',
+        'scopeRecent('     => 'public function scopeRecent($query, int $hours = 24) { return $query->where("created_at", ">=", now()->subHours($hours)); }',
+        'scopePriceRange(' => 'public function scopePriceRange($query, ?float $min = null, ?float $max = null) { if ($min) $query->where("price", ">=", $min); if ($max) $query->where("price", "<=", $max); return $query; }',
     ];
-    
+
     $scopesAdded = [];
     foreach ($scopes as $check => $scope) {
-        if (strpos($content, $check) === false) {
+        if (strpos($content, $check) === FALSE) {
             $scopesAdded[] = "    $scope\n";
         }
     }
-    
+
     if (!empty($scopesAdded)) {
         // Add before the last closing brace
         $lastBrace = strrpos($content, '}');
         $beforeBrace = substr($content, 0, $lastBrace);
         $afterBrace = substr($content, $lastBrace);
-        
+
         $newContent = $beforeBrace . "\n" . implode("\n", $scopesAdded) . $afterBrace;
         file_put_contents($scrapedTicketPath, $newContent);
-        echo "✅ Added " . count($scopesAdded) . " scopes to ScrapedTicket model\n";
+        echo '✅ Added ' . count($scopesAdded) . " scopes to ScrapedTicket model\n";
     }
 }
 

@@ -18,7 +18,7 @@
 ])
 
 @php
-  $src = Vite::asset("resources/illustrations/{$illustration}");
+  $src = asset("illustrations/{$illustration}");
 @endphp
 
 <div {{ $attributes->merge(['class' => trim("text-center py-12 px-4 {$class}")]) }} @if($testid) data-testid="{{ $testid }}" @endif>

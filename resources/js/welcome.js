@@ -235,7 +235,7 @@ document.addEventListener('alpine:init', () => {
       window.dispatchEvent(event);
     },
   }));
-  
+
   // Role Comparison Interactive Selector
   Alpine.data('roleComparison', () => ({
     selectedRole: 'customer',
@@ -252,10 +252,10 @@ document.addEventListener('alpine:init', () => {
           'Optional 2FA',
           'Legal document compliance',
           'Purchase access',
-          'Basic monitoring'
+          'Basic monitoring',
         ],
         description: 'Perfect for regular ticket buyers',
-        color: 'green'
+        color: 'green',
       },
       agent: {
         name: 'Agent',
@@ -269,10 +269,10 @@ document.addEventListener('alpine:init', () => {
           'Performance metrics',
           'Priority support',
           'Automation features',
-          'Professional tools'
+          'Professional tools',
         ],
         description: 'For ticket professionals & agents',
-        color: 'orange'
+        color: 'orange',
       },
       admin: {
         name: 'Administrator',
@@ -286,13 +286,13 @@ document.addEventListener('alpine:init', () => {
           'Analytics dashboard',
           'API management',
           'System configuration',
-          'White-label options'
+          'White-label options',
         ],
         description: 'Enterprise administration control',
-        color: 'red'
-      }
+        color: 'red',
+      },
     },
-    
+
     selectRole(role) {
       this.selectedRole = role;
       // Track analytics
@@ -300,19 +300,19 @@ document.addEventListener('alpine:init', () => {
         gtag('event', 'role_interest', { role_name: role });
       }
     },
-    
+
     getCurrentRole() {
       return this.roles[this.selectedRole];
-    }
+    },
   }));
-  
+
   // Subscription Calculator
   Alpine.data('subscriptionCalculator', () => ({
     billingCycle: 'monthly',
     quantity: 1,
     monthlyPrice: 29.99,
     yearlyPrice: 299.99,
-    
+
     get totalPrice() {
       if (this.billingCycle === 'monthly') {
         return (this.monthlyPrice * this.quantity).toFixed(2);
@@ -320,7 +320,7 @@ document.addEventListener('alpine:init', () => {
         return (this.yearlyPrice * this.quantity).toFixed(2);
       }
     },
-    
+
     get savings() {
       if (this.billingCycle === 'yearly') {
         const yearlyTotal = this.monthlyPrice * 12 * this.quantity;
@@ -329,7 +329,7 @@ document.addEventListener('alpine:init', () => {
       }
       return 0;
     },
-    
+
     get savingsPercentage() {
       if (this.billingCycle === 'yearly') {
         const yearlyTotal = this.monthlyPrice * 12 * this.quantity;
@@ -337,13 +337,13 @@ document.addEventListener('alpine:init', () => {
         return Math.round(((yearlyTotal - actualYearly) / yearlyTotal) * 100);
       }
       return 0;
-    }
+    },
   }));
-  
+
   // Cookie Consent Banner
   Alpine.data('cookieConsent', () => ({
     show: false,
-    
+
     init() {
       const consent = localStorage.getItem('cookieConsent');
       if (!consent) {
@@ -352,24 +352,24 @@ document.addEventListener('alpine:init', () => {
         }, 2000);
       }
     },
-    
+
     acceptCookies() {
       localStorage.setItem('cookieConsent', 'accepted');
       this.show = false;
       this.trackEvent('cookie_consent', 'accepted');
     },
-    
+
     declineCookies() {
       localStorage.setItem('cookieConsent', 'declined');
       this.show = false;
       this.trackEvent('cookie_consent', 'declined');
     },
-    
+
     trackEvent(action, value) {
       if (typeof gtag !== 'undefined') {
         gtag('event', action, { custom_parameter: value });
       }
-    }
+    },
   }));
 });
 

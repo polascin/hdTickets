@@ -39,7 +39,7 @@ class TicketScrapingController extends Controller
             $filterService = TicketFilteringService::fromRequest($request);
 
             // Get paginated results
-            $perPage = min((int)$request->get('per_page', 20), 50); // Max 50 per page
+            $perPage = min((int) $request->get('per_page', 20), 50); // Max 50 per page
             $tickets = $filterService->paginate($perPage);
 
             // Get statistics and facets for the current filter set
@@ -547,7 +547,7 @@ class TicketScrapingController extends Controller
     {
         try {
             $filterService = TicketFilteringService::fromRequest($request);
-            $perPage = min((int)$request->get('per_page', 20), 50);
+            $perPage = min((int) $request->get('per_page', 20), 50);
 
             $tickets = $filterService->paginate($perPage);
             $stats = $filterService->getStats();
@@ -683,7 +683,7 @@ class TicketScrapingController extends Controller
 
             return response()->json([
                 'success'       => TRUE,
-                'is_bookmarked' => ! empty($isBookmarked['attached']),
+                'is_bookmarked' => !empty($isBookmarked['attached']),
                 'message'       => empty($isBookmarked['attached'])
                     ? 'Bookmark removed successfully'
                     : 'Ticket bookmarked successfully',
@@ -822,7 +822,7 @@ class TicketScrapingController extends Controller
      */
     protected function isTicketBookmarked(ScrapedTicket $ticket): bool
     {
-        if (! Auth::check()) {
+        if (!Auth::check()) {
             return FALSE;
         }
 
