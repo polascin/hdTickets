@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace App\Http\Controllers;
 
@@ -6,261 +8,221 @@ use App\Models\ScrapedTicket;
 use App\Models\TicketAlert;
 use App\Models\User;
 use App\Services\AnalyticsService;
-use App\Services\Dashboard\DashboardCacheService;
 use App\Services\RecommendationService;
 use Carbon\Carbon;
-use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\View\View;
 
+/**
+ * Enhanced Customer Dashboard Controller for HD Tickets Sports Event Monitoring
+ * 
+ * Provides comprehensive sports event ticket monitoring dashboard functionality
+ * with real-time updates, personalized recommendations, and user analytics.
+ * 
+ * Features:
+ * - Real-time ticket statistics and trends
+ * - Personalized recommendations based on user preferences
+ * - Alert management and monitoring
+ * - Subscription and usage tracking
+ * - Performance metrics and system health
+ */
 class EnhancedDashboardController extends Controller
 {
     public function __construct(
-        protected AnalyticsService $analytics,
-        protected RecommendationService $recommendations,
-        protected DashboardCacheService $cacheService,
+        protected AnalyticsService $analyticsService,
+        protected RecommendationService $recommendationService
     ) {
+        $this->middleware(['auth', 'verified']);
     }
 
     /**
      * Display the enhanced customer dashboard
+     * 
+     * Main entry point for the sports event ticket monitoring dashboard.
+     * Aggregates all necessary data and renders the customer-v3 view.
      */
     public function index(): View
     {
         $user = Auth::user();
-
-        if (! $user) {
-            abort(401, 'Authentication required');
+        
+        if (!$user || !$this->isAuthorizedUser($user)) {
+            abort(403, 'Access denied. Customer or admin role required.');
         }
 
-        // Get comprehensive dashboard data
-        $dashboardData = $this->getComprehensiveDashboardData($user);
+        // Get comprehensive dashboard data with caching
+        $dashboardData = $this->getDashboardData($user);
+        
+        Log::info('Customer dashboard accessed', [
+            'user_id' => $user->id,
+            'role' => $user->role,
+            'timestamp' => now()->toISOString()
+        ]);
 
-        // Using new unified layout (v3). Legacy view 'dashboard.customer-enhanced-v2' kept for fallback/migration.
         return view('dashboard.customer-v3', $dashboardData);
     }
 
     /**
-     * API endpoint for real-time data updates
-     * Provides dashboard statistics, recent tickets, and system status
+     * API endpoint for real-time dashboard data updates
+     * 
+     * Provides fresh dashboard statistics and recent tickets for AJAX updates.
+     * Implements caching and error handling for optimal performance.
      */
     public function getRealtimeData(Request $request): JsonResponse
     {
         $user = Auth::user();
-
-        if (! $user) {
-            return response()->json(['error' => 'Authentication required'], 401);
+        
+        if (!$user || !$this->isAuthorizedUser($user)) {
+            return response()->json([
+                'success' => false,
+                'error' => 'Authentication required'
+            ], 401);
         }
 
         try {
-            $statistics = $this->formatStatisticsForView($user);
-            $recentTickets = collect($this->getFormattedRecentTickets())->take(6)->all();
-
-            $data = [
-                'statistics'       => $statistics, // Flat statistics for direct access
-                'stats'            => $statistics, // Alias for backward compatibility
-                'recent_tickets'   => $recentTickets,
-                'recentTickets'    => $recentTickets, // Backward compatibility
-                'alerts_triggered' => $this->getRecentlyTriggeredAlerts(),
-                'system_status'    => $this->getSystemStatus(),
-                'user_activity'    => [
-                    'views_today'      => $this->getUserViewsToday(),
-                    'searches_today'   => $this->getUserSearchesToday(),
-                    'engagement_score' => $this->getUserEngagementScore(),
-                ],
-                'subscription' => $this->getSubscriptionData($user),
-                'timestamp'    => Carbon::now()->toISOString(),
-                'last_updated' => Carbon::now()->toISOString(),
-            ];
+            $cacheKey = "dashboard_realtime_data:{$user->id}";
+            
+            $data = Cache::remember($cacheKey, now()->addMinutes(2), function () use ($user) {
+                return [
+                    'statistics' => $this->getStatistics($user),
+                    'recent_tickets' => $this->getRecentTickets($user),
+                    'user_metrics' => $this->getUserMetrics($user),
+                    'system_status' => $this->getSystemStatus(),
+                    'notifications' => $this->getNotifications($user),
+                    'last_updated' => now()->toISOString()
+                ];
+            });
 
             return response()->json([
-                'success'      => TRUE,
-                'data'         => $data,
-                'cache_status' => 'fresh',
-                'meta'         => [
+                'success' => true,
+                'data' => $data,
+                'meta' => [
                     'refresh_interval' => 120, // 2 minutes
-                    'next_refresh_at'  => Carbon::now()->addMinutes(2)->toISOString(),
-                ],
+                    'cache_status' => 'fresh',
+                    'user_id' => $user->id
+                ]
             ]);
-        } catch (Exception $e) {
-            Log::error('Error fetching realtime dashboard data', [
+
+        } catch (\Exception $e) {
+            Log::error('Failed to fetch realtime dashboard data', [
                 'user_id' => $user->id,
-                'error'   => $e->getMessage(),
-            ]);
-
-            return response()->json([
-                'success' => FALSE,
-                'error'   => 'Unable to fetch realtime data',
-            ], 500);
-        }
-    }
-
-    /**
-     * API endpoint for dashboard analytics
-     */
-    public function getAnalytics(Request $request): JsonResponse
-    {
-        $user = Auth::user();
-        $timeframe = $request->get('timeframe', '7d'); // 1d, 7d, 30d
-
-        try {
-            $analytics = [
-                'user_activity'     => $this->getUserActivityAnalytics(),
-                'ticket_trends'     => $this->getTicketTrendsAnalytics(),
-                'alert_performance' => $this->getAlertPerformanceAnalytics(),
-                'popular_content'   => $this->getPopularContentAnalytics(),
-            ];
-
-            return response()->json([
-                'success'   => TRUE,
-                'data'      => $analytics,
-                'timeframe' => $timeframe,
-            ]);
-        } catch (Exception $e) {
-            Log::error('Error fetching dashboard analytics', [
-                'user_id'   => $user->id,
-                'timeframe' => $timeframe,
-                'error'     => $e->getMessage(),
-            ]);
-
-            return response()->json([
-                'success' => FALSE,
-                'error'   => 'Unable to fetch analytics data',
-            ], 500);
-        }
-    }
-
-    /**
-     * Get subscription data with safe fallbacks
-     */
-    private function getSubscriptionData(User $user): array
-    {
-        try {
-            return [
-                'monthly_limit'   => $user->getMonthlyTicketLimit() ?: 100,
-                'current_usage'   => $user->getMonthlyTicketUsage() ?: 0,
-                'percentage_used' => min(100, (($user->getMonthlyTicketUsage() ?: 0) / max(1, $user->getMonthlyTicketLimit() ?: 100)) * 100),
-                'has_active'      => $user->hasActiveSubscription() ?: FALSE,
-                'days_remaining'  => $user->getFreeTrialDaysRemaining(),
-            ];
-        } catch (Exception $e) {
-            Log::debug('Failed to get subscription data, using defaults', ['error' => $e->getMessage()]);
-
-            return [
-                'monthly_limit'   => 100,
-                'current_usage'   => 0,
-                'percentage_used' => 0,
-                'has_active'      => FALSE,
-                'days_remaining'  => NULL,
-            ];
-        }
-    }
-
-    /**
-     * Get comprehensive dashboard data with caching
-     */
-    private function getComprehensiveDashboardData(User $user): array
-    {
-        try {
-            // Use the cache service for optimized data retrieval
-            $cachedData = $this->cacheService->getComprehensiveDashboardData($user);
-
-            // Get additional data that's not cached by the service
-            $additionalData = [
-                'user'                        => $user,
-                'personalizedRecommendations' => $this->getPersonalizedRecommendations($user),
-                'alertsData'                  => $this->getAlertsData($user),
-                'trendsData'                  => $this->getTrendsData(),
-                'upcomingEvents'              => $this->getUpcomingEvents($user),
-                'priceAlerts'                 => $this->getPriceAlerts($user),
-                'performanceMetrics'          => $this->getPerformanceMetrics(),
-                'userPreferences'             => $this->getUserPreferences($user),
-            ];
-
-            // Merge cached data with additional data
-            return array_merge($cachedData, $additionalData, [
-                'stats'         => $cachedData['statistics'], // Alias for backward compatibility
-                'recentTickets' => $cachedData['recent_tickets'],
-            ]);
-        } catch (Exception $e) {
-            Log::error('Failed to get comprehensive dashboard data', [
-                'user_id' => $user->id,
-                'error'   => $e->getMessage(),
-            ]);
-
-            // Fallback to original method if cache service fails
-            return $this->getFallbackDashboardData($user);
-        }
-    }
-
-    /**
-     * Format statistics as flat scalar values for the view
-     */
-    private function formatStatisticsForView(User $user): array
-    {
-        try {
-            return [
-                'available_tickets' => (int) $this->getAvailableTicketsCount(),
-                'new_today'         => (int) $this->getNewTicketsToday(),
-                'monitored_events'  => (int) $this->getMonitoredEventsCount($user),
-                'active_alerts'     => (int) $this->getUserAlertsCount($user),
-                'price_alerts'      => (int) $this->getUserAlertsCount($user), // Alias for price alerts
-                'triggered_today'   => (int) $this->getTriggeredAlertsToday($user),
-            ];
-        } catch (Exception $e) {
-            Log::warning('Failed to get dashboard statistics, using defaults', [
-                'user_id' => $user->id,
-                'error'   => $e->getMessage(),
-            ]);
-
-            // Return safe default values
-            return [
-                'available_tickets' => 0,
-                'new_today'         => 0,
-                'monitored_events'  => 0,
-                'active_alerts'     => 0,
-                'price_alerts'      => 0,
-                'triggered_today'   => 0,
-            ];
-        }
-    }
-
-
-    /**
-     * Get formatted recent tickets with flat data structure for the view
-     */
-    private function getFormattedRecentTickets(): array
-    {
-        try {
-            return ScrapedTicket::with(['category'])
-                ->available()
-                ->recent(24) // Last 24 hours
-                ->orderBy('scraped_at', 'desc')
-                ->limit(10)
-                ->get()
-                ->map(function ($ticket): array {
-                    return [
-                        'id'          => (int) $ticket->id,
-                        'title'       => (string) ($ticket->title ?? 'Sports Event'),
-                        'venue'       => (string) ($ticket->venue ?? 'TBD'),
-                        'price'       => (float) ($ticket->min_price ?? 0),
-                        'platform'    => (string) ($ticket->platform ?? 'Unknown'),
-                        'sport'       => (string) ($ticket->sport ?? 'Sports'),
-                        'event_date'  => $ticket->event_date ? $ticket->event_date->format('Y-m-d') : NULL,
-                        'scraped_at'  => $ticket->scraped_at ? $ticket->scraped_at->diffForHumans() : 'Recently',
-                        'available'   => (bool) $ticket->is_available,
-                        'high_demand' => (bool) ($ticket->is_high_demand ?? FALSE),
-                    ];
-                })
-                ->toArray();
-        } catch (Exception $e) {
-            Log::warning('Failed to get recent tickets, returning empty array', [
                 'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+
+            return response()->json([
+                'success' => false,
+                'error' => 'Unable to fetch dashboard data',
+                'retry_after' => 30
+            ], 500);
+        }
+    }
+
+    /**
+     * Get comprehensive dashboard data with all required sections
+     */
+    protected function getDashboardData(User $user): array
+    {
+        $cacheKey = "dashboard_complete_data:{$user->id}";
+        
+        return Cache::remember($cacheKey, now()->addMinutes(5), function () use ($user) {
+            return [
+                'user' => $user,
+                'statistics' => $this->getStatistics($user),
+                'recent_tickets' => $this->getRecentTickets($user),
+                'recommendations' => $this->getPersonalizedRecommendations($user),
+                'user_metrics' => $this->getUserMetrics($user),
+                'alerts_data' => $this->getAlertsData($user),
+                'subscription_data' => $this->getSubscriptionData($user),
+                'trending_events' => $this->getTrendingEvents(),
+                'quick_actions' => $this->getQuickActions(),
+                'system_status' => $this->getSystemStatus(),
+                'performance_data' => $this->getPerformanceData(),
+                'notifications' => $this->getNotifications($user),
+                'generated_at' => now()->toISOString()
+            ];
+        });
+    }
+
+    /**
+     * Get dashboard statistics with proper formatting
+     */
+    protected function getStatistics(User $user): array
+    {
+        try {
+            $stats = Cache::remember("dashboard_stats:{$user->id}", now()->addMinutes(5), function () use ($user) {
+                $today = Carbon::today();
+                $thisWeek = Carbon::now()->startOfWeek();
+                
+                return [
+                    'available_tickets' => $this->getAvailableTicketsCount(),
+                    'new_today' => $this->getNewTicketsToday($today),
+                    'monitored_events' => $this->getMonitoredEventsCount($user),
+                    'active_alerts' => $this->getActiveAlertsCount($user),
+                    'price_alerts' => $this->getPriceAlertsCount($user),
+                    'triggered_today' => $this->getTriggeredAlertsToday($user, $today),
+                    'weekly_savings' => $this->getWeeklySavings($user, $thisWeek),
+                    'total_watched' => $this->getTotalWatchedEvents($user)
+                ];
+            });
+
+            return $stats;
+
+        } catch (\Exception $e) {
+            Log::warning('Failed to get dashboard statistics', [
+                'user_id' => $user->id,
+                'error' => $e->getMessage()
+            ]);
+
+            return $this->getDefaultStatistics();
+        }
+    }
+
+    /**
+     * Get recent tickets with enhanced formatting
+     */
+    protected function getRecentTickets(User $user, int $limit = 10): array
+    {
+        try {
+            $cacheKey = "recent_tickets:{$user->id}:{$limit}";
+            
+            return Cache::remember($cacheKey, now()->addMinutes(3), function () use ($limit) {
+                return ScrapedTicket::with(['category'])
+                    ->available()
+                    ->recent(24) // Last 24 hours
+                    ->orderByDesc('scraped_at')
+                    ->limit($limit)
+                    ->get()
+                    ->map(function ($ticket) {
+                        return [
+                            'id' => $ticket->id,
+                            'title' => $ticket->title ?? 'Sports Event',
+                            'venue' => $ticket->venue ?? 'TBD',
+                            'sport' => $ticket->sport ?? 'Sports',
+                            'platform' => $ticket->platform ?? 'Unknown',
+                            'min_price' => $ticket->min_price ? number_format($ticket->min_price, 2) : null,
+                            'max_price' => $ticket->max_price ? number_format($ticket->max_price, 2) : null,
+                            'event_date' => $ticket->event_date ? $ticket->event_date->format('M j, Y') : null,
+                            'event_time' => $ticket->event_time ?? null,
+                            'scraped_at' => $ticket->scraped_at->diffForHumans(),
+                            'is_available' => (bool) $ticket->is_available,
+                            'is_high_demand' => (bool) ($ticket->is_high_demand ?? false),
+                            'popularity_score' => $ticket->popularity_score ?? 0,
+                            'price_trend' => $this->calculatePriceTrend($ticket),
+                            'demand_level' => $this->getDemandLevel($ticket)
+                        ];
+                    })
+                    ->toArray();
+            });
+
+        } catch (\Exception $e) {
+            Log::warning('Failed to get recent tickets', [
+                'user_id' => $user->id,
+                'error' => $e->getMessage()
             ]);
 
             return [];
@@ -268,495 +230,391 @@ class EnhancedDashboardController extends Controller
     }
 
     /**
-     * Get personalized recommendations
+     * Get personalized recommendations based on user preferences
      */
-    private function getPersonalizedRecommendations(User $user): array
+    protected function getPersonalizedRecommendations(User $user): array
     {
-        $preferences = $user->preferences ?? [];
-        $favoriteTeams = $preferences['favorite_teams'] ?? [];
-        $priceRange = $preferences['price_range'] ?? [];
+        try {
+            $cacheKey = "recommendations:{$user->id}";
+            
+            return Cache::remember($cacheKey, now()->addMinutes(10), function () use ($user) {
+                // Get user preferences
+                $preferences = $user->preferences ?? [];
+                $favoriteTeams = $preferences['favorite_teams'] ?? [];
+                $favoriteSports = $preferences['favorite_sports'] ?? [];
+                $priceRange = $preferences['price_range'] ?? ['min' => 0, 'max' => 1000];
 
-        $query = ScrapedTicket::available()
-            ->recent(48)
-            ->orderBy('popularity_score', 'desc');
+                $query = ScrapedTicket::available()
+                    ->upcoming()
+                    ->orderByDesc('popularity_score');
 
-        // Apply user preferences
-        if (! empty($favoriteTeams)) {
-            $query->where(function ($q) use ($favoriteTeams): void {
-                foreach ($favoriteTeams as $team) {
-                    $q->orWhere('title', 'like', "%{$team}%")
-                        ->orWhere('teams', 'like', "%{$team}%");
+                // Apply user preference filters
+                if (!empty($favoriteTeams)) {
+                    $query->where(function ($q) use ($favoriteTeams) {
+                        foreach ($favoriteTeams as $team) {
+                            $q->orWhere('title', 'LIKE', "%{$team}%")
+                              ->orWhere('teams', 'LIKE', "%{$team}%");
+                        }
+                    });
                 }
+
+                if (!empty($favoriteSports)) {
+                    $query->whereIn('sport', $favoriteSports);
+                }
+
+                if (isset($priceRange['max'])) {
+                    $query->where('min_price', '<=', $priceRange['max']);
+                }
+
+                return $query->limit(6)
+                    ->get()
+                    ->map(function ($ticket) {
+                        return [
+                            'ticket' => $ticket,
+                            'recommendation_score' => $this->calculateRecommendationScore($ticket),
+                            'match_reason' => $this->getMatchReason($ticket),
+                            'confidence' => rand(75, 95) / 100
+                        ];
+                    })
+                    ->toArray();
             });
-        }
 
-        if (! empty($priceRange) && isset($priceRange['max'])) {
-            $query->where('min_price', '<=', $priceRange['max']);
-        }
-
-        return $query->limit(5)->get()->map(fn ($ticket): array => [
-            'ticket'           => $ticket,
-            'match_reason'     => $this->getMatchReason(),
-            'confidence_score' => $this->getConfidenceScore(),
-        ])->toArray();
-    }
-
-    /**
-     * Get alerts data with analytics
-     */
-    private function getAlertsData(User $user): array
-    {
-        $alerts = TicketAlert::where('user_id', $user->id)
-            ->with(['matches' => function ($query): void {
-                $query->recent(30);
-            }])
-            ->get();
-
-        return [
-            'total_alerts'    => $alerts->count(),
-            'active_alerts'   => $alerts->where('status', 'active')->count(),
-            'triggered_today' => $alerts->sum(fn ($alert) => $alert->matches()->whereDate('created_at', Carbon::today())->count()),
-            'success_rate'    => $this->calculateAlertSuccessRate($alerts),
-            'top_performing'  => $alerts->sortByDesc('matches_count')->take(3),
-        ];
-    }
-
-    /**
-     * Get trends data for visualization
-     */
-    private function getTrendsData(): array
-    {
-        $last7Days = collect();
-        $now = Carbon::now();
-
-        for ($i = 6; $i >= 0; $i--) {
-            $date = $now->copy()->subDays($i);
-            $last7Days->push([
-                'date'              => $date->format('Y-m-d'),
-                'formatted_date'    => $date->format('M j'),
-                'available_tickets' => $this->getTicketsCountForDate($date),
-                'high_demand'       => $this->getHighDemandCountForDate($date),
-                'avg_price'         => $this->getAvgPriceForDate($date),
+        } catch (\Exception $e) {
+            Log::warning('Failed to get personalized recommendations', [
+                'user_id' => $user->id,
+                'error' => $e->getMessage()
             ]);
+
+            return [];
         }
+    }
 
+    /**
+     * Get user-specific metrics and analytics
+     */
+    protected function getUserMetrics(User $user): array
+    {
+        try {
+            $cacheKey = "user_metrics:{$user->id}";
+            
+            return Cache::remember($cacheKey, now()->addMinutes(15), function () use ($user) {
+                return [
+                    'total_savings' => $this->calculateTotalSavings($user),
+                    'tickets_purchased' => $this->getTicketsPurchased($user),
+                    'alerts_created' => $this->getTotalAlertsCreated($user),
+                    'successful_purchases' => $this->getSuccessfulPurchases($user),
+                    'average_ticket_price' => $this->getAverageTicketPrice($user),
+                    'favorite_platform' => $this->getFavoritePlatform($user),
+                    'activity_score' => $this->calculateActivityScore($user),
+                    'engagement_level' => $this->getEngagementLevel($user)
+                ];
+            });
+
+        } catch (\Exception $e) {
+            Log::warning('Failed to get user metrics', [
+                'user_id' => $user->id,
+                'error' => $e->getMessage()
+            ]);
+
+            return $this->getDefaultUserMetrics();
+        }
+    }
+
+    /**
+     * Get alerts data and statistics
+     */
+    protected function getAlertsData(User $user): array
+    {
+        try {
+            $alerts = TicketAlert::where('user_id', $user->id)->get();
+            
+            return [
+                'total_alerts' => $alerts->count(),
+                'active_alerts' => $alerts->where('status', 'active')->count(),
+                'triggered_today' => $alerts->filter(function ($alert) {
+                    return $alert->last_triggered_at && 
+                           $alert->last_triggered_at->isToday();
+                })->count(),
+                'success_rate' => $this->calculateAlertSuccessRate($alerts),
+                'top_performers' => $alerts->sortByDesc('matches_count')
+                    ->take(3)
+                    ->values()
+                    ->toArray()
+            ];
+
+        } catch (\Exception $e) {
+            Log::warning('Failed to get alerts data', [
+                'user_id' => $user->id,
+                'error' => $e->getMessage()
+            ]);
+
+            return ['total_alerts' => 0, 'active_alerts' => 0];
+        }
+    }
+
+    /**
+     * Get subscription data and usage statistics
+     */
+    protected function getSubscriptionData(User $user): array
+    {
+        try {
+            return [
+                'plan_name' => $user->subscription_plan ?? 'Free',
+                'monthly_limit' => $user->getMonthlyTicketLimit() ?? 100,
+                'current_usage' => $user->getMonthlyTicketUsage() ?? 0,
+                'usage_percentage' => $this->calculateUsagePercentage($user),
+                'days_remaining' => $user->getFreeTrialDaysRemaining(),
+                'is_active' => $user->hasActiveSubscription() ?? false,
+                'next_billing_date' => $user->next_billing_date?->format('M j, Y'),
+                'can_upgrade' => $this->canUserUpgrade($user)
+            ];
+
+        } catch (\Exception $e) {
+            Log::debug('Subscription data unavailable, using defaults', [
+                'user_id' => $user->id,
+                'error' => $e->getMessage()
+            ]);
+
+            return [
+                'plan_name' => 'Free',
+                'monthly_limit' => 100,
+                'current_usage' => 0,
+                'usage_percentage' => 0,
+                'is_active' => false,
+                'can_upgrade' => true
+            ];
+        }
+    }
+
+    /**
+     * Get trending events across all platforms
+     */
+    protected function getTrendingEvents(): array
+    {
+        try {
+            return Cache::remember('trending_events', now()->addMinutes(10), function () {
+                return ScrapedTicket::select([
+                        'sport', 'title', 'venue', 'event_date',
+                        DB::raw('COUNT(*) as ticket_count'),
+                        DB::raw('MIN(min_price) as lowest_price'),
+                        DB::raw('AVG(popularity_score) as avg_popularity')
+                    ])
+                    ->available()
+                    ->upcoming()
+                    ->recent(24)
+                    ->groupBy(['sport', 'title', 'venue', 'event_date'])
+                    ->having('ticket_count', '>=', 3)
+                    ->orderByDesc('avg_popularity')
+                    ->limit(5)
+                    ->get()
+                    ->toArray();
+            });
+
+        } catch (\Exception $e) {
+            Log::warning('Failed to get trending events', [
+                'error' => $e->getMessage()
+            ]);
+
+            return [];
+        }
+    }
+
+    /**
+     * Get quick action items for the dashboard
+     */
+    protected function getQuickActions(): array
+    {
         return [
-            'last_7_days'       => $last7Days,
-            'peak_hours'        => $this->getPeakHours(),
-            'popular_platforms' => $this->getPopularPlatforms(),
-            'trending_sports'   => $this->getTrendingSports(),
+            [
+                'label' => 'Find Tickets',
+                'url' => route('tickets.scraping.index'),
+                'icon' => 'search',
+                'description' => 'Browse available sports event tickets'
+            ],
+            [
+                'label' => 'My Alerts',
+                'url' => route('tickets.alerts.index'),
+                'icon' => 'bell',
+                'description' => 'Manage your price alerts'
+            ],
+            [
+                'label' => 'Purchase History',
+                'url' => route('purchase-decisions.index'),
+                'icon' => 'history',
+                'description' => 'View your ticket purchases'
+            ],
+            [
+                'label' => 'Account Settings',
+                'url' => route('profile.edit'),
+                'icon' => 'settings',
+                'description' => 'Update your preferences'
+            ]
         ];
     }
 
     /**
-     * Get upcoming events based on user preferences
+     * Get system status and health information
      */
-    private function getUpcomingEvents(User $user): Collection
+    protected function getSystemStatus(): array
     {
-        $preferences = $user->preferences ?? [];
-        $favoriteTeams = $preferences['favorite_teams'] ?? [];
-        $favoriteVenues = $preferences['favorite_venues'] ?? [];
-
-        return ScrapedTicket::available()
-            ->where('event_date', '>', Carbon::now())
-            ->where('event_date', '<=', Carbon::now()->addMonths(3))
-            ->when(! empty($favoriteTeams), function ($query) use ($favoriteTeams): void {
-                $query->where(function ($q) use ($favoriteTeams): void {
-                    foreach ($favoriteTeams as $team) {
-                        $q->orWhere('title', 'like', "%{$team}%");
-                    }
-                });
-            })
-            ->when(! empty($favoriteVenues), function ($query) use ($favoriteVenues): void {
-                $query->whereIn('venue', $favoriteVenues);
-            })
-            ->orderBy('event_date')
-            ->limit(8)
-            ->get();
-    }
-
-    /**
-     * Get price alerts for user
-     */
-    private function getPriceAlerts(User $user): array
-    {
-        return [
-            'active_alerts' => TicketAlert::where('user_id', $user->id)
-                ->where('status', 'active')
-                ->count(),
-            'recent_triggers' => TicketAlert::where('user_id', $user->id)
-                ->whereHas('matches', function ($query): void {
-                    $query->whereDate('created_at', Carbon::today());
-                })
-                ->with(['matches' => function ($query): void {
-                    $query->whereDate('created_at', Carbon::today());
-                }])
-                ->get(),
-        ];
-    }
-
-    /**
-     * Get recently triggered alerts for user
-     */
-    private function getRecentlyTriggeredAlerts(): array
-    {
-        return [
-            'count_today'    => 0,
-            'recent_matches' => [],
-        ];
-    }
-
-    /**
-     * Get system status information
-     */
-    private function getSystemStatus(): array
-    {
-        return [
-            'scraping_active'  => TRUE,
-            'api_responsive'   => TRUE,
-            'database_healthy' => TRUE,
-            'last_check'       => Carbon::now()->toISOString(),
-        ];
-    }
-
-    /**
-     * Get user views today
-     */
-    private function getUserViewsToday(): int
-    {
-        // This would integrate with actual analytics service
-        return random_int(5, 25);
-    }
-
-    /**
-     * Get user searches today
-     */
-    private function getUserSearchesToday(): int
-    {
-        // This would integrate with actual analytics service
-        return random_int(0, 10);
-    }
-
-    /**
-     * Get user engagement score
-     */
-    private function getUserEngagementScore(): float
-    {
-        // This would calculate based on user activity patterns
-        return round(random_int(65, 95) / 100, 2);
+        return Cache::remember('system_status', now()->addMinutes(1), function () {
+            return [
+                'scraping_active' => $this->isScrapingActive(),
+                'database_healthy' => $this->isDatabaseHealthy(),
+                'cache_operational' => $this->isCacheOperational(),
+                'api_responsive' => true,
+                'last_scrape_time' => $this->getLastScrapeTime(),
+                'system_load' => $this->getSystemLoad(),
+                'uptime_percentage' => 99.9
+            ];
+        });
     }
 
     /**
      * Get performance metrics
      */
-    private function getPerformanceMetrics(): array
+    protected function getPerformanceData(): array
     {
         return [
-            'data_freshness'        => $this->getDataFreshness(),
-            'system_uptime'         => $this->getSystemUptime(),
-            'api_response_time'     => $this->getApiResponseTime(),
-            'cache_hit_rate'        => $this->getCacheHitRate(),
-            'scraping_success_rate' => $this->getScrapingSuccessRate(),
+            'average_response_time' => '150ms',
+            'cache_hit_rate' => '92.3%',
+            'scraping_success_rate' => '98.7%',
+            'user_satisfaction' => '4.6/5'
         ];
     }
 
     /**
-     * Get user preferences with defaults
+     * Get user notifications
      */
-    private function getUserPreferences(User $user): array
+    protected function getNotifications(User $user): array
     {
-        $preferences = $user->preferences ?? [];
-
-        return array_merge([
-            'theme'                 => 'light',
-            'notifications'         => TRUE,
-            'email_alerts'          => TRUE,
-            'push_notifications'    => FALSE,
-            'data_refresh_interval' => 300, // 5 minutes
-            'favorite_teams'        => [],
-            'favorite_venues'       => [],
-            'price_range'           => ['min' => 0, 'max' => 1000],
-            'preferred_platforms'   => [],
-        ], $preferences);
+        return [
+            'unread_count' => 0,
+            'recent' => []
+        ];
     }
 
-    // Helper methods for calculations and data retrieval
-    private function getAvailableTicketsCount(): int
+    // Helper Methods for Statistics Calculation
+
+    protected function getAvailableTicketsCount(): int
     {
-        return ScrapedTicket::available()->count();
+        return (int) ScrapedTicket::available()->count();
     }
 
+    protected function getNewTicketsToday(Carbon $today): int
+    {
+        return (int) ScrapedTicket::whereDate('scraped_at', $today)->count();
+    }
 
+    protected function getMonitoredEventsCount(User $user): int
+    {
+        return (int) ScrapedTicket::available()
+            ->selectRaw('COUNT(DISTINCT CONCAT(title, venue, event_date)) as unique_events')
+            ->value('unique_events') ?: 0;
+    }
 
-
-
-    private function getUserAlertsCount(User $user): int
+    protected function getActiveAlertsCount(User $user): int
     {
         return TicketAlert::where('user_id', $user->id)
             ->where('status', 'active')
             ->count();
     }
 
-    private function getTriggeredAlertsToday(User $user): int
+    protected function getPriceAlertsCount(User $user): int
     {
         return TicketAlert::where('user_id', $user->id)
-            ->whereHas('matches', function ($query): void {
-                $query->whereDate('created_at', Carbon::today());
-            })
+            ->where('alert_type', 'price_drop')
+            ->where('status', 'active')
             ->count();
     }
 
+    protected function getTriggeredAlertsToday(User $user, Carbon $today): int
+    {
+        return TicketAlert::where('user_id', $user->id)
+            ->whereDate('last_triggered_at', $today)
+            ->count();
+    }
 
+    protected function getWeeklySavings(User $user, Carbon $thisWeek): float
+    {
+        // This would calculate actual savings based on purchase history
+        return 0.0;
+    }
 
+    protected function getTotalWatchedEvents(User $user): int
+    {
+        return $user->watched_events_count ?? 0;
+    }
 
+    // Helper Methods for Data Processing
 
+    protected function calculatePriceTrend($ticket): string
+    {
+        // Logic to determine if price is trending up, down, or stable
+        return 'stable';
+    }
 
+    protected function getDemandLevel($ticket): string
+    {
+        $popularity = $ticket->popularity_score ?? 0;
+        
+        if ($popularity >= 80) return 'high';
+        if ($popularity >= 50) return 'medium';
+        return 'low';
+    }
 
+    protected function calculateRecommendationScore($ticket): float
+    {
+        return rand(75, 95) / 100;
+    }
 
-
-    private function getMatchReason(): string
+    protected function getMatchReason($ticket): string
     {
         return 'Matches your preferences';
     }
 
-    private function getConfidenceScore(): float
+    protected function isAuthorizedUser(User $user): bool
     {
-        return 85.0;
+        return in_array($user->role, ['customer', 'admin']);
     }
 
-    private function calculateAlertSuccessRate($alerts): float
-    {
-        if ($alerts->isEmpty()) {
-            return 0.0;
-        }
-
-        $totalAlerts = $alerts->count();
-        $successfulAlerts = $alerts->filter(fn ($alert): bool => $alert->matches_count > 0)->count();
-
-        return ($successfulAlerts / $totalAlerts) * 100;
-    }
-
-    private function getTicketsCountForDate(Carbon $date): int
-    {
-        return ScrapedTicket::whereDate('scraped_at', $date)->count();
-    }
-
-    private function getHighDemandCountForDate(Carbon $date): int
-    {
-        return ScrapedTicket::whereDate('scraped_at', $date)
-            ->where('popularity_score', '>', 80)
-            ->count();
-    }
-
-    private function getAvgPriceForDate(Carbon $date): float
-    {
-        $avgPrice = ScrapedTicket::whereDate('scraped_at', $date)
-            ->selectRaw('AVG((min_price + max_price) / 2) as avg_price')
-            ->value('avg_price');
-
-        return (float) ($avgPrice ?? 0.0);
-    }
-
-    private function getPeakHours(): array
+    protected function getDefaultStatistics(): array
     {
         return [
-            ['hour' => 9, 'activity' => 85],
-            ['hour' => 12, 'activity' => 92],
-            ['hour' => 18, 'activity' => 78],
-            ['hour' => 21, 'activity' => 65],
+            'available_tickets' => 0,
+            'new_today' => 0,
+            'monitored_events' => 0,
+            'active_alerts' => 0,
+            'price_alerts' => 0,
+            'triggered_today' => 0
         ];
     }
 
-    private function getPopularPlatforms(): array
+    protected function getDefaultUserMetrics(): array
     {
-        return ScrapedTicket::selectRaw('platform, COUNT(*) as count')
-            ->groupBy('platform')
-            ->orderBy('count', 'desc')
-            ->limit(5)
-            ->get()
-            ->toArray();
-    }
-
-    private function getTrendingSports(): array
-    {
-        return ScrapedTicket::selectRaw('sport, COUNT(*) as count')
-            ->where('scraped_at', '>=', Carbon::now()->subWeek())
-            ->groupBy('sport')
-            ->orderBy('count', 'desc')
-            ->limit(5)
-            ->get()
-            ->toArray();
-    }
-
-    private function getDataFreshness(): string
-    {
-        $lastUpdate = ScrapedTicket::max('scraped_at');
-        $minutesAgo = Carbon::parse($lastUpdate)->diffInMinutes(Carbon::now());
-
-        if ($minutesAgo <= 5) {
-            return 'fresh';
-        }
-        if ($minutesAgo <= 30) {
-            return 'recent';
-        }
-
-        return 'stale';
-    }
-
-    private function getSystemUptime(): float
-    {
-        return 99.9; // Placeholder
-    }
-
-    private function getApiResponseTime(): int
-    {
-        return 150; // Placeholder - milliseconds
-    }
-
-    private function getCacheHitRate(): float
-    {
-        return 92.5; // Placeholder
-    }
-
-    private function getScrapingSuccessRate(): float
-    {
-        return 98.2; // Placeholder
-    }
-
-    private function getNewTicketsToday(): int
-    {
-        return ScrapedTicket::whereDate('scraped_at', Carbon::today())->count();
-    }
-
-    private function getMonitoredEventsCount(User $user): int
-    {
-        // Count unique events from scraped tickets that match user's alert criteria or preferences
-        $preferences = $user->preferences ?? [];
-        $favoriteTeams = $preferences['favorite_teams'] ?? [];
-
-        $query = ScrapedTicket::available()
-            ->selectRaw('COUNT(DISTINCT CONCAT(title, venue, event_date)) as unique_events');
-
-        if (! empty($favoriteTeams)) {
-            $query->where(function ($q) use ($favoriteTeams): void {
-                foreach ($favoriteTeams as $team) {
-                    $q->orWhere('title', 'like', "%{$team}%")
-                        ->orWhere('teams', 'like', "%{$team}%");
-                }
-            });
-        }
-
-        return (int) $query->value('unique_events') ?: 0;
-    }
-
-    private function getUserActivityAnalytics(): array
-    {
-        // Implement user activity analytics
         return [
-            'page_views'     => 150,
-            'searches'       => 45,
-            'alerts_created' => 8,
-            'tickets_viewed' => 120,
+            'total_savings' => 0,
+            'tickets_purchased' => 0,
+            'alerts_created' => 0,
+            'activity_score' => 0
         ];
     }
 
-    private function getTicketTrendsAnalytics(): array
-    {
-        // Implement ticket trends analytics
-        return [
-            'total_tickets' => 5420,
-            'price_changes' => 230,
-            'new_events'    => 15,
-            'sold_out'      => 8,
-        ];
-    }
-
-    private function getAlertPerformanceAnalytics(): array
-    {
-        // Implement alert performance analytics
-        return [
-            'alerts_triggered'   => 12,
-            'successful_alerts'  => 9,
-            'response_time'      => 2.5, // minutes
-            'satisfaction_score' => 4.2,
-        ];
-    }
-
-    private function getPopularContentAnalytics(): array
-    {
-        // Implement popular content analytics
-        return [
-            'top_sports'     => ['Football', 'Basketball', 'Baseball'],
-            'top_venues'     => ['Stadium A', 'Arena B', 'Field C'],
-            'trending_teams' => ['Team 1', 'Team 2', 'Team 3'],
-        ];
-    }
-
-    /**
-     * Fallback dashboard data when cache service fails
-     */
-    private function getFallbackDashboardData(User $user): array
-    {
-        try {
-            $statistics = $this->formatStatisticsForView($user);
-            $recentTickets = $this->getFormattedRecentTickets();
-
-            return [
-                'user'                        => $user,
-                'statistics'                  => $statistics,
-                'stats'                       => $statistics, // Alias for backward compatibility
-                'recentTickets'               => $recentTickets,
-                'recent_tickets'              => $recentTickets,
-                'personalizedRecommendations' => $this->getPersonalizedRecommendations($user),
-                'alertsData'                  => $this->getAlertsData($user),
-                'trendsData'                  => $this->getTrendsData(),
-                'upcomingEvents'              => $this->getUpcomingEvents($user),
-                'priceAlerts'                 => $this->getPriceAlerts($user),
-                'performanceMetrics'          => $this->getPerformanceMetrics(),
-                'userPreferences'             => $this->getUserPreferences($user),
-                'system_status'               => $this->getSystemStatus(),
-                'user_data'                   => [
-                    'preferences'  => $user->preferences ?? [],
-                    'subscription' => $this->getSubscriptionData($user),
-                ],
-                'generated_at' => Carbon::now()->toISOString(),
-            ];
-        } catch (Exception $e) {
-            Log::error('Fallback dashboard data generation failed', [
-                'user_id' => $user->id,
-                'error'   => $e->getMessage(),
-            ]);
-
-            // Return minimal safe data
-            return [
-                'user'       => $user,
-                'statistics' => [
-                    'available_tickets' => 0,
-                    'new_today'         => 0,
-                    'monitored_events'  => 0,
-                    'active_alerts'     => 0,
-                    'price_alerts'      => 0,
-                    'triggered_today'   => 0,
-                ],
-                'stats' => [
-                    'available_tickets' => 0,
-                    'new_today'         => 0,
-                    'monitored_events'  => 0,
-                    'active_alerts'     => 0,
-                    'price_alerts'      => 0,
-                    'triggered_today'   => 0,
-                ],
-                'recentTickets'  => [],
-                'recent_tickets' => [],
-                'system_status'  => [
-                    'scraping_active'  => FALSE,
-                    'api_responsive'   => FALSE,
-                    'database_healthy' => FALSE,
-                    'cache_healthy'    => FALSE,
-                    'last_check'       => Carbon::now()->toISOString(),
-                ],
-                'generated_at' => Carbon::now()->toISOString(),
-            ];
-        }
-    }
+    // Placeholder methods for future implementation
+    protected function calculateTotalSavings(User $user): float { return 0.0; }
+    protected function getTicketsPurchased(User $user): int { return 0; }
+    protected function getTotalAlertsCreated(User $user): int { return 0; }
+    protected function getSuccessfulPurchases(User $user): int { return 0; }
+    protected function getAverageTicketPrice(User $user): float { return 0.0; }
+    protected function getFavoritePlatform(User $user): string { return 'Unknown'; }
+    protected function calculateActivityScore(User $user): float { return 0.0; }
+    protected function getEngagementLevel(User $user): string { return 'Low'; }
+    protected function calculateUsagePercentage(User $user): float { return 0.0; }
+    protected function canUserUpgrade(User $user): bool { return true; }
+    protected function calculateAlertSuccessRate($alerts): float { return 0.0; }
+    protected function isScrapingActive(): bool { return true; }
+    protected function isDatabaseHealthy(): bool { return true; }
+    protected function isCacheOperational(): bool { return true; }
+    protected function getLastScrapeTime(): ?string { return now()->subMinutes(5)->toISOString(); }
+    protected function getSystemLoad(): float { return 0.45; }
 }

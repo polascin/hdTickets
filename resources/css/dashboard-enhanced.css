@@ -1,0 +1,491 @@
+/**
+ * HD Tickets Customer Dashboard Enhanced Styles
+ * 
+ * Modern glass morphism design with responsive layouts and animations.
+ * Optimized for performance with minimal reflows and accessible design.
+ */
+
+/* Root CSS Custom Properties */
+:root {
+  /* Dashboard Theme Colors */
+  --dashboard-primary: #3b82f6;
+  --dashboard-primary-dark: #2563eb;
+  --dashboard-secondary: #8b5cf6;
+  --dashboard-secondary-dark: #7c3aed;
+  --dashboard-success: #10b981;
+  --dashboard-warning: #f59e0b;
+  --dashboard-error: #ef4444;
+  --dashboard-info: #06b6d4;
+
+  /* Glass Morphism Effects */
+  --dashboard-glass: rgba(255, 255, 255, 0.1);
+  --dashboard-glass-hover: rgba(255, 255, 255, 0.2);
+  --dashboard-glass-border: rgba(255, 255, 255, 0.2);
+  --dashboard-glass-dark: rgba(0, 0, 0, 0.1);
+  --dashboard-glass-dark-hover: rgba(0, 0, 0, 0.2);
+
+  /* Gradients */
+  --dashboard-gradient-primary: linear-gradient(135deg, var(--dashboard-primary) 0%, var(--dashboard-secondary) 100%);
+  --dashboard-gradient-success: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  --dashboard-gradient-warning: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+  --dashboard-gradient-error: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+  --dashboard-gradient-background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+  --dashboard-gradient-background-dark: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+
+  /* Shadows */
+  --dashboard-shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  --dashboard-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  --dashboard-shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  --dashboard-shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+
+  /* Animation Timings */
+  --dashboard-transition-fast: 150ms cubic-bezier(0.4, 0, 0.2, 1);
+  --dashboard-transition: 200ms cubic-bezier(0.4, 0, 0.2, 1);
+  --dashboard-transition-slow: 300ms cubic-bezier(0.4, 0, 0.2, 1);
+
+  /* Z-Index Scale */
+  --z-dropdown: 1000;
+  --z-sticky: 1020;
+  --z-fixed: 1030;
+  --z-modal-backdrop: 1040;
+  --z-modal: 1050;
+  --z-popover: 1060;
+  --z-tooltip: 1070;
+  --z-toast: 1080;
+}
+
+/* Dark Theme Overrides */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --dashboard-glass: rgba(0, 0, 0, 0.2);
+    --dashboard-glass-hover: rgba(0, 0, 0, 0.3);
+    --dashboard-glass-border: rgba(255, 255, 255, 0.1);
+    --dashboard-gradient-background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+  }
+}
+
+/* Base Dashboard Styles */
+.dashboard-container {
+  min-height: 100vh;
+  background: var(--dashboard-gradient-background);
+  position: relative;
+}
+
+.dark .dashboard-container {
+  background: var(--dashboard-gradient-background-dark);
+}
+
+/* Glass Morphism Components */
+.dashboard-glass {
+  background: var(--dashboard-glass);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid var(--dashboard-glass-border);
+  position: relative;
+  overflow: hidden;
+}
+
+.dashboard-glass::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.05) 100%);
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity var(--dashboard-transition);
+}
+
+.dashboard-glass:hover::before {
+  opacity: 1;
+}
+
+/* Statistics Cards */
+.stats-card {
+  position: relative;
+  transform: translateY(0);
+  transition: transform var(--dashboard-transition), box-shadow var(--dashboard-transition);
+  contain: layout style paint;
+}
+
+.stats-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--dashboard-shadow-lg);
+}
+
+.stats-card-icon {
+  position: relative;
+  overflow: hidden;
+}
+
+.stats-card-icon::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: linear-gradient(45deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+  transform: rotate(45deg);
+  transition: transform var(--dashboard-transition-slow);
+  opacity: 0;
+}
+
+.stats-card:hover .stats-card-icon::before {
+  transform: rotate(45deg) translateX(100%);
+  opacity: 1;
+}
+
+/* Ticket Cards */
+.ticket-card {
+  position: relative;
+  transition: all var(--dashboard-transition);
+  border-left-width: 4px;
+  contain: layout style paint;
+}
+
+.ticket-card:hover {
+  transform: translateX(4px);
+  box-shadow: var(--dashboard-shadow);
+}
+
+.ticket-card.high-demand {
+  border-left-color: var(--dashboard-error);
+  background: linear-gradient(90deg, rgba(239, 68, 68, 0.05) 0%, transparent 100%);
+}
+
+.ticket-card.medium-demand {
+  border-left-color: var(--dashboard-warning);
+  background: linear-gradient(90deg, rgba(245, 158, 11, 0.05) 0%, transparent 100%);
+}
+
+.ticket-card.low-demand {
+  border-left-color: var(--dashboard-success);
+  background: linear-gradient(90deg, rgba(16, 185, 129, 0.05) 0%, transparent 100%);
+}
+
+/* Quick Action Buttons */
+.quick-action-btn {
+  position: relative;
+  transition: all var(--dashboard-transition);
+  contain: layout style paint;
+}
+
+.quick-action-btn:hover {
+  transform: scale(1.02);
+  box-shadow: var(--dashboard-shadow);
+}
+
+.quick-action-btn::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: var(--dashboard-gradient-primary);
+  opacity: 0;
+  border-radius: inherit;
+  transition: opacity var(--dashboard-transition);
+  z-index: -1;
+}
+
+.quick-action-btn:hover::after {
+  opacity: 0.05;
+}
+
+/* Loading Skeleton Animations */
+.skeleton {
+  background: linear-gradient(90deg, #f3f4f6 25%, #e5e7eb 50%, #f3f4f6 75%);
+  background-size: 200% 100%;
+  animation: skeleton-loading 1.5s infinite;
+}
+
+.dark .skeleton {
+  background: linear-gradient(90deg, #374151 25%, #4b5563 50%, #374151 75%);
+  background-size: 200% 100%;
+}
+
+@keyframes skeleton-loading {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+/* Status Indicators */
+.status-indicator {
+  position: relative;
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+}
+
+.status-indicator.active {
+  background: var(--dashboard-success);
+  box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.2);
+}
+
+.status-indicator.inactive {
+  background: var(--dashboard-error);
+  box-shadow: 0 0 0 2px rgba(239, 68, 68, 0.2);
+}
+
+.status-indicator.warning {
+  background: var(--dashboard-warning);
+  box-shadow: 0 0 0 2px rgba(245, 158, 11, 0.2);
+}
+
+/* Pulsing Animation for Active Status */
+.status-indicator.active::before {
+  content: '';
+  position: absolute;
+  top: -2px;
+  left: -2px;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: var(--dashboard-success);
+  animation: pulse 2s infinite;
+  opacity: 0.4;
+}
+
+@keyframes pulse {
+  0% { transform: scale(0.8); opacity: 0.4; }
+  50% { transform: scale(1.2); opacity: 0.1; }
+  100% { transform: scale(0.8); opacity: 0.4; }
+}
+
+/* Progress Bars */
+.progress-bar {
+  position: relative;
+  overflow: hidden;
+  background: #e5e7eb;
+  border-radius: 9999px;
+  height: 8px;
+}
+
+.dark .progress-bar {
+  background: #374151;
+}
+
+.progress-bar-fill {
+  height: 100%;
+  background: var(--dashboard-gradient-primary);
+  border-radius: inherit;
+  transition: width var(--dashboard-transition-slow);
+  position: relative;
+  overflow: hidden;
+}
+
+.progress-bar-fill::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+  animation: progress-shine 2s infinite;
+}
+
+@keyframes progress-shine {
+  0% { left: -100%; }
+  100% { left: 100%; }
+}
+
+/* Notification Badges */
+.notification-badge {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 20px;
+  height: 20px;
+  font-size: 12px;
+  font-weight: 600;
+  color: white;
+  background: var(--dashboard-error);
+  border-radius: 10px;
+  border: 2px solid white;
+  animation: badge-bounce 0.5s ease-out;
+}
+
+@keyframes badge-bounce {
+  0% { transform: scale(0); }
+  50% { transform: scale(1.2); }
+  100% { transform: scale(1); }
+}
+
+/* Header Blur Effect */
+.header-blur {
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  background: rgba(255, 255, 255, 0.8);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.dark .header-blur {
+  background: rgba(15, 23, 42, 0.8);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* Toast Notifications */
+.toast {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  z-index: var(--z-toast);
+  max-width: 400px;
+  padding: 16px;
+  background: white;
+  border-radius: 12px;
+  box-shadow: var(--dashboard-shadow-xl);
+  border-left: 4px solid var(--dashboard-info);
+  transform: translateX(100%);
+  transition: transform var(--dashboard-transition-slow);
+}
+
+.toast.show {
+  transform: translateX(0);
+}
+
+.toast.success { border-left-color: var(--dashboard-success); }
+.toast.warning { border-left-color: var(--dashboard-warning); }
+.toast.error { border-left-color: var(--dashboard-error); }
+
+.dark .toast {
+  background: #1e293b;
+  color: #f1f5f9;
+}
+
+/* Responsive Design Enhancements */
+@media (max-width: 768px) {
+  .stats-card {
+    padding: 16px;
+  }
+  
+  .stats-card-icon {
+    width: 40px;
+    height: 40px;
+  }
+  
+  .ticket-card {
+    padding: 12px;
+  }
+  
+  .quick-action-btn {
+    padding: 12px;
+  }
+}
+
+/* High DPI Display Optimizations */
+@media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+  .dashboard-glass {
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+  }
+}
+
+/* Print Styles */
+@media print {
+  .dashboard-glass {
+    background: white !important;
+    backdrop-filter: none !important;
+    border: 1px solid #e5e7eb !important;
+  }
+  
+  .stats-card:hover,
+  .ticket-card:hover,
+  .quick-action-btn:hover {
+    transform: none !important;
+    box-shadow: none !important;
+  }
+  
+  .skeleton {
+    animation: none !important;
+  }
+}
+
+/* Accessibility Enhancements */
+@media (prefers-reduced-motion: reduce) {
+  .stats-card,
+  .ticket-card,
+  .quick-action-btn,
+  .skeleton,
+  .status-indicator,
+  .progress-bar-fill,
+  .notification-badge,
+  .toast {
+    transition: none !important;
+    animation: none !important;
+  }
+  
+  .stats-card:hover,
+  .ticket-card:hover,
+  .quick-action-btn:hover {
+    transform: none !important;
+  }
+}
+
+/* Focus Indicators for Keyboard Navigation */
+.stats-card:focus-visible,
+.ticket-card:focus-visible,
+.quick-action-btn:focus-visible {
+  outline: 2px solid var(--dashboard-primary);
+  outline-offset: 2px;
+}
+
+/* Container Queries (Future Enhancement) */
+@supports (container-type: inline-size) {
+  .stats-container {
+    container-type: inline-size;
+  }
+  
+  @container (max-width: 300px) {
+    .stats-card {
+      padding: 12px;
+    }
+    
+    .stats-card-icon {
+      width: 32px;
+      height: 32px;
+    }
+  }
+}
+
+/* Performance Optimizations */
+.dashboard-glass,
+.stats-card,
+.ticket-card,
+.quick-action-btn {
+  will-change: transform;
+  backface-visibility: hidden;
+  perspective: 1000px;
+}
+
+/* High Contrast Mode Support */
+@media (prefers-contrast: high) {
+  .dashboard-glass {
+    background: rgba(255, 255, 255, 0.9);
+    border: 2px solid #000;
+  }
+  
+  .dark .dashboard-glass {
+    background: rgba(0, 0, 0, 0.9);
+    border: 2px solid #fff;
+  }
+}
+
+/* Forced Colors Mode Support */
+@media (forced-colors: active) {
+  .dashboard-glass {
+    background: Canvas;
+    border: 1px solid CanvasText;
+  }
+  
+  .stats-card-icon {
+    background: AccentColor;
+  }
+}
