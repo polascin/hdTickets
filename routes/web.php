@@ -841,3 +841,31 @@ Route::middleware(['auth', 'verified'])->group(function (): void {
 
     Route::get('/dashboard/database-optimization-demo', [DatabaseOptimizationDemoController::class, 'index'])->name('dashboard.database-optimization-demo');
 });
+
+/*
+|--------------------------------------------------------------------------
+| Admin Panel Component API Routes
+|--------------------------------------------------------------------------
+|
+| API routes for the new admin panel components including user management,
+| system configuration, and analytics dashboard.
+|
+*/
+
+Route::prefix('api/admin')->middleware(['auth', 'role:admin'])->name('api.admin.')->group(function () {
+    
+    // User Management API
+    Route::get('/users', [App\Http\Controllers\Admin\AdminController::class, 'getUsers'])->name('users.index');
+    Route::post('/users/{id}/action', [App\Http\Controllers\Admin\AdminController::class, 'userAction'])->name('users.action');
+    Route::post('/users/bulk-action', [App\Http\Controllers\Admin\AdminController::class, 'bulkUserAction'])->name('users.bulk-action');
+    
+    // System Configuration API
+    Route::get('/settings', [App\Http\Controllers\Admin\AdminController::class, 'getSettings'])->name('settings.get');
+    Route::post('/settings', [App\Http\Controllers\Admin\AdminController::class, 'saveSettings'])->name('settings.save');
+    Route::post('/scraping/test', [App\Http\Controllers\Admin\AdminController::class, 'testScrapingSource'])->name('scraping.test');
+    
+    // Analytics API
+    Route::get('/analytics', [App\Http\Controllers\Admin\AdminController::class, 'getAnalytics'])->name('analytics.data');
+    Route::get('/analytics/export', [App\Http\Controllers\Admin\AdminController::class, 'exportReport'])->name('analytics.export');
+    
+});
