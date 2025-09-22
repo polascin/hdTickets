@@ -17,7 +17,7 @@ return new class extends Migration
             $table->index(['sport', 'status'], 'idx_scraped_tickets_sport_status');
             $table->index(['platform', 'status'], 'idx_scraped_tickets_platform_status');
             $table->index(['scraped_at', 'status'], 'idx_scraped_tickets_scraped_at_status');
-            $table->index(['price', 'status'], 'idx_scraped_tickets_price_status');
+            $table->index(['min_price', 'status'], 'idx_scraped_tickets_price_status');
             $table->index(['event_date', 'sport', 'status'], 'idx_scraped_tickets_composite');
         });
 
