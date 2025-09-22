@@ -92,7 +92,9 @@
   // Tailwind CSS
   "tailwindCSS.includeLanguages": {
     "typescript": "javascript",
-    "typescriptreact": "javascriptreact"
+    "typescriptreact": "javascriptreact",
+    "blade": "html",
+    "php": "html"
   },
   "tailwindCSS.experimental.classRegex": [
     [
@@ -110,6 +112,25 @@
       "tw\\(([^)]*)\\)"
     ]
   ],
+  // File associations to reduce parsing errors
+  "files.associations": {
+    "*.blade.php": "blade",
+    "*.css": "tailwindcss"
+  },
+  // CSS validation settings to handle Tailwind directives
+  "css.validate": false,
+  "less.validate": false,
+  "scss.validate": false,
+  // Language specific settings to reduce false positives
+  "[blade]": {
+    "editor.formatOnSave": true
+  },
+  "[php]": {
+    "editor.defaultFormatter": "bmewburn.vscode-intelephense-client"
+  },
+  // Error reporting customization
+  "problems.decorations.enabled": true,
+  "problems.showCurrentInStatus": true,
   // PHP & Laravel Specific Settings (for backend)
   "php.validate.enable": true,
   "php.validate.executablePath": "/usr/bin/php",

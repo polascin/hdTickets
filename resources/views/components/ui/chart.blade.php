@@ -35,12 +35,22 @@
     if (!$maintainAspectRatio && $aspectRatio) $containerStyles[] = "aspect-ratio: {$aspectRatio}";
 @endphp
 
+@if(count($containerStyles) > 0)
+<div 
+    id="{{ $chartId }}"
+    @if(count(array_filter($containerClasses)) > 0)
+        class="{{ implode(' ', array_filter($containerClasses)) }}"
+    @endif
+    style="{{ implode('; ', $containerStyles) }}"
+    {{ $attributes->except(['class', 'id', 'style']) }}
+    x-data="{
+@else
 <div 
     id="{{ $chartId }}"
     class="{{ implode(' ', array_filter($containerClasses)) }}"
-    @if(!empty($containerStyles)) style="{{ implode('; ', $containerStyles) }}" @endif
     {{ $attributes->except(['class', 'id', 'style']) }}
     x-data="{
+@endif
         chart: null,
         loading: {{ $loading ? 'true' : 'false' }},
         error: false,

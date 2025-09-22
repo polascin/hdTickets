@@ -10,7 +10,7 @@ document.addEventListener('DOMContentLoaded', function() {
             // State Management
             isLoading: true,
             isRefreshing: false,
-            showToast: false,
+            showToastNotification: false,
             
             // Data Properties
             dashboardData: {
@@ -564,7 +564,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 this.toastType = type;
                 this.toastTitle = title;
                 this.toastMessage = message;
-                this.showToast = true;
+                this.showToastNotification = true;
                 
                 // Auto-hide after 5 seconds
                 setTimeout(() => {
@@ -585,7 +585,7 @@ document.addEventListener('DOMContentLoaded', function() {
             },
 
             hideToast() {
-                this.showToast = false;
+                this.showToastNotification = false;
             },
 
             /**

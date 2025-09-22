@@ -41,7 +41,7 @@ class FormValidator {
 
         // Phone number validation
         this.addRule('phone', {
-            pattern: /^\+?[\d\s\-\(\)]{10,}$/,
+            pattern: /^\+?[\d\s\-()]{10,}$/,
             message: 'Please enter a valid phone number',
             minLength: 10
         });

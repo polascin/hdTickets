@@ -473,24 +473,23 @@ class PerformanceUtils {
      * Measure performance of operations
      */
     measurePerformance(name, operation) {
-        return new Promise(async (resolve, reject) => {
+        return new Promise((resolve, reject) => {
             const startTime = performance.now();
             
-            try {
-                const result = await operation();
+            Promise.resolve(operation()).then(result => {
                 const endTime = performance.now();
                 const duration = endTime - startTime;
                 
                 console.log(`[Performance] ${name}: ${duration.toFixed(2)}ms`);
                 
                 resolve({ result, duration });
-            } catch (error) {
+            }).catch(error => {
                 const endTime = performance.now();
                 const duration = endTime - startTime;
                 
                 console.error(`[Performance] ${name} failed after ${duration.toFixed(2)}ms:`, error);
                 reject(error);
-            }
+            });
         });
     }
     

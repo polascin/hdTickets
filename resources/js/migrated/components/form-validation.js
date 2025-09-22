@@ -112,11 +112,12 @@ export class FormValidator {
       case 'required':
         return field.value.trim() ? true : this.getMessage(field.name + '.required') || 'This field is required';
 
-      case 'email':
+      case 'email': {
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         return emailRegex.test(field.value) ? true : this.getMessage(field.name + '.email') || 'Please enter a valid email address';
+      }
 
-      case 'password-strength':
+      case 'password-strength': {
         const password = field.value;
         if (password.length < 8) return this.getMessage(field.name + '.password-strength') || 'Password must be at least 8 characters long';
         if (!/[A-Z]/.test(password)) return 'Password must contain at least one uppercase letter';
@@ -124,11 +125,13 @@ export class FormValidator {
         if (!/\d/.test(password)) return 'Password must contain at least one number';
         if (!/[!@#$%^&*(),.?":{}|<>]/.test(password)) return 'Password must contain at least one special character';
         return true;
+      }
 
-      case 'confirm':
+      case 'confirm': {
         const passwordField = this.form.querySelector('input[name="password"]');
         return passwordField && field.value === passwordField.value ? true :
           this.getMessage(field.name + '.confirm') || 'Password confirmation does not match';
+      }
 
       default:
         return true;

@@ -17,7 +17,7 @@
   --ticket-warning: #f59e0b;
   --ticket-error: #ef4444;
   --ticket-info: #06b6d4;
-  
+
   /* Sports Theme Colors */
   --sport-soccer: #00a86b;
   --sport-basketball: #ff8c00;
@@ -25,18 +25,18 @@
   --sport-football: #4b0082;
   --sport-hockey: #4169e1;
   --sport-tennis: #32cd32;
-  
+
   /* Status Colors */
   --status-available: #10b981;
   --status-limited: #f59e0b;
   --status-sold-out: #ef4444;
   --status-inactive: #6b7280;
-  
+
   /* Animation Durations */
   --duration-fast: 150ms;
   --duration-normal: 300ms;
   --duration-slow: 500ms;
-  
+
   /* Z-Index Layers */
   --z-dropdown: 1000;
   --z-sticky: 1020;
@@ -50,7 +50,13 @@
 
 /* Enhanced focus styles for accessibility */
 .focus-ring {
-  @apply focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50;
+  outline: none;
+}
+
+.focus-ring:focus {
+  outline: none;
+  box-shadow: 0 0 0 2px rgb(59 130 246);
+  opacity: 0.5;
 }
 
 /* =============================================================================
@@ -58,75 +64,124 @@
    ============================================================================= */
 
 .ticket-card {
-  @apply relative overflow-hidden transition-all duration-300 hover:shadow-lg;
+  position: relative;
+  overflow: hidden;
+  transition-property: all;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  transition-duration: 300ms;
+}
+
+.ticket-card:hover {
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
 }
 
 .ticket-card::before {
   content: '';
-  @apply absolute inset-0 bg-gradient-to-r from-transparent via-white to-transparent opacity-0 transform -translate-x-full transition-all duration-700;
-  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+  opacity: 0;
+  transform: translateX(-100%);
+  transition-property: all;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  transition-duration: 700ms;
 }
 
 .ticket-card:hover::before {
-  @apply opacity-100 translate-x-full;
+  opacity: 1;
+  transform: translateX(100%);
 }
 
 /* Ticket image enhancements */
 .ticket-image {
-  @apply transition-transform duration-300 hover:scale-105;
+  transition-property: transform;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  transition-duration: 300ms;
+}
+
+.ticket-image:hover {
+  transform: scale(1.05);
 }
 
 .ticket-image.lazy {
-  @apply bg-gray-200 animate-pulse;
+  background-color: rgb(229 231 235);
+  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
 }
 
 /* Price display enhancements */
 .ticket-price {
-  @apply font-bold text-lg transition-colors duration-300;
+  font-weight: 700;
+  font-size: 1.125rem;
+  line-height: 1.75rem;
+  transition-property: color;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  transition-duration: 300ms;
 }
 
 .ticket-price.price-updated {
-  @apply animate-pulse;
+  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
   animation: priceFlash 1s ease-in-out;
 }
 
 @keyframes priceFlash {
-  0%, 100% { @apply bg-transparent; }
-  50% { @apply bg-yellow-200 rounded px-1; }
+
+  0%,
+  100% {
+    background-color: transparent;
+  }
+
+  50% {
+    background-color: rgb(254 240 138);
+    border-radius: 0.25rem;
+    padding-left: 0.25rem;
+    padding-right: 0.25rem;
+  }
 }
 
-/* Price change indicators */
 .price-change {
-  @apply transition-all duration-300;
+  transition-property: all;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  transition-duration: 300ms;
 }
 
 .price-change.positive {
-  @apply text-red-600;
+  color: rgb(220 38 38);
 }
 
 .price-change.negative {
-  @apply text-green-600;
+  color: rgb(22 163 74);
 }
 
 /* Availability status badges */
 .availability-status {
-  @apply px-2 py-1 text-xs font-semibold rounded-full transition-colors duration-300;
+  padding: 0.25rem 0.5rem;
+  font-size: 0.75rem;
+  line-height: 1rem;
+  font-weight: 600;
+  border-radius: 9999px;
+  transition-property: color;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  transition-duration: 300ms;
 }
 
 .availability-status.available {
-  @apply bg-green-100 text-green-800;
+  background-color: rgb(220 252 231);
+  color: rgb(22 101 52);
 }
 
 .availability-status.limited {
-  @apply bg-yellow-100 text-yellow-800;
+  background-color: rgb(254 249 195);
+  color: rgb(133 77 14);
 }
 
 .availability-status.sold-out {
-  @apply bg-red-100 text-red-800;
+  background-color: rgb(254 226 226);
+  color: rgb(153 27 27);
 }
 
 .availability-status.inactive {
-  @apply bg-gray-100 text-gray-800;
+  background-color: rgb(243 244 246);
+  color: rgb(31 41 55);
 }
 
 /* =============================================================================
@@ -135,52 +190,77 @@
 
 /* Bookmark buttons */
 .bookmark-toggle {
-  @apply transition-all duration-300 hover:scale-110;
+  transition: all 0.3s ease;
+}
+
+.bookmark-toggle:hover {
+  transform: scale(1.1);
 }
 
 .bookmark-toggle:hover svg {
-  @apply transform rotate-12;
+  transform: rotate(12deg);
 }
 
 .bookmark-toggle.bookmarked svg {
-  @apply text-yellow-500 transform scale-110;
+  color: rgb(245 158 11);
+  transform: scale(1.1);
   filter: drop-shadow(0 0 3px rgba(245, 158, 11, 0.5));
 }
 
 .bookmark-toggle.loading {
-  @apply animate-spin;
+  animation: spin 1s linear infinite;
 }
 
 /* Share buttons */
 .share-button {
-  @apply transition-all duration-300 hover:scale-110;
+  transition: all 0.3s ease;
+}
+
+.share-button:hover {
+  transform: scale(1.1);
 }
 
 .share-dropdown {
-  @apply absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg border border-gray-200 z-50;
-  @apply transform transition-all duration-200 origin-top-right;
-  @apply opacity-0 scale-95 pointer-events-none;
+  position: absolute;
+  right: 0;
+  margin-top: 0.5rem;
+  width: 12rem;
+  background-color: white;
+  border-radius: 0.375rem;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  border: 1px solid rgb(229 231 235);
+  z-index: 50;
+  transform: scale(0.95);
+  transform-origin: top right;
+  transition: all 0.2s ease;
+  opacity: 0;
+  pointer-events: none;
 }
 
 .share-dropdown.active {
-  @apply opacity-100 scale-100 pointer-events-auto;
+  opacity: 1;
+  transform: scale(1);
+  pointer-events: auto;
 }
 
 /* Compare indicators */
 .compare-indicator {
-  @apply transition-all duration-300;
+  transition: all 0.3s ease;
 }
 
 .compare-checkbox {
-  @apply transition-all duration-200 hover:scale-110;
+  transition: all 0.2s ease;
 }
 
 .compare-checkbox:hover {
-  @apply shadow-lg;
+  transform: scale(1.1);
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
 }
 
 .compare-checkbox.selected {
-  @apply bg-blue-600 border-blue-600 scale-110;
+  background-color: rgb(37 99 235);
+  border-color: rgb(37 99 235);
+  transform: scale(1.1);
 }
 
 /* =============================================================================
@@ -188,78 +268,136 @@
    ============================================================================= */
 
 .filters-form {
-  @apply transition-all duration-300;
+  transition: all 0.3s ease;
 }
 
 .filters-form.loading {
-  @apply opacity-75 pointer-events-none;
+  opacity: 0.75;
+  pointer-events: none;
 }
 
 /* Search input enhancements */
 .search-input-container {
-  @apply relative;
+  position: relative;
 }
 
 .search-input {
-  @apply w-full px-4 py-2 pl-10 pr-10 border border-gray-300 rounded-lg transition-all duration-300;
-  @apply focus:ring-2 focus:ring-blue-500 focus:border-blue-500;
+  width: 100%;
+  padding: 0.5rem 2.5rem 0.5rem 1rem;
+  border: 1px solid rgb(209 213 219);
+  border-radius: 0.5rem;
+  transition: all 0.3s ease;
 }
 
 .search-input:focus {
-  @apply transform scale-105;
+  outline: 2px solid transparent;
+  outline-offset: 2px;
+  --tw-ring-offset-shadow: var(--tw-ring-inset) 0 0 0 var(--tw-ring-offset-width) var(--tw-ring-offset-color);
+  --tw-ring-shadow: var(--tw-ring-inset) 0 0 0 calc(2px + var(--tw-ring-offset-width)) var(--tw-ring-color);
+  box-shadow: var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow, 0 0 #0000);
+  --tw-ring-color: rgb(59 130 246 / 0.5);
+  border-color: rgb(59 130 246);
+  transform: scale(1.05);
 }
 
 .search-icon {
-  @apply absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 transition-colors duration-300;
+  position: absolute;
+  left: 0.75rem;
+  top: 50%;
+  transform: translateY(-50%);
+  color: rgb(156 163 175);
+  transition: color 0.3s ease;
 }
 
-.search-input:focus ~ .search-icon {
-  @apply text-blue-500;
+.search-input:focus~.search-icon {
+  color: rgb(59 130 246);
 }
 
 .clear-search {
-  @apply absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors duration-300;
+  position: absolute;
+  right: 0.75rem;
+  top: 50%;
+  transform: translateY(-50%);
+  color: rgb(156 163 175);
+  cursor: pointer;
+  transition: color 0.3s ease;
+}
+
+.clear-search:hover {
+  color: rgb(75 85 99);
 }
 
 /* Search suggestions dropdown */
 .search-suggestions {
-  @apply absolute top-full left-0 right-0 bg-white border border-gray-300 rounded-lg mt-1 shadow-lg z-50;
-  @apply max-h-60 overflow-y-auto;
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  background-color: white;
+  border: 1px solid rgb(209 213 219);
+  border-radius: 0.5rem;
+  margin-top: 0.25rem;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  z-index: 50;
+  max-height: 15rem;
+  overflow-y: auto;
 }
 
 .suggestion-item {
-  @apply px-3 py-2 hover:bg-gray-100 cursor-pointer transition-colors duration-200;
+  padding: 0.5rem 0.75rem;
+  cursor: pointer;
+  transition: color 0.2s ease, background-color 0.2s ease;
 }
 
 .suggestion-item:hover {
-  @apply bg-blue-50 text-blue-700;
+  background-color: rgb(249 250 251);
+  color: rgb(29 78 216);
 }
 
 /* Filter controls */
 .filter-control {
-  @apply transition-all duration-300;
+  transition: all 0.3s ease;
 }
 
 .filter-control:hover {
-  @apply transform translateY(-1px);
+  transform: translateY(-1px);
 }
 
 /* Active filters */
 .active-filters {
-  @apply flex flex-wrap gap-2 mb-4;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
 }
 
 .filter-tag {
-  @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium;
-  @apply bg-blue-100 text-blue-800 transition-all duration-300;
+  display: inline-flex;
+  align-items: center;
+  padding: 0.125rem 0.625rem;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  line-height: 1rem;
+  font-weight: 500;
+  background-color: rgb(219 234 254);
+  color: rgb(30 64 175);
+  transition: all 0.3s ease;
 }
 
 .filter-tag:hover {
-  @apply bg-blue-200 transform scale-105;
+  background-color: rgb(191 219 254);
+  transform: scale(1.05);
 }
 
 .filter-tag-remove {
-  @apply ml-1 text-blue-400 hover:text-blue-600 cursor-pointer transition-colors duration-200;
+  margin-left: 0.25rem;
+  color: rgb(96 165 250);
+  cursor: pointer;
+  transition: color 0.2s ease;
+}
+
+.filter-tag-remove:hover {
+  color: rgb(37 99 235);
 }
 
 /* =============================================================================
@@ -268,39 +406,62 @@
 
 /* Price monitor status indicator */
 .price-monitor-status {
-  @apply fixed bottom-4 left-4 z-50 flex items-center space-x-2 px-3 py-2;
-  @apply bg-white rounded-lg shadow-lg border transition-all duration-300;
+  position: fixed;
+  bottom: 1rem;
+  left: 1rem;
+  z-index: 50;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 0.75rem;
+  background-color: white;
+  border-radius: 0.5rem;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  border: 1px solid rgb(229 231 235);
+  transition: all 0.3s ease;
 }
 
 .status-dot {
-  @apply w-3 h-3 rounded-full transition-colors duration-300;
+  width: 0.75rem;
+  height: 0.75rem;
+  border-radius: 9999px;
+  transition: color 0.3s ease;
 }
 
 .status-dot.connected {
-  @apply bg-green-500;
+  background-color: rgb(34 197 94);
   animation: pulse 2s infinite;
 }
 
 .status-dot.disconnected {
-  @apply bg-red-500;
+  background-color: rgb(239 68 68);
 }
 
 .status-dot.connecting {
-  @apply bg-yellow-500 animate-pulse;
+  background-color: rgb(234 179 8);
+  animation: pulse 1s linear infinite;
 }
 
 @keyframes pulse {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.5; }
+
+  0%,
+  100% {
+    opacity: 1;
+  }
+
+  50% {
+    opacity: 0.5;
+  }
 }
 
 /* Price alerts */
 .price-alert-toggle {
-  @apply transition-all duration-300 hover:scale-105;
+  transition: all 0.3s ease;
 }
 
 .price-alert-toggle:hover {
-  @apply shadow-md;
+  transform: scale(1.05);
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
 }
 
 .price-alert-toggle.watching {
@@ -491,8 +652,13 @@
 }
 
 @keyframes progressShimmer {
-  0% { background-position: -200% 0; }
-  100% { background-position: 200% 0; }
+  0% {
+    background-position: -200% 0;
+  }
+
+  100% {
+    background-position: 200% 0;
+  }
 }
 
 /* =============================================================================
@@ -504,28 +670,28 @@
   .ticket-card {
     @apply mb-4;
   }
-  
+
   .price-monitor-status {
     @apply bottom-2 left-2 text-xs;
   }
-  
+
   .notification-center {
     @apply top-2 right-2 left-2;
     max-width: none;
   }
-  
+
   .notification {
     @apply text-sm;
   }
-  
+
   .comparison-modal .modal-content {
     @apply m-2;
   }
-  
+
   .search-input:focus {
     @apply transform scale-100;
   }
-  
+
   .filter-control:hover {
     @apply transform translateY(0);
   }
@@ -535,16 +701,16 @@
   .comparison-table {
     @apply text-xs;
   }
-  
+
   .comparison-table th,
   .comparison-table td {
     @apply px-2 py-2;
   }
-  
+
   .ticket-card:hover::before {
     display: none;
   }
-  
+
   .bookmark-toggle:hover,
   .share-button:hover,
   .compare-checkbox:hover {
@@ -560,27 +726,27 @@
   .ticket-card {
     @apply bg-gray-800 border-gray-700;
   }
-  
+
   .ticket-price {
     @apply text-white;
   }
-  
+
   .search-suggestions {
     @apply bg-gray-800 border-gray-700;
   }
-  
+
   .suggestion-item:hover {
     @apply bg-gray-700 text-blue-400;
   }
-  
+
   .modal-content {
     @apply bg-gray-800 text-white;
   }
-  
+
   .comparison-table th {
     @apply text-gray-400;
   }
-  
+
   .notification {
     @apply text-gray-900;
   }
@@ -591,6 +757,7 @@
    ============================================================================= */
 
 @media print {
+
   .price-monitor-status,
   .notification-center,
   .comparison-modal,
@@ -599,11 +766,11 @@
   .compare-indicator {
     display: none !important;
   }
-  
+
   .ticket-card {
     @apply shadow-none border border-gray-300;
   }
-  
+
   .ticket-card::before {
     display: none;
   }
@@ -618,15 +785,15 @@
   .ticket-card {
     @apply border-2 border-black;
   }
-  
+
   .btn-primary {
     @apply bg-black text-white border-2 border-black;
   }
-  
+
   .availability-status.available {
     @apply bg-green-300 text-black border border-green-600;
   }
-  
+
   .availability-status.sold-out {
     @apply bg-red-300 text-black border border-red-600;
   }
@@ -639,7 +806,7 @@
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
   }
-  
+
   .ticket-card::before,
   .ticket-image:hover,
   .bookmark-toggle:hover svg,
@@ -660,7 +827,7 @@
   .focus-ring:focus {
     outline: none;
   }
-  
+
   .focus-ring:focus-visible {
     @apply ring-2 ring-blue-500 ring-opacity-50;
   }
@@ -695,35 +862,79 @@
 }
 
 @keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
 }
 
 @keyframes fadeOut {
-  from { opacity: 1; }
-  to { opacity: 0; }
+  from {
+    opacity: 1;
+  }
+
+  to {
+    opacity: 0;
+  }
 }
 
 @keyframes slideUp {
-  from { transform: translateY(20px); opacity: 0; }
-  to { transform: translateY(0); opacity: 1; }
+  from {
+    transform: translateY(20px);
+    opacity: 0;
+  }
+
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
 }
 
 @keyframes slideDown {
-  from { transform: translateY(-20px); opacity: 0; }
-  to { transform: translateY(0); opacity: 1; }
+  from {
+    transform: translateY(-20px);
+    opacity: 0;
+  }
+
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
 }
 
 @keyframes zoomIn {
-  from { transform: scale(0.9); opacity: 0; }
-  to { transform: scale(1); opacity: 1; }
+  from {
+    transform: scale(0.9);
+    opacity: 0;
+  }
+
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
 }
 
 @keyframes bounceIn {
-  0% { transform: scale(0.3); opacity: 0; }
-  50% { transform: scale(1.05); }
-  70% { transform: scale(0.9); }
-  100% { transform: scale(1); opacity: 1; }
+  0% {
+    transform: scale(0.3);
+    opacity: 0;
+  }
+
+  50% {
+    transform: scale(1.05);
+  }
+
+  70% {
+    transform: scale(0.9);
+  }
+
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
 }
 
 /* =============================================================================
@@ -749,7 +960,7 @@
 
 .border-gradient {
   position: relative;
-  background: linear-gradient(white, white) padding-box, 
-              linear-gradient(135deg, #667eea, #764ba2) border-box;
+  background: linear-gradient(white, white) padding-box,
+    linear-gradient(135deg, #667eea, #764ba2) border-box;
   border: 2px solid transparent;
 }

@@ -810,26 +810,6 @@ function enhancedCustomerDashboard() {
         },
         
         /**
-         * Setup performance monitoring
-         */
-        setupPerformanceMonitoring() {
-            // Monitor API response times
-            this.apiResponseTimes = [];
-            
-            // Track user interactions
-            this.userInteractions = {
-                clicks: 0,
-                refreshes: 0,
-                navigations: 0
-            };
-            
-            // Send analytics periodically
-            setInterval(() => {
-                this.sendAnalytics();
-            }, 300000); // 5 minutes
-        },
-        
-        /**
          * Fetch data with caching
          */
         async fetchWithCache(endpoint, options = {}) {
@@ -1367,39 +1347,6 @@ function enhancedCustomerDashboard() {
                             this.cacheExpiry.delete(key);
                         });
                 });
-            }
-        },
-        
-        /**
-         * Send analytics data
-         */
-        async sendAnalytics() {
-            try {
-                const analytics = {
-                    interactions: this.userInteractions,
-                    performance: {
-                        avgResponseTime: this.apiResponseTimes.length > 0 
-                            ? this.apiResponseTimes.reduce((a, b) => a + b, 0) / this.apiResponseTimes.length 
-                            : 0,
-                        cacheHitRate: this.getCacheHitRate()
-                    },
-                    timestamp: Date.now()
-                };
-                
-                await this.fetchWithCache('analytics', {
-                    method: 'POST',
-                    body: JSON.stringify(analytics),
-                    headers: {
-                        'Content-Type': 'application/json'
-                    }
-                });
-                
-                // Reset counters
-                this.userInteractions = { clicks: 0, refreshes: 0, navigations: 0 };
-                this.apiResponseTimes = [];
-                
-            } catch (error) {
-                console.error('Failed to send analytics:', error);
             }
         },
         

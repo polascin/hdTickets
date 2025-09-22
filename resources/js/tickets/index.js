@@ -289,14 +289,13 @@ class HDTicketsApp {
         
         searchInputs.forEach(input => {
             let timeout;
-            let suggestionsContainer;
             
             // Create suggestions container
             const container = document.createElement('div');
             container.className = 'absolute z-50 w-full bg-white border border-gray-300 rounded-md shadow-lg mt-1 max-h-60 overflow-y-auto hidden';
             input.parentElement.style.position = 'relative';
             input.parentElement.appendChild(container);
-            suggestionsContainer = container;
+            const suggestionsContainer = container;
             
             input.addEventListener('input', (e) => {
                 clearTimeout(timeout);
