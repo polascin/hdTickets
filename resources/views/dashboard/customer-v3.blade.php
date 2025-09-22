@@ -9,6 +9,7 @@
 @endsection
 
 @push('styles')
+<link rel="stylesheet" href="{{ asset('resources/css/dashboard-enhanced.css') }}">
 <style>
 :root {
   --dashboard-primary: #3b82f6;
@@ -34,7 +35,7 @@
   @apply w-12 h-12 rounded-lg flex items-center justify-center text-white;
 }
 
-.ticket-card {
+.dashboard-ticket-card {
   @apply dashboard-glass rounded-lg p-4 hover:bg-white/15 transition-all duration-200 cursor-pointer border-l-4;
 }
 
@@ -321,7 +322,7 @@
             <!-- Loading State -->
             <div x-show="loading" class="space-y-4">
               <template x-for="i in 5" :key="i">
-                <div class="ticket-card border-slate-300">
+                <div class="dashboard-ticket-card border-slate-300">
                   <div class="flex items-center justify-between">
                     <div class="flex-1 space-y-2">
                       <div class="h-5 skeleton w-64"></div>
@@ -359,7 +360,7 @@
             <!-- Tickets List -->
             <div x-show="!loading && recent_tickets.length > 0" class="space-y-4">
               <template x-for="ticket in recent_tickets" :key="ticket.id">
-                <div class="ticket-card border-blue-300" 
+                <div class="dashboard-ticket-card border-blue-300"
                      :class="{
                        'border-red-300': ticket.demand_level === 'high',
                        'border-yellow-300': ticket.demand_level === 'medium',

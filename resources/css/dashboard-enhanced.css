@@ -138,30 +138,30 @@
   opacity: 1;
 }
 
-/* Ticket Cards */
-.ticket-card {
+/* Dashboard Ticket Cards */
+.dashboard-ticket-card {
   position: relative;
   transition: all var(--dashboard-transition);
   border-left-width: 4px;
   contain: layout style paint;
 }
 
-.ticket-card:hover {
+.dashboard-ticket-card:hover {
   transform: translateX(4px);
   box-shadow: var(--dashboard-shadow);
 }
 
-.ticket-card.high-demand {
+.dashboard-ticket-card.high-demand {
   border-left-color: var(--dashboard-error);
   background: linear-gradient(90deg, rgba(239, 68, 68, 0.05) 0%, transparent 100%);
 }
 
-.ticket-card.medium-demand {
+.dashboard-ticket-card.medium-demand {
   border-left-color: var(--dashboard-warning);
   background: linear-gradient(90deg, rgba(245, 158, 11, 0.05) 0%, transparent 100%);
 }
 
-.ticket-card.low-demand {
+.dashboard-ticket-card.low-demand {
   border-left-color: var(--dashboard-success);
   background: linear-gradient(90deg, rgba(16, 185, 129, 0.05) 0%, transparent 100%);
 }
@@ -371,7 +371,7 @@
     height: 40px;
   }
   
-  .ticket-card {
+  .dashboard-ticket-card {
     padding: 12px;
   }
   
@@ -397,7 +397,7 @@
   }
   
   .stats-card:hover,
-  .ticket-card:hover,
+  .dashboard-ticket-card:hover,
   .quick-action-btn:hover {
     transform: none !important;
     box-shadow: none !important;
@@ -411,7 +411,7 @@
 /* Accessibility Enhancements */
 @media (prefers-reduced-motion: reduce) {
   .stats-card,
-  .ticket-card,
+  .dashboard-ticket-card,
   .quick-action-btn,
   .skeleton,
   .status-indicator,
@@ -423,7 +423,7 @@
   }
   
   .stats-card:hover,
-  .ticket-card:hover,
+  .dashboard-ticket-card:hover,
   .quick-action-btn:hover {
     transform: none !important;
   }
@@ -431,7 +431,7 @@
 
 /* Focus Indicators for Keyboard Navigation */
 .stats-card:focus-visible,
-.ticket-card:focus-visible,
+.dashboard-ticket-card:focus-visible,
 .quick-action-btn:focus-visible {
   outline: 2px solid var(--dashboard-primary);
   outline-offset: 2px;
@@ -458,7 +458,7 @@
 /* Performance Optimizations */
 .dashboard-glass,
 .stats-card,
-.ticket-card,
+.dashboard-ticket-card,
 .quick-action-btn {
   will-change: transform;
   backface-visibility: hidden;

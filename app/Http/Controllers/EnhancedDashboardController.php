@@ -7,8 +7,10 @@ namespace App\Http\Controllers;
 use App\Models\ScrapedTicket;
 use App\Models\TicketAlert;
 use App\Models\User;
-use App\Services\AnalyticsService;
-use App\Services\RecommendationService;
+use App\Services\Dashboard\TicketStatsService;
+use App\Services\Dashboard\UserMetricsService;
+use App\Services\Dashboard\RecommendationService;
+use App\Services\Dashboard\AlertService;
 use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -34,8 +36,10 @@ use Illuminate\View\View;
 class EnhancedDashboardController extends Controller
 {
     public function __construct(
-        protected AnalyticsService $analyticsService,
-        protected RecommendationService $recommendationService
+        protected TicketStatsService $ticketStatsService,
+        protected UserMetricsService $userMetricsService,
+        protected RecommendationService $recommendationService,
+        protected AlertService $alertService
     ) {
         $this->middleware(['auth', 'verified']);
     }
@@ -154,24 +158,7 @@ class EnhancedDashboardController extends Controller
     protected function getStatistics(User $user): array
     {
         try {
-            $stats = Cache::remember("dashboard_stats:{$user->id}", now()->addMinutes(5), function () use ($user) {
-                $today = Carbon::today();
-                $thisWeek = Carbon::now()->startOfWeek();
-                
-                return [
-                    'available_tickets' => $this->getAvailableTicketsCount(),
-                    'new_today' => $this->getNewTicketsToday($today),
-                    'monitored_events' => $this->getMonitoredEventsCount($user),
-                    'active_alerts' => $this->getActiveAlertsCount($user),
-                    'price_alerts' => $this->getPriceAlertsCount($user),
-                    'triggered_today' => $this->getTriggeredAlertsToday($user, $today),
-                    'weekly_savings' => $this->getWeeklySavings($user, $thisWeek),
-                    'total_watched' => $this->getTotalWatchedEvents($user)
-                ];
-            });
-
-            return $stats;
-
+            return $this->ticketStatsService->getDashboardStats();
         } catch (\Exception $e) {
             Log::warning('Failed to get dashboard statistics', [
                 'user_id' => $user->id,
@@ -235,50 +222,7 @@ class EnhancedDashboardController extends Controller
     protected function getPersonalizedRecommendations(User $user): array
     {
         try {
-            $cacheKey = "recommendations:{$user->id}";
-            
-            return Cache::remember($cacheKey, now()->addMinutes(10), function () use ($user) {
-                // Get user preferences
-                $preferences = $user->preferences ?? [];
-                $favoriteTeams = $preferences['favorite_teams'] ?? [];
-                $favoriteSports = $preferences['favorite_sports'] ?? [];
-                $priceRange = $preferences['price_range'] ?? ['min' => 0, 'max' => 1000];
-
-                $query = ScrapedTicket::available()
-                    ->upcoming()
-                    ->orderByDesc('popularity_score');
-
-                // Apply user preference filters
-                if (!empty($favoriteTeams)) {
-                    $query->where(function ($q) use ($favoriteTeams) {
-                        foreach ($favoriteTeams as $team) {
-                            $q->orWhere('title', 'LIKE', "%{$team}%")
-                              ->orWhere('teams', 'LIKE', "%{$team}%");
-                        }
-                    });
-                }
-
-                if (!empty($favoriteSports)) {
-                    $query->whereIn('sport', $favoriteSports);
-                }
-
-                if (isset($priceRange['max'])) {
-                    $query->where('min_price', '<=', $priceRange['max']);
-                }
-
-                return $query->limit(6)
-                    ->get()
-                    ->map(function ($ticket) {
-                        return [
-                            'ticket' => $ticket,
-                            'recommendation_score' => $this->calculateRecommendationScore($ticket),
-                            'match_reason' => $this->getMatchReason($ticket),
-                            'confidence' => rand(75, 95) / 100
-                        ];
-                    })
-                    ->toArray();
-            });
-
+            return $this->recommendationService->getDashboardRecommendations($user);
         } catch (\Exception $e) {
             Log::warning('Failed to get personalized recommendations', [
                 'user_id' => $user->id,
@@ -295,21 +239,7 @@ class EnhancedDashboardController extends Controller
     protected function getUserMetrics(User $user): array
     {
         try {
-            $cacheKey = "user_metrics:{$user->id}";
-            
-            return Cache::remember($cacheKey, now()->addMinutes(15), function () use ($user) {
-                return [
-                    'total_savings' => $this->calculateTotalSavings($user),
-                    'tickets_purchased' => $this->getTicketsPurchased($user),
-                    'alerts_created' => $this->getTotalAlertsCreated($user),
-                    'successful_purchases' => $this->getSuccessfulPurchases($user),
-                    'average_ticket_price' => $this->getAverageTicketPrice($user),
-                    'favorite_platform' => $this->getFavoritePlatform($user),
-                    'activity_score' => $this->calculateActivityScore($user),
-                    'engagement_level' => $this->getEngagementLevel($user)
-                ];
-            });
-
+            return $this->userMetricsService->getUserDashboardMetrics($user);
         } catch (\Exception $e) {
             Log::warning('Failed to get user metrics', [
                 'user_id' => $user->id,
@@ -326,22 +256,7 @@ class EnhancedDashboardController extends Controller
     protected function getAlertsData(User $user): array
     {
         try {
-            $alerts = TicketAlert::where('user_id', $user->id)->get();
-            
-            return [
-                'total_alerts' => $alerts->count(),
-                'active_alerts' => $alerts->where('status', 'active')->count(),
-                'triggered_today' => $alerts->filter(function ($alert) {
-                    return $alert->last_triggered_at && 
-                           $alert->last_triggered_at->isToday();
-                })->count(),
-                'success_rate' => $this->calculateAlertSuccessRate($alerts),
-                'top_performers' => $alerts->sortByDesc('matches_count')
-                    ->take(3)
-                    ->values()
-                    ->toArray()
-            ];
-
+            return $this->alertService->getUserAlertStats($user);
         } catch (\Exception $e) {
             Log::warning('Failed to get alerts data', [
                 'user_id' => $user->id,
