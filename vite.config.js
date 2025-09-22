@@ -1,6 +1,6 @@
 import laravel from 'laravel-vite-plugin';
 import { resolve } from 'path';
-import { defineConfig, splitVendorChunkPlugin } from 'vite';
+import { defineConfig } from 'vite';
 import { createRequire } from 'node:module';
 
 const require = createRequire(import.meta.url);
@@ -33,9 +33,6 @@ export default defineConfig({
         'app/View/**',
       ],
     }),
-    
-    // Automatically split vendor chunks
-    splitVendorChunkPlugin(),
   ],
   
   resolve: {

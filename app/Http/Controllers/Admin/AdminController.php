@@ -623,10 +623,13 @@ class AdminController extends Controller
                 $analytics = $response->getData(true)['data'];
             }
 
+            $theme = in_array($request->get('theme'), ['light', 'dark']) ? $request->get('theme') : 'light';
+
             $pdf = PDF::loadView('admin.reports.analytics', [
                 'analytics' => $analytics,
                 'period' => $period,
-                'generated_at' => now()
+                'generated_at' => now(),
+                'theme' => $theme,
             ]);
 
             $filename = "analytics-report-{$period}-" . now()->format('Y-m-d') . '.pdf';

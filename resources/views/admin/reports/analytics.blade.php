@@ -5,30 +5,42 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Analytics Report - {{ strtoupper($period) }}</title>
     <style>
-        body { font-family: DejaVu Sans, Arial, sans-serif; color: #111827; }
-        .header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #e5e7eb; padding-bottom: 8px; margin-bottom: 16px; }
-        .title { font-size: 20px; font-weight: bold; color: #111827; }
-        .subtitle { font-size: 12px; color: #6b7280; }
+        :root { --brand:#10B981; --text:#111827; --muted:#6b7280; --border:#e5e7eb; --bg:#ffffff; --soft:#f9fafb; }
+        @if(($theme ?? 'light') === 'dark')
+        :root { --brand:#34d399; --text:#e5e7eb; --muted:#9ca3af; --border:#374151; --bg:#111827; --soft:#1f2937; }
+        @endif
+        body { font-family: DejaVu Sans, Arial, sans-serif; color: var(--text); background: var(--bg); }
+        .header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid var(--border); padding-bottom: 8px; margin-bottom: 16px; }
+        .brand { display:flex; align-items:center; gap:8px; }
+        .logo { width:20px; height:20px; }
+        .title { font-size: 20px; font-weight: bold; color: var(--text); }
+        .subtitle { font-size: 12px; color: var(--muted); }
         .kpi-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin: 12px 0; }
-        .kpi { border: 1px solid #e5e7eb; border-radius: 8px; padding: 12px; }
-        .kpi-title { font-size: 12px; color: #6b7280; }
-        .kpi-value { font-size: 18px; font-weight: bold; color: #111827; }
+        .kpi { border: 1px solid var(--border); border-radius: 8px; padding: 12px; background: var(--soft); }
+        .kpi-title { font-size: 12px; color: var(--muted); }
+        .kpi-value { font-size: 18px; font-weight: bold; color: var(--text); }
         .kpi-change { font-size: 12px; }
         .kpi-up { color: #059669; }
         .kpi-down { color: #dc2626; }
         .section { margin-top: 18px; }
         .section-title { font-size: 14px; font-weight: bold; margin-bottom: 8px; }
         table { width: 100%; border-collapse: collapse; }
-        th, td { border: 1px solid #e5e7eb; padding: 8px; font-size: 12px; }
-        th { background: #f9fafb; text-align: left; }
-        .footer { margin-top: 24px; font-size: 10px; color: #6b7280; text-align: right; }
+        th, td { border: 1px solid var(--border); padding: 8px; font-size: 12px; }
+        th { background: var(--soft); text-align: left; }
+        .footer { margin-top: 24px; font-size: 10px; color: var(--muted); text-align: right; }
     </style>
 </head>
 <body>
     <div class="header">
-        <div>
-            <div class="title">HD Tickets - Analytics Report</div>
-            <div class="subtitle">Period: {{ strtoupper($period) }}</div>
+        <div class="brand">
+            <svg class="logo" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <circle cx="12" cy="12" r="10" stroke="var(--brand)" stroke-width="2"/>
+                <path d="M7 13l3 3 7-7" stroke="var(--brand)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            <div>
+                <div class="title">HD Tickets - Analytics Report</div>
+                <div class="subtitle">Period: {{ strtoupper($period) }}</div>
+            </div>
         </div>
         <div class="subtitle">Generated: {{ $generated_at->format('Y-m-d H:i') }}</div>
     </div>
