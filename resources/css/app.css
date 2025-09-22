@@ -94,10 +94,17 @@
   }
 
   .text-gradient {
-    @apply bg-gradient-to-r from-primary-600 to-secondary-600 bg-clip-text text-transparent;
+    background-image: linear-gradient(to right, var(--primary-600, #059669), var(--secondary-600, #2563eb));
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    -webkit-text-fill-color: transparent;
   }
   .glass-effect {
-    @apply border border-white/20 bg-white/10 backdrop-blur-md;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    background-color: rgba(255, 255, 255, 0.1);
+    -webkit-backdrop-filter: blur(12px);
+    backdrop-filter: blur(12px);
   }
 
   .dashboard-card {
@@ -160,14 +167,26 @@
     @apply animate-pulse rounded bg-gray-700;
   }
 
+  .status-online,
+  .status-offline,
+  .status-warning {
+    display: inline-flex; align-items: center;
+    border-radius: 9999px; /* full */
+    padding: 0.125rem 0.625rem; /* py-0.5 px-2.5 */
+    font-size: 0.75rem; line-height: 1rem; /* text-xs */
+    font-weight: 500; /* font-medium */
+  }
   .status-online {
-    @apply inline-flex items-center rounded-full bg-green-100 px-2.5 py-0.5 text-xs font-medium text-green-800;
+    background-color: #dcfce7; /* green-100 */
+    color: #166534; /* green-800 */
   }
   .status-offline {
-    @apply inline-flex items-center rounded-full bg-red-100 px-2.5 py-0.5 text-xs font-medium text-red-800;
+    background-color: #fee2e2; /* red-100 */
+    color: #991b1b; /* red-800 */
   }
   .status-warning {
-    @apply inline-flex items-center rounded-full bg-yellow-100 px-2.5 py-0.5 text-xs font-medium text-yellow-800;
+    background-color: #fef9c3; /* yellow-100 */
+    color: #854d0e; /* yellow-800 */
   }
 
   .container-responsive {
