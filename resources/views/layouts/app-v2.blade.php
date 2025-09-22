@@ -1,13 +1,15 @@
 @php
+  use App\Support\Navigation;
+  
   $user = auth()->user();
-  $role = $user->role ?? 'guest';
-  $nav = config('ui.navigation');
+  $navigation = new Navigation();
+  $currentRole = $navigation->getCurrentUserRole();
+  $primaryNavItems = $navigation->getMenuForRole($currentRole)->take(6); // Limit primary items
+  $userMenuItems = $navigation->getUserMenuItems();
+  
   $isActive = fn(string $route) => request()->routeIs($route) ? 'is-active' : '';
-  $canSee = function (array|string $roles) use ($role) {
-      if ($roles === '*' || (is_array($roles) && in_array('*', $roles, true))) {
-          return true;
-      }
-      return in_array($role, (array) $roles, true);
+  $canSeeItem = function (array $item) use ($navigation) {
+      return $navigation->canSeeItem($item);
   };
   \Illuminate\Support\Str::class; // ensure Str alias available
 @endphp
@@ -44,16 +46,19 @@
       <nav class="uiv2-nav" aria-label="Primary">
         <div class="uiv2-nav__section">
           <p class="uiv2-nav__label">Main</p>
-@foreach ($nav['primary'] as $item)
-            @if ($canSee($item['roles']))
-              <a href="{{ route($item['route']) }}" class="uiv2-nav__link {{ $isActive($item['route']) }}"
-                aria-current="{{ request()->routeIs($item['route']) ? 'page' : 'false' }}"
+          @foreach ($primaryNavItems as $item)
+            @if ($canSeeItem($item))
+              <a href="{{ $item['url'] ?? '#' }}" class="uiv2-nav__link {{ $item['is_active'] ? 'is-active' : '' }}"
+                aria-current="{{ $item['is_active'] ? 'page' : 'false' }}"
                 data-testid="nav-{{ \Illuminate\Support\Str::slug($item['label']) }}">
                 <span class="uiv2-nav__icon">
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                    stroke-linejoin="round">
-                    <path d="{{ $item['icon'] }}" />
-                  </svg>
+                  @if(isset($item['icon_svg']))
+                    {!! $item['icon_svg'] !!}
+                  @else
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      <path d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+                    </svg>
+                  @endif
                 </span>
                 <span>{{ $item['label'] }}</span>
               </a>
@@ -62,14 +67,19 @@
         </div>
         <div class="uiv2-nav__section mt-6">
           <p class="uiv2-nav__label">User</p>
-@foreach ($nav['secondary'] as $item)
-            @if ($canSee($item['roles']))
-              <a href="{{ route($item['route']) }}" class="uiv2-nav__link {{ $isActive($item['route']) }}"
+          @foreach ($userMenuItems as $item)
+            @if ($canSeeItem($item) && ($item['id'] ?? '') !== 'logout')
+              <a href="{{ $item['url'] ?? '#' }}" class="uiv2-nav__link"
                  data-testid="nav-{{ \Illuminate\Support\Str::slug($item['label']) }}">
-                <span class="uiv2-nav__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                    stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="{{ $item['icon'] }}" />
-                  </svg></span>
+                <span class="uiv2-nav__icon">
+                  @if(isset($item['icon_svg']))
+                    {!! $item['icon_svg'] !!}
+                  @else
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      <path d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                    </svg>
+                  @endif
+                </span>
                 <span>{{ $item['label'] }}</span>
               </a>
             @endif
@@ -77,7 +87,14 @@
           @auth
             <form method="POST" action="{{ route('logout') }}" class="mt-4">
               @csrf
-              <button type="submit" class="uiv2-nav__link w-full text-left">Logout</button>
+              <button type="submit" class="uiv2-nav__link w-full text-left">
+                <span class="uiv2-nav__icon">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                  </svg>
+                </span>
+                <span>Logout</span>
+              </button>
             </form>
           @endauth
         </div>
@@ -91,7 +108,7 @@
     <div class="uiv2-overlay" :class="{ 'uiv2-overlay--visible': sidebar }" @click="sidebar=false"></div>
 
     <!-- Main -->
-    <div class="flex flex-col flex-1 min-w-0">
+    <div class="uiv2-content-column">
       <header class="uiv2-header">
         <div class="flex items-center space-x-2">
           <button class="uiv2-icon-btn md:hidden" @click="sidebar=true" aria-label="Open navigation">

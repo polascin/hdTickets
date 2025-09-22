@@ -67,7 +67,7 @@ class WarmDashboardCache extends Command
     {
         $user = User::find($userId);
 
-        if (!$user) {
+        if (! $user) {
             $this->error("User with ID {$userId} not found.");
 
             return self::FAILURE;

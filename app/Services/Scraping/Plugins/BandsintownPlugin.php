@@ -19,7 +19,7 @@ class BandsintownPlugin extends BaseScraperPlugin
     #[Override]
     public function scrape(array $criteria): array
     {
-        if (!$this->enabled) {
+        if (! $this->enabled) {
             throw new Exception("{$this->pluginName} plugin is disabled");
         }
 
@@ -165,34 +165,34 @@ class BandsintownPlugin extends BaseScraperPlugin
     {
         $params = [];
 
-        if (!empty($criteria['artist'])) {
+        if (! empty($criteria['artist'])) {
             // Artist-specific search
             $artistSlug = $this->slugify($criteria['artist']);
 
             return $this->baseUrl . '/a/' . $artistSlug;
         }
 
-        if (!empty($criteria['location'])) {
+        if (! empty($criteria['location'])) {
             $params['location'] = urlencode((string) $criteria['location']);
         }
 
-        if (!empty($criteria['city'])) {
+        if (! empty($criteria['city'])) {
             $params['city'] = urlencode((string) $criteria['city']);
         }
 
-        if (!empty($criteria['venue'])) {
+        if (! empty($criteria['venue'])) {
             $params['venue'] = urlencode((string) $criteria['venue']);
         }
 
-        if (!empty($criteria['genre'])) {
+        if (! empty($criteria['genre'])) {
             $params['genre'] = urlencode((string) $criteria['genre']);
         }
 
-        if (!empty($criteria['keyword'])) {
+        if (! empty($criteria['keyword'])) {
             $params['search'] = urlencode((string) $criteria['keyword']);
         }
 
-        if (!empty($criteria['date_range'])) {
+        if (! empty($criteria['date_range'])) {
             if (isset($criteria['date_range']['start'])) {
                 $params['start_date'] = $criteria['date_range']['start'];
             }
@@ -204,7 +204,7 @@ class BandsintownPlugin extends BaseScraperPlugin
         $queryString = http_build_query($params);
 
         // Use events search if we have search criteria
-        if (!empty($criteria['location']) || !empty($criteria['city'])) {
+        if (! empty($criteria['location']) || ! empty($criteria['city'])) {
             return $this->baseUrl . '/events?' . $queryString;
         }
 

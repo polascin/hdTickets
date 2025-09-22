@@ -36,7 +36,7 @@ class WebhookNotificationChannel
         try {
             $webhookSettings = $this->getUserWebhookSettings($user);
 
-            if (!$webhookSettings || !$webhookSettings->is_enabled) {
+            if (! $webhookSettings || ! $webhookSettings->is_enabled) {
                 Log::info('Webhook notifications disabled for user', ['user_id' => $user->id]);
 
                 return FALSE;
@@ -44,7 +44,7 @@ class WebhookNotificationChannel
 
             $webhookUrl = $webhookSettings->webhook_url ?? $this->defaultWebhookUrl;
 
-            if (!$webhookUrl) {
+            if (! $webhookUrl) {
                 Log::warning('No webhook URL configured for user', ['user_id' => $user->id]);
 
                 return FALSE;
@@ -92,7 +92,7 @@ class WebhookNotificationChannel
 
             $webhookSettings = $this->getUserWebhookSettings($user);
 
-            if (!$webhookSettings || !$webhookSettings->webhook_url) {
+            if (! $webhookSettings || ! $webhookSettings->webhook_url) {
                 return [
                     'success' => FALSE,
                     'message' => 'No webhook URL configured',
@@ -122,20 +122,20 @@ class WebhookNotificationChannel
     public function validateWebhookUrl(string $url): bool
     {
         // Basic URL validation
-        if (!filter_var($url, FILTER_VALIDATE_URL)) {
+        if (! filter_var($url, FILTER_VALIDATE_URL)) {
             return FALSE;
         }
 
         // Must be HTTP or HTTPS
         $parsed = parse_url($url);
-        if (!in_array($parsed['scheme'] ?? '', ['http', 'https'], TRUE)) {
+        if (! in_array($parsed['scheme'] ?? '', ['http', 'https'], TRUE)) {
             return FALSE;
         }
 
         // Block local/private IPs for security
         $host = $parsed['host'] ?? '';
 
-        return !(filter_var($host, FILTER_VALIDATE_IP) && !filter_var($host, FILTER_VALIDATE_IP, FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE));
+        return ! (filter_var($host, FILTER_VALIDATE_IP) && ! filter_var($host, FILTER_VALIDATE_IP, FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE));
     }
 
     /**
@@ -148,7 +148,7 @@ class WebhookNotificationChannel
     {
         $webhookSettings = $this->getUserWebhookSettings($user);
 
-        if (!$webhookSettings || !$webhookSettings->webhook_url) {
+        if (! $webhookSettings || ! $webhookSettings->webhook_url) {
             return FALSE;
         }
 
@@ -275,7 +275,7 @@ class WebhookNotificationChannel
                 }
 
                 // Check if we should retry based on status code
-                if (!$this->shouldRetry($response->status()) || $attempt === $maxRetries) {
+                if (! $this->shouldRetry($response->status()) || $attempt === $maxRetries) {
                     Log::error('Webhook notification failed', [
                         'url'      => $url,
                         'attempt'  => $attempt,

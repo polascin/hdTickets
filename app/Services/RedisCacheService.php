@@ -449,7 +449,7 @@ class RedisCacheService
      *
      * @param mixed $data
      */
-    protected function prepareDataForStorage($data, array $config, bool $compression = FALSE): string|FALSE
+    protected function prepareDataForStorage($data, array $config, bool $compression = FALSE): string|false
     {
         // Serialize based on configuration
         $serialized = $config['serialization'] === 'json'
@@ -504,7 +504,7 @@ class RedisCacheService
      */
     protected function recordCacheStats(string $operation, string $layer, string $key, array $metadata = []): void
     {
-        if (!isset($this->cacheStats[$operation])) {
+        if (! isset($this->cacheStats[$operation])) {
             $this->cacheStats[$operation] = [];
         }
 

@@ -60,6 +60,7 @@ parameters:
     # Rule configuration
     reportUnmatchedIgnoredErrors: false
     checkUninitializedProperties: true
+    treatPhpDocTypesAsCertain: false
         
     # Error formatting
     errorFormat: table

@@ -23,7 +23,7 @@ class AgentDashboardController extends Controller
         $user = Auth::user();
 
         // Check if user has agent privileges or is admin
-        if (!$user->isAgent() && !$user->isAdmin()) {
+        if (! $user->isAgent() && ! $user->isAdmin()) {
             abort(403, 'Access denied. Agent privileges required.');
         }
 

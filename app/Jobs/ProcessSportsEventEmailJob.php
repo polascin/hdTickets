@@ -66,14 +66,14 @@ class ProcessSportsEventEmailJob implements ShouldQueue
             $parsedData = $parsingService->parseEmailContent($this->emailData);
 
             // Process extracted sports events
-            if (!empty($parsedData['sports_events'])) {
+            if (! empty($parsedData['sports_events'])) {
                 foreach ($parsedData['sports_events'] as $eventData) {
                     $this->processSportsEvent($eventData, $parsedData);
                 }
             }
 
             // Process extracted tickets
-            if (!empty($parsedData['tickets'])) {
+            if (! empty($parsedData['tickets'])) {
                 foreach ($parsedData['tickets'] as $ticketData) {
                     $this->processTicket($ticketData, $parsedData);
                 }
@@ -202,13 +202,13 @@ class ProcessSportsEventEmailJob implements ShouldQueue
         $updates = [];
 
         // Update venue if not set or different
-        if (empty($event->venue) && !empty($eventData['venue'])) {
+        if (empty($event->venue) && ! empty($eventData['venue'])) {
             $updates['venue'] = $eventData['venue'];
             $updated = TRUE;
         }
 
         // Update event date if not set or different
-        if (empty($event->event_date) && !empty($eventData['event_date'])) {
+        if (empty($event->event_date) && ! empty($eventData['event_date'])) {
             $updates['event_date'] = $eventData['event_date'];
             $updated = TRUE;
         }
@@ -248,7 +248,7 @@ class ProcessSportsEventEmailJob implements ShouldQueue
         try {
             // Find associated sports event if available
             $sportsEvent = NULL;
-            if (!empty($parsedData['sports_events'])) {
+            if (! empty($parsedData['sports_events'])) {
                 $eventName = $parsedData['sports_events'][0]['name'] ?? NULL;
                 if ($eventName) {
                     $sportsEvent = SportsEvent::where('name', $eventName)
@@ -350,11 +350,11 @@ class ProcessSportsEventEmailJob implements ShouldQueue
     {
         $description = 'Sports event automatically detected from email notification.';
 
-        if (!empty($eventData['venue'])) {
+        if (! empty($eventData['venue'])) {
             $description .= ' Taking place at ' . $eventData['venue'] . '.';
         }
 
-        if (!empty($eventData['event_date'])) {
+        if (! empty($eventData['event_date'])) {
             $description .= ' Scheduled for ' . $eventData['event_date'] . '.';
         }
 
@@ -373,11 +373,11 @@ class ProcessSportsEventEmailJob implements ShouldQueue
     {
         $title = $sportsEvent instanceof SportsEvent ? $sportsEvent->name : 'Sports Event Ticket';
 
-        if (!empty($ticketData['section'])) {
+        if (! empty($ticketData['section'])) {
             $title .= ' - Section ' . $ticketData['section'];
         }
 
-        if (!empty($ticketData['row'])) {
+        if (! empty($ticketData['row'])) {
             $title .= ', Row ' . $ticketData['row'];
         }
 

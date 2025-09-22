@@ -136,7 +136,7 @@ class PriceAlertTriggered implements ShouldBroadcast
         return $settings
                && $settings->price_alerts_enabled
                && $settings->push_notifications
-               && (!$settings->snoozed_until || $settings->snoozed_until <= now());
+               && (! $settings->snoozed_until || $settings->snoozed_until <= now());
     }
 
     /**

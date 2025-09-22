@@ -283,7 +283,7 @@ class RecommendationController extends Controller
             $recommendations = $this->recommendationEngine->generateRecommendations($user);
             $alertRecommendations = $recommendations['alerts'] ?? NULL;
 
-            if (!$alertRecommendations) {
+            if (! $alertRecommendations) {
                 return response()->json([
                     'success' => FALSE,
                     'message' => 'No alert recommendations available',
@@ -448,7 +448,7 @@ class RecommendationController extends Controller
     {
         try {
             // Check admin access
-            if (!Auth::user()->hasRole('admin')) {
+            if (! Auth::user()->hasRole('admin')) {
                 return response()->json([
                     'success' => FALSE,
                     'message' => 'Unauthorized access',

@@ -160,7 +160,7 @@ class NotificationManager
      */
     public function sendSlack(string $message, ?string $channel = NULL): bool
     {
-        if (!$this->channels['slack']) {
+        if (! $this->channels['slack']) {
             return FALSE;
         }
 
@@ -190,7 +190,7 @@ class NotificationManager
      */
     public function sendDiscord(string $message, ?string $webhook = NULL): bool
     {
-        if (!$this->channels['discord']) {
+        if (! $this->channels['discord']) {
             return FALSE;
         }
 

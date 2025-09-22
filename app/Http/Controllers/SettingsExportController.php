@@ -135,7 +135,7 @@ class SettingsExportController extends Controller
 
             $validation = $this->validateImportData($importData);
 
-            if (!$validation['valid']) {
+            if (! $validation['valid']) {
                 return response()->json([
                     'success' => FALSE,
                     'message' => 'Invalid import data structure',
@@ -188,7 +188,7 @@ class SettingsExportController extends Controller
             ], 422);
         }
 
-        if (!$request->input('preview_confirmed')) {
+        if (! $request->input('preview_confirmed')) {
             return response()->json([
                 'success' => FALSE,
                 'message' => 'Import must be previewed and confirmed before processing',
@@ -209,7 +209,7 @@ class SettingsExportController extends Controller
 
             $validation = $this->validateImportData($importData);
 
-            if (!$validation['valid']) {
+            if (! $validation['valid']) {
                 return response()->json([
                     'success' => FALSE,
                     'message' => 'Invalid import data structure',
@@ -343,7 +343,7 @@ class SettingsExportController extends Controller
             ], 422);
         }
 
-        if (!$request->input('confirm_reset')) {
+        if (! $request->input('confirm_reset')) {
             return response()->json([
                 'success' => FALSE,
                 'message' => 'Reset must be confirmed',
@@ -665,16 +665,16 @@ class SettingsExportController extends Controller
         $valid = TRUE;
 
         // Check required meta fields
-        if (!isset($data['meta'])) {
+        if (! isset($data['meta'])) {
             $errors[] = 'Missing meta information';
             $valid = FALSE;
-        } elseif (!isset($data['meta']['version'])) {
+        } elseif (! isset($data['meta']['version'])) {
             $errors[] = 'Missing version information';
             $valid = FALSE;
         }
 
         // Check data structure
-        if (!isset($data['data']) || !is_array($data['data'])) {
+        if (! isset($data['data']) || ! is_array($data['data'])) {
             $errors[] = 'Missing or invalid data section';
             $valid = FALSE;
         }
@@ -683,7 +683,7 @@ class SettingsExportController extends Controller
         $validCategories = ['preferences', 'teams', 'venues', 'prices', 'notifications'];
 
         foreach ($data['data'] as $category => $categoryData) {
-            if (!in_array($category, $validCategories, TRUE)) {
+            if (! in_array($category, $validCategories, TRUE)) {
                 $errors[] = "Invalid category: {$category}";
                 $valid = FALSE;
 
@@ -691,7 +691,7 @@ class SettingsExportController extends Controller
             }
 
             $categoryValidation = $this->validateCategoryData($category, $categoryData);
-            if (!$categoryValidation['valid']) {
+            if (! $categoryValidation['valid']) {
                 $errors = array_merge($errors, $categoryValidation['errors']);
                 $valid = FALSE;
             }
@@ -720,19 +720,19 @@ class SettingsExportController extends Controller
 
         switch ($category) {
             case 'preferences':
-                if (!is_array($data)) {
+                if (! is_array($data)) {
                     $errors[] = 'Preferences must be an array';
                     $valid = FALSE;
                 }
 
                 break;
             case 'teams':
-                if (!is_array($data)) {
+                if (! is_array($data)) {
                     $errors[] = 'Teams must be an array';
                     $valid = FALSE;
                 } else {
                     foreach ($data as $index => $team) {
-                        if (!isset($team['team_name']) || !isset($team['sport_type'])) {
+                        if (! isset($team['team_name']) || ! isset($team['sport_type'])) {
                             $errors[] = "Team at index {$index} missing required fields";
                             $valid = FALSE;
                         }
@@ -741,12 +741,12 @@ class SettingsExportController extends Controller
 
                 break;
             case 'venues':
-                if (!is_array($data)) {
+                if (! is_array($data)) {
                     $errors[] = 'Venues must be an array';
                     $valid = FALSE;
                 } else {
                     foreach ($data as $index => $venue) {
-                        if (!isset($venue['venue_name']) || !isset($venue['city'])) {
+                        if (! isset($venue['venue_name']) || ! isset($venue['city'])) {
                             $errors[] = "Venue at index {$index} missing required fields";
                             $valid = FALSE;
                         }
@@ -755,12 +755,12 @@ class SettingsExportController extends Controller
 
                 break;
             case 'prices':
-                if (!is_array($data)) {
+                if (! is_array($data)) {
                     $errors[] = 'Price preferences must be an array';
                     $valid = FALSE;
                 } else {
                     foreach ($data as $index => $price) {
-                        if (!isset($price['preference_name']) || !isset($price['max_price'])) {
+                        if (! isset($price['preference_name']) || ! isset($price['max_price'])) {
                             $errors[] = "Price preference at index {$index} missing required fields";
                             $valid = FALSE;
                         }
@@ -769,7 +769,7 @@ class SettingsExportController extends Controller
 
                 break;
             case 'notifications':
-                if (!is_array($data)) {
+                if (! is_array($data)) {
                     $errors[] = 'Notification settings must be an array';
                     $valid = FALSE;
                 }
@@ -1136,7 +1136,7 @@ class SettingsExportController extends Controller
         $changes = [];
 
         foreach ($import as $key => $value) {
-            if (!isset($existing[$key]) || $existing[$key] !== $value) {
+            if (! isset($existing[$key]) || $existing[$key] !== $value) {
                 $changes[$key] = [
                     'from' => $existing[$key] ?? NULL,
                     'to'   => $value,
@@ -1163,7 +1163,7 @@ class SettingsExportController extends Controller
 
         try {
             foreach ($categories as $category) {
-                if (!isset($importData['data'][$category])) {
+                if (! isset($importData['data'][$category])) {
                     continue;
                 }
 

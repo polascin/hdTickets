@@ -149,7 +149,7 @@ class DatabaseOptimizationService
             ];
         }
 
-        if (str_contains($sql, 'ORDER BY') && !str_contains($sql, 'LIMIT')) {
+        if (str_contains($sql, 'ORDER BY') && ! str_contains($sql, 'LIMIT')) {
             $suggestions[] = [
                 'type'       => 'pagination',
                 'message'    => 'ORDER BY without LIMIT can be expensive for large datasets',
@@ -169,7 +169,7 @@ class DatabaseOptimizationService
 
         // Check for N+1 query potential
         $model = $query->getModel();
-        if ($model && !$query->getEagerLoads()) {
+        if ($model && ! $query->getEagerLoads()) {
             $suggestions[] = [
                 'type'       => 'eager_loading',
                 'message'    => 'Query might cause N+1 problems if relationships are accessed',
@@ -321,7 +321,7 @@ class DatabaseOptimizationService
      */
     protected function recordQueryMetrics(Builder $query, float $executionTime, int $resultCount): void
     {
-        if (!$this->enableProfiling) {
+        if (! $this->enableProfiling) {
             return;
         }
 
@@ -376,7 +376,7 @@ class DatabaseOptimizationService
      */
     protected function recordMetric(string $type, $data): void
     {
-        if (!isset($this->performanceMetrics[$type])) {
+        if (! isset($this->performanceMetrics[$type])) {
             $this->performanceMetrics[$type] = [];
         }
 

@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace App\Notifications;
 
@@ -7,6 +9,8 @@ use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\URL;
 
 class TicketAssigned extends Notification implements ShouldQueue
 {
@@ -15,8 +19,15 @@ class TicketAssigned extends Notification implements ShouldQueue
     /**
      * Create a new notification instance.
      */
-    public function __construct(protected Ticket $ticket)
-    {
+    public function __construct(
+        protected Ticket $ticket,
+        protected string $assignedBy = 'System',
+    ) {
+        // Store the current user's username when creating the notification
+        // This is important for queued notifications since Auth context won't be available later
+        if ($assignedBy === 'System' && Auth::check()) {
+            $this->assignedBy = Auth::user()->username ?? 'System';
+        }
     }
 
     /**
@@ -46,7 +57,8 @@ class TicketAssigned extends Notification implements ShouldQueue
      */
     public function toMail($notifiable): MailMessage
     {
-        return new MailMessage()
+        $mailMessage = new MailMessage();
+        $mailMessage
             ->subject('Ticket Assigned to You: ' . $this->ticket->title)
             ->greeting('Hello ' . $notifiable->username . '!')
             ->line('A ticket has been assigned to you:')
@@ -55,9 +67,11 @@ class TicketAssigned extends Notification implements ShouldQueue
             ->line('**Priority:** ' . ucfirst((string) $this->ticket->priority))
             ->line('**Status:** ' . ucwords(str_replace('_', ' ', $this->ticket->status)))
             ->line('**Created by:** ' . ($this->ticket->user->username ?? 'System'))
-            ->line('**Assigned by:** ' . (auth()->user()->username ?? 'System'))
-            ->action('View Ticket', route('tickets.show', $this->ticket))
+            ->line('**Assigned by:** ' . $this->assignedBy)
+            ->action('View Ticket', URL::route('tickets.show', $this->ticket))
             ->line('Please review the ticket and take appropriate action.');
+
+        return $mailMessage;
     }
 
     /**
@@ -79,7 +93,7 @@ class TicketAssigned extends Notification implements ShouldQueue
             'ticket_title'    => $this->ticket->title,
             'ticket_priority' => $this->ticket->priority,
             'ticket_status'   => $this->ticket->status,
-            'assigned_by'     => auth()->user()->username ?? 'System',
+            'assigned_by'     => $this->assignedBy,
             'message'         => 'Ticket assigned to you: ' . $this->ticket->title,
         ];
     }

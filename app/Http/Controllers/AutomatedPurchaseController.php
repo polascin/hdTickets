@@ -130,7 +130,7 @@ class AutomatedPurchaseController extends Controller
         }
 
         // Check if automated purchases are enabled
-        if (!config('purchase_automation.enabled', FALSE)) {
+        if (! config('purchase_automation.enabled', FALSE)) {
             return response()->json([
                 'success' => FALSE,
                 'error'   => 'Automated purchases are currently disabled',
@@ -142,7 +142,7 @@ class AutomatedPurchaseController extends Controller
 
             // Check user's auto-purchase settings
             $userSettings = $user->preferences['auto_purchase'] ?? [];
-            if (!($userSettings['enabled'] ?? FALSE)) {
+            if (! ($userSettings['enabled'] ?? FALSE)) {
                 return response()->json([
                     'success' => FALSE,
                     'error'   => 'Automated purchases are disabled for this user',

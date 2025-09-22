@@ -66,7 +66,7 @@ class UserPermission extends Model
      */
     public function isActive(): bool
     {
-        return !$this->isExpired();
+        return ! $this->isExpired();
     }
 
     /**
@@ -142,7 +142,7 @@ class UserPermission extends Model
      */
     public function getTimeUntilExpiration(): ?CarbonInterval
     {
-        if (!$this->expires_at) {
+        if (! $this->expires_at) {
             return NULL;
         }
 
@@ -154,7 +154,7 @@ class UserPermission extends Model
      */
     public function extend(DateInterval $interval): bool
     {
-        if (!$this->expires_at) {
+        if (! $this->expires_at) {
             return FALSE;
         }
 

@@ -370,6 +370,11 @@
   line-height: 1;
 }
 
+.hd-badge--default {
+  background-color: #f3f4f6;
+  color: #1f2937;
+}
+
 .hd-badge--primary {
   background-color: #2563eb;
   color: white;
@@ -393,6 +398,32 @@
 .hd-badge--error {
   background-color: #dc2626;
   color: white;
+}
+
+.hd-badge--info {
+  background-color: #0ea5e9;
+  color: white;
+}
+
+/* Badge Sizes */
+.hd-badge--xs {
+  padding: 0.0625rem 0.375rem;
+  font-size: 0.625rem;
+}
+
+.hd-badge--sm {
+  padding: 0.125rem 0.5rem;
+  font-size: 0.6875rem;
+}
+
+.hd-badge--md {
+  padding: 0.1875rem 0.625rem;
+  font-size: 0.75rem;
+}
+
+.hd-badge--lg {
+  padding: 0.25rem 0.75rem;
+  font-size: 0.875rem;
 }
 
 /* ============================================================================

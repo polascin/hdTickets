@@ -132,7 +132,7 @@ class NotificationManager
 
         $success = TRUE;
         foreach ($users as $user) {
-            if (!$this->sendNotification($user, $notification)) {
+            if (! $this->sendNotification($user, $notification)) {
                 $success = FALSE;
             }
         }
@@ -239,7 +239,7 @@ class NotificationManager
 
         // Send through each channel
         foreach ($channels as $channelName) {
-            if (!isset($this->channels[$channelName])) {
+            if (! isset($this->channels[$channelName])) {
                 Log::warning("Unknown notification channel: {$channelName}");
 
                 continue;
@@ -248,7 +248,7 @@ class NotificationManager
             try {
                 $channel = $this->channels[$channelName];
 
-                if (!$channel->send($user, $notification)) {
+                if (! $channel->send($user, $notification)) {
                     $success = FALSE;
                     Log::error("Failed to send notification via {$channelName}", [
                         'user_id' => $user->id,
@@ -364,7 +364,7 @@ class NotificationManager
             'custom_alert'     => ['count' => 15, 'period' => 3600], // 15 per hour
         ];
 
-        if (!isset($limits[$type])) {
+        if (! isset($limits[$type])) {
             return FALSE;
         }
 
@@ -390,7 +390,7 @@ class NotificationManager
             'custom_alert'     => 3600,
         ];
 
-        if (!isset($limits[$type])) {
+        if (! isset($limits[$type])) {
             return;
         }
 

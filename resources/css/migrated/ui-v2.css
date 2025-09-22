@@ -19,6 +19,7 @@
   display: flex;
   flex-direction: column;
   border-right: 1px solid #e2e8f0;
+  height: 100vh;
 }
 
 .dark .uiv2-sidebar {
@@ -34,8 +35,9 @@
 @media(min-width:1024px) {
   .uiv2-sidebar {
     transform: none;
-    position: sticky;
-    top: 0;
+    position: relative;
+    height: 100vh;
+    flex-shrink: 0;
   }
 }
 
@@ -138,8 +140,7 @@
   align-items: center;
   justify-content: space-between;
   padding: 0 1rem;
-  position: sticky;
-  top: 0;
+  flex-shrink: 0;
   z-index: 30;
 }
 
@@ -150,7 +151,8 @@
 
 .uiv2-main {
   padding: 1.25rem clamp(1rem, 2vw, 2rem);
-  min-height: calc(100vh - 56px);
+  flex: 1;
+  overflow-y: auto;
 }
 
 .uiv2-icon-btn {
@@ -276,10 +278,9 @@
   .uiv2-overlay {
     display: none;
   }
-
-  body {
-    padding-left: var(--uiv2-sidebar-width);
-  }
+  
+  /* Remove global body padding that conflicts with flex layout */
+  /* The flex layout handles sidebar positioning automatically */
 }
 
 .uiv2-action-btn {
@@ -313,6 +314,27 @@
   background: #334155;
   border-color: #475569;
   color: #f1f5f9;
+}
+
+/* Layout utilities */
+.uiv2-content-column {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 100vh;
+  overflow: hidden;
+}
+
+/* Ensure body and html have proper height when using the layout */
+html, body {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+/* Fix for flex layout in body */
+body.min-h-screen {
+  min-height: 100vh;
 }
 
 /* Utility */

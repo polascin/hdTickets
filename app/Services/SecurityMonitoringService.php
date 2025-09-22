@@ -221,7 +221,7 @@ class SecurityMonitoringService
         }
 
         // Device fingerprint anomaly
-        if ($user && !$this->isTrustedDevice($user, $request)) {
+        if ($user && ! $this->isTrustedDevice($user, $request)) {
             $score += 20;
         }
 
@@ -383,7 +383,7 @@ class SecurityMonitoringService
         ];
 
         foreach ($headers as $header) {
-            if (!empty($_SERVER[$header])) {
+            if (! empty($_SERVER[$header])) {
                 $ips = explode(',', (string) $_SERVER[$header]);
 
                 return trim($ips[0]);
@@ -433,7 +433,7 @@ class SecurityMonitoringService
 
     protected function isGeographicAnomaly(User $user, ?array $location): bool
     {
-        if (!$location || !$location['country'] || $location['country'] === 'Unknown') {
+        if (! $location || ! $location['country'] || $location['country'] === 'Unknown') {
             return FALSE;
         }
 
@@ -448,7 +448,7 @@ class SecurityMonitoringService
             ->pluck('country')
             ->unique();
 
-        return $recentLocations->count() > 0 && !$recentLocations->contains($location['country']);
+        return $recentLocations->count() > 0 && ! $recentLocations->contains($location['country']);
     }
 
     protected function isTimeBasedAnomaly(User $user, Carbon $timestamp): bool

@@ -321,7 +321,7 @@ class NotificationService extends BaseService implements NotificationInterface
                 $notificationKey = self::NOTIFICATIONS_PREFIX . 'data:' . $notificationId;
                 $notificationData = Redis::hgetall($notificationKey);
 
-                if (!empty($notificationData)) {
+                if (! empty($notificationData)) {
                     $notifications[] = [
                         'id'         => $notificationId,
                         'type'       => $notificationData['type'] ?? '',

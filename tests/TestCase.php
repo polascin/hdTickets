@@ -32,11 +32,14 @@ abstract class TestCase extends BaseTestCase
     {
         parent::setUp();
 
+        // Configure test environment first
+        $this->configureTestEnvironment();
+
+        // Ensure migrations are run (RefreshDatabase may not always run migrations)
+        $this->artisan('migrate');
+
         // Initialize test data factory
         $this->testDataFactory = new TestDataFactory();
-
-        // Configure test environment
-        $this->configureTestEnvironment();
     }
 
     #[Override]
@@ -55,6 +58,10 @@ abstract class TestCase extends BaseTestCase
     {
         // Disable external API calls during testing
         config(['services.external_apis_enabled' => FALSE]);
+
+        // Configure test-specific database settings
+        config(['database.default' => 'sqlite']);
+        config(['database.connections.sqlite.database' => ':memory:']);
 
         // Configure test-specific settings
         config(['app.debug' => TRUE]);

@@ -46,7 +46,7 @@ class NotificationSystem {
    * Initialize the notification system
    */
   async initializeSystem() {
-    console.log('🔔 Initializing HD Tickets Notification System...');
+    // Initializing HD Tickets Notification System
 
     try {
       // Initialize service worker for push notifications
@@ -69,7 +69,7 @@ class NotificationSystem {
       // Connect to user-specific channels
       this.subscribeToUserChannels();
 
-      console.log('✅ Notification system initialized successfully');
+      // Notification system initialized successfully
       this.showSystemNotification('Notification system activated', 'success');
     } catch (error) {
       console.error('❌ Failed to initialize notification system:', error);
@@ -88,10 +88,10 @@ class NotificationSystem {
       this.serviceWorker = registration;
 
       registration.addEventListener('updatefound', () => {
-        console.log('📥 Service worker update found');
+        // Service worker update found
       });
 
-      console.log('✅ Service worker registered');
+      // Service worker registered
     } catch (error) {
       console.error('❌ Service worker registration failed:', error);
       throw error;
@@ -105,7 +105,7 @@ class NotificationSystem {
     try {
       // Check if Echo is available (loaded from CDN or bundled)
       if (typeof Echo === 'undefined') {
-        console.warn('⚠️ Laravel Echo not found, using fallback polling');
+        // Laravel Echo not found, using fallback polling
         this.initializeFallbackPolling();
         return;
       }
@@ -131,7 +131,7 @@ class NotificationSystem {
       this.echo.connector.pusher.connection.bind('connected', () => {
         this.isConnected = true;
         this.retryCount = 0;
-        console.log('🔗 WebSocket connected');
+        // WebSocket connected
         this.showSystemNotification(
           'Real-time notifications connected',
           'success'
@@ -140,12 +140,12 @@ class NotificationSystem {
 
       this.echo.connector.pusher.connection.bind('disconnected', () => {
         this.isConnected = false;
-        console.log('🔌 WebSocket disconnected');
+        // WebSocket disconnected
         this.handleDisconnection();
       });
 
       this.echo.connector.pusher.connection.bind('error', error => {
-        console.error('🚨 WebSocket error:', error);
+        // WebSocket error occurred
         this.handleConnectionError(error);
       });
     } catch (error) {
@@ -166,7 +166,7 @@ class NotificationSystem {
     const permission = await this.requestNotificationPermission();
 
     if (permission === 'granted') {
-      console.log('✅ Browser notifications enabled');
+      // Browser notifications enabled
       await this.setupPushNotifications();
     } else {
       console.warn('⚠️ Browser notification permission denied');

@@ -18,7 +18,7 @@ class SilverstoneF1Plugin extends BaseScraperPlugin
     #[Override]
     public function scrape(array $criteria): array
     {
-        if (!$this->enabled) {
+        if (! $this->enabled) {
             throw new Exception("{$this->pluginName} plugin is disabled");
         }
 

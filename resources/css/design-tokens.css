@@ -1,0 +1,604 @@
+/**
+ * HD Tickets Design System - Design Tokens
+ * 
+ * Comprehensive design token system with primitive and semantic tokens.
+ * All values use CSS custom properties for maximum flexibility and theming.
+ */
+
+@layer base {
+  :root {
+    /* ================================ */
+    /* PRIMITIVE TOKENS                 */
+    /* ================================ */
+
+    /* Color Primitives */
+    --hdt-gray-50: #f9fafb;
+    --hdt-gray-100: #f3f4f6;
+    --hdt-gray-200: #e5e7eb;
+    --hdt-gray-300: #d1d5db;
+    --hdt-gray-400: #9ca3af;
+    --hdt-gray-500: #6b7280;
+    --hdt-gray-600: #4b5563;
+    --hdt-gray-700: #374151;
+    --hdt-gray-800: #1f2937;
+    --hdt-gray-900: #111827;
+    --hdt-gray-950: #030712;
+
+    --hdt-blue-50: #eff6ff;
+    --hdt-blue-100: #dbeafe;
+    --hdt-blue-200: #bfdbfe;
+    --hdt-blue-300: #93c5fd;
+    --hdt-blue-400: #60a5fa;
+    --hdt-blue-500: #3b82f6;
+    --hdt-blue-600: #2563eb;
+    --hdt-blue-700: #1d4ed8;
+    --hdt-blue-800: #1e40af;
+    --hdt-blue-900: #1e3a8a;
+    --hdt-blue-950: #172554;
+
+    --hdt-green-50: #f0fdf4;
+    --hdt-green-100: #dcfce7;
+    --hdt-green-200: #bbf7d0;
+    --hdt-green-300: #86efac;
+    --hdt-green-400: #4ade80;
+    --hdt-green-500: #22c55e;
+    --hdt-green-600: #16a34a;
+    --hdt-green-700: #15803d;
+    --hdt-green-800: #166534;
+    --hdt-green-900: #14532d;
+    --hdt-green-950: #052e16;
+
+    --hdt-yellow-50: #fefce8;
+    --hdt-yellow-100: #fef3c7;
+    --hdt-yellow-200: #fde68a;
+    --hdt-yellow-300: #fcd34d;
+    --hdt-yellow-400: #fbbf24;
+    --hdt-yellow-500: #f59e0b;
+    --hdt-yellow-600: #d97706;
+    --hdt-yellow-700: #b45309;
+    --hdt-yellow-800: #92400e;
+    --hdt-yellow-900: #78350f;
+    --hdt-yellow-950: #451a03;
+
+    --hdt-red-50: #fef2f2;
+    --hdt-red-100: #fee2e2;
+    --hdt-red-200: #fecaca;
+    --hdt-red-300: #fca5a5;
+    --hdt-red-400: #f87171;
+    --hdt-red-500: #ef4444;
+    --hdt-red-600: #dc2626;
+    --hdt-red-700: #b91c1c;
+    --hdt-red-800: #991b1b;
+    --hdt-red-900: #7f1d1d;
+    --hdt-red-950: #450a0a;
+
+    --hdt-purple-50: #faf5ff;
+    --hdt-purple-100: #f3e8ff;
+    --hdt-purple-200: #e9d5ff;
+    --hdt-purple-300: #d8b4fe;
+    --hdt-purple-400: #c084fc;
+    --hdt-purple-500: #a855f7;
+    --hdt-purple-600: #9333ea;
+    --hdt-purple-700: #7c3aed;
+    --hdt-purple-800: #6b21a8;
+    --hdt-purple-900: #581c87;
+    --hdt-purple-950: #3b0764;
+
+    --hdt-cyan-50: #ecfeff;
+    --hdt-cyan-100: #cffafe;
+    --hdt-cyan-200: #a5f3fc;
+    --hdt-cyan-300: #67e8f9;
+    --hdt-cyan-400: #22d3ee;
+    --hdt-cyan-500: #06b6d4;
+    --hdt-cyan-600: #0891b2;
+    --hdt-cyan-700: #0e7490;
+    --hdt-cyan-800: #155e75;
+    --hdt-cyan-900: #164e63;
+    --hdt-cyan-950: #083344;
+
+    /* Typography Primitives */
+    --hdt-font-family-sans: ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+    --hdt-font-family-serif: ui-serif, Georgia, Cambria, "Times New Roman", Times, serif;
+    --hdt-font-family-mono: ui-monospace, SFMono-Regular, "SF Mono", Consolas, "Liberation Mono", Menlo, monospace;
+
+    --hdt-font-weight-thin: 100;
+    --hdt-font-weight-extralight: 200;
+    --hdt-font-weight-light: 300;
+    --hdt-font-weight-normal: 400;
+    --hdt-font-weight-medium: 500;
+    --hdt-font-weight-semibold: 600;
+    --hdt-font-weight-bold: 700;
+    --hdt-font-weight-extrabold: 800;
+    --hdt-font-weight-black: 900;
+
+    /* Fluid Typography Scale using clamp() */
+    --hdt-font-size-xs: clamp(0.75rem, 0.7rem + 0.25vw, 0.875rem);
+    --hdt-font-size-sm: clamp(0.875rem, 0.8rem + 0.375vw, 1rem);
+    --hdt-font-size-base: clamp(1rem, 0.9rem + 0.5vw, 1.125rem);
+    --hdt-font-size-lg: clamp(1.125rem, 1rem + 0.625vw, 1.25rem);
+    --hdt-font-size-xl: clamp(1.25rem, 1.1rem + 0.75vw, 1.5rem);
+    --hdt-font-size-2xl: clamp(1.5rem, 1.3rem + 1vw, 1.875rem);
+    --hdt-font-size-3xl: clamp(1.875rem, 1.6rem + 1.375vw, 2.25rem);
+    --hdt-font-size-4xl: clamp(2.25rem, 1.9rem + 1.75vw, 3rem);
+    --hdt-font-size-5xl: clamp(3rem, 2.5rem + 2.5vw, 4rem);
+    --hdt-font-size-6xl: clamp(3.75rem, 3rem + 3.75vw, 5rem);
+
+    /* Line Heights */
+    --hdt-line-height-none: 1;
+    --hdt-line-height-tight: 1.25;
+    --hdt-line-height-snug: 1.375;
+    --hdt-line-height-normal: 1.5;
+    --hdt-line-height-relaxed: 1.625;
+    --hdt-line-height-loose: 2;
+
+    /* Spacing - 8px baseline grid with logical scale */
+    --hdt-spacing-px: 1px;
+    --hdt-spacing-0: 0px;
+    --hdt-spacing-0-5: 0.125rem; /* 2px */
+    --hdt-spacing-1: 0.25rem;    /* 4px */
+    --hdt-spacing-1-5: 0.375rem; /* 6px */
+    --hdt-spacing-2: 0.5rem;     /* 8px */
+    --hdt-spacing-2-5: 0.625rem; /* 10px */
+    --hdt-spacing-3: 0.75rem;    /* 12px */
+    --hdt-spacing-3-5: 0.875rem; /* 14px */
+    --hdt-spacing-4: 1rem;       /* 16px */
+    --hdt-spacing-5: 1.25rem;    /* 20px */
+    --hdt-spacing-6: 1.5rem;     /* 24px */
+    --hdt-spacing-7: 1.75rem;    /* 28px */
+    --hdt-spacing-8: 2rem;       /* 32px */
+    --hdt-spacing-9: 2.25rem;    /* 36px */
+    --hdt-spacing-10: 2.5rem;    /* 40px */
+    --hdt-spacing-11: 2.75rem;   /* 44px */
+    --hdt-spacing-12: 3rem;      /* 48px */
+    --hdt-spacing-14: 3.5rem;    /* 56px */
+    --hdt-spacing-16: 4rem;      /* 64px */
+    --hdt-spacing-20: 5rem;      /* 80px */
+    --hdt-spacing-24: 6rem;      /* 96px */
+    --hdt-spacing-28: 7rem;      /* 112px */
+    --hdt-spacing-32: 8rem;      /* 128px */
+
+    /* Border Radius */
+    --hdt-radius-none: 0px;
+    --hdt-radius-sm: 0.125rem;   /* 2px */
+    --hdt-radius-base: 0.25rem;  /* 4px */
+    --hdt-radius-md: 0.375rem;   /* 6px */
+    --hdt-radius-lg: 0.5rem;     /* 8px */
+    --hdt-radius-xl: 0.75rem;    /* 12px */
+    --hdt-radius-2xl: 1rem;      /* 16px */
+    --hdt-radius-3xl: 1.5rem;    /* 24px */
+    --hdt-radius-full: 9999px;
+
+    /* Elevation Shadows */
+    --hdt-shadow-xs: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+    --hdt-shadow-sm: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
+    --hdt-shadow-base: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+    --hdt-shadow-md: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+    --hdt-shadow-lg: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
+    --hdt-shadow-xl: 0 25px 50px -12px rgb(0 0 0 / 0.25);
+    --hdt-shadow-2xl: 0 50px 100px -20px rgb(0 0 0 / 0.25);
+    --hdt-shadow-inner: inset 0 2px 4px 0 rgb(0 0 0 / 0.05);
+
+    /* Motion & Transitions */
+    --hdt-duration-75: 75ms;
+    --hdt-duration-100: 100ms;
+    --hdt-duration-150: 150ms;
+    --hdt-duration-200: 200ms;
+    --hdt-duration-300: 300ms;
+    --hdt-duration-500: 500ms;
+    --hdt-duration-700: 700ms;
+    --hdt-duration-1000: 1000ms;
+
+    --hdt-ease-linear: linear;
+    --hdt-ease-in: cubic-bezier(0.4, 0, 1, 1);
+    --hdt-ease-out: cubic-bezier(0, 0, 0.2, 1);
+    --hdt-ease-in-out: cubic-bezier(0.4, 0, 0.2, 1);
+
+    /* ================================ */
+    /* SEMANTIC TOKENS (LIGHT THEME)   */
+    /* ================================ */
+
+    /* Brand Colors */
+    --hdt-color-primary-50: var(--hdt-blue-50);
+    --hdt-color-primary-100: var(--hdt-blue-100);
+    --hdt-color-primary-200: var(--hdt-blue-200);
+    --hdt-color-primary-300: var(--hdt-blue-300);
+    --hdt-color-primary-400: var(--hdt-blue-400);
+    --hdt-color-primary-500: var(--hdt-blue-500);
+    --hdt-color-primary-600: var(--hdt-blue-600);
+    --hdt-color-primary-700: var(--hdt-blue-700);
+    --hdt-color-primary-800: var(--hdt-blue-800);
+    --hdt-color-primary-900: var(--hdt-blue-900);
+    --hdt-color-primary-950: var(--hdt-blue-950);
+
+    --hdt-color-secondary-50: var(--hdt-cyan-50);
+    --hdt-color-secondary-100: var(--hdt-cyan-100);
+    --hdt-color-secondary-200: var(--hdt-cyan-200);
+    --hdt-color-secondary-300: var(--hdt-cyan-300);
+    --hdt-color-secondary-400: var(--hdt-cyan-400);
+    --hdt-color-secondary-500: var(--hdt-cyan-500);
+    --hdt-color-secondary-600: var(--hdt-cyan-600);
+    --hdt-color-secondary-700: var(--hdt-cyan-700);
+    --hdt-color-secondary-800: var(--hdt-cyan-800);
+    --hdt-color-secondary-900: var(--hdt-cyan-900);
+    --hdt-color-secondary-950: var(--hdt-cyan-950);
+
+    /* Status Colors */
+    --hdt-color-success-50: var(--hdt-green-50);
+    --hdt-color-success-100: var(--hdt-green-100);
+    --hdt-color-success-200: var(--hdt-green-200);
+    --hdt-color-success-300: var(--hdt-green-300);
+    --hdt-color-success-400: var(--hdt-green-400);
+    --hdt-color-success-500: var(--hdt-green-500);
+    --hdt-color-success-600: var(--hdt-green-600);
+    --hdt-color-success-700: var(--hdt-green-700);
+    --hdt-color-success-800: var(--hdt-green-800);
+    --hdt-color-success-900: var(--hdt-green-900);
+    --hdt-color-success-950: var(--hdt-green-950);
+
+    --hdt-color-warning-50: var(--hdt-yellow-50);
+    --hdt-color-warning-100: var(--hdt-yellow-100);
+    --hdt-color-warning-200: var(--hdt-yellow-200);
+    --hdt-color-warning-300: var(--hdt-yellow-300);
+    --hdt-color-warning-400: var(--hdt-yellow-400);
+    --hdt-color-warning-500: var(--hdt-yellow-500);
+    --hdt-color-warning-600: var(--hdt-yellow-600);
+    --hdt-color-warning-700: var(--hdt-yellow-700);
+    --hdt-color-warning-800: var(--hdt-yellow-800);
+    --hdt-color-warning-900: var(--hdt-yellow-900);
+    --hdt-color-warning-950: var(--hdt-yellow-950);
+
+    --hdt-color-danger-50: var(--hdt-red-50);
+    --hdt-color-danger-100: var(--hdt-red-100);
+    --hdt-color-danger-200: var(--hdt-red-200);
+    --hdt-color-danger-300: var(--hdt-red-300);
+    --hdt-color-danger-400: var(--hdt-red-400);
+    --hdt-color-danger-500: var(--hdt-red-500);
+    --hdt-color-danger-600: var(--hdt-red-600);
+    --hdt-color-danger-700: var(--hdt-red-700);
+    --hdt-color-danger-800: var(--hdt-red-800);
+    --hdt-color-danger-900: var(--hdt-red-900);
+    --hdt-color-danger-950: var(--hdt-red-950);
+
+    --hdt-color-info-50: var(--hdt-blue-50);
+    --hdt-color-info-100: var(--hdt-blue-100);
+    --hdt-color-info-200: var(--hdt-blue-200);
+    --hdt-color-info-300: var(--hdt-blue-300);
+    --hdt-color-info-400: var(--hdt-blue-400);
+    --hdt-color-info-500: var(--hdt-blue-500);
+    --hdt-color-info-600: var(--hdt-blue-600);
+    --hdt-color-info-700: var(--hdt-blue-700);
+    --hdt-color-info-800: var(--hdt-blue-800);
+    --hdt-color-info-900: var(--hdt-blue-900);
+    --hdt-color-info-950: var(--hdt-blue-950);
+
+    /* Surface Colors (Light Theme) */
+    --hdt-color-surface-primary: var(--hdt-gray-50);   /* Page background */
+    --hdt-color-surface-secondary: #ffffff;             /* Card, panel background */
+    --hdt-color-surface-tertiary: var(--hdt-gray-100); /* Subtle backgrounds */
+    --hdt-color-surface-inverse: var(--hdt-gray-900);  /* Dark surfaces */
+
+    /* Border Colors */
+    --hdt-color-border-primary: var(--hdt-gray-200);   /* Default borders */
+    --hdt-color-border-secondary: var(--hdt-gray-300); /* Emphasized borders */
+    --hdt-color-border-tertiary: var(--hdt-gray-400);  /* Strong borders */
+    --hdt-color-border-inverse: var(--hdt-gray-600);   /* Dark theme borders */
+
+    /* Text Colors */
+    --hdt-color-text-primary: var(--hdt-gray-900);     /* Headings, primary text */
+    --hdt-color-text-secondary: var(--hdt-gray-700);   /* Secondary text */
+    --hdt-color-text-tertiary: var(--hdt-gray-600);    /* Muted text */
+    --hdt-color-text-quaternary: var(--hdt-gray-500);  /* Placeholder, disabled */
+    --hdt-color-text-inverse: var(--hdt-gray-50);      /* Light text on dark */
+
+    /* Role-specific Accent Colors (Light Theme) */
+    --hdt-color-admin-primary: var(--hdt-purple-600);
+    --hdt-color-admin-secondary: var(--hdt-blue-600);
+    --hdt-color-admin-surface: var(--hdt-purple-50);
+
+    --hdt-color-agent-primary: var(--hdt-cyan-600);
+    --hdt-color-agent-secondary: var(--hdt-blue-600);
+    --hdt-color-agent-surface: var(--hdt-cyan-50);
+
+    --hdt-color-customer-primary: var(--hdt-green-600);
+    --hdt-color-customer-secondary: var(--hdt-blue-600);
+    --hdt-color-customer-surface: var(--hdt-green-50);
+
+    --hdt-color-scraper-primary: var(--hdt-yellow-600);
+    --hdt-color-scraper-secondary: var(--hdt-gray-600);
+    --hdt-color-scraper-surface: var(--hdt-yellow-50);
+
+    /* Status Indicators */
+    --hdt-color-status-online: var(--hdt-green-500);
+    --hdt-color-status-offline: var(--hdt-gray-400);
+    --hdt-color-status-pending: var(--hdt-yellow-500);
+    --hdt-color-status-error: var(--hdt-red-500);
+
+    /* Interactive States */
+    --hdt-color-focus: var(--hdt-blue-500);
+    --hdt-color-focus-ring: var(--hdt-blue-500);
+
+    /* Motion Preferences */
+    --hdt-motion-reduce: no-preference;
+  }
+
+  /* Dark Theme Overrides */
+  .dark {
+    /* Surface Colors (Dark Theme) */
+    --hdt-color-surface-primary: var(--hdt-gray-900);   /* Page background */
+    --hdt-color-surface-secondary: var(--hdt-gray-800); /* Card, panel background */
+    --hdt-color-surface-tertiary: var(--hdt-gray-700);  /* Subtle backgrounds */
+    --hdt-color-surface-inverse: var(--hdt-gray-50);    /* Light surfaces */
+
+    /* Border Colors (Dark Theme) */
+    --hdt-color-border-primary: var(--hdt-gray-700);    /* Default borders */
+    --hdt-color-border-secondary: var(--hdt-gray-600);  /* Emphasized borders */
+    --hdt-color-border-tertiary: var(--hdt-gray-500);   /* Strong borders */
+    --hdt-color-border-inverse: var(--hdt-gray-300);    /* Light theme borders */
+
+    /* Text Colors (Dark Theme) */
+    --hdt-color-text-primary: var(--hdt-gray-50);       /* Headings, primary text */
+    --hdt-color-text-secondary: var(--hdt-gray-300);    /* Secondary text */
+    --hdt-color-text-tertiary: var(--hdt-gray-400);     /* Muted text */
+    --hdt-color-text-quaternary: var(--hdt-gray-500);   /* Placeholder, disabled */
+    --hdt-color-text-inverse: var(--hdt-gray-900);      /* Dark text on light */
+
+    /* Role-specific Accent Colors (Dark Theme) */
+    --hdt-color-admin-primary: var(--hdt-purple-400);
+    --hdt-color-admin-secondary: var(--hdt-blue-400);
+    --hdt-color-admin-surface: var(--hdt-purple-900);
+
+    --hdt-color-agent-primary: var(--hdt-cyan-400);
+    --hdt-color-agent-secondary: var(--hdt-blue-400);
+    --hdt-color-agent-surface: var(--hdt-cyan-900);
+
+    --hdt-color-customer-primary: var(--hdt-green-400);
+    --hdt-color-customer-secondary: var(--hdt-blue-400);
+    --hdt-color-customer-surface: var(--hdt-green-900);
+
+    --hdt-color-scraper-primary: var(--hdt-yellow-400);
+    --hdt-color-scraper-secondary: var(--hdt-gray-400);
+    --hdt-color-scraper-surface: var(--hdt-yellow-900);
+  }
+
+  /* Reduced Motion Override */
+  @media (prefers-reduced-motion: reduce) {
+    :root {
+      --hdt-motion-reduce: reduce;
+      --hdt-duration-75: 0ms;
+      --hdt-duration-100: 0ms;
+      --hdt-duration-150: 0ms;
+      --hdt-duration-200: 0ms;
+      --hdt-duration-300: 0ms;
+      --hdt-duration-500: 0ms;
+      --hdt-duration-700: 0ms;
+      --hdt-duration-1000: 0ms;
+    }
+  }
+
+  /* ================================ */
+  /* ROLE LAYOUT CLASSES             */
+  /* ================================ */
+
+  /* Admin Layout */
+  .admin-layout {
+    --hdt-role-primary: var(--hdt-color-admin-primary);
+    --hdt-role-secondary: var(--hdt-color-admin-secondary);
+    --hdt-role-surface: var(--hdt-color-admin-surface);
+  }
+
+  /* Agent Layout */
+  .agent-layout {
+    --hdt-role-primary: var(--hdt-color-agent-primary);
+    --hdt-role-secondary: var(--hdt-color-agent-secondary);
+    --hdt-role-surface: var(--hdt-color-agent-surface);
+  }
+
+  /* Customer Layout */
+  .customer-layout {
+    --hdt-role-primary: var(--hdt-color-customer-primary);
+    --hdt-role-secondary: var(--hdt-color-customer-secondary);
+    --hdt-role-surface: var(--hdt-color-customer-surface);
+  }
+
+  /* Scraper Layout */
+  .scraper-layout {
+    --hdt-role-primary: var(--hdt-color-scraper-primary);
+    --hdt-role-secondary: var(--hdt-color-scraper-secondary);
+    --hdt-role-surface: var(--hdt-color-scraper-surface);
+  }
+
+  /* ================================ */
+  /* GLOBAL BASE STYLES              */
+  /* ================================ */
+
+  * {
+    border-color: var(--hdt-color-border-primary);
+  }
+
+  body {
+    font-family: var(--hdt-font-family-sans);
+    background-color: var(--hdt-color-surface-primary);
+    color: var(--hdt-color-text-primary);
+    line-height: var(--hdt-line-height-normal);
+  }
+
+  /* Focus styles for accessibility */
+  :focus-visible {
+    outline: 2px solid var(--hdt-color-focus-ring);
+    outline-offset: 2px;
+  }
+
+  /* Smooth transitions for theme changes (respect reduced motion) */
+  *,
+  *::before,
+  *::after {
+    transition-property: color, background-color, border-color, text-decoration-color, fill, stroke;
+    transition-timing-function: var(--hdt-ease-in-out);
+    transition-duration: var(--hdt-duration-150);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      transition: none !important;
+      animation: none !important;
+    }
+  }
+}
+
+/* ================================ */
+/* UTILITY CLASSES FOR TOKENS      */
+/* ================================ */
+
+@layer utilities {
+  /* Spacing Utilities */
+  .hdt-spacing-responsive {
+    padding: var(--hdt-spacing-4);
+  }
+
+  @media (min-width: 768px) {
+    .hdt-spacing-responsive {
+      padding: var(--hdt-spacing-6);
+    }
+  }
+
+  @media (min-width: 1024px) {
+    .hdt-spacing-responsive {
+      padding: var(--hdt-spacing-8);
+    }
+  }
+
+  /* Typography Utilities */
+  .hdt-heading-xl {
+    font-size: var(--hdt-font-size-4xl);
+    font-weight: var(--hdt-font-weight-bold);
+    line-height: var(--hdt-line-height-tight);
+    color: var(--hdt-color-text-primary);
+  }
+
+  .hdt-heading-lg {
+    font-size: var(--hdt-font-size-3xl);
+    font-weight: var(--hdt-font-weight-bold);
+    line-height: var(--hdt-line-height-tight);
+    color: var(--hdt-color-text-primary);
+  }
+
+  .hdt-heading-md {
+    font-size: var(--hdt-font-size-2xl);
+    font-weight: var(--hdt-font-weight-semibold);
+    line-height: var(--hdt-line-height-snug);
+    color: var(--hdt-color-text-primary);
+  }
+
+  .hdt-heading-sm {
+    font-size: var(--hdt-font-size-xl);
+    font-weight: var(--hdt-font-weight-semibold);
+    line-height: var(--hdt-line-height-snug);
+    color: var(--hdt-color-text-primary);
+  }
+
+  .hdt-body-lg {
+    font-size: var(--hdt-font-size-lg);
+    line-height: var(--hdt-line-height-relaxed);
+    color: var(--hdt-color-text-secondary);
+  }
+
+  .hdt-body-base {
+    font-size: var(--hdt-font-size-base);
+    line-height: var(--hdt-line-height-normal);
+    color: var(--hdt-color-text-secondary);
+  }
+
+  .hdt-body-sm {
+    font-size: var(--hdt-font-size-sm);
+    line-height: var(--hdt-line-height-normal);
+    color: var(--hdt-color-text-tertiary);
+  }
+
+  .hdt-caption {
+    font-size: var(--hdt-font-size-xs);
+    line-height: var(--hdt-line-height-snug);
+    color: var(--hdt-color-text-quaternary);
+  }
+
+  /* Role Color Utilities */
+  .hdt-role-primary {
+    color: var(--hdt-role-primary);
+  }
+
+  .hdt-bg-role-primary {
+    background-color: var(--hdt-role-primary);
+  }
+
+  .hdt-border-role-primary {
+    border-color: var(--hdt-role-primary);
+  }
+
+  .hdt-role-secondary {
+    color: var(--hdt-role-secondary);
+  }
+
+  .hdt-bg-role-secondary {
+    background-color: var(--hdt-role-secondary);
+  }
+
+  .hdt-border-role-secondary {
+    border-color: var(--hdt-role-secondary);
+  }
+
+  .hdt-bg-role-surface {
+    background-color: var(--hdt-role-surface);
+  }
+
+  /* Surface Utilities */
+  .hdt-surface-primary {
+    background-color: var(--hdt-color-surface-primary);
+  }
+
+  .hdt-surface-secondary {
+    background-color: var(--hdt-color-surface-secondary);
+  }
+
+  .hdt-surface-tertiary {
+    background-color: var(--hdt-color-surface-tertiary);
+  }
+
+  /* Status Utilities */
+  .hdt-status-online {
+    color: var(--hdt-color-status-online);
+  }
+
+  .hdt-status-offline {
+    color: var(--hdt-color-status-offline);
+  }
+
+  .hdt-status-pending {
+    color: var(--hdt-color-status-pending);
+  }
+
+  .hdt-status-error {
+    color: var(--hdt-color-status-error);
+  }
+
+  /* Interactive States */
+  .hdt-focus-ring {
+    outline: 2px solid var(--hdt-color-focus-ring);
+    outline-offset: 2px;
+  }
+
+  /* Motion Utilities */
+  .hdt-transition {
+    transition-property: color, background-color, border-color, text-decoration-color, fill, stroke, opacity, box-shadow, transform, filter, backdrop-filter;
+    transition-timing-function: var(--hdt-ease-in-out);
+    transition-duration: var(--hdt-duration-150);
+  }
+
+  .hdt-transition-fast {
+    transition-duration: var(--hdt-duration-100);
+  }
+
+  .hdt-transition-slow {
+    transition-duration: var(--hdt-duration-300);
+  }
+}

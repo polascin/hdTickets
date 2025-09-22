@@ -7,10 +7,10 @@ use Illuminate\Support\Facades\Schema;
 return new class() extends Migration {
     public function up(): void
     {
-        if (!Schema::hasTable('tickets')) {
+        if (! Schema::hasTable('tickets')) {
             return;
         }
-        if (!Schema::hasColumn('tickets', 'available_quantity')) {
+        if (! Schema::hasColumn('tickets', 'available_quantity')) {
             Schema::table('tickets', function (Blueprint $table): void {
                 $table->unsignedInteger('available_quantity')->nullable()->after('currency');
             });

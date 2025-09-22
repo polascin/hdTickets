@@ -55,7 +55,7 @@ class InputValidationService
             return array_map($this->sanitizeInput(...), $data);
         }
 
-        if (!is_string($data)) {
+        if (! is_string($data)) {
             return $data;
         }
 
@@ -293,7 +293,7 @@ class InputValidationService
             return;
         }
 
-        if (!is_string($data)) {
+        if (! is_string($data)) {
             return;
         }
 

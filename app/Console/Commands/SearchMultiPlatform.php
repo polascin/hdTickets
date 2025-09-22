@@ -82,7 +82,7 @@ class SearchMultiPlatform extends Command
             $this->displaySearchResults($results);
 
             // Handle deduplication if requested
-            if ($deduplicate && !empty($results['normalized_events'])) {
+            if ($deduplicate && ! empty($results['normalized_events'])) {
                 $this->info("\nPerforming deduplication...");
                 $dedupResults = $multiPlatformManager->deduplicateEvents($results['normalized_events']);
                 $this->displayDeduplicationResults($dedupResults);
@@ -151,7 +151,7 @@ class SearchMultiPlatform extends Command
         $this->table($platformHeaders, $platformRows);
 
         // Display sample events
-        if (!empty($results['normalized_events'])) {
+        if (! empty($results['normalized_events'])) {
             $this->info("\nSample Events (showing first 5):");
 
             $eventHeaders = ['Name', 'Date', 'Venue', 'City', 'Platform', 'Price Range'];
@@ -196,7 +196,7 @@ class SearchMultiPlatform extends Command
         $this->info("After deduplication: {$dedupResults['deduplicated_count']}");
         $this->info("Duplicates removed: {$dedupResults['duplicates_removed']}");
 
-        if (!empty($dedupResults['duplicate_groups'])) {
+        if (! empty($dedupResults['duplicate_groups'])) {
             $this->info('Found ' . count($dedupResults['duplicate_groups']) . ' duplicate groups:');
 
             foreach ($dedupResults['duplicate_groups'] as $groupIndex => $group) {

@@ -96,7 +96,7 @@ class SyncService
 
         try {
             foreach ($priceUpdates as $update) {
-                if (!isset($update['ticket_id'], $update['new_price'])) {
+                if (! isset($update['ticket_id'], $update['new_price'])) {
                     continue;
                 }
 

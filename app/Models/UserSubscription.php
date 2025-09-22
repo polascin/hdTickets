@@ -132,7 +132,7 @@ class UserSubscription extends Model
             return FALSE;
         }
 
-        return !($this->ends_at && $this->ends_at->isPast());
+        return ! ($this->ends_at && $this->ends_at->isPast());
     }
 
     /**
@@ -210,12 +210,12 @@ class UserSubscription extends Model
         $this->status = 'active';
 
         // Set start date if not already set
-        if (!$this->starts_at) {
+        if (! $this->starts_at) {
             $this->starts_at = now();
         }
 
         // Calculate end date based on billing cycle
-        if ($this->paymentPlan && !$this->ends_at) {
+        if ($this->paymentPlan && ! $this->ends_at) {
             switch ($this->paymentPlan->billing_cycle) {
                 case 'monthly':
                     $this->ends_at = $this->starts_at->copy()->addMonth();
@@ -256,7 +256,7 @@ class UserSubscription extends Model
     protected function daysRemaining(): Attribute
     {
         return Attribute::make(get: function () {
-            if (!$this->ends_at) {
+            if (! $this->ends_at) {
                 return; // Unlimited
             }
             $days = now()->diffInDays($this->ends_at, FALSE);
@@ -271,7 +271,7 @@ class UserSubscription extends Model
     protected function trialDaysRemaining(): Attribute
     {
         return Attribute::make(get: function () {
-            if (!$this->trial_ends_at) {
+            if (! $this->trial_ends_at) {
                 return;
             }
             $days = now()->diffInDays($this->trial_ends_at, FALSE);

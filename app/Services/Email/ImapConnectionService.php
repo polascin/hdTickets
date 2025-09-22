@@ -52,7 +52,7 @@ class ImapConnectionService
     {
         $connection ??= $this->config['default'];
 
-        if (!isset($this->config['connections'][$connection])) {
+        if (! isset($this->config['connections'][$connection])) {
             throw new RuntimeException("IMAP connection '{$connection}' not configured");
         }
 
@@ -162,7 +162,7 @@ class ImapConnectionService
     {
         $connection ??= $this->config['default'];
 
-        if (!isset($this->connections[$connection])) {
+        if (! isset($this->connections[$connection])) {
             return TRUE;
         }
 
@@ -199,7 +199,7 @@ class ImapConnectionService
         $success = TRUE;
 
         foreach (array_keys($this->connections) as $connection) {
-            if (!$this->closeConnection($connection)) {
+            if (! $this->closeConnection($connection)) {
                 $success = FALSE;
             }
         }
@@ -277,7 +277,7 @@ class ImapConnectionService
     public function cleanupConnections(): void
     {
         foreach ($this->connections as $name => $connection) {
-            if (!$this->isConnectionActive($connection)) {
+            if (! $this->isConnectionActive($connection)) {
                 unset($this->connections[$name]);
 
                 Log::channel($this->config['logging']['channel'])
@@ -407,14 +407,14 @@ class ImapConnectionService
             $connectionString .= "/{$encryption}";
         }
 
-        if (!$validateCert) {
+        if (! $validateCert) {
             $connectionString .= '/novalidate-cert';
         }
 
         // Security settings
         $security = $this->config['security'] ?? [];
 
-        if (!($security['verify_peer'] ?? TRUE)) {
+        if (! ($security['verify_peer'] ?? TRUE)) {
             $connectionString .= '/novalidate-cert';
         }
 
@@ -432,7 +432,7 @@ class ImapConnectionService
      */
     private function isConnectionActive($connection): bool
     {
-        if (!is_resource($connection)) {
+        if (! is_resource($connection)) {
             return FALSE;
         }
 
@@ -498,7 +498,7 @@ class ImapConnectionService
      */
     private function cacheConnectionInfo(string $connection, Connection $imapConnection): void
     {
-        if (!$this->config['cache']['enabled']) {
+        if (! $this->config['cache']['enabled']) {
             return;
         }
 

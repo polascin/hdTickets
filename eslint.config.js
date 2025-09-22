@@ -18,7 +18,7 @@ export default [
         Pusher: "readonly",
         Chart: "readonly",
 
-        // Browser globals
+        // Browser APIs
         window: "readonly",
         document: "readonly",
         console: "readonly",
@@ -32,10 +32,49 @@ export default [
         fetch: "readonly",
         Notification: "readonly",
         CustomEvent: "readonly",
+        location: "readonly",
+        history: "readonly",
+        URL: "readonly",
+        URLSearchParams: "readonly",
+        FormData: "readonly",
+        FileReader: "readonly",
+        Image: "readonly",
+        Audio: "readonly",
+        Blob: "readonly",
+        Event: "readonly",
+        EventTarget: "readonly",
+        Node: "readonly",
+        HTMLElement: "readonly",
+        confirm: "readonly",
+        alert: "readonly",
+        btoa: "readonly",
+        atob: "readonly",
+        getComputedStyle: "readonly",
+        CSS: "readonly",
+        caches: "readonly",
+        indexedDB: "readonly",
+        scrollY: "readonly",
+
+        // Animation and observation APIs
+        requestAnimationFrame: "readonly",
+        cancelAnimationFrame: "readonly",
+        MutationObserver: "readonly",
+        ResizeObserver: "readonly",
         IntersectionObserver: "readonly",
         PerformanceObserver: "readonly",
         performance: "readonly",
         screen: "readonly",
+        AbortController: "readonly",
+        WebSocket: "readonly",
+        CSSRule: "readonly",
+
+        // Third-party libraries (loaded via CDN/script tags)
+        d3: "readonly",
+        React: "readonly",
+        ReactDOM: "readonly",
+        $: "readonly",
+        Cropper: "readonly",
+        result: "readonly",
 
         // Google Analytics
         gtag: "readonly",

@@ -48,7 +48,7 @@ class EloquentSportsEventRepository implements SportsEventRepositoryInterface
     {
         $model = ScrapedTicket::where('external_id', $id->value())->first();
 
-        if (!$model) {
+        if (! $model) {
             return NULL;
         }
 
@@ -62,7 +62,7 @@ class EloquentSportsEventRepository implements SportsEventRepositoryInterface
     {
         $model = ScrapedTicket::where('event_name', $name)->first();
 
-        if (!$model) {
+        if (! $model) {
             return NULL;
         }
 

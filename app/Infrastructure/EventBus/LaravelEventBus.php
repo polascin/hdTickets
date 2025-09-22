@@ -93,7 +93,7 @@ class LaravelEventBus implements EventBusInterface
      */
     public function subscribe(string $eventType, callable $handler): void
     {
-        if (!isset($this->handlers[$eventType])) {
+        if (! isset($this->handlers[$eventType])) {
             $this->handlers[$eventType] = [];
         }
 
@@ -105,7 +105,7 @@ class LaravelEventBus implements EventBusInterface
      */
     public function unsubscribe(string $eventType, callable $handler): void
     {
-        if (!isset($this->handlers[$eventType])) {
+        if (! isset($this->handlers[$eventType])) {
             return;
         }
 
@@ -132,7 +132,7 @@ class LaravelEventBus implements EventBusInterface
      */
     public function hasHandlers(string $eventType): bool
     {
-        return isset($this->handlers[$eventType]) && !empty($this->handlers[$eventType]);
+        return isset($this->handlers[$eventType]) && ! empty($this->handlers[$eventType]);
     }
 
     /**

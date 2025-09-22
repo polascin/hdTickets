@@ -92,7 +92,7 @@ class AdvancedRBACService
     {
         $role = Role::where('name', $roleName)->first();
 
-        if (!$role) {
+        if (! $role) {
             throw new InvalidArgumentException("Role '{$roleName}' not found");
         }
 
@@ -128,7 +128,7 @@ class AdvancedRBACService
     {
         $role = Role::where('name', $roleName)->first();
 
-        if (!$role) {
+        if (! $role) {
             return FALSE;
         }
 
@@ -155,7 +155,7 @@ class AdvancedRBACService
     {
         $permissionModel = Permission::where('name', $permission)->first();
 
-        if (!$permissionModel) {
+        if (! $permissionModel) {
             throw new InvalidArgumentException("Permission '{$permission}' not found");
         }
 
@@ -205,7 +205,7 @@ class AdvancedRBACService
     {
         $permissionModel = Permission::where('name', $permission)->first();
 
-        if (!$permissionModel) {
+        if (! $permissionModel) {
             return FALSE;
         }
 
@@ -241,7 +241,7 @@ class AdvancedRBACService
 
             // Direct permissions
             $directQuery = $user->userPermissions()->with('permission');
-            if (!$includeExpired) {
+            if (! $includeExpired) {
                 $directQuery->where(function ($query): void {
                     $query->whereNull('expires_at')->orWhere('expires_at', '>', now());
                 });
@@ -259,7 +259,7 @@ class AdvancedRBACService
 
             // Role-based permissions
             foreach ($user->roles as $role) {
-                if (!$includeExpired && $role->pivot->expires_at && $role->pivot->expires_at < now()) {
+                if (! $includeExpired && $role->pivot->expires_at && $role->pivot->expires_at < now()) {
                     continue;
                 }
 
@@ -415,7 +415,7 @@ class AdvancedRBACService
         // Prevent circular inheritance
         $inheritedRoles = $this->getInheritedRoles($inheritFrom);
 
-        return !in_array($roleName, $inheritedRoles, TRUE) && $roleName !== $inheritFrom;
+        return ! in_array($roleName, $inheritedRoles, TRUE) && $roleName !== $inheritFrom;
     }
 
     /**

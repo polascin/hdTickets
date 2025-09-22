@@ -63,7 +63,7 @@ class MonitorEventsCommand extends Command
             $this->showProjectionStatus();
         }
 
-        if (!$stats && !$failures && !$projections) {
+        if (! $stats && ! $failures && ! $projections) {
             $this->showOverview();
         }
 
@@ -226,7 +226,7 @@ class MonitorEventsCommand extends Command
         $this->newLine();
         $this->line("Total Unresolved Failures: {$totalFailures}");
 
-        if (!$failuresByType->isEmpty()) {
+        if (! $failuresByType->isEmpty()) {
             $this->newLine();
             $this->line('Failures by Type:');
             foreach ($failuresByType as $row) {

@@ -76,7 +76,7 @@ class TicketPolicy
 
         // Customers can update their own tickets if they're not closed
         if ($user->id === $ticket->user_id) {
-            return !$ticket->isClosed();
+            return ! $ticket->isClosed();
         }
 
         return FALSE;

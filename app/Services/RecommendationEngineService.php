@@ -662,15 +662,15 @@ class RecommendationEngineService
             ->where('status', 'active')
             ->where('event_date', '>', now());
 
-        if (!empty($filters['sports'])) {
+        if (! empty($filters['sports'])) {
             $query->whereIn('sport', $filters['sports']);
         }
 
-        if (!empty($filters['location'])) {
+        if (! empty($filters['location'])) {
             $query->where('location', 'like', '%' . $filters['location'] . '%');
         }
 
-        if (!empty($filters['max_price'])) {
+        if (! empty($filters['max_price'])) {
             $query->where('price', '<=', $filters['max_price']);
         }
 
@@ -687,11 +687,11 @@ class RecommendationEngineService
 
         $preferenceQuery = clone $query;
 
-        if (!empty($favoriteSports)) {
+        if (! empty($favoriteSports)) {
             $preferenceQuery->whereIn('sport', $favoriteSports);
         }
 
-        if (!empty($locationPrefs['primary_city'])) {
+        if (! empty($locationPrefs['primary_city'])) {
             $preferenceQuery->where('location', 'like', '%' . $locationPrefs['primary_city'] . '%');
         }
 
@@ -794,7 +794,7 @@ class RecommendationEngineService
             }
 
             // Filter out sold out events
-            return !(isset($event['availability']) && $event['availability'] === 'sold_out');
+            return ! (isset($event['availability']) && $event['availability'] === 'sold_out');
         });
     }
 

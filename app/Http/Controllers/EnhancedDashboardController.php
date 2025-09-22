@@ -34,7 +34,7 @@ class EnhancedDashboardController extends Controller
     {
         $user = Auth::user();
 
-        if (!$user) {
+        if (! $user) {
             abort(401, 'Authentication required');
         }
 
@@ -53,7 +53,7 @@ class EnhancedDashboardController extends Controller
     {
         $user = Auth::user();
 
-        if (!$user) {
+        if (! $user) {
             return response()->json(['error' => 'Authentication required'], 401);
         }
 
@@ -142,11 +142,11 @@ class EnhancedDashboardController extends Controller
     {
         try {
             return [
-                'monthly_limit'   => $user->getMonthlyTicketLimit() ?? 100,
-                'current_usage'   => $user->getMonthlyTicketUsage() ?? 0,
-                'percentage_used' => min(100, (($user->getMonthlyTicketUsage() ?? 0) / max(1, $user->getMonthlyTicketLimit() ?? 100)) * 100),
-                'has_active'      => $user->hasActiveSubscription() ?? FALSE,
-                'days_remaining'  => method_exists($user, 'getFreeTrialDaysRemaining') ? $user->getFreeTrialDaysRemaining() : NULL,
+                'monthly_limit'   => $user->getMonthlyTicketLimit() ?: 100,
+                'current_usage'   => $user->getMonthlyTicketUsage() ?: 0,
+                'percentage_used' => min(100, (($user->getMonthlyTicketUsage() ?: 0) / max(1, $user->getMonthlyTicketLimit() ?: 100)) * 100),
+                'has_active'      => $user->hasActiveSubscription() ?: FALSE,
+                'days_remaining'  => $user->getFreeTrialDaysRemaining(),
             ];
         } catch (Exception $e) {
             Log::debug('Failed to get subscription data, using defaults', ['error' => $e->getMessage()]);
@@ -230,70 +230,6 @@ class EnhancedDashboardController extends Controller
         }
     }
 
-    /**
-     * Get enhanced statistics with trends and comparisons
-     */
-    private function getEnhancedStatistics(User $user): array
-    {
-        $now = Carbon::now();
-        $now->copy()->subDay();
-        $now->copy()->subWeek();
-
-        return [
-            'available_tickets' => [
-                'current'    => $this->getAvailableTicketsCount(),
-                'trend'      => $this->getTicketTrend(),
-                'change_24h' => $this->getChange24h(),
-            ],
-            'high_demand' => [
-                'current'    => $this->getHighDemandCount(),
-                'trend'      => $this->getDemandTrend(),
-                'change_24h' => $this->getChange24h(),
-            ],
-            'active_alerts' => [
-                'current'         => $this->getUserAlertsCount($user),
-                'triggered_today' => $this->getTriggeredAlertsToday($user),
-                'success_rate'    => $this->getAlertSuccessRate(),
-            ],
-            'user_activity' => [
-                'views_today'      => $this->getUserViewsToday(),
-                'searches_today'   => $this->getUserSearchesToday(),
-                'engagement_score' => $this->getUserEngagementScore(),
-            ],
-            'price_insights' => [
-                'avg_price_trend'   => $this->getAvgPriceTrend(),
-                'best_deals_count'  => $this->getBestDealsCount(),
-                'price_drop_alerts' => $this->getPriceDropAlerts($user),
-            ],
-        ];
-    }
-
-    /**
-     * Get recent tickets with enhanced metadata
-     */
-    private function getRecentTicketsWithMetadata(): Collection
-    {
-        return ScrapedTicket::with(['category'])
-            ->available()
-            ->recent(24) // Last 24 hours
-            ->orderBy('scraped_at', 'desc')
-            ->limit(10)
-            ->get()
-            ->map(fn ($ticket): array => [
-                'id'                   => $ticket->id,
-                'title'                => $ticket->title,
-                'price'                => $ticket->price,
-                'formatted_price'      => $ticket->formatted_price,
-                'platform'             => $ticket->platform,
-                'venue'                => $ticket->venue,
-                'event_date'           => $ticket->event_date,
-                'scraped_at'           => $ticket->scraped_at,
-                'demand_indicator'     => $this->calculateDemandIndicator($ticket),
-                'price_trend'          => $this->calculatePriceTrend(),
-                'recommendation_score' => $this->calculateRecommendationScore($ticket),
-                'urgency_level'        => $this->calculateUrgencyLevel($ticket),
-            ]);
-    }
 
     /**
      * Get formatted recent tickets with flat data structure for the view
@@ -345,7 +281,7 @@ class EnhancedDashboardController extends Controller
             ->orderBy('popularity_score', 'desc');
 
         // Apply user preferences
-        if (!empty($favoriteTeams)) {
+        if (! empty($favoriteTeams)) {
             $query->where(function ($q) use ($favoriteTeams): void {
                 foreach ($favoriteTeams as $team) {
                     $q->orWhere('title', 'like', "%{$team}%")
@@ -354,7 +290,7 @@ class EnhancedDashboardController extends Controller
             });
         }
 
-        if (!empty($priceRange) && isset($priceRange['max'])) {
+        if (! empty($priceRange) && isset($priceRange['max'])) {
             $query->where('min_price', '<=', $priceRange['max']);
         }
 
@@ -424,14 +360,14 @@ class EnhancedDashboardController extends Controller
         return ScrapedTicket::available()
             ->where('event_date', '>', Carbon::now())
             ->where('event_date', '<=', Carbon::now()->addMonths(3))
-            ->when(!empty($favoriteTeams), function ($query) use ($favoriteTeams): void {
+            ->when(! empty($favoriteTeams), function ($query) use ($favoriteTeams): void {
                 $query->where(function ($q) use ($favoriteTeams): void {
                     foreach ($favoriteTeams as $team) {
                         $q->orWhere('title', 'like', "%{$team}%");
                     }
                 });
             })
-            ->when(!empty($favoriteVenues), function ($query) use ($favoriteVenues): void {
+            ->when(! empty($favoriteVenues), function ($query) use ($favoriteVenues): void {
                 $query->whereIn('venue', $favoriteVenues);
             })
             ->orderBy('event_date')
@@ -550,39 +486,9 @@ class EnhancedDashboardController extends Controller
         return ScrapedTicket::available()->count();
     }
 
-    private function getTicketTrend(): string
-    {
-        $today = $this->getTicketsCountForDate(Carbon::today());
-        $yesterday = $this->getTicketsCountForDate(Carbon::yesterday());
 
-        if ($today > $yesterday) {
-            return 'up';
-        }
-        if ($today < $yesterday) {
-            return 'down';
-        }
 
-        return 'stable';
-    }
 
-    private function getChange24h(): float
-    {
-        // Implement 24h change calculation
-        return 0.0;
-    }
-
-    private function getHighDemandCount(): int
-    {
-        return ScrapedTicket::available()
-            ->where('popularity_score', '>', 80)
-            ->count();
-    }
-
-    private function getDemandTrend(): string
-    {
-        // Implement demand trend calculation
-        return 'stable';
-    }
 
     private function getUserAlertsCount(User $user): int
     {
@@ -600,72 +506,13 @@ class EnhancedDashboardController extends Controller
             ->count();
     }
 
-    private function getAlertSuccessRate(): float
-    {
-        // Implement alert success rate calculation
-        return 85.0;
-    }
 
-    private function getAvgPriceTrend(): string
-    {
-        // Implement average price trend calculation
-        return 'stable';
-    }
 
-    private function getBestDealsCount(): int
-    {
-        // Implement best deals count
-        return 0;
-    }
 
-    private function getPriceDropAlerts(User $user): int
-    {
-        return TicketAlert::where('user_id', $user->id)
-            ->whereHas('matches', function ($query): void {
-                $query->whereDate('created_at', Carbon::today());
-            })
-            ->count();
-    }
 
-    private function calculateDemandIndicator($ticket): string
-    {
-        if ($ticket->popularity_score > 80) {
-            return 'high';
-        }
-        if ($ticket->popularity_score > 50) {
-            return 'medium';
-        }
 
-        return 'low';
-    }
 
-    private function calculatePriceTrend(): string
-    {
-        // Implement price trend calculation
-        return 'stable';
-    }
 
-    private function calculateRecommendationScore($ticket): float
-    {
-        return (float) ($ticket->popularity_score ?? 50.0);
-    }
-
-    private function calculateUrgencyLevel($ticket): string
-    {
-        $daysUntilEvent = Carbon::parse($ticket->event_date)->diffInDays(Carbon::now());
-
-        if ($daysUntilEvent <= 1) {
-            return 'critical';
-        }
-        if ($daysUntilEvent <= 7) {
-            return 'high';
-        }
-        if ($daysUntilEvent <= 30) {
-            return 'medium';
-        }
-
-        return 'low';
-    }
 
     private function getMatchReason(): string
     {
@@ -790,7 +637,7 @@ class EnhancedDashboardController extends Controller
         $query = ScrapedTicket::available()
             ->selectRaw('COUNT(DISTINCT CONCAT(title, venue, event_date)) as unique_events');
 
-        if (!empty($favoriteTeams)) {
+        if (! empty($favoriteTeams)) {
             $query->where(function ($q) use ($favoriteTeams): void {
                 foreach ($favoriteTeams as $team) {
                     $q->orWhere('title', 'like', "%{$team}%")

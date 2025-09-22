@@ -24,7 +24,7 @@ Route::middleware(['auth:sanctum'])->group(function (): void {
     Route::post('/session/extend', function (Request $request) {
         try {
             // Check if user is still authenticated
-            if (!Auth::check()) {
+            if (! Auth::check()) {
                 return response()->json([
                     'success' => FALSE,
                     'message' => 'User not authenticated',
@@ -72,7 +72,7 @@ Route::middleware(['auth:sanctum'])->group(function (): void {
      * Returns current session information and time remaining
      */
     Route::get('/session/status', function (Request $request) {
-        if (!Auth::check()) {
+        if (! Auth::check()) {
             return response()->json([
                 'success'       => FALSE,
                 'authenticated' => FALSE,

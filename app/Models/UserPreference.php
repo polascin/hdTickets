@@ -67,7 +67,7 @@ class UserPreference extends Model
             ->where('key', $key)
             ->first();
 
-        if (!$preference) {
+        if (! $preference) {
             return $default;
         }
 

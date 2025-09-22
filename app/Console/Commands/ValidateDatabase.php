@@ -81,14 +81,14 @@ class ValidateDatabase extends Command
         ];
 
         foreach ($requiredTables as $table => $columns) {
-            if (!Schema::hasTable($table)) {
+            if (! Schema::hasTable($table)) {
                 $issues[] = "Missing table: {$table}";
 
                 continue;
             }
 
             foreach ($columns as $column) {
-                if (!Schema::hasColumn($table, $column)) {
+                if (! Schema::hasColumn($table, $column)) {
                     $issues[] = "Missing column: {$table}.{$column}";
                 }
             }

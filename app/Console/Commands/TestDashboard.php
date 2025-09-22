@@ -5,6 +5,7 @@ namespace App\Console\Commands;
 use App\Http\Controllers\EnhancedDashboardController;
 use App\Models\User;
 use App\Services\AnalyticsService;
+use App\Services\Dashboard\DashboardCacheService;
 use App\Services\RecommendationService;
 use Auth;
 use Exception;
@@ -59,8 +60,9 @@ class TestDashboard extends Command
         try {
             $analytics = app(AnalyticsService::class);
             $recommendations = app(RecommendationService::class);
+            $cacheService = app(DashboardCacheService::class);
 
-            $controller = new EnhancedDashboardController($analytics, $recommendations);
+            $controller = new EnhancedDashboardController($analytics, $recommendations, $cacheService);
 
             // Simulate authentication
             Auth::login($user);

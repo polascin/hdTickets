@@ -31,7 +31,7 @@ class HDTicketsApp {
     }
     
     init() {
-        console.log('🎫 HD Tickets App initializing...');
+        // HD Tickets App initializing
         
         this.setupGlobalErrorHandling();
         this.initializeComponents();
@@ -40,7 +40,7 @@ class HDTicketsApp {
         
         this.isInitialized = true;
         
-        console.log('✅ HD Tickets App initialized successfully');
+        // HD Tickets App initialized successfully
         
         // Dispatch initialization event
         this.dispatchEvent('hdtickets:initialized', {
@@ -78,7 +78,7 @@ class HDTicketsApp {
                     enableUrlSync: true,
                     cacheEnabled: true
                 });
-                console.log('✅ Ticket filters initialized');
+                // Ticket filters initialized
             } catch (error) {
                 console.error('❌ Failed to initialize ticket filters:', error);
             }
@@ -92,7 +92,7 @@ class HDTicketsApp {
                     enableSound: true,
                     priceThreshold: 0.05 // 5% change threshold
                 });
-                console.log('✅ Price monitoring initialized');
+                // Price monitoring initialized
             } catch (error) {
                 console.error('❌ Failed to initialize price monitoring:', error);
             }
@@ -107,7 +107,7 @@ class HDTicketsApp {
                     enableSharing: this.hasSharingSupport(),
                     autoSave: true
                 });
-                console.log('✅ Ticket comparison initialized');
+                // Ticket comparison initialized
             } catch (error) {
                 console.error('❌ Failed to initialize ticket comparison:', error);
             }
@@ -640,7 +640,7 @@ class HDTicketsApp {
         }
         
         if (this.options.debugMode) {
-            console.log('📊 Analytics Event:', eventName, data);
+            // Analytics Event logged in debug mode
         }
     }
     
@@ -678,7 +678,7 @@ class HDTicketsApp {
         this.components = {};
         this.isInitialized = false;
         
-        console.log('🎫 HD Tickets App destroyed');
+        // HD Tickets App destroyed
     }
 }
 

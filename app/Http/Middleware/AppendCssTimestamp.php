@@ -41,7 +41,7 @@ class AppendCssTimestamp
         libxml_use_internal_errors(TRUE);
         $dom = new DOMDocument('1.0', 'UTF-8');
         $loaded = $dom->loadHTML($html, LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD);
-        if (!$loaded) {
+        if (! $loaded) {
             return $response; // If parsing fails, leave response unmodified
         }
 
@@ -60,7 +60,7 @@ class AppendCssTimestamp
             if (preg_match('#^(https?:)?//#i', $href)) {
                 continue; // External URL
             }
-            if (!preg_match('/\.css$/i', parse_url($href, PHP_URL_PATH) ?? '')) {
+            if (! preg_match('/\.css$/i', parse_url($href, PHP_URL_PATH) ?? '')) {
                 continue; // Not a CSS file
             }
 
@@ -73,7 +73,7 @@ class AppendCssTimestamp
         // Process <script src="..."> tags for local JS files
         $scripts = $dom->getElementsByTagName('script');
         foreach ($scripts as $script) {
-            if (!$script->hasAttribute('src')) {
+            if (! $script->hasAttribute('src')) {
                 continue; // Inline script
             }
             $src = $script->getAttribute('src');
@@ -84,7 +84,7 @@ class AppendCssTimestamp
                 continue; // External
             }
             $path = parse_url($src, PHP_URL_PATH) ?? '';
-            if (!preg_match('/\.js$/i', $path)) {
+            if (! preg_match('/\.js$/i', $path)) {
                 continue; // Not a JS file
             }
             // Skip Vite dev client or hot reload endpoints (contain @vite or /@fs/ etc.)

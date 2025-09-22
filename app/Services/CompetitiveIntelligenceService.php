@@ -326,38 +326,38 @@ class CompetitiveIntelligenceService
 
     private function applyFilters($query, array $filters): void
     {
-        if (!empty($filters['sport'])) {
+        if (! empty($filters['sport'])) {
             $query->where('scraped_tickets.sport', $filters['sport']);
         }
 
-        if (!empty($filters['date_from'])) {
+        if (! empty($filters['date_from'])) {
             $query->where('scraped_tickets.event_date', '>=', $filters['date_from']);
         }
 
-        if (!empty($filters['date_to'])) {
+        if (! empty($filters['date_to'])) {
             $query->where('scraped_tickets.event_date', '<=', $filters['date_to']);
         }
 
-        if (!empty($filters['price_min'])) {
+        if (! empty($filters['price_min'])) {
             $query->where('scraped_tickets.price', '>=', $filters['price_min']);
         }
 
-        if (!empty($filters['price_max'])) {
+        if (! empty($filters['price_max'])) {
             $query->where('scraped_tickets.price', '<=', $filters['price_max']);
         }
     }
 
     private function applyTicketFilters($query, array $filters): void
     {
-        if (!empty($filters['sport'])) {
+        if (! empty($filters['sport'])) {
             $query->where('sport', $filters['sport']);
         }
 
-        if (!empty($filters['price_min'])) {
+        if (! empty($filters['price_min'])) {
             $query->where('price', '>=', $filters['price_min']);
         }
 
-        if (!empty($filters['price_max'])) {
+        if (! empty($filters['price_max'])) {
             $query->where('price', '<=', $filters['price_max']);
         }
     }
@@ -383,7 +383,7 @@ class CompetitiveIntelligenceService
 
     private function identifyPriceGaps(?Collection $comparisons = NULL): array
     {
-        if (!$comparisons instanceof Collection) {
+        if (! $comparisons instanceof Collection) {
             $comparisons = collect();
         }
 
@@ -501,10 +501,10 @@ class CompetitiveIntelligenceService
         if ($highPrice && $highVolume) {
             return 'premium_leader';
         }
-        if ($highPrice && !$highVolume) {
+        if ($highPrice && ! $highVolume) {
             return 'niche_premium';
         }
-        if (!$highPrice && $highVolume) {
+        if (! $highPrice && $highVolume) {
             return 'volume_leader';
         }
 

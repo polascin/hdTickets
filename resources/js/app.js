@@ -43,7 +43,7 @@ window.addEventListener('DOMContentLoaded', () => {
       lifecycleManager
     );
 
-    console.log('HD Tickets PWA initialized successfully');
+    // HD Tickets PWA initialized successfully
   } catch (error) {
     console.error('Failed to initialize HD Tickets PWA:', error);
   }
@@ -103,7 +103,7 @@ function setupEventHandlers(
 
   // Handle lifecycle state changes
   document.addEventListener('lifecycle:state-change', e => {
-    console.log('App lifecycle state changed:', e.detail.state);
+    // App lifecycle state changed
 
     // Pause/resume managers based on lifecycle
     if (e.detail.state === 'hidden' || e.detail.state === 'frozen') {

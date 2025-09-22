@@ -37,7 +37,7 @@ class TestScrapingSystem extends Command
             $this->info('3️⃣ Testing database...');
             $this->testDatabase();
 
-            if (!$quickTest) {
+            if (! $quickTest) {
                 // Test 4: Search functionality
                 $this->info('4️⃣ Testing search functionality...');
                 $this->testSearchFunctionality();
@@ -92,7 +92,7 @@ class TestScrapingSystem extends Command
 
             $this->comment("✓ {$enabled} plugins enabled");
 
-            if ($pluginName && !isset($plugins[$pluginName])) {
+            if ($pluginName && ! isset($plugins[$pluginName])) {
                 throw new Exception("Plugin '{$pluginName}' not found");
             }
         } catch (Exception $e) {

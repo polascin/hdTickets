@@ -161,7 +161,7 @@ class PasswordController extends Controller
         $isValid = TRUE;
 
         // Check strength
-        if (!$strengthResult['is_valid']) {
+        if (! $strengthResult['is_valid']) {
             $errors = array_merge($errors, $strengthResult['errors']);
             $isValid = FALSE;
         }

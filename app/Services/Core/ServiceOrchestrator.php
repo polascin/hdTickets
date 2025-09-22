@@ -82,11 +82,11 @@ class ServiceOrchestrator
      */
     public function getService(string $serviceName): ServiceInterface
     {
-        if (!$this->initialized) {
+        if (! $this->initialized) {
             $this->initialize();
         }
 
-        if (!isset($this->services[$serviceName])) {
+        if (! isset($this->services[$serviceName])) {
             throw new InvalidArgumentException("Service '{$serviceName}' not found");
         }
 
@@ -174,7 +174,7 @@ class ServiceOrchestrator
     public function restartService(string $serviceName): bool
     {
         try {
-            if (!isset($this->services[$serviceName])) {
+            if (! isset($this->services[$serviceName])) {
                 throw new InvalidArgumentException("Service '{$serviceName}' not found");
             }
 
@@ -375,7 +375,7 @@ class ServiceOrchestrator
      */
     private function initializeService(string $serviceName): void
     {
-        if (!isset($this->serviceDefinitions[$serviceName])) {
+        if (! isset($this->serviceDefinitions[$serviceName])) {
             throw new InvalidArgumentException("Service definition not found: {$serviceName}");
         }
 
@@ -383,20 +383,20 @@ class ServiceOrchestrator
 
         // Create service instance
         $serviceClass = $definition['class'];
-        if (!class_exists($serviceClass)) {
+        if (! class_exists($serviceClass)) {
             throw new RuntimeException("Service class not found: {$serviceClass}");
         }
 
         $service = new $serviceClass();
 
-        if (!$service instanceof ServiceInterface) {
+        if (! $service instanceof ServiceInterface) {
             throw new RuntimeException("Service must implement ServiceInterface: {$serviceClass}");
         }
 
         // Prepare dependencies
         $dependencies = [];
         foreach ($definition['dependencies'] as $dependencyName) {
-            if (!isset($this->services[$dependencyName])) {
+            if (! isset($this->services[$dependencyName])) {
                 throw new RuntimeException("Dependency not available: {$dependencyName} for service: {$serviceName}");
             }
             $dependencies[$dependencyName] = $this->services[$dependencyName];
