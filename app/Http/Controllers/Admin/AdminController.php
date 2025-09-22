@@ -625,11 +625,19 @@ class AdminController extends Controller
 
             $theme = in_array($request->get('theme'), ['light', 'dark']) ? $request->get('theme') : 'light';
 
+            // Prepare logo data URI for reliable PDF embedding
+            $logoDataUri = null;
+            $logoPath = public_path('images/logo-hdtickets.svg');
+            if (file_exists($logoPath)) {
+                $logoDataUri = 'data:image/svg+xml;base64,' . base64_encode(file_get_contents($logoPath));
+            }
+
             $pdf = PDF::loadView('admin.reports.analytics', [
                 'analytics' => $analytics,
                 'period' => $period,
                 'generated_at' => now(),
                 'theme' => $theme,
+                'logoDataUri' => $logoDataUri,
             ]);
 
             $filename = "analytics-report-{$period}-" . now()->format('Y-m-d') . '.pdf';

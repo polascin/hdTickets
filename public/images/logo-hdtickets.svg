@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="128" height="128" viewBox="0 0 128 128" role="img" aria-label="HD Tickets">
+  <defs>
+    <linearGradient id="g" x1="0" x2="1" y1="0" y2="1">
+      <stop offset="0%" stop-color="#10B981"/>
+      <stop offset="100%" stop-color="#34D399"/>
+    </linearGradient>
+  </defs>
+  <circle cx="64" cy="64" r="60" fill="none" stroke="url(#g)" stroke-width="8"/>
+  <path d="M40 68l16 16 32-32" fill="none" stroke="#10B981" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"/>
+  <text x="64" y="118" text-anchor="middle" font-family="Inter, Arial, sans-serif" font-size="14" fill="#374151">HD Tickets</text>
+</svg>

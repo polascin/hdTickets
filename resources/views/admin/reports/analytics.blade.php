@@ -33,10 +33,14 @@
 <body>
     <div class="header">
         <div class="brand">
-            <svg class="logo" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <circle cx="12" cy="12" r="10" stroke="var(--brand)" stroke-width="2"/>
-                <path d="M7 13l3 3 7-7" stroke="var(--brand)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-            </svg>
+            @if(!empty($logoDataUri))
+                <img class="logo" src="{{ $logoDataUri }}" alt="HD Tickets" />
+            @else
+                <svg class="logo" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <circle cx="12" cy="12" r="10" stroke="var(--brand)" stroke-width="2"/>
+                    <path d="M7 13l3 3 7-7" stroke="var(--brand)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+            @endif
             <div>
                 <div class="title">HD Tickets - Analytics Report</div>
                 <div class="subtitle">Period: {{ strtoupper($period) }}</div>
