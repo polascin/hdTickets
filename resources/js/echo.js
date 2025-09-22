@@ -16,10 +16,9 @@ window.Pusher = Pusher;
  */
 const echoConfig = {
   broadcaster: 'pusher',
-  key: process.env.MIX_PUSHER_APP_KEY || window.pusherKey,
-  cluster: process.env.MIX_PUSHER_APP_CLUSTER || window.pusherCluster || 'mt1',
+  key: import.meta.env?.VITE_PUSHER_APP_KEY || process.env.MIX_PUSHER_APP_KEY || window.pusherKey,
+  cluster: import.meta.env?.VITE_PUSHER_APP_CLUSTER || process.env.MIX_PUSHER_APP_CLUSTER || window.pusherCluster || 'mt1',
   forceTLS: true,
-  encrypted: true,
 
   // Authentication for private/presence channels
   auth: {
@@ -35,9 +34,8 @@ const echoConfig = {
   // Pusher-specific options
   pusherOptions: {
     cluster:
-      process.env.MIX_PUSHER_APP_CLUSTER || window.pusherCluster || 'mt1',
+      import.meta.env?.VITE_PUSHER_APP_CLUSTER || process.env.MIX_PUSHER_APP_CLUSTER || window.pusherCluster || 'mt1',
     forceTLS: true,
-    encrypted: true,
 
     // Connection configuration
     enabledTransports: ['ws', 'wss'],
