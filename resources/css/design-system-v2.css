@@ -1,0 +1,395 @@
+/* HD Tickets Design System v2.0 - Sports Event Ticket Monitoring Platform */
+/* State-of-the-art design tokens and component foundations */
+
+:root {
+  /* === BRAND COLORS - SPORTS INSPIRED === */
+  
+  /* Primary - Stadium Blue */
+  --hdt-primary-50: #eff8ff;
+  --hdt-primary-100: #dbeafe;
+  --hdt-primary-200: #bfdbfe;
+  --hdt-primary-300: #93c5fd;
+  --hdt-primary-400: #60a5fa;
+  --hdt-primary-500: #3b82f6;
+  --hdt-primary-600: #2563eb;
+  --hdt-primary-700: #1d4ed8;
+  --hdt-primary-800: #1e40af;
+  --hdt-primary-900: #1e3a8a;
+  --hdt-primary-950: #172554;
+
+  /* Secondary - Championship Gold */
+  --hdt-secondary-50: #fffbeb;
+  --hdt-secondary-100: #fef3c7;
+  --hdt-secondary-200: #fde68a;
+  --hdt-secondary-300: #fcd34d;
+  --hdt-secondary-400: #fbbf24;
+  --hdt-secondary-500: #f59e0b;
+  --hdt-secondary-600: #d97706;
+  --hdt-secondary-700: #b45309;
+  --hdt-secondary-800: #92400e;
+  --hdt-secondary-900: #78350f;
+  --hdt-secondary-950: #451a03;
+
+  /* Success - Field Green */
+  --hdt-success-50: #f0fdf4;
+  --hdt-success-100: #dcfce7;
+  --hdt-success-200: #bbf7d0;
+  --hdt-success-300: #86efac;
+  --hdt-success-400: #4ade80;
+  --hdt-success-500: #22c55e;
+  --hdt-success-600: #16a34a;
+  --hdt-success-700: #15803d;
+  --hdt-success-800: #166534;
+  --hdt-success-900: #14532d;
+  --hdt-success-950: #052e16;
+
+  /* Warning - Caution Yellow */
+  --hdt-warning-50: #fffbeb;
+  --hdt-warning-100: #fef3c7;
+  --hdt-warning-200: #fde68a;
+  --hdt-warning-300: #fcd34d;
+  --hdt-warning-400: #fbbf24;
+  --hdt-warning-500: #f59e0b;
+  --hdt-warning-600: #d97706;
+  --hdt-warning-700: #b45309;
+  --hdt-warning-800: #92400e;
+  --hdt-warning-900: #78350f;
+  --hdt-warning-950: #451a03;
+
+  /* Danger - Alert Red */
+  --hdt-danger-50: #fef2f2;
+  --hdt-danger-100: #fee2e2;
+  --hdt-danger-200: #fecaca;
+  --hdt-danger-300: #fca5a5;
+  --hdt-danger-400: #f87171;
+  --hdt-danger-500: #ef4444;
+  --hdt-danger-600: #dc2626;
+  --hdt-danger-700: #b91c1c;
+  --hdt-danger-800: #991b1b;
+  --hdt-danger-900: #7f1d1d;
+  --hdt-danger-950: #450a0a;
+
+  /* Info - Sky Blue */
+  --hdt-info-50: #f0f9ff;
+  --hdt-info-100: #e0f2fe;
+  --hdt-info-200: #bae6fd;
+  --hdt-info-300: #7dd3fc;
+  --hdt-info-400: #38bdf8;
+  --hdt-info-500: #0ea5e9;
+  --hdt-info-600: #0284c7;
+  --hdt-info-700: #0369a1;
+  --hdt-info-800: #075985;
+  --hdt-info-900: #0c4a6e;
+  --hdt-info-950: #082f49;
+
+  /* Neutral - Stadium Gray */
+  --hdt-gray-50: #f8fafc;
+  --hdt-gray-100: #f1f5f9;
+  --hdt-gray-200: #e2e8f0;
+  --hdt-gray-300: #cbd5e1;
+  --hdt-gray-400: #94a3b8;
+  --hdt-gray-500: #64748b;
+  --hdt-gray-600: #475569;
+  --hdt-gray-700: #334155;
+  --hdt-gray-800: #1e293b;
+  --hdt-gray-900: #0f172a;
+  --hdt-gray-950: #020617;
+
+  /* === SEMANTIC COLOR MAPPINGS === */
+  
+  /* Surface Colors */
+  --hdt-surface-primary: var(--hdt-gray-50);
+  --hdt-surface-secondary: #ffffff;
+  --hdt-surface-tertiary: var(--hdt-gray-100);
+  --hdt-surface-accent: var(--hdt-primary-50);
+  --hdt-surface-inverse: var(--hdt-gray-900);
+
+  /* Text Colors */
+  --hdt-text-primary: var(--hdt-gray-900);
+  --hdt-text-secondary: var(--hdt-gray-700);
+  --hdt-text-tertiary: var(--hdt-gray-500);
+  --hdt-text-quaternary: var(--hdt-gray-400);
+  --hdt-text-inverse: var(--hdt-gray-50);
+  --hdt-text-link: var(--hdt-primary-600);
+  --hdt-text-link-hover: var(--hdt-primary-700);
+
+  /* Border Colors */
+  --hdt-border-primary: var(--hdt-gray-200);
+  --hdt-border-secondary: var(--hdt-gray-300);
+  --hdt-border-accent: var(--hdt-primary-200);
+  --hdt-border-focus: var(--hdt-primary-500);
+
+  /* === TYPOGRAPHY SYSTEM === */
+  
+  /* Font Families */
+  --hdt-font-sans: 'Inter', ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, 'Noto Sans', sans-serif;
+  --hdt-font-mono: 'JetBrains Mono', ui-monospace, 'Cascadia Code', 'Source Code Pro', Menlo, Consolas, 'DejaVu Sans Mono', monospace;
+  --hdt-font-display: 'Inter', var(--hdt-font-sans);
+
+  /* Font Sizes - Fluid Typography */
+  --hdt-text-xs: clamp(0.75rem, 0.73rem + 0.08vw, 0.8rem);
+  --hdt-text-sm: clamp(0.875rem, 0.84rem + 0.15vw, 0.95rem);
+  --hdt-text-base: clamp(1rem, 0.95rem + 0.22vw, 1.125rem);
+  --hdt-text-lg: clamp(1.125rem, 1.05rem + 0.33vw, 1.3rem);
+  --hdt-text-xl: clamp(1.25rem, 1.15rem + 0.44vw, 1.5rem);
+  --hdt-text-2xl: clamp(1.5rem, 1.35rem + 0.67vw, 1.875rem);
+  --hdt-text-3xl: clamp(1.875rem, 1.65rem + 1vw, 2.375rem);
+  --hdt-text-4xl: clamp(2.25rem, 1.95rem + 1.33vw, 3rem);
+  --hdt-text-5xl: clamp(3rem, 2.55rem + 2vw, 4.25rem);
+  --hdt-text-6xl: clamp(3.75rem, 3.15rem + 2.67vw, 5.5rem);
+
+  /* Font Weights */
+  --hdt-font-thin: 100;
+  --hdt-font-light: 300;
+  --hdt-font-normal: 400;
+  --hdt-font-medium: 500;
+  --hdt-font-semibold: 600;
+  --hdt-font-bold: 700;
+  --hdt-font-extrabold: 800;
+  --hdt-font-black: 900;
+
+  /* Line Heights */
+  --hdt-leading-none: 1;
+  --hdt-leading-tight: 1.25;
+  --hdt-leading-snug: 1.375;
+  --hdt-leading-normal: 1.5;
+  --hdt-leading-relaxed: 1.625;
+  --hdt-leading-loose: 2;
+
+  /* Letter Spacing */
+  --hdt-tracking-tighter: -0.05em;
+  --hdt-tracking-tight: -0.025em;
+  --hdt-tracking-normal: 0em;
+  --hdt-tracking-wide: 0.025em;
+  --hdt-tracking-wider: 0.05em;
+  --hdt-tracking-widest: 0.1em;
+
+  /* === SPACING SYSTEM - 8-POINT GRID === */
+  
+  --hdt-space-0: 0;
+  --hdt-space-px: 1px;
+  --hdt-space-0-5: 0.125rem; /* 2px */
+  --hdt-space-1: 0.25rem;    /* 4px */
+  --hdt-space-1-5: 0.375rem; /* 6px */
+  --hdt-space-2: 0.5rem;     /* 8px */
+  --hdt-space-2-5: 0.625rem; /* 10px */
+  --hdt-space-3: 0.75rem;    /* 12px */
+  --hdt-space-3-5: 0.875rem; /* 14px */
+  --hdt-space-4: 1rem;       /* 16px */
+  --hdt-space-5: 1.25rem;    /* 20px */
+  --hdt-space-6: 1.5rem;     /* 24px */
+  --hdt-space-7: 1.75rem;    /* 28px */
+  --hdt-space-8: 2rem;       /* 32px */
+  --hdt-space-9: 2.25rem;    /* 36px */
+  --hdt-space-10: 2.5rem;    /* 40px */
+  --hdt-space-11: 2.75rem;   /* 44px */
+  --hdt-space-12: 3rem;      /* 48px */
+  --hdt-space-14: 3.5rem;    /* 56px */
+  --hdt-space-16: 4rem;      /* 64px */
+  --hdt-space-20: 5rem;      /* 80px */
+  --hdt-space-24: 6rem;      /* 96px */
+  --hdt-space-28: 7rem;      /* 112px */
+  --hdt-space-32: 8rem;      /* 128px */
+  --hdt-space-36: 9rem;      /* 144px */
+  --hdt-space-40: 10rem;     /* 160px */
+  --hdt-space-44: 11rem;     /* 176px */
+  --hdt-space-48: 12rem;     /* 192px */
+  --hdt-space-52: 13rem;     /* 208px */
+  --hdt-space-56: 14rem;     /* 224px */
+  --hdt-space-60: 15rem;     /* 240px */
+  --hdt-space-64: 16rem;     /* 256px */
+  --hdt-space-72: 18rem;     /* 288px */
+  --hdt-space-80: 20rem;     /* 320px */
+  --hdt-space-96: 24rem;     /* 384px */
+
+  /* === BORDER RADIUS SYSTEM === */
+  
+  --hdt-radius-none: 0;
+  --hdt-radius-sm: 0.125rem;    /* 2px */
+  --hdt-radius-default: 0.25rem; /* 4px */
+  --hdt-radius-md: 0.375rem;     /* 6px */
+  --hdt-radius-lg: 0.5rem;       /* 8px */
+  --hdt-radius-xl: 0.75rem;      /* 12px */
+  --hdt-radius-2xl: 1rem;        /* 16px */
+  --hdt-radius-3xl: 1.5rem;      /* 24px */
+  --hdt-radius-full: 9999px;
+
+  /* === SHADOW SYSTEM === */
+  
+  --hdt-shadow-xs: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+  --hdt-shadow-sm: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
+  --hdt-shadow-default: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+  --hdt-shadow-md: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+  --hdt-shadow-lg: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
+  --hdt-shadow-xl: 0 25px 50px -12px rgb(0 0 0 / 0.25);
+  --hdt-shadow-2xl: 0 50px 100px -20px rgb(0 0 0 / 0.25);
+  --hdt-shadow-inner: inset 0 2px 4px 0 rgb(0 0 0 / 0.05);
+
+  /* Stadium-specific shadows */
+  --hdt-shadow-stadium: 0 25px 50px -12px rgb(37 99 235 / 0.25);
+  --hdt-shadow-ticket: 0 4px 8px rgb(0 0 0 / 0.1), 0 0 0 1px rgb(0 0 0 / 0.05);
+  --hdt-shadow-glow: 0 0 20px rgb(59 130 246 / 0.4);
+  --hdt-shadow-focus: 0 0 0 3px rgb(59 130 246 / 0.3);
+
+  /* === ANIMATION & TRANSITION SYSTEM === */
+  
+  /* Duration */
+  --hdt-duration-75: 75ms;
+  --hdt-duration-100: 100ms;
+  --hdt-duration-150: 150ms;
+  --hdt-duration-200: 200ms;
+  --hdt-duration-300: 300ms;
+  --hdt-duration-500: 500ms;
+  --hdt-duration-700: 700ms;
+  --hdt-duration-1000: 1000ms;
+
+  /* Easing Functions */
+  --hdt-ease-linear: linear;
+  --hdt-ease-in: cubic-bezier(0.4, 0, 1, 1);
+  --hdt-ease-out: cubic-bezier(0, 0, 0.2, 1);
+  --hdt-ease-in-out: cubic-bezier(0.4, 0, 0.2, 1);
+  --hdt-ease-back: cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  --hdt-ease-bounce: cubic-bezier(0.68, -0.55, 0.265, 1.55);
+
+  /* Common Transitions */
+  --hdt-transition-all: all var(--hdt-duration-200) var(--hdt-ease-in-out);
+  --hdt-transition-colors: color var(--hdt-duration-200) var(--hdt-ease-in-out),
+                           background-color var(--hdt-duration-200) var(--hdt-ease-in-out),
+                           border-color var(--hdt-duration-200) var(--hdt-ease-in-out);
+  --hdt-transition-opacity: opacity var(--hdt-duration-150) var(--hdt-ease-in-out);
+  --hdt-transition-transform: transform var(--hdt-duration-200) var(--hdt-ease-in-out);
+  --hdt-transition-shadow: box-shadow var(--hdt-duration-200) var(--hdt-ease-in-out);
+
+  /* === LAYOUT DIMENSIONS === */
+  
+  /* Container Sizes */
+  --hdt-container-sm: 640px;
+  --hdt-container-md: 768px;
+  --hdt-container-lg: 1024px;
+  --hdt-container-xl: 1280px;
+  --hdt-container-2xl: 1536px;
+  --hdt-container-max: 1200px;
+
+  /* Header Heights */
+  --hdt-header-height: 64px;
+  --hdt-header-height-mobile: 56px;
+
+  /* Sidebar Dimensions */
+  --hdt-sidebar-width: 280px;
+  --hdt-sidebar-width-collapsed: 64px;
+  --hdt-sidebar-width-mobile: 320px;
+
+  /* Bottom Navigation */
+  --hdt-bottom-nav-height: 60px;
+
+  /* Z-Index Scale */
+  --hdt-z-dropdown: 1000;
+  --hdt-z-sticky: 1020;
+  --hdt-z-fixed: 1030;
+  --hdt-z-modal-backdrop: 1040;
+  --hdt-z-modal: 1050;
+  --hdt-z-popover: 1060;
+  --hdt-z-tooltip: 1070;
+  --hdt-z-toast: 1080;
+
+  /* === COMPONENT-SPECIFIC TOKENS === */
+  
+  /* Button Heights */
+  --hdt-button-height-xs: 24px;
+  --hdt-button-height-sm: 32px;
+  --hdt-button-height-md: 40px;
+  --hdt-button-height-lg: 48px;
+  --hdt-button-height-xl: 56px;
+
+  /* Form Elements */
+  --hdt-input-height: 44px;
+  --hdt-input-height-sm: 36px;
+  --hdt-input-height-lg: 52px;
+
+  /* Icon Sizes */
+  --hdt-icon-xs: 12px;
+  --hdt-icon-sm: 16px;
+  --hdt-icon-md: 20px;
+  --hdt-icon-lg: 24px;
+  --hdt-icon-xl: 32px;
+  --hdt-icon-2xl: 48px;
+
+  /* Avatar Sizes */
+  --hdt-avatar-xs: 20px;
+  --hdt-avatar-sm: 24px;
+  --hdt-avatar-md: 32px;
+  --hdt-avatar-lg: 40px;
+  --hdt-avatar-xl: 48px;
+  --hdt-avatar-2xl: 64px;
+}
+
+/* === DARK MODE OVERRIDES === */
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    /* Surface Colors - Dark */
+    --hdt-surface-primary: var(--hdt-gray-900);
+    --hdt-surface-secondary: var(--hdt-gray-800);
+    --hdt-surface-tertiary: var(--hdt-gray-700);
+    --hdt-surface-accent: var(--hdt-gray-800);
+    --hdt-surface-inverse: var(--hdt-gray-50);
+
+    /* Text Colors - Dark */
+    --hdt-text-primary: var(--hdt-gray-50);
+    --hdt-text-secondary: var(--hdt-gray-300);
+    --hdt-text-tertiary: var(--hdt-gray-400);
+    --hdt-text-quaternary: var(--hdt-gray-500);
+    --hdt-text-inverse: var(--hdt-gray-900);
+
+    /* Border Colors - Dark */
+    --hdt-border-primary: var(--hdt-gray-700);
+    --hdt-border-secondary: var(--hdt-gray-600);
+    --hdt-border-accent: var(--hdt-primary-700);
+  }
+}
+
+/* Manual dark mode class override */
+.dark {
+  /* Surface Colors - Dark */
+  --hdt-surface-primary: var(--hdt-gray-900);
+  --hdt-surface-secondary: var(--hdt-gray-800);
+  --hdt-surface-tertiary: var(--hdt-gray-700);
+  --hdt-surface-accent: var(--hdt-gray-800);
+  --hdt-surface-inverse: var(--hdt-gray-50);
+
+  /* Text Colors - Dark */
+  --hdt-text-primary: var(--hdt-gray-50);
+  --hdt-text-secondary: var(--hdt-gray-300);
+  --hdt-text-tertiary: var(--hdt-gray-400);
+  --hdt-text-quaternary: var(--hdt-gray-500);
+  --hdt-text-inverse: var(--hdt-gray-900);
+
+  /* Border Colors - Dark */
+  --hdt-border-primary: var(--hdt-gray-700);
+  --hdt-border-secondary: var(--hdt-gray-600);
+  --hdt-border-accent: var(--hdt-primary-700);
+}
+
+/* === REDUCED MOTION PREFERENCES === */
+
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --hdt-duration-75: 0ms;
+    --hdt-duration-100: 0ms;
+    --hdt-duration-150: 0ms;
+    --hdt-duration-200: 0ms;
+    --hdt-duration-300: 0ms;
+    --hdt-duration-500: 0ms;
+    --hdt-duration-700: 0ms;
+    --hdt-duration-1000: 0ms;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

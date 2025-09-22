@@ -1,0 +1,756 @@
+/* HD Tickets Component Library v2.0 - Modern Sports-themed UI Components */
+/* Built on top of design-system-v2.css tokens */
+
+@import './design-system-v2.css';
+
+/* === UTILITY CLASSES === */
+
+.hdt-container {
+  width: 100%;
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: var(--hdt-space-4);
+  padding-right: var(--hdt-space-4);
+}
+
+@media (min-width: 640px) {
+  .hdt-container {
+    max-width: var(--hdt-container-sm);
+    padding-left: var(--hdt-space-6);
+    padding-right: var(--hdt-space-6);
+  }
+}
+
+@media (min-width: 768px) {
+  .hdt-container {
+    max-width: var(--hdt-container-md);
+  }
+}
+
+@media (min-width: 1024px) {
+  .hdt-container {
+    max-width: var(--hdt-container-lg);
+    padding-left: var(--hdt-space-8);
+    padding-right: var(--hdt-space-8);
+  }
+}
+
+@media (min-width: 1280px) {
+  .hdt-container {
+    max-width: var(--hdt-container-xl);
+  }
+}
+
+@media (min-width: 1536px) {
+  .hdt-container {
+    max-width: var(--hdt-container-2xl);
+  }
+}
+
+.hdt-container-narrow {
+  max-width: var(--hdt-container-max);
+}
+
+/* === BUTTON COMPONENTS === */
+
+.hdt-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--hdt-space-2);
+  font-family: var(--hdt-font-sans);
+  font-weight: var(--hdt-font-medium);
+  text-align: center;
+  vertical-align: middle;
+  cursor: pointer;
+  user-select: none;
+  border: 1px solid transparent;
+  border-radius: var(--hdt-radius-md);
+  transition: var(--hdt-transition-all);
+  text-decoration: none;
+  outline: none;
+  position: relative;
+  overflow: hidden;
+}
+
+.hdt-button:focus-visible {
+  box-shadow: var(--hdt-shadow-focus);
+}
+
+.hdt-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+/* Button Sizes */
+.hdt-button--xs {
+  height: var(--hdt-button-height-xs);
+  padding-left: var(--hdt-space-2);
+  padding-right: var(--hdt-space-2);
+  font-size: var(--hdt-text-xs);
+}
+
+.hdt-button--sm {
+  height: var(--hdt-button-height-sm);
+  padding-left: var(--hdt-space-3);
+  padding-right: var(--hdt-space-3);
+  font-size: var(--hdt-text-sm);
+}
+
+.hdt-button--md {
+  height: var(--hdt-button-height-md);
+  padding-left: var(--hdt-space-4);
+  padding-right: var(--hdt-space-4);
+  font-size: var(--hdt-text-sm);
+}
+
+.hdt-button--lg {
+  height: var(--hdt-button-height-lg);
+  padding-left: var(--hdt-space-6);
+  padding-right: var(--hdt-space-6);
+  font-size: var(--hdt-text-base);
+}
+
+.hdt-button--xl {
+  height: var(--hdt-button-height-xl);
+  padding-left: var(--hdt-space-8);
+  padding-right: var(--hdt-space-8);
+  font-size: var(--hdt-text-lg);
+}
+
+/* Button Variants */
+.hdt-button--primary {
+  background-color: var(--hdt-primary-600);
+  border-color: var(--hdt-primary-600);
+  color: white;
+}
+
+.hdt-button--primary:hover {
+  background-color: var(--hdt-primary-700);
+  border-color: var(--hdt-primary-700);
+  transform: translateY(-1px);
+  box-shadow: var(--hdt-shadow-lg);
+}
+
+.hdt-button--secondary {
+  background-color: var(--hdt-surface-secondary);
+  border-color: var(--hdt-border-primary);
+  color: var(--hdt-text-primary);
+}
+
+.hdt-button--secondary:hover {
+  background-color: var(--hdt-gray-50);
+  border-color: var(--hdt-border-secondary);
+  transform: translateY(-1px);
+  box-shadow: var(--hdt-shadow-md);
+}
+
+.hdt-button--success {
+  background-color: var(--hdt-success-600);
+  border-color: var(--hdt-success-600);
+  color: white;
+}
+
+.hdt-button--success:hover {
+  background-color: var(--hdt-success-700);
+  border-color: var(--hdt-success-700);
+  transform: translateY(-1px);
+  box-shadow: var(--hdt-shadow-lg);
+}
+
+.hdt-button--warning {
+  background-color: var(--hdt-warning-500);
+  border-color: var(--hdt-warning-500);
+  color: white;
+}
+
+.hdt-button--warning:hover {
+  background-color: var(--hdt-warning-600);
+  border-color: var(--hdt-warning-600);
+  transform: translateY(-1px);
+  box-shadow: var(--hdt-shadow-lg);
+}
+
+.hdt-button--danger {
+  background-color: var(--hdt-danger-600);
+  border-color: var(--hdt-danger-600);
+  color: white;
+}
+
+.hdt-button--danger:hover {
+  background-color: var(--hdt-danger-700);
+  border-color: var(--hdt-danger-700);
+  transform: translateY(-1px);
+  box-shadow: var(--hdt-shadow-lg);
+}
+
+.hdt-button--ghost {
+  background-color: transparent;
+  border-color: transparent;
+  color: var(--hdt-text-primary);
+}
+
+.hdt-button--ghost:hover {
+  background-color: var(--hdt-gray-100);
+  color: var(--hdt-text-primary);
+}
+
+.hdt-button--outline {
+  background-color: transparent;
+  border-color: var(--hdt-primary-600);
+  color: var(--hdt-primary-600);
+}
+
+.hdt-button--outline:hover {
+  background-color: var(--hdt-primary-600);
+  color: white;
+  transform: translateY(-1px);
+  box-shadow: var(--hdt-shadow-md);
+}
+
+/* Button Loading State */
+.hdt-button--loading {
+  position: relative;
+  color: transparent;
+}
+
+.hdt-button--loading::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 1rem;
+  height: 1rem;
+  margin-top: -0.5rem;
+  margin-left: -0.5rem;
+  border: 2px solid transparent;
+  border-top-color: currentColor;
+  border-radius: 50%;
+  animation: hdt-spin 1s linear infinite;
+}
+
+@keyframes hdt-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* === CARD COMPONENTS === */
+
+.hdt-card {
+  background-color: var(--hdt-surface-secondary);
+  border: 1px solid var(--hdt-border-primary);
+  border-radius: var(--hdt-radius-lg);
+  box-shadow: var(--hdt-shadow-sm);
+  overflow: hidden;
+  transition: var(--hdt-transition-all);
+}
+
+.hdt-card:hover {
+  box-shadow: var(--hdt-shadow-md);
+  transform: translateY(-2px);
+}
+
+.hdt-card--elevated {
+  box-shadow: var(--hdt-shadow-lg);
+}
+
+.hdt-card--flat {
+  box-shadow: none;
+  border: 1px solid var(--hdt-border-primary);
+}
+
+.hdt-card--stadium {
+  background: linear-gradient(135deg, var(--hdt-primary-600) 0%, var(--hdt-primary-700) 100%);
+  color: white;
+  border: none;
+  box-shadow: var(--hdt-shadow-stadium);
+}
+
+.hdt-card__header {
+  padding: var(--hdt-space-6);
+  border-bottom: 1px solid var(--hdt-border-primary);
+}
+
+.hdt-card__body {
+  padding: var(--hdt-space-6);
+}
+
+.hdt-card__footer {
+  padding: var(--hdt-space-6);
+  border-top: 1px solid var(--hdt-border-primary);
+  background-color: var(--hdt-gray-50);
+}
+
+/* === BADGE COMPONENTS === */
+
+.hdt-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--hdt-space-1);
+  font-family: var(--hdt-font-sans);
+  font-weight: var(--hdt-font-medium);
+  font-size: var(--hdt-text-xs);
+  line-height: 1;
+  white-space: nowrap;
+  border-radius: var(--hdt-radius-full);
+  padding: var(--hdt-space-1) var(--hdt-space-2-5);
+  text-transform: uppercase;
+  letter-spacing: var(--hdt-tracking-wide);
+}
+
+.hdt-badge--xs {
+  font-size: 0.625rem;
+  padding: var(--hdt-space-0-5) var(--hdt-space-1-5);
+}
+
+.hdt-badge--sm {
+  font-size: var(--hdt-text-xs);
+  padding: var(--hdt-space-1) var(--hdt-space-2);
+}
+
+.hdt-badge--md {
+  font-size: var(--hdt-text-sm);
+  padding: var(--hdt-space-1-5) var(--hdt-space-3);
+}
+
+.hdt-badge--primary {
+  background-color: var(--hdt-primary-100);
+  color: var(--hdt-primary-800);
+}
+
+.hdt-badge--secondary {
+  background-color: var(--hdt-gray-100);
+  color: var(--hdt-gray-800);
+}
+
+.hdt-badge--success {
+  background-color: var(--hdt-success-100);
+  color: var(--hdt-success-800);
+}
+
+.hdt-badge--warning {
+  background-color: var(--hdt-warning-100);
+  color: var(--hdt-warning-800);
+}
+
+.hdt-badge--danger {
+  background-color: var(--hdt-danger-100);
+  color: var(--hdt-danger-800);
+}
+
+.hdt-badge--info {
+  background-color: var(--hdt-info-100);
+  color: var(--hdt-info-800);
+}
+
+/* Badge with dot indicator */
+.hdt-badge--dot {
+  position: relative;
+}
+
+.hdt-badge--dot::before {
+  content: '';
+  position: absolute;
+  left: var(--hdt-space-2);
+  top: 50%;
+  width: var(--hdt-space-2);
+  height: var(--hdt-space-2);
+  background-color: currentColor;
+  border-radius: 50%;
+  transform: translateY(-50%);
+}
+
+.hdt-badge--dot.hdt-badge--pulse::before {
+  animation: hdt-pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+@keyframes hdt-pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+/* === INPUT COMPONENTS === */
+
+.hdt-input {
+  display: block;
+  width: 100%;
+  font-family: var(--hdt-font-sans);
+  font-size: var(--hdt-text-sm);
+  color: var(--hdt-text-primary);
+  background-color: var(--hdt-surface-secondary);
+  border: 1px solid var(--hdt-border-primary);
+  border-radius: var(--hdt-radius-md);
+  padding: var(--hdt-space-3) var(--hdt-space-4);
+  transition: var(--hdt-transition-all);
+  height: var(--hdt-input-height);
+}
+
+.hdt-input:focus {
+  outline: none;
+  border-color: var(--hdt-border-focus);
+  box-shadow: var(--hdt-shadow-focus);
+}
+
+.hdt-input--sm {
+  height: var(--hdt-input-height-sm);
+  padding: var(--hdt-space-2) var(--hdt-space-3);
+  font-size: var(--hdt-text-xs);
+}
+
+.hdt-input--lg {
+  height: var(--hdt-input-height-lg);
+  padding: var(--hdt-space-4) var(--hdt-space-6);
+  font-size: var(--hdt-text-base);
+}
+
+.hdt-input--error {
+  border-color: var(--hdt-danger-500);
+}
+
+.hdt-input--error:focus {
+  border-color: var(--hdt-danger-500);
+  box-shadow: 0 0 0 3px rgb(239 68 68 / 0.3);
+}
+
+.hdt-input--success {
+  border-color: var(--hdt-success-500);
+}
+
+.hdt-input--success:focus {
+  border-color: var(--hdt-success-500);
+  box-shadow: 0 0 0 3px rgb(34 197 94 / 0.3);
+}
+
+/* === FORM GROUP === */
+
+.hdt-form-group {
+  display: flex;
+  flex-direction: column;
+  gap: var(--hdt-space-2);
+}
+
+.hdt-label {
+  font-family: var(--hdt-font-sans);
+  font-size: var(--hdt-text-sm);
+  font-weight: var(--hdt-font-medium);
+  color: var(--hdt-text-primary);
+}
+
+.hdt-form-error {
+  font-size: var(--hdt-text-xs);
+  color: var(--hdt-danger-600);
+  display: flex;
+  align-items: center;
+  gap: var(--hdt-space-1);
+}
+
+.hdt-form-help {
+  font-size: var(--hdt-text-xs);
+  color: var(--hdt-text-tertiary);
+}
+
+/* === TICKET CARD COMPONENT === */
+
+.hdt-ticket-card {
+  position: relative;
+  background-color: var(--hdt-surface-secondary);
+  border: 1px solid var(--hdt-border-primary);
+  border-radius: var(--hdt-radius-lg);
+  overflow: hidden;
+  transition: var(--hdt-transition-all);
+  cursor: pointer;
+}
+
+.hdt-ticket-card:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--hdt-shadow-ticket);
+  border-color: var(--hdt-primary-300);
+}
+
+.hdt-ticket-card__header {
+  position: relative;
+  padding: var(--hdt-space-4);
+  background: linear-gradient(135deg, var(--hdt-primary-50) 0%, var(--hdt-primary-100) 100%);
+}
+
+.hdt-ticket-card__sport {
+  position: absolute;
+  top: var(--hdt-space-2);
+  right: var(--hdt-space-2);
+}
+
+.hdt-ticket-card__title {
+  font-size: var(--hdt-text-lg);
+  font-weight: var(--hdt-font-bold);
+  color: var(--hdt-text-primary);
+  margin-bottom: var(--hdt-space-1);
+  line-height: var(--hdt-leading-tight);
+}
+
+.hdt-ticket-card__venue {
+  font-size: var(--hdt-text-sm);
+  color: var(--hdt-text-secondary);
+  margin-bottom: var(--hdt-space-3);
+}
+
+.hdt-ticket-card__meta {
+  display: flex;
+  gap: var(--hdt-space-4);
+  font-size: var(--hdt-text-xs);
+  color: var(--hdt-text-tertiary);
+}
+
+.hdt-ticket-card__body {
+  padding: var(--hdt-space-4);
+}
+
+.hdt-ticket-card__price {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: var(--hdt-space-3);
+}
+
+.hdt-ticket-card__price-current {
+  font-size: var(--hdt-text-xl);
+  font-weight: var(--hdt-font-bold);
+  color: var(--hdt-text-primary);
+}
+
+.hdt-ticket-card__price-change {
+  display: flex;
+  align-items: center;
+  gap: var(--hdt-space-1);
+  font-size: var(--hdt-text-xs);
+  font-weight: var(--hdt-font-medium);
+}
+
+.hdt-ticket-card__price-change--up {
+  color: var(--hdt-danger-600);
+}
+
+.hdt-ticket-card__price-change--down {
+  color: var(--hdt-success-600);
+}
+
+.hdt-ticket-card__availability {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: var(--hdt-text-sm);
+  color: var(--hdt-text-secondary);
+  margin-bottom: var(--hdt-space-3);
+}
+
+.hdt-ticket-card__actions {
+  display: flex;
+  gap: var(--hdt-space-2);
+}
+
+/* === STATS CARD COMPONENT === */
+
+.hdt-stats-card {
+  background-color: var(--hdt-surface-secondary);
+  border: 1px solid var(--hdt-border-primary);
+  border-radius: var(--hdt-radius-lg);
+  padding: var(--hdt-space-6);
+  transition: var(--hdt-transition-all);
+}
+
+.hdt-stats-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--hdt-shadow-md);
+}
+
+.hdt-stats-card__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: var(--hdt-space-4);
+}
+
+.hdt-stats-card__icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--hdt-space-12);
+  height: var(--hdt-space-12);
+  border-radius: var(--hdt-radius-lg);
+  color: white;
+}
+
+.hdt-stats-card__icon--primary {
+  background: linear-gradient(135deg, var(--hdt-primary-500), var(--hdt-primary-600));
+}
+
+.hdt-stats-card__icon--success {
+  background: linear-gradient(135deg, var(--hdt-success-500), var(--hdt-success-600));
+}
+
+.hdt-stats-card__icon--warning {
+  background: linear-gradient(135deg, var(--hdt-warning-500), var(--hdt-warning-600));
+}
+
+.hdt-stats-card__icon--danger {
+  background: linear-gradient(135deg, var(--hdt-danger-500), var(--hdt-danger-600));
+}
+
+.hdt-stats-card__value {
+  font-size: var(--hdt-text-3xl);
+  font-weight: var(--hdt-font-bold);
+  color: var(--hdt-text-primary);
+  margin-bottom: var(--hdt-space-1);
+  line-height: var(--hdt-leading-none);
+}
+
+.hdt-stats-card__label {
+  font-size: var(--hdt-text-sm);
+  font-weight: var(--hdt-font-medium);
+  color: var(--hdt-text-secondary);
+  margin-bottom: var(--hdt-space-3);
+}
+
+.hdt-stats-card__change {
+  display: flex;
+  align-items: center;
+  gap: var(--hdt-space-1);
+  font-size: var(--hdt-text-xs);
+  font-weight: var(--hdt-font-medium);
+}
+
+.hdt-stats-card__change--positive {
+  color: var(--hdt-success-600);
+}
+
+.hdt-stats-card__change--negative {
+  color: var(--hdt-danger-600);
+}
+
+/* === NAVIGATION COMPONENTS === */
+
+.hdt-nav {
+  display: flex;
+  align-items: center;
+  gap: var(--hdt-space-6);
+}
+
+.hdt-nav__item {
+  display: flex;
+  align-items: center;
+  gap: var(--hdt-space-2);
+  padding: var(--hdt-space-3) var(--hdt-space-4);
+  font-family: var(--hdt-font-sans);
+  font-size: var(--hdt-text-sm);
+  font-weight: var(--hdt-font-medium);
+  color: var(--hdt-text-secondary);
+  text-decoration: none;
+  border-radius: var(--hdt-radius-md);
+  transition: var(--hdt-transition-colors);
+}
+
+.hdt-nav__item:hover {
+  background-color: var(--hdt-gray-100);
+  color: var(--hdt-text-primary);
+}
+
+.hdt-nav__item--active {
+  background-color: var(--hdt-primary-100);
+  color: var(--hdt-primary-700);
+}
+
+/* === LOADING STATES === */
+
+.hdt-skeleton {
+  background: linear-gradient(90deg, var(--hdt-gray-200) 25%, var(--hdt-gray-100) 50%, var(--hdt-gray-200) 75%);
+  background-size: 200% 100%;
+  animation: hdt-shimmer 2s ease-in-out infinite;
+  border-radius: var(--hdt-radius-default);
+}
+
+@keyframes hdt-shimmer {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+.hdt-skeleton--text {
+  height: 1em;
+  margin-bottom: 0.5em;
+}
+
+.hdt-skeleton--title {
+  height: 1.5em;
+  width: 60%;
+}
+
+.hdt-skeleton--avatar {
+  width: var(--hdt-avatar-md);
+  height: var(--hdt-avatar-md);
+  border-radius: 50%;
+}
+
+/* === UTILITY CLASSES === */
+
+.hdt-sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.hdt-focus-ring:focus-visible {
+  outline: none;
+  box-shadow: var(--hdt-shadow-focus);
+}
+
+.hdt-glass-effect {
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+/* === DARK MODE OVERRIDES === */
+
+.dark .hdt-card {
+  background-color: var(--hdt-surface-secondary);
+  border-color: var(--hdt-border-primary);
+}
+
+.dark .hdt-input {
+  background-color: var(--hdt-surface-secondary);
+  border-color: var(--hdt-border-primary);
+  color: var(--hdt-text-primary);
+}
+
+.dark .hdt-ticket-card {
+  background-color: var(--hdt-surface-secondary);
+  border-color: var(--hdt-border-primary);
+}
+
+.dark .hdt-ticket-card__header {
+  background: linear-gradient(135deg, var(--hdt-gray-800) 0%, var(--hdt-gray-700) 100%);
+}
+
+.dark .hdt-stats-card {
+  background-color: var(--hdt-surface-secondary);
+  border-color: var(--hdt-border-primary);
+}
+
+.dark .hdt-skeleton {
+  background: linear-gradient(90deg, var(--hdt-gray-700) 25%, var(--hdt-gray-600) 50%, var(--hdt-gray-700) 75%);
+  background-size: 200% 100%;
+}
