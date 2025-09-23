@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace App\Http\Controllers\Auth;
 
@@ -15,72 +17,72 @@ use Illuminate\View\View;
 
 class RegisteredUserController extends Controller
 {
-    /**
-     * Display the registration view.
-     * Only accessible by admin users.
-     */
-    /**
-     * Create
-     */
-    public function create(): View|Response
-    {
-        // Check if user is authenticated and is an admin
-        if (! Auth::check() || ! Auth::user()->isAdmin()) {
-            abort(403, 'Access denied. User registration is restricted to administrators only.');
-        }
-
-        return view('auth.register');
+  /**
+   * Display the registration view.
+   * Only accessible by admin users.
+   */
+  /**
+   * Create
+   */
+  public function create(): View|Response
+  {
+    // Check if user is authenticated and is an admin
+    if (! Auth::check() || ! Auth::user()->isAdmin()) {
+      abort(403, 'Access denied. User registration is restricted to administrators only.');
     }
 
-    /**
-     * Handle an incoming registration request.
-     * Only accessible by admin users.
-     *
-     * @throws \Illuminate\Validation\ValidationException
-     */
-    /**
-     * Store
-     */
-    public function store(Request $request): RedirectResponse
-    {
-        // Check if user is authenticated and is an admin
-        if (! Auth::check() || ! Auth::user()->isAdmin()) {
-            abort(403, 'Access denied. User registration is restricted to administrators only.');
-        }
+    return view('auth.new-register');
+  }
 
-        $request->validate([
-            'name'        => ['required', 'string', 'max:255'],
-            'surname'     => ['sometimes', 'string', 'max:255'],
-            'username'    => ['sometimes', 'string', 'max:255', 'unique:' . User::class],
-            'email'       => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:' . User::class],
-            'phone'       => ['sometimes', 'string', 'max:20'],
-            'password'    => ['required', 'confirmed', Password::defaults()],
-            'role'        => ['sometimes', 'string', 'in:admin,agent,customer,scraper'],
-            'is_active'   => ['sometimes', 'boolean'],
-            'require_2fa' => ['sometimes', 'boolean'],
-        ]);
-
-        $user = User::create([
-            'name'                => $request->name,
-            'surname'             => $request->surname,
-            'username'            => $request->username ?? strtolower(str_replace(' ', '.', $request->name)),
-            'email'               => $request->email,
-            'phone'               => $request->phone,
-            'password'            => Hash::make($request->password),
-            'role'                => $request->role ?? User::ROLE_CUSTOMER,
-            'is_active'           => $request->is_active ?? TRUE,
-            'require_2fa'         => $request->require_2fa ?? FALSE,
-            'registration_source' => 'admin',
-            'created_by_type'     => 'admin',
-            'created_by_id'       => Auth::id(),
-            'password_changed_at' => now(),
-        ]);
-
-        event(new Registered($user));
-
-        // Don't automatically log in the new user since this is admin registration
-        // Redirect back to admin user management with success message
-        return redirect()->route('admin.users.index')
-            ->with('success', "User '{$user->name}' has been successfully created with role '{$user->role}'.");
+  /**
+   * Handle an incoming registration request.
+   * Only accessible by admin users.
+   *
+   * @throws \Illuminate\Validation\ValidationException
+   */
+  /**
+   * Store
+   */
+  public function store(Request $request): RedirectResponse
+  {
+    // Check if user is authenticated and is an admin
+    if (! Auth::check() || ! Auth::user()->isAdmin()) {
+      abort(403, 'Access denied. User registration is restricted to administrators only.');
     }
+
+    $request->validate([
+      'name'        => ['required', 'string', 'max:255'],
+      'surname'     => ['sometimes', 'string', 'max:255'],
+      'username'    => ['sometimes', 'string', 'max:255', 'unique:' . User::class],
+      'email'       => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:' . User::class],
+      'phone'       => ['sometimes', 'string', 'max:20'],
+      'password'    => ['required', 'confirmed', Password::defaults()],
+      'role'        => ['sometimes', 'string', 'in:admin,agent,customer,scraper'],
+      'is_active'   => ['sometimes', 'boolean'],
+      'require_2fa' => ['sometimes', 'boolean'],
+    ]);
+
+    $user = User::create([
+      'name'                => $request->name,
+      'surname'             => $request->surname,
+      'username'            => $request->username ?? strtolower(str_replace(' ', '.', $request->name)),
+      'email'               => $request->email,
+      'phone'               => $request->phone,
+      'password'            => Hash::make($request->password),
+      'role'                => $request->role ?? User::ROLE_CUSTOMER,
+      'is_active'           => $request->is_active ?? TRUE,
+      'require_2fa'         => $request->require_2fa ?? FALSE,
+      'registration_source' => 'admin',
+      'created_by_type'     => 'admin',
+      'created_by_id'       => Auth::id(),
+      'password_changed_at' => now(),
+    ]);
+
+    event(new Registered($user));
+
+    // Don't automatically log in the new user since this is admin registration
+    // Redirect back to admin user management with success message
+    return redirect()->route('admin.users.index')
+      ->with('success', "User '{$user->name}' has been successfully created with role '{$user->role}'.");
+  }
 }

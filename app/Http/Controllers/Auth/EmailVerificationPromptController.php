@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace App\Http\Controllers\Auth;
 
@@ -9,16 +11,16 @@ use Illuminate\View\View;
 
 class EmailVerificationPromptController extends Controller
 {
-    /**
-     * Display the email verification prompt.
-     */
-    /**
-     * __invoke
-     */
-    public function __invoke(Request $request): RedirectResponse|View
-    {
-        return $request->user()->hasVerifiedEmail()
-                    ? redirect()->intended(route('dashboard', absolute: FALSE))
-                    : view('auth.verify-email');
-    }
+  /**
+   * Display the email verification prompt.
+   */
+  /**
+   * __invoke
+   */
+  public function __invoke(Request $request): RedirectResponse|View
+  {
+    return $request->user()->hasVerifiedEmail()
+      ? redirect()->intended(route('dashboard', absolute: FALSE))
+      : view('auth.new-verify-email');
+  }
 }

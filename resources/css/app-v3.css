@@ -1,0 +1,311 @@
+/* HD Tickets - Application Styles v3.0 */
+/* Main application stylesheet with Tailwind and custom components */
+
+@import "tailwindcss";
+
+/* Import our design system and components */
+@import './design-system-v3.css';
+@import './components-v3.css';
+
+/* ===== APPLICATION SPECIFIC STYLES ===== */
+
+/* Layout */
+.app-layout {
+  min-height: 100vh;
+  background-color: var(--color-secondary-50);
+}
+
+.app-sidebar {
+  width: 16rem;
+  background-color: white;
+  border-right: 1px solid var(--color-secondary-200);
+}
+
+.app-main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.app-header {
+  background-color: white;
+  border-bottom: 1px solid var(--color-secondary-200);
+  padding: var(--space-4) var(--space-6);
+}
+
+.app-content {
+  flex: 1;
+  overflow-y: auto;
+  padding: var(--space-6);
+}
+
+/* Dashboard specific styles */
+.dashboard-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: var(--space-6);
+}
+
+.dashboard-card {
+  background-color: white;
+  border: 1px solid var(--color-secondary-200);
+  border-radius: var(--border-radius-lg);
+  padding: var(--space-6);
+  box-shadow: var(--shadow-sm);
+  transition: box-shadow var(--transition-normal);
+}
+
+.dashboard-card:hover {
+  box-shadow: var(--shadow-md);
+}
+
+.dashboard-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: var(--space-4);
+  margin-bottom: var(--space-8);
+}
+
+.stat-card {
+  background-color: white;
+  border: 1px solid var(--color-secondary-200);
+  border-radius: var(--border-radius-lg);
+  padding: var(--space-6);
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+}
+
+.stat-icon {
+  width: 3rem;
+  height: 3rem;
+  border-radius: var(--border-radius-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+}
+
+.stat-content {
+  flex: 1;
+}
+
+.stat-title {
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-secondary-600);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: var(--space-1);
+}
+
+.stat-value {
+  font-size: var(--font-size-2xl);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-secondary-900);
+  margin-bottom: var(--space-1);
+}
+
+.stat-change {
+  font-size: var(--font-size-sm);
+  color: var(--color-success);
+}
+
+/* Ticket cards */
+.ticket-card {
+  background-color: white;
+  border: 1px solid var(--color-secondary-200);
+  border-radius: var(--border-radius-lg);
+  padding: var(--space-4);
+  transition: all var(--transition-normal);
+  cursor: pointer;
+}
+
+.ticket-card:hover {
+  border-color: var(--color-primary-300);
+  box-shadow: var(--shadow-md);
+}
+
+.ticket-title {
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-secondary-900);
+  margin-bottom: var(--space-2);
+}
+
+.ticket-meta {
+  font-size: var(--font-size-sm);
+  color: var(--color-secondary-600);
+  margin-bottom: var(--space-2);
+}
+
+.ticket-price {
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-primary-600);
+}
+
+/* Form enhancements */
+.form-section {
+  background-color: white;
+  border: 1px solid var(--color-secondary-200);
+  border-radius: var(--border-radius-lg);
+  padding: var(--space-6);
+  margin-bottom: var(--space-6);
+}
+
+.form-section-title {
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-secondary-900);
+  margin-bottom: var(--space-4);
+  padding-bottom: var(--space-2);
+  border-bottom: 1px solid var(--color-secondary-200);
+}
+
+/* Table styles */
+.table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.table th,
+.table td {
+  padding: var(--space-3) var(--space-4);
+  text-align: left;
+  border-bottom: 1px solid var(--color-secondary-200);
+}
+
+.table th {
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-secondary-700);
+  background-color: var(--color-secondary-50);
+}
+
+.table tbody tr:hover {
+  background-color: var(--color-secondary-50);
+}
+
+/* Responsive utilities */
+@media (max-width: 768px) {
+  .dashboard-stats {
+    grid-template-columns: 1fr;
+  }
+
+  .dashboard-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .app-sidebar {
+    width: 100%;
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 100vh;
+    z-index: 50;
+    transform: translateX(-100%);
+    transition: transform var(--transition-normal);
+  }
+
+  .app-sidebar.open {
+    transform: translateX(0);
+  }
+
+  .app-content {
+    padding: var(--space-4);
+  }
+}
+
+/* ===== DARK MODE SUPPORT ===== */
+
+@media (prefers-color-scheme: dark) {
+  .app-layout {
+    background-color: var(--color-secondary-900);
+  }
+
+  .app-sidebar,
+  .app-header {
+    background-color: var(--color-secondary-800);
+    border-color: var(--color-secondary-700);
+  }
+
+  .dashboard-card,
+  .stat-card,
+  .ticket-card,
+  .form-section {
+    background-color: var(--color-secondary-800);
+    border-color: var(--color-secondary-700);
+  }
+
+  .stat-title {
+    color: var(--color-secondary-400);
+  }
+
+  .stat-value {
+    color: var(--color-secondary-100);
+  }
+
+  .ticket-title {
+    color: var(--color-secondary-100);
+  }
+
+  .ticket-meta {
+    color: var(--color-secondary-400);
+  }
+
+  .form-section-title {
+    color: var(--color-secondary-100);
+  }
+
+  .table th {
+    background-color: var(--color-secondary-800);
+    color: var(--color-secondary-300);
+    border-color: var(--color-secondary-700);
+  }
+
+  .table td {
+    border-color: var(--color-secondary-700);
+  }
+
+  .table tbody tr:hover {
+    background-color: var(--color-secondary-700);
+  }
+}
+
+/* ===== ACCESSIBILITY ENHANCEMENTS ===== */
+
+/* Focus indicators */
+.btn:focus-visible,
+.nav-item:focus-visible,
+.form-input:focus-visible,
+.form-select:focus-visible {
+  outline: 2px solid var(--color-primary-500);
+  outline-offset: 2px;
+}
+
+/* High contrast support */
+@media (prefers-contrast: high) {
+  .dashboard-card,
+  .stat-card,
+  .ticket-card {
+    border-width: 2px;
+  }
+
+  .btn {
+    border-width: 2px;
+  }
+}
+
+/* Reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  .dashboard-card,
+  .ticket-card,
+  .stat-card {
+    transition: none;
+  }
+
+  .loading-skeleton {
+    animation: none;
+  }
+}

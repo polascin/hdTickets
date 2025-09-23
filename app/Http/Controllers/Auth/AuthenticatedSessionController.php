@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace App\Http\Controllers\Auth;
 
@@ -12,54 +14,54 @@ use Illuminate\View\View;
 
 class AuthenticatedSessionController extends Controller
 {
-    /**
-     * Display the login view.
-     */
-    /**
-     * Create
-     */
-    public function create(): View
-    {
-        // Check if enhanced login is enabled
-        $useEnhancedLogin = config('auth.enhanced_login', TRUE);
+  /**
+   * Display the login view.
+   */
+  /**
+   * Create
+   */
+  public function create(): View
+  {
+    // Check if enhanced login is enabled
+    $useEnhancedLogin = config('auth.enhanced_login', TRUE);
 
-        return view($useEnhancedLogin ? 'auth.login-enhanced' : Login::class);
+    return view($useEnhancedLogin ? 'auth.new-login' : 'auth.new-login');
+  }
+
+  /**
+   * Handle an incoming authentication request.
+   */
+  /**
+   * Store
+   */
+  public function store(LoginRequest $request): RedirectResponse
+  {
+    $request->authenticate();
+
+    // Check if 2FA is required
+    if ($request->requires2FA()) {
+      return redirect()->route('2fa.challenge');
     }
 
-    /**
-     * Handle an incoming authentication request.
-     */
-    /**
-     * Store
-     */
-    public function store(LoginRequest $request): RedirectResponse
-    {
-        $request->authenticate();
+    $request->session()->regenerate();
 
-        // Check if 2FA is required
-        if ($request->requires2FA()) {
-            return redirect()->route('2fa.challenge');
-        }
+    return redirect()->intended(route('dashboard', absolute: FALSE));
+  }
 
-        $request->session()->regenerate();
+  /**
+   * Destroy an authenticated session.
+   */
+  /**
+   * Destroy
+   */
+  public function destroy(Request $request): RedirectResponse
+  {
+    Auth::guard('web')->logout();
 
-        return redirect()->intended(route('dashboard', absolute: FALSE));
-    }
+    $request->session()->invalidate();
 
-    /**
-     * Destroy an authenticated session.
-     */
-    /**
-     * Destroy
-     */
-    public function destroy(Request $request): RedirectResponse
-    {
-        Auth::guard('web')->logout();
+    $request->session()->regenerateToken();
 
-        $request->session()->invalidate();
-
-        $request->session()->regenerateToken();
-
-        return redirect('/');
-    }
+    return redirect('/');
+  }
 }

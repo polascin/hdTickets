@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace App\Http\Controllers\Auth;
 
@@ -21,241 +23,240 @@ use PragmaRX\Google2FA\Google2FA;
 
 class PublicRegistrationController extends Controller
 {
-    public function __construct(
-        private PhoneVerificationService $phoneService,
-        private TwoFactorAuthService $twoFactorService,
-    ) {
+  public function __construct(
+    private PhoneVerificationService $phoneService,
+    private TwoFactorAuthService $twoFactorService,
+  ) {}
+
+  /**
+   * Show the public registration form
+   */
+  public function create(): View
+  {
+    // Get all required legal documents
+    $legalDocuments = LegalDocument::getActiveRequiredDocuments();
+
+    // Check if all required documents exist
+    $requiredTypes = LegalDocument::getRequiredForRegistration();
+    $missingDocuments = array_diff($requiredTypes, array_keys($legalDocuments));
+
+    if ($missingDocuments !== []) {
+      abort(503, 'Registration is temporarily unavailable. Missing legal documents: ' . implode(', ', $missingDocuments));
     }
 
-    /**
-     * Show the public registration form
-     */
-    public function create(): View
-    {
-        // Get all required legal documents
-        $legalDocuments = LegalDocument::getActiveRequiredDocuments();
+    return view('auth.new-register', ['legalDocuments' => $legalDocuments]);
+  }
 
-        // Check if all required documents exist
-        $requiredTypes = LegalDocument::getRequiredForRegistration();
-        $missingDocuments = array_diff($requiredTypes, array_keys($legalDocuments));
+  /**
+   * Handle public customer registration
+   */
+  public function store(PublicRegistrationRequest $request): RedirectResponse
+  {
+    try {
+      DB::beginTransaction();
 
-        if ($missingDocuments !== []) {
-            abort(503, 'Registration is temporarily unavailable. Missing legal documents: ' . implode(', ', $missingDocuments));
-        }
+      // Validate legal document acceptances
+      $this->validateLegalAcceptances($request);
 
-        return view('auth.public-register', ['legalDocuments' => $legalDocuments]);
+      // Create the user
+      $user = User::create([
+        'name'                => $request->validated()['name'],
+        'surname'             => $request->validated()['surname'] ?? NULL,
+        'email'               => $request->validated()['email'],
+        'phone'               => $request->validated()['phone'] ?? NULL,
+        'password'            => Hash::make($request->validated()['password']),
+        'role'                => User::ROLE_CUSTOMER,
+        'is_active'           => TRUE,
+        'registration_source' => 'public_web',
+        'password_changed_at' => now(),
+        'require_2fa'         => $request->boolean('enable_2fa', FALSE),
+      ]);
+
+      // Record legal document acceptances
+      $this->recordLegalAcceptances($user, $request);
+
+      // Set up 2FA if requested
+      if ($request->boolean('enable_2fa', FALSE)) {
+        $this->setupTwoFactorAuth($user);
+      }
+
+      // Send phone verification if phone provided
+      if ($request->filled('phone')) {
+        $this->phoneService->sendVerificationCode($user);
+      }
+
+      DB::commit();
+
+      // Fire registered event (triggers email verification)
+      event(new Registered($user));
+
+      // Log the user in
+      Auth::login($user);
+
+      // Redirect to email verification notice
+      return redirect()->route('verification.notice')
+        ->with('success', 'Registration successful! Please check your email to verify your account.');
+    } catch (Exception $e) {
+      DB::rollBack();
+
+      return back()
+        ->withErrors(['error' => 'Registration failed: ' . $e->getMessage()])
+        ->withInput();
+    }
+  }
+
+  /**
+   * Show phone verification form
+   */
+  public function showPhoneVerification(): View
+  {
+    $user = Auth::user();
+
+    if (! $user || ! $user->phone) {
+      return redirect()->route('dashboard');
     }
 
-    /**
-     * Handle public customer registration
-     */
-    public function store(PublicRegistrationRequest $request): RedirectResponse
-    {
-        try {
-            DB::beginTransaction();
+    return view('auth.verify-phone', ['user' => $user]);
+  }
 
-            // Validate legal document acceptances
-            $this->validateLegalAcceptances($request);
+  /**
+   * Verify phone number
+   */
+  public function verifyPhone(Request $request): RedirectResponse
+  {
+    $request->validate([
+      'verification_code' => ['required', 'string', 'size:6'],
+    ]);
 
-            // Create the user
-            $user = User::create([
-                'name'                => $request->validated()['name'],
-                'surname'             => $request->validated()['surname'] ?? NULL,
-                'email'               => $request->validated()['email'],
-                'phone'               => $request->validated()['phone'] ?? NULL,
-                'password'            => Hash::make($request->validated()['password']),
-                'role'                => User::ROLE_CUSTOMER,
-                'is_active'           => TRUE,
-                'registration_source' => 'public_web',
-                'password_changed_at' => now(),
-                'require_2fa'         => $request->boolean('enable_2fa', FALSE),
-            ]);
+    $user = Auth::user();
 
-            // Record legal document acceptances
-            $this->recordLegalAcceptances($user, $request);
-
-            // Set up 2FA if requested
-            if ($request->boolean('enable_2fa', FALSE)) {
-                $this->setupTwoFactorAuth($user);
-            }
-
-            // Send phone verification if phone provided
-            if ($request->filled('phone')) {
-                $this->phoneService->sendVerificationCode($user);
-            }
-
-            DB::commit();
-
-            // Fire registered event (triggers email verification)
-            event(new Registered($user));
-
-            // Log the user in
-            Auth::login($user);
-
-            // Redirect to email verification notice
-            return redirect()->route('verification.notice')
-                ->with('success', 'Registration successful! Please check your email to verify your account.');
-        } catch (Exception $e) {
-            DB::rollBack();
-
-            return back()
-                ->withErrors(['error' => 'Registration failed: ' . $e->getMessage()])
-                ->withInput();
-        }
+    if (! $user || ! $user->phone) {
+      return redirect()->route('dashboard');
     }
 
-    /**
-     * Show phone verification form
-     */
-    public function showPhoneVerification(): View
-    {
-        $user = Auth::user();
+    if ($this->phoneService->verifyCode($user, $request->verification_code)) {
+      $user->update(['phone_verified_at' => now()]);
 
-        if (! $user || ! $user->phone) {
-            return redirect()->route('dashboard');
-        }
-
-        return view('auth.verify-phone', ['user' => $user]);
+      return redirect()->route('dashboard')
+        ->with('success', 'Phone number verified successfully!');
     }
 
-    /**
-     * Verify phone number
-     */
-    public function verifyPhone(Request $request): RedirectResponse
-    {
-        $request->validate([
-            'verification_code' => ['required', 'string', 'size:6'],
-        ]);
+    return back()
+      ->withErrors(['verification_code' => 'Invalid verification code.']);
+  }
 
-        $user = Auth::user();
+  /**
+   * Resend phone verification code
+   */
+  public function resendPhoneVerification(): RedirectResponse
+  {
+    $user = Auth::user();
 
-        if (! $user || ! $user->phone) {
-            return redirect()->route('dashboard');
-        }
-
-        if ($this->phoneService->verifyCode($user, $request->verification_code)) {
-            $user->update(['phone_verified_at' => now()]);
-
-            return redirect()->route('dashboard')
-                ->with('success', 'Phone number verified successfully!');
-        }
-
-        return back()
-            ->withErrors(['verification_code' => 'Invalid verification code.']);
+    if (! $user || ! $user->phone) {
+      return redirect()->route('dashboard');
     }
 
-    /**
-     * Resend phone verification code
-     */
-    public function resendPhoneVerification(): RedirectResponse
-    {
-        $user = Auth::user();
+    try {
+      $this->phoneService->sendVerificationCode($user);
 
-        if (! $user || ! $user->phone) {
-            return redirect()->route('dashboard');
-        }
+      return back()
+        ->with('success', 'Verification code sent!');
+    } catch (Exception) {
+      return back()
+        ->withErrors(['error' => 'Failed to send verification code.']);
+    }
+  }
 
-        try {
-            $this->phoneService->sendVerificationCode($user);
+  /**
+   * Show 2FA setup page
+   */
+  public function showTwoFactorSetup(): View
+  {
+    $user = Auth::user();
 
-            return back()
-                ->with('success', 'Verification code sent!');
-        } catch (Exception) {
-            return back()
-                ->withErrors(['error' => 'Failed to send verification code.']);
-        }
+    if (! $user || ! $user->two_factor_secret || $user->two_factor_enabled) {
+      return redirect()->route('dashboard');
     }
 
-    /**
-     * Show 2FA setup page
-     */
-    public function showTwoFactorSetup(): View
-    {
-        $user = Auth::user();
+    $qrCodeUrl = $this->twoFactorService->generateQrCodeUrl($user);
 
-        if (! $user || ! $user->two_factor_secret || $user->two_factor_enabled) {
-            return redirect()->route('dashboard');
-        }
+    return view('auth.setup-2fa', ['user' => $user, 'qrCodeUrl' => $qrCodeUrl]);
+  }
 
-        $qrCodeUrl = $this->twoFactorService->generateQrCodeUrl($user);
+  /**
+   * Confirm and enable 2FA
+   */
+  public function confirmTwoFactor(Request $request): RedirectResponse
+  {
+    $request->validate([
+      'code' => ['required', 'string', 'size:6'],
+    ]);
 
-        return view('auth.setup-2fa', ['user' => $user, 'qrCodeUrl' => $qrCodeUrl]);
+    $user = Auth::user();
+
+    if (! $user || ! $user->two_factor_secret || $user->two_factor_enabled) {
+      return redirect()->route('dashboard');
     }
 
-    /**
-     * Confirm and enable 2FA
-     */
-    public function confirmTwoFactor(Request $request): RedirectResponse
-    {
-        $request->validate([
-            'code' => ['required', 'string', 'size:6'],
-        ]);
+    if ($this->twoFactorService->verifyCode($user, $request->code)) {
+      $user->update([
+        'two_factor_enabled'      => TRUE,
+        'two_factor_confirmed_at' => now(),
+      ]);
 
-        $user = Auth::user();
-
-        if (! $user || ! $user->two_factor_secret || $user->two_factor_enabled) {
-            return redirect()->route('dashboard');
-        }
-
-        if ($this->twoFactorService->verifyCode($user, $request->code)) {
-            $user->update([
-                'two_factor_enabled'      => TRUE,
-                'two_factor_confirmed_at' => now(),
-            ]);
-
-            return redirect()->route('dashboard')
-                ->with('success', 'Two-factor authentication enabled successfully!');
-        }
-
-        return back()
-            ->withErrors(['code' => 'Invalid authentication code.']);
+      return redirect()->route('dashboard')
+        ->with('success', 'Two-factor authentication enabled successfully!');
     }
 
-    /**
-     * Validate that all required legal documents have been accepted
-     */
-    private function validateLegalAcceptances(PublicRegistrationRequest $request): void
-    {
-        $requiredTypes = LegalDocument::getRequiredForRegistration();
-        $legalDocuments = LegalDocument::getActiveRequiredDocuments();
+    return back()
+      ->withErrors(['code' => 'Invalid authentication code.']);
+  }
 
-        foreach ($requiredTypes as $type) {
-            if (! $request->boolean("accept_{$type}")) {
-                throw new Exception("You must accept the {$legalDocuments[$type]->type_name} to register.");
-            }
-        }
+  /**
+   * Validate that all required legal documents have been accepted
+   */
+  private function validateLegalAcceptances(PublicRegistrationRequest $request): void
+  {
+    $requiredTypes = LegalDocument::getRequiredForRegistration();
+    $legalDocuments = LegalDocument::getActiveRequiredDocuments();
+
+    foreach ($requiredTypes as $type) {
+      if (! $request->boolean("accept_{$type}")) {
+        throw new Exception("You must accept the {$legalDocuments[$type]->type_name} to register.");
+      }
     }
+  }
 
-    /**
-     * Record user's legal document acceptances
-     */
-    private function recordLegalAcceptances(User $user, PublicRegistrationRequest $request): void
-    {
-        $legalDocuments = LegalDocument::getActiveRequiredDocuments();
+  /**
+   * Record user's legal document acceptances
+   */
+  private function recordLegalAcceptances(User $user, PublicRegistrationRequest $request): void
+  {
+    $legalDocuments = LegalDocument::getActiveRequiredDocuments();
 
-        foreach ($legalDocuments as $document) {
-            if ($request->boolean("accept_{$document->type}")) {
-                UserLegalAcceptance::recordAcceptance(
-                    $user->id,
-                    $document->id,
-                    $document->version,
-                    UserLegalAcceptance::METHOD_REGISTRATION,
-                );
-            }
-        }
+    foreach ($legalDocuments as $document) {
+      if ($request->boolean("accept_{$document->type}")) {
+        UserLegalAcceptance::recordAcceptance(
+          $user->id,
+          $document->id,
+          $document->version,
+          UserLegalAcceptance::METHOD_REGISTRATION,
+        );
+      }
     }
+  }
 
-    /**
-     * Set up two-factor authentication for the user
-     */
-    private function setupTwoFactorAuth(User $user): void
-    {
-        $google2fa = new Google2FA();
-        $secretKey = $google2fa->generateSecretKey();
+  /**
+   * Set up two-factor authentication for the user
+   */
+  private function setupTwoFactorAuth(User $user): void
+  {
+    $google2fa = new Google2FA();
+    $secretKey = $google2fa->generateSecretKey();
 
-        $user->update([
-            'two_factor_secret'  => $secretKey,
-            'two_factor_enabled' => FALSE, // Will be enabled after confirmation
-        ]);
-    }
+    $user->update([
+      'two_factor_secret'  => $secretKey,
+      'two_factor_enabled' => FALSE, // Will be enabled after confirmation
+    ]);
+  }
 }
