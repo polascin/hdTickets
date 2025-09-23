@@ -1,7 +1,7 @@
 /* HD Tickets Component Library v2.0 - Modern Sports-themed UI Components */
 /* Built on top of design-system-v2.css tokens */
 
-@import './design-system-v2.css';
+/* design-system-v2.css already imported globally in app.css; removed duplicate import */
 
 /* === UTILITY CLASSES === */
 

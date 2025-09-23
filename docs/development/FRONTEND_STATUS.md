@@ -35,7 +35,7 @@
 ### 6. **Framework Integration**
 - ✅ Laravel + Vite integration working
 - ✅ Alpine.js properly configured
-- ✅ TailwindCSS compilation successful
+- ✅ TailwindCSS removed (replaced with static snapshot + design system)
 - ✅ Hot Module Replacement (HMR) ready
 
 ## 📊 Build Output Summary
@@ -64,7 +64,7 @@ public/build/assets/app-B1QRfBcJ.js         8.71 kB │ gzip:  3.27 kB
 ## 🎯 Current Technology Stack
 
 - **Build Tool**: Vite 6.3.5
-- **CSS Framework**: TailwindCSS 3.4.17
+- **CSS Framework**: Custom design system (Tailwind removed). Frozen utilities: `resources/css/tw-legacy.css` (to be phased out)
 - **JavaScript Framework**: Alpine.js 3.14.7
 - **HTTP Client**: Axios 1.7.8
 - **Charts**: Chart.js 4.4.7

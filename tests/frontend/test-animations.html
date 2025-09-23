@@ -1,122 +1,125 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
+
+  <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>HD Tickets - Animation Test</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Tailwind removed: animations test uses compiled design system + legacy snapshot -->
     <style>
-        .card-test {
-            background: white;
-            border-radius: 12px;
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-            padding: 24px;
-            margin: 16px;
-            border: 1px solid #e5e7eb;
-            min-height: 120px;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-        }
+      .card-test {
+        background: white;
+        border-radius: 12px;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        padding: 24px;
+        margin: 16px;
+        border: 1px solid #e5e7eb;
+        min-height: 120px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+      }
     </style>
-</head>
-<body class="bg-gray-100 p-8">
+  </head>
+
+  <body class="bg-gray-100 p-8">
     <div class="container mx-auto">
-        <h1 class="text-3xl font-bold text-center mb-8">HD Tickets Animation Tests</h1>
-        
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            <!-- Test Cards -->
-            <div class="dashboard-card card-test">
-                <h3 class="text-lg font-semibold mb-2">Dashboard Card</h3>
-                <p class="text-gray-600">Hover and click me!</p>
-            </div>
-            
-            <div class="ticket-card card-test">
-                <h3 class="text-lg font-semibold mb-2">Ticket Card</h3>
-                <p class="text-gray-600">Modern hover effects</p>
-            </div>
-            
-            <div class="modern-card card-test">
-                <h3 class="text-lg font-semibold mb-2">Modern Card</h3>
-                <p class="text-gray-600">With ripple effect</p>
-            </div>
-            
-            <!-- Test Buttons -->
-            <div class="card-test">
-                <button class="btn-primary bg-blue-600 text-white px-4 py-2 rounded mr-2">
-                    Primary Button
-                </button>
-                <button class="btn-secondary bg-gray-300 text-gray-700 px-4 py-2 rounded">
-                    Secondary Button
-                </button>
-            </div>
-            
-            <!-- Test Loading -->
-            <div class="card-test">
-                <button type="submit" class="bg-green-600 text-white px-4 py-2 rounded">
-                    Submit Form
-                </button>
-                <p class="text-sm text-gray-500 mt-2">Click for loading state</p>
-            </div>
-            
-            <!-- Test Tooltip -->
-            <div class="card-test">
-                <div data-tooltip="This is a test tooltip!" class="bg-purple-600 text-white px-4 py-2 rounded cursor-pointer">
-                    Hover for Tooltip
-                </div>
-            </div>
-            
-            <!-- Feature Cards for Staggered Animation -->
-            <div class="feature-card card-test">
-                <h3 class="text-lg font-semibold mb-2">Feature 1</h3>
-                <p class="text-gray-600">Staggered fade-in</p>
-            </div>
-            
-            <div class="feature-card card-test">
-                <h3 class="text-lg font-semibold mb-2">Feature 2</h3>
-                <p class="text-gray-600">100ms delay</p>
-            </div>
-            
-            <div class="feature-card card-test">
-                <h3 class="text-lg font-semibold mb-2">Feature 3</h3>
-                <p class="text-gray-600">200ms delay</p>
-            </div>
+      <h1 class="text-3xl font-bold text-center mb-8">HD Tickets Animation Tests</h1>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <!-- Test Cards -->
+        <div class="dashboard-card card-test">
+          <h3 class="text-lg font-semibold mb-2">Dashboard Card</h3>
+          <p class="text-gray-600">Hover and click me!</p>
         </div>
-        
-        <div class="mt-8 text-center">
-            <button onclick="testReload()" class="bg-indigo-600 text-white px-6 py-3 rounded-lg">
-                Test Animation Reload
-            </button>
+
+        <div class="ticket-card card-test">
+          <h3 class="text-lg font-semibold mb-2">Ticket Card</h3>
+          <p class="text-gray-600">Modern hover effects</p>
         </div>
+
+        <div class="modern-card card-test">
+          <h3 class="text-lg font-semibold mb-2">Modern Card</h3>
+          <p class="text-gray-600">With ripple effect</p>
+        </div>
+
+        <!-- Test Buttons -->
+        <div class="card-test">
+          <button class="btn-primary bg-blue-600 text-white px-4 py-2 rounded mr-2">
+            Primary Button
+          </button>
+          <button class="btn-secondary bg-gray-300 text-gray-700 px-4 py-2 rounded">
+            Secondary Button
+          </button>
+        </div>
+
+        <!-- Test Loading -->
+        <div class="card-test">
+          <button type="submit" class="bg-green-600 text-white px-4 py-2 rounded">
+            Submit Form
+          </button>
+          <p class="text-sm text-gray-500 mt-2">Click for loading state</p>
+        </div>
+
+        <!-- Test Tooltip -->
+        <div class="card-test">
+          <div data-tooltip="This is a test tooltip!" class="bg-purple-600 text-white px-4 py-2 rounded cursor-pointer">
+            Hover for Tooltip
+          </div>
+        </div>
+
+        <!-- Feature Cards for Staggered Animation -->
+        <div class="feature-card card-test">
+          <h3 class="text-lg font-semibold mb-2">Feature 1</h3>
+          <p class="text-gray-600">Staggered fade-in</p>
+        </div>
+
+        <div class="feature-card card-test">
+          <h3 class="text-lg font-semibold mb-2">Feature 2</h3>
+          <p class="text-gray-600">100ms delay</p>
+        </div>
+
+        <div class="feature-card card-test">
+          <h3 class="text-lg font-semibold mb-2">Feature 3</h3>
+          <p class="text-gray-600">200ms delay</p>
+        </div>
+      </div>
+
+      <div class="mt-8 text-center">
+        <button onclick="testReload()" class="bg-indigo-600 text-white px-6 py-3 rounded-lg">
+          Test Animation Reload
+        </button>
+      </div>
     </div>
 
     <script src="public/js/ui-enhancements.js"></script>
     <script>
-        function testReload() {
-            // Reset fade-in animations for testing
-            document.querySelectorAll('.fade-in-visible').forEach(el => {
-                el.classList.remove('fade-in-visible');
-                el.classList.add('fade-in-prepare');
-            });
-            
-            // Re-observe elements
-            setTimeout(() => {
-                if (window.UIEnhancements) {
-                    const ui = new window.UIEnhancements();
-                }
-            }, 100);
-        }
-        
-        // Add some test styles
-        const style = document.createElement('style');
-        style.textContent = `
+      function testReload() {
+        // Reset fade-in animations for testing
+        document.querySelectorAll('.fade-in-visible').forEach(el => {
+          el.classList.remove('fade-in-visible');
+          el.classList.add('fade-in-prepare');
+        });
+
+        // Re-observe elements
+        setTimeout(() => {
+          if (window.UIEnhancements) {
+            const ui = new window.UIEnhancements();
+          }
+        }, 100);
+      }
+
+      // Add some test styles
+      const style = document.createElement('style');
+      style.textContent = `
             .btn-primary, .btn-secondary {
                 transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
                 will-change: transform, box-shadow;
             }
         `;
-        document.head.appendChild(style);
+      document.head.appendChild(style);
     </script>
-</body>
+  </body>
+
 </html>

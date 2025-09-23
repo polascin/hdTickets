@@ -1,3 +1,10 @@
+/* CSS Layering Order (transitional):
+ * 1. External / legacy migrated bundles
+ * 2. Design system (v2 pending consolidation into v3)
+ * 3. Base reset (post-tailwind)
+ * 4. Legacy snapshot utilities (tw-legacy.css) – scheduled for pruning
+ * 5. Semantic additions (auth layout, future components)
+ */
 /* External design system and component layers (imports must be first for PostCSS) */
 @import './design-system-v2.css';
 @import './components-v2.css';
@@ -7,17 +14,17 @@
 
 /* Migrated public CSS bundles (to be pruned gradually) */
 @import './migrated/ui-v2.css';
-@import './migrated/navigation-enhanced.css';
-@import './migrated/navigation-dashboard-fixes.css';
+@import './migrated/navigation.css';
 @import './migrated/theme-system.css';
 @import './migrated/hd-notifications.css';
-@import './migrated/loading-states.css';
 @import './migrated/enhanced-forms.css';
 @import './migrated/mobile-enhancements.css';
 
-/* Tailwind CSS v4 core layers */
-@import "tailwindcss/preflight";
-@import "tailwindcss/utilities";
+/* Replaced Tailwind core layers with frozen snapshot */
+@import './base-reset.css';
+@import './tw-legacy.css';
+@import './semantic/auth-layout.css';
+@import './semantic/forms.css';
 
 /* Custom component styles */
 @layer components {
@@ -245,44 +252,7 @@
     box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.3), 0 2px 4px -2px rgb(0 0 0 / 0.3);
   }
 
-  .form-input {
-    display: block;
-    width: 100%;
-    border-radius: 0.375rem;
-    border: 1px solid #d1d5db;
-    /* gray-300 */
-    box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05);
-    font-size: 0.875rem;
-    line-height: 1.25rem;
-    padding: 0.5rem 0.75rem;
-    /* align with typical inputs */
-  }
-
-  .form-input:focus {
-    outline: none;
-    border-color: var(--primary-500, #10B981);
-    box-shadow: 0 0 0 3px color-mix(in srgb, var(--primary-500, #10B981) 45%, transparent);
-  }
-
-  .form-select {
-    display: block;
-    width: 100%;
-    border-radius: 0.375rem;
-    border: 1px solid #d1d5db;
-    /* gray-300 */
-    box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05);
-    font-size: 0.875rem;
-    line-height: 1.25rem;
-    padding: 0.5rem 2rem 0.5rem 0.75rem;
-    background-color: #fff;
-    background-image: none;
-  }
-
-  .form-select:focus {
-    outline: none;
-    border-color: var(--primary-500, #10B981);
-    box-shadow: 0 0 0 3px color-mix(in srgb, var(--primary-500, #10B981) 45%, transparent);
-  }
+  /* Base form control styles moved to semantic/forms.css */
 
   .stadium-bg {
     background: linear-gradient(to bottom right, var(--primary-600, #0F766E), #1D4ED8, #7C3AED);
@@ -293,17 +263,17 @@
     overflow: hidden;
   }
 
-  .loading-skeleton {
-    animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
-    border-radius: 0.25rem;
-    background-color: rgb(229 231 235);
-  }
-
-  .loading-skeleton-dark {
-    animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
-    border-radius: 0.25rem;
-    background-color: rgb(55 65 81);
-  }
+  /* Skeleton Loading (consolidated subset) */
+  .loading-skeleton { animation: pulse 2s cubic-bezier(0.4,0,0.6,1) infinite; border-radius: .25rem; background-color: rgb(229 231 235); }
+  .loading-skeleton-dark { animation: pulse 2s cubic-bezier(0.4,0,0.6,1) infinite; border-radius: .25rem; background-color: rgb(55 65 81); }
+  /* Alias simplified skeleton API (from removed loading-states bundle) */
+  .skeleton { background: linear-gradient(90deg,#f0f0f0 25%,#e0e0e0 50%,#f0f0f0 75%); background-size:200% 100%; animation:skeleton-loading 1.5s infinite ease-in-out; border-radius:4px; display:block; }
+  [data-theme="dark"] .skeleton { background: linear-gradient(90deg,#374151 25%,#4b5563 50%,#374151 75%); background-size:200% 100%; }
+  .skeleton--text { height:1rem; margin-bottom:.5rem; }
+  .skeleton--title { height:2rem; margin-bottom:1rem; width:60%; }
+  .skeleton--avatar { width:3rem; height:3rem; border-radius:50%; }
+  .skeleton--card { height:200px; border-radius:8px; margin-bottom:1rem; }
+  @keyframes skeleton-loading { 0% { background-position:200% 0; } 100% { background-position:-200% 0; } }
 
   .status-online,
   .status-offline,

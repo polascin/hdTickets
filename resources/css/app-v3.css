@@ -1,9 +1,9 @@
 /* HD Tickets - Application Styles v3.0 */
 /* Main application stylesheet with Tailwind and custom components */
 
-/* Tailwind v4 core layers */
-@import "tailwindcss/preflight";
-@import "tailwindcss/utilities";
+/* Tailwind removed: include legacy snapshot utilities */
+@import './tw-legacy.css';
+@import './base-reset.css';
 
 /* Import our design system and components */
 @import './design-system-v3.css';

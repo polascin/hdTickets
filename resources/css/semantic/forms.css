@@ -1,0 +1,90 @@
+/* Semantic Forms Layer - Phase 2 Consolidation */
+/* Provides canonical form control styles; legacy class aliases retained for transition */
+
+/* Tokens (mapped to existing theme/design tokens where possible) */
+:root {
+  --hdt-form-gap: 1rem; /* default vertical spacing */
+  --hdt-form-radius: 0.5rem; /* 8px */
+  --hdt-form-radius-sm: 0.375rem; /* 6px */
+  --hdt-form-radius-lg: 0.75rem; /* 12px */
+  --hdt-form-height: 3rem; /* 48px */
+  --hdt-form-height-sm: 2.5rem; /* 40px */
+  --hdt-form-height-lg: 3.5rem; /* 56px */
+  --hdt-form-padding: 0.75rem 1rem; /* 12px 16px */
+  --hdt-form-padding-sm: 0.625rem 0.875rem;
+  --hdt-form-padding-lg: 1rem 1.25rem;
+  --hdt-form-transition: 0.2s cubic-bezier(0.4,0,0.2,1);
+  --hdt-form-ring-color: var(--border-focus, var(--color-primary, #2563eb));
+  --hdt-form-ring-outline: 2px;
+  --hdt-form-bg: var(--bg-primary, #ffffff);
+  --hdt-form-bg-disabled: var(--bg-tertiary, #f1f5f9);
+  --hdt-form-border: var(--border-primary, #e5e7eb);
+  --hdt-form-border-hover: var(--border-secondary, #d1d5db);
+  --hdt-form-text: var(--text-primary, #111827);
+  --hdt-form-text-subtle: var(--text-tertiary, #6b7280);
+  --hdt-form-success: var(--color-success, #16a34a);
+  --hdt-form-error: var(--color-error, #dc2626);
+  --hdt-form-warning: var(--warning-600, #d97706);
+}
+
+/* Base group */
+.hdt-form-group { display:flex; flex-direction:column; gap:0.5rem; margin-bottom:var(--hdt-form-gap); position:relative; }
+.hdt-form-group:last-child { margin-bottom:0; }
+
+/* Control base */
+.hdt-input, .hdt-select, .hdt-textarea { width:100%; height:var(--hdt-form-height); padding:var(--hdt-form-padding); border:1px solid var(--hdt-form-border); border-radius:var(--hdt-form-radius); background:var(--hdt-form-bg); color:var(--hdt-form-text); font:inherit; font-size:0.9375rem; line-height:1.25rem; transition:var(--hdt-form-transition); appearance:none; box-shadow:0 1px 2px rgba(0,0,0,.05); }
+.hdt-textarea { height:auto; min-height:var(--hdt-form-height); resize:vertical; line-height:1.4; }
+.hdt-input:hover, .hdt-select:hover, .hdt-textarea:hover { border-color:var(--hdt-form-border-hover); }
+.hdt-input:focus, .hdt-select:focus, .hdt-textarea:focus { outline:none; border-color:var(--hdt-form-ring-color); box-shadow:0 0 0 3px color-mix(in srgb, var(--hdt-form-ring-color) 45%, transparent); }
+.hdt-input:disabled, .hdt-select:disabled, .hdt-textarea:disabled { background:var(--hdt-form-bg-disabled); color:var(--hdt-form-text-subtle); cursor:not-allowed; opacity:0.75; }
+.hdt-input::placeholder, .hdt-textarea::placeholder { color:var(--hdt-form-text-subtle); }
+
+/* Size variants */
+.hdt-input--sm, .hdt-select--sm, .hdt-textarea--sm { height:var(--hdt-form-height-sm); padding:var(--hdt-form-padding-sm); border-radius:var(--hdt-form-radius-sm); font-size:0.8125rem; }
+.hdt-input--lg, .hdt-select--lg, .hdt-textarea--lg { height:var(--hdt-form-height-lg); padding:var(--hdt-form-padding-lg); border-radius:var(--hdt-form-radius-lg); font-size:1rem; }
+
+/* Floating label pattern */
+.hdt-field--floating { position:relative; }
+.hdt-field--floating .hdt-input { padding-top:1.25rem; padding-bottom:0.25rem; }
+.hdt-floating-label { position:absolute; left:1rem; top:50%; transform:translateY(-50%); background:var(--hdt-form-bg); color:var(--hdt-form-text-subtle); font-size:0.9375rem; font-weight:400; pointer-events:none; transition:var(--hdt-form-transition); padding:0 0.25rem; max-width:calc(100% - 2rem); overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.hdt-field--floating .hdt-input:focus + .hdt-floating-label,
+.hdt-field--floating .hdt-input:not(:placeholder-shown) + .hdt-floating-label,
+.hdt-field--floating .hdt-input.has-value + .hdt-floating-label { top:0; transform:translateY(-50%) scale(.85); color:var(--hdt-form-ring-color); font-weight:500; font-size:0.75rem; }
+
+/* State variants (utility classes) */
+.hdt-input--success { border-color:var(--hdt-form-success); }
+.hdt-input--error { border-color:var(--hdt-form-error); }
+.hdt-input--warning { border-color:var(--hdt-form-warning); }
+.hdt-input--success:focus { box-shadow:0 0 0 3px color-mix(in srgb, var(--hdt-form-success) 45%, transparent); }
+.hdt-input--error:focus { box-shadow:0 0 0 3px color-mix(in srgb, var(--hdt-form-error) 45%, transparent); }
+.hdt-input--warning:focus { box-shadow:0 0 0 3px color-mix(in srgb, var(--hdt-form-warning) 45%, transparent); }
+
+/* Aliases for legacy class names (transition layer) */
+/* Direct alias groupings (avoid non-standard composes) */
+.hdt-form-group, .form-group { display:flex; flex-direction:column; gap:0.5rem; margin-bottom:var(--hdt-form-gap); position:relative; }
+.hdt-input, .form-input, .hdt-select, .form-select, .hdt-textarea, .form-textarea { width:100%; height:var(--hdt-form-height); padding:var(--hdt-form-padding); border:1px solid var(--hdt-form-border); border-radius:var(--hdt-form-radius); background:var(--hdt-form-bg); color:var(--hdt-form-text); font:inherit; font-size:0.9375rem; line-height:1.25rem; transition:var(--hdt-form-transition); appearance:none; box-shadow:0 1px 2px rgba(0,0,0,.05); }
+.hdt-textarea, .form-textarea { height:auto; min-height:var(--hdt-form-height); resize:vertical; line-height:1.4; }
+.hdt-input:hover, .form-input:hover, .hdt-select:hover, .form-select:hover, .hdt-textarea:hover, .form-textarea:hover { border-color:var(--hdt-form-border-hover); }
+.hdt-input:focus, .form-input:focus, .hdt-select:focus, .form-select:focus, .hdt-textarea:focus, .form-textarea:focus { outline:none; border-color:var(--hdt-form-ring-color); box-shadow:0 0 0 3px color-mix(in srgb, var(--hdt-form-ring-color) 45%, transparent); }
+.hdt-input:disabled, .form-input:disabled, .hdt-select:disabled, .form-select:disabled, .hdt-textarea:disabled, .form-textarea:disabled { background:var(--hdt-form-bg-disabled); color:var(--hdt-form-text-subtle); cursor:not-allowed; opacity:0.75; }
+.hdt-input::placeholder, .form-input::placeholder, .hdt-textarea::placeholder, .form-textarea::placeholder { color:var(--hdt-form-text-subtle); }
+.hdt-input--sm, .form-input--sm, .hdt-select--sm, .form-select--sm, .hdt-textarea--sm, .form-textarea--sm { height:var(--hdt-form-height-sm); padding:var(--hdt-form-padding-sm); border-radius:var(--hdt-form-radius-sm); font-size:0.8125rem; }
+.hdt-input--lg, .form-input--lg, .hdt-select--lg, .form-select--lg, .hdt-textarea--lg, .form-textarea--lg { height:var(--hdt-form-height-lg); padding:var(--hdt-form-padding-lg); border-radius:var(--hdt-form-radius-lg); font-size:1rem; }
+.hdt-field--floating, .form-field--floating { position:relative; }
+.hdt-field--floating .hdt-input, .hdt-field--floating .form-input, .form-field--floating .hdt-input, .form-field--floating .form-input { padding-top:1.25rem; padding-bottom:0.25rem; }
+.hdt-floating-label, .form-floating-label { position:absolute; left:1rem; top:50%; transform:translateY(-50%); background:var(--hdt-form-bg); color:var(--hdt-form-text-subtle); font-size:0.9375rem; font-weight:400; pointer-events:none; transition:var(--hdt-form-transition); padding:0 0.25rem; max-width:calc(100% - 2rem); overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.hdt-field--floating .hdt-input:focus + .hdt-floating-label,
+.hdt-field--floating .hdt-input:not(:placeholder-shown) + .hdt-floating-label,
+.hdt-field--floating .hdt-input.has-value + .hdt-floating-label,
+.form-field--floating .form-input:focus + .form-floating-label,
+.form-field--floating .form-input:not(:placeholder-shown) + .form-floating-label,
+.form-field--floating .form-input.has-value + .form-floating-label { top:0; transform:translateY(-50%) scale(.85); color:var(--hdt-form-ring-color); font-weight:500; font-size:0.75rem; }
+.hdt-input--success, .form-input--success { border-color:var(--hdt-form-success); }
+.hdt-input--error, .form-input--error { border-color:var(--hdt-form-error); }
+.hdt-input--warning, .form-input--warning { border-color:var(--hdt-form-warning); }
+.hdt-input--success:focus, .form-input--success:focus { box-shadow:0 0 0 3px color-mix(in srgb, var(--hdt-form-success) 45%, transparent); }
+.hdt-input--error:focus, .form-input--error:focus { box-shadow:0 0 0 3px color-mix(in srgb, var(--hdt-form-error) 45%, transparent); }
+.hdt-input--warning:focus, .form-input--warning:focus { box-shadow:0 0 0 3px color-mix(in srgb, var(--hdt-form-warning) 45%, transparent); }
+
+/* Fallback if 'composes' not processed (pure CSS duplication) */
+/* Removed non-standard composes + fallback duplication after grouping */

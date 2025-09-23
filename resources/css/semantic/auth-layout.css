@@ -1,0 +1,40 @@
+/* Semantic Auth Layout Styles
+ * Encapsulates legacy utility cluster previously repeated in auth/guest views.
+ * Cluster replaced: min-h-screen flex flex-col justify-center py-12 sm:px-6 lg:px-8
+ */
+
+.hdt-auth-container {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding-top: 3rem;   /* 48px ~ py-12 */
+  padding-bottom: 3rem;
+  padding-left: 1.5rem;  /* sm:px-6 base */
+  padding-right: 1.5rem;
+}
+@media (min-width: 640px) { /* sm */
+  .hdt-auth-container { padding-left: 1.5rem; padding-right: 1.5rem; }
+}
+@media (min-width: 1024px) { /* lg */
+  .hdt-auth-container { padding-left: 2rem; padding-right: 2rem; }
+}
+
+.hdt-auth-container--center { justify-content: center; }
+
+.hdt-auth-panel-wrapper { width: 100%; max-width: 28rem; margin-left: auto; margin-right: auto; }
+
+.hdt-auth-panel {
+  background: var(--hd-surface, #ffffff);
+  border: 1px solid var(--hd-border-muted, #e5e7eb);
+  border-radius: var(--hd-radius-lg, 0.5rem);
+  padding: 2rem; /* 32px */
+  box-shadow: 0 4px 12px -2px rgba(0,0,0,.08),0 2px 6px -1px rgba(0,0,0,.04);
+}
+
+.hdt-auth-panel--sm { max-width: 24rem; }
+.hdt-auth-panel--md { max-width: 32rem; }
+.hdt-auth-panel--lg { max-width: 40rem; }
+
+/* Focus within for form grouping */
+.hdt-auth-panel :focus-visible { outline: 2px solid var(--hd-focus, #3b82f6); outline-offset: 2px; }

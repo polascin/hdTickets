@@ -35,7 +35,7 @@ This directory contains all documentation related to developing and maintaining 
 ## 🎯 Current Tech Stack
 
 - **Backend**: Laravel 11.45.2 + PHP 8.3
-- **Frontend**: Alpine.js 3.14.7 + TailwindCSS 3.4.17
+- **Frontend**: Alpine.js 3.14.7 + Custom Design System (TailwindCSS removed – legacy utilities snapshot `tw-legacy.css` in use during transition)
 - **Build Tool**: Vite 6.3.5
 - **Database**: MySQL/MariaDB
 - **Server**: Apache2 + Ubuntu 24.04 LTS

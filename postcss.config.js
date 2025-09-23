@@ -1,8 +1,6 @@
 export default {
   plugins: {
-    // TailwindCSS processing
-    tailwindcss: {},
-    
+    // Tailwind removed: only autoprefixer + (prod) cssnano remain
     // Autoprefixer - automatically add vendor prefixes based on browser support
     autoprefixer: {
       // Target browsers based on browserslist config
