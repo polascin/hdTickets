@@ -17,29 +17,29 @@
           @csrf
 
           <!-- Name -->
-          <div class="form-group">
+          <div class="hdt-form-group">
             <label for="name" class="form-label">Full name</label>
             <input id="name" name="name" type="text" autocomplete="name" value="{{ old('name') }}" required
-              class="form-input" placeholder="Enter your full name">
+              class="hdt-input" placeholder="Enter your full name">
             @error('name')
               <p class="form-error">{{ $message }}</p>
             @enderror
           </div>
 
           <!-- Email -->
-          <div class="form-group">
+          <div class="hdt-form-group">
             <label for="email" class="form-label">Email address</label>
             <input id="email" name="email" type="email" autocomplete="email" value="{{ old('email') }}" required
-              class="form-input" placeholder="Enter your email">
+              class="hdt-input" placeholder="Enter your email">
             @error('email')
               <p class="form-error">{{ $message }}</p>
             @enderror
           </div>
 
           <!-- Password -->
-          <div class="form-group">
+          <div class="hdt-form-group">
             <label for="password" class="form-label">Password</label>
-            <input id="password" name="password" type="password" autocomplete="new-password" required class="form-input"
+            <input id="password" name="password" type="password" autocomplete="new-password" required class="hdt-input"
               placeholder="Create a password">
             @error('password')
               <p class="form-error">{{ $message }}</p>
@@ -47,10 +47,10 @@
           </div>
 
           <!-- Confirm Password -->
-          <div class="form-group">
+          <div class="hdt-form-group">
             <label for="password_confirmation" class="form-label">Confirm password</label>
             <input id="password_confirmation" name="password_confirmation" type="password" autocomplete="new-password"
-              required class="form-input" placeholder="Confirm your password">
+              required class="hdt-input" placeholder="Confirm your password">
             @error('password_confirmation')
               <p class="form-error">{{ $message }}</p>
             @enderror

@@ -33,7 +33,8 @@ if (! $app->bound('files')) {
   $app->singleton('files', function () {
     // Use real Filesystem if available; otherwise a minimal anonymous stub
     if (class_exists('Illuminate\\Filesystem\\Filesystem')) {
-      return new \Illuminate\Filesystem\Filesystem();
+      $filesystemClass = 'Illuminate\\Filesystem\\Filesystem';
+      return new $filesystemClass();
     }
     return new class {
       public function get($path)
@@ -120,11 +121,41 @@ if (! $app->bound('queue')) {
 if (! $app->bound('config')) {
   $app->singleton('config', function () {
     // Use real Config Repository if available
-    if (class_exists('Illuminate\\Config\\Repository')) {
-      return new \Illuminate\Config\Repository([]);
+        if (class_exists('Illuminate\\Config\\Repository')) {
+          $configRepositoryClass = 'Illuminate\\Config\\Repository';
+          return new $configRepositoryClass([]);
+        }
+        // Fallback stub: implement interface only if it exists to avoid undefined type errors
+    if (interface_exists('Illuminate\\Contracts\\Config\\Repository')) {
+      // @phpstan-ignore-next-line Undefined type provided only during runtime when Laravel is installed.
+      return new class implements \Illuminate\Contracts\Config\Repository {
+        public function has($key)
+        {
+          return false;
+        }
+        public function get($key, $default = null)
+        {
+          return $default;
+        }
+        public function getMany($keys)
+        {
+          return [];
+        }
+        public function set($key, $value = null)
+        {
+          return $this;
+        }
+        public function prepend($key, $value)
+        {
+          return $this;
+        }
+        public function push($key, $value)
+        {
+          return $this;
+        }
+      };
     }
-    // Fallback stub
-    return new class implements \Illuminate\Contracts\Config\Repository {
+    return new class {
       public function has($key)
       {
         return false;
