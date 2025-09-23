@@ -15,8 +15,9 @@
 @import './migrated/enhanced-forms.css';
 @import './migrated/mobile-enhancements.css';
 
-/* Tailwind CSS v4 */
-@import "tailwindcss";
+/* Tailwind CSS v4 core layers */
+@import "tailwindcss/preflight";
+@import "tailwindcss/utilities";
 
 /* Custom component styles */
 @layer components {

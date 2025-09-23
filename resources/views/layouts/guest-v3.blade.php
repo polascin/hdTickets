@@ -47,7 +47,7 @@
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="flex justify-between h-16">
           <div class="flex items-center">
-            <a href="{{ route('welcome') }}" class="flex items-center space-x-3">
+            <a href="{{ route('home') }}" class="flex items-center space-x-3">
               <img src="{{ asset('assets/images/hdTicketsLogo.png') }}" alt="HD Tickets" class="w-8 h-8">
               <span class="font-bold text-xl text-gray-900 dark:text-white">HD Tickets</span>
             </a>

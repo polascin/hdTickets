@@ -11,6 +11,7 @@ export default defineConfig({
       input: [
         // Core application assets
         'resources/css/app.css',
+        'resources/css/app-v3.css',
         'resources/css/dashboard-enhanced.css',
         'resources/js/app.js',
         // Dashboard dedicated entry (code-split customer dashboard)
