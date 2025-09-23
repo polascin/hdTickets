@@ -7,7 +7,10 @@ namespace App\Http\Controllers;
 use App\Models\ScrapedTicket;
 use App\Models\TicketAlert;
 use App\Models\User;
+use App\Http\Resources\DashboardRealtimeResource;
+use App\Http\Resources\DashboardAnalyticsResource;
 use App\Services\Dashboard\TicketStatsService;
+use App\Services\Dashboard\AnalyticsService;
 use App\Services\Dashboard\UserMetricsService;
 use App\Services\Dashboard\RecommendationService;
 use App\Services\Dashboard\AlertService;
@@ -18,7 +21,9 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
-use Illuminate\View\View;
+use Illuminate\Support\Facades\Response;
+use Illuminate\Support\Facades\Route as RouteFacade; // for static analysis clarity
+use Illuminate\Contracts\View\View;
 
 /**
  * Enhanced Customer Dashboard Controller for HD Tickets Sports Event Monitoring
@@ -31,7 +36,7 @@ use Illuminate\View\View;
  * - Personalized recommendations based on user preferences
  * - Alert management and monitoring
  * - Subscription and usage tracking
- * - Performance metrics and system health
+ * Performance metrics and system health
  */
 class EnhancedDashboardController extends Controller
 {
@@ -39,8 +44,10 @@ class EnhancedDashboardController extends Controller
     protected TicketStatsService $ticketStatsService,
     protected UserMetricsService $userMetricsService,
     protected RecommendationService $recommendationService,
-    protected AlertService $alertService
+    protected AlertService $alertService,
+    protected AnalyticsService $analyticsService,
   ) {
+    // Apply auth + email verification middleware conventionally
     $this->middleware(['auth', 'verified']);
   }
 
@@ -90,25 +97,47 @@ class EnhancedDashboardController extends Controller
     try {
       $cacheKey = "dashboard_realtime_data:{$user->id}";
 
-      $data = Cache::remember($cacheKey, now()->addMinutes(2), function () use ($user) {
+      $raw = Cache::remember($cacheKey, Carbon::now()->addMinutes(2), function () use ($user) {
         return [
-          'statistics' => $this->getStatistics($user),
+          'statistics'     => $this->getStatistics($user),
           'recent_tickets' => $this->getRecentTickets($user),
-          'user_metrics' => $this->getUserMetrics($user),
-          'system_status' => $this->getSystemStatus(),
-          'notifications' => $this->getNotifications($user),
-          'last_updated' => now()->toISOString()
+          'user_metrics'   => $this->getUserMetrics($user),
+          'system_status'  => $this->getSystemStatus(),
+          'notifications'  => $this->getNotifications($user),
+          'last_updated'   => Carbon::now()->toISOString(),
         ];
       });
 
-      return response()->json([
+      $resource = new DashboardRealtimeResource($raw);
+      $dataArray = $resource->toArray($request);
+
+      // Build response payload
+      $payload = [
         'success' => true,
-        'data' => $data,
-        'meta' => [
-          'refresh_interval' => 120, // 2 minutes
-          'cache_status' => 'fresh',
-          'user_id' => $user->id
-        ]
+        'data'    => $dataArray,
+        'meta'    => [
+          'refresh_interval' => 120,
+          'cache_status'     => 'fresh',
+          'user_id'          => $user->id,
+        ],
+      ];
+
+      // Generate ETag based on serialized payload (fast hash)
+      $etag = 'W/"rt-' . substr(sha1(json_encode($payload)), 0, 20) . '"';
+      $lastModified = $raw['last_updated'] ?? Carbon::now()->toISOString();
+
+      if ($request->headers->get('If-None-Match') === $etag || $request->headers->get('If-Modified-Since') === $lastModified) {
+        return Response::json(null, 304, [
+          'ETag' => $etag,
+          'Last-Modified' => $lastModified,
+          'Cache-Control' => 'private, max-age=60',
+        ]);
+      }
+
+      return Response::json($payload, 200, [
+        'ETag' => $etag,
+        'Last-Modified' => $lastModified,
+        'Cache-Control' => 'private, max-age=60',
       ]);
     } catch (\Exception $e) {
       Log::error('Failed to fetch realtime dashboard data', [
@@ -117,7 +146,7 @@ class EnhancedDashboardController extends Controller
         'trace' => $e->getTraceAsString()
       ]);
 
-      return response()->json([
+      return Response::json([
         'success' => false,
         'error' => 'Unable to fetch dashboard data',
         'retry_after' => 30
@@ -135,51 +164,37 @@ class EnhancedDashboardController extends Controller
   public function getAnalytics(Request $request): JsonResponse
   {
     $user = Auth::user();
-
     if (!$user || !$this->isAuthorizedUser($user)) {
-      return response()->json([
-        'success' => false,
-        'error' => 'Authentication required'
-      ], 401);
+      return Response::json(['success' => false, 'error' => 'Authentication required'], 401);
+    }
+    $payload = $this->analyticsService->buildAnalytics($user);
+    $resource = new DashboardAnalyticsResource($payload);
+    $dataArray = $resource->toArray($request);
+    $responsePayload = [
+      'success' => true,
+      'data'    => $dataArray,
+      'meta'    => [
+        'user_id' => $user->id,
+        'generated_at' => $payload['generated_at'] ?? null,
+      ]
+    ];
+
+    $etag = 'W/"an-' . substr(sha1(json_encode($responsePayload)), 0, 20) . '"';
+    $lastModified = $payload['generated_at'] ?? Carbon::now()->toISOString();
+
+    if ($request->headers->get('If-None-Match') === $etag || $request->headers->get('If-Modified-Since') === $lastModified) {
+      return Response::json(null, 304, [
+        'ETag' => $etag,
+        'Last-Modified' => $lastModified,
+        'Cache-Control' => 'private, max-age=120',
+      ]);
     }
 
-    try {
-      // Basic derived analytics using existing statistics methods
-      $stats = $this->getStatistics($user);
-
-      $analytics = [
-        'generated_at' => now()->toISOString(),
-        'totals' => [
-          'available_tickets' => $stats['available_tickets'] ?? 0,
-          'unique_events' => $stats['monitored_events'] ?? ($stats['unique_events'] ?? 0),
-        ],
-        'trends' => [
-          'demand' => [
-            'high_demand' => $stats['high_demand_count'] ?? 0,
-            'demand_percentage' => isset($stats['available_tickets']) && ($stats['available_tickets'] > 0)
-              ? round(($stats['high_demand_count'] ?? 0) / max(1, $stats['available_tickets']) * 100, 2)
-              : 0,
-          ],
-          'pricing' => $stats['price_stats'] ?? [],
-        ],
-        'platforms' => $stats['platform_breakdown'] ?? [],
-      ];
-
-      return response()->json([
-        'success' => true,
-        'data' => $analytics
-      ]);
-    } catch (\Exception $e) {
-      Log::error('Failed to provide analytics data', [
-        'user_id' => $user->id ?? null,
-        'error' => $e->getMessage()
-      ]);
-
-      return response()->json([
-        'success' => false,
-        'error' => 'Unable to fetch analytics data'
-      ], 500);
-    }
+    return Response::json($responsePayload, 200, [
+      'ETag' => $etag,
+      'Last-Modified' => $lastModified,
+      'Cache-Control' => 'private, max-age=120',
+    ]);
   }
 
   /**
@@ -189,7 +204,7 @@ class EnhancedDashboardController extends Controller
   {
     $cacheKey = "dashboard_complete_data:{$user->id}";
 
-    return Cache::remember($cacheKey, now()->addMinutes(5), function () use ($user) {
+    return Cache::remember($cacheKey, Carbon::now()->addMinutes(5), function () use ($user) {
       return [
         'user' => $user,
         'statistics' => $this->getStatistics($user),
@@ -203,7 +218,7 @@ class EnhancedDashboardController extends Controller
         'system_status' => $this->getSystemStatus(),
         'performance_data' => $this->getPerformanceData(),
         'notifications' => $this->getNotifications($user),
-        'generated_at' => now()->toISOString()
+        'generated_at' => Carbon::now()->toISOString()
       ];
     });
   }
@@ -233,33 +248,15 @@ class EnhancedDashboardController extends Controller
     try {
       $cacheKey = "recent_tickets:{$user->id}:{$limit}";
 
-      return Cache::remember($cacheKey, now()->addMinutes(3), function () use ($limit) {
-        return ScrapedTicket::with(['category'])
+      return Cache::remember($cacheKey, Carbon::now()->addMinutes(3), function () use ($limit) {
+        $tickets = ScrapedTicket::with(['category'])
           ->available()
-          ->recent(24) // Last 24 hours
+          ->recent(24)
           ->orderByDesc('scraped_at')
           ->limit($limit)
-          ->get()
-          ->map(function ($ticket) {
-            return [
-              'id' => $ticket->id,
-              'title' => $ticket->title ?? 'Sports Event',
-              'venue' => $ticket->venue ?? 'TBD',
-              'sport' => $ticket->sport ?? 'Sports',
-              'platform' => $ticket->platform ?? 'Unknown',
-              'min_price' => $ticket->min_price ? number_format($ticket->min_price, 2) : null,
-              'max_price' => $ticket->max_price ? number_format($ticket->max_price, 2) : null,
-              'event_date' => $ticket->event_date ? $ticket->event_date->format('M j, Y') : null,
-              'event_time' => $ticket->event_time ?? null,
-              'scraped_at' => $ticket->scraped_at->diffForHumans(),
-              'is_available' => (bool) $ticket->is_available,
-              'is_high_demand' => (bool) ($ticket->is_high_demand ?? false),
-              'popularity_score' => $ticket->popularity_score ?? 0,
-              'price_trend' => $this->calculatePriceTrend($ticket),
-              'demand_level' => $this->getDemandLevel($ticket)
-            ];
-          })
-          ->toArray();
+          ->get();
+
+        return \App\Http\Resources\TicketSummaryResource::collection($tickets)->resolve();
       });
     } catch (\Exception $e) {
       Log::warning('Failed to get recent tickets', [
@@ -361,7 +358,7 @@ class EnhancedDashboardController extends Controller
   protected function getTrendingEvents(): array
   {
     try {
-      return Cache::remember('trending_events', now()->addMinutes(10), function () {
+      return Cache::remember('trending_events', Carbon::now()->addMinutes(10), function () {
         return ScrapedTicket::select([
           'sport',
           'title',
@@ -428,7 +425,7 @@ class EnhancedDashboardController extends Controller
    */
   protected function getSystemStatus(): array
   {
-    return Cache::remember('system_status', now()->addMinutes(1), function () {
+    return Cache::remember('system_status', Carbon::now()->addMinutes(1), function () {
       return [
         'scraping_active' => $this->isScrapingActive(),
         'database_healthy' => $this->isDatabaseHealthy(),
@@ -630,7 +627,7 @@ class EnhancedDashboardController extends Controller
   }
   protected function getLastScrapeTime(): ?string
   {
-    return now()->subMinutes(5)->toISOString();
+    return Carbon::now()->subMinutes(5)->toISOString();
   }
   protected function getSystemLoad(): float
   {

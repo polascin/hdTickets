@@ -1,7 +1,7 @@
 import laravel from 'laravel-vite-plugin';
+import { createRequire } from 'node:module';
 import { resolve } from 'path';
 import { defineConfig } from 'vite';
-import { createRequire } from 'node:module';
 
 const require = createRequire(import.meta.url);
 
@@ -14,6 +14,8 @@ export default defineConfig({
         'resources/css/design-system.css',
         'resources/css/components.css',
         'resources/js/app.js',
+        // Dashboard dedicated entry (code-split customer dashboard)
+        'resources/js/dashboard/index.js',
         
         // Ticket system assets
         'resources/js/tickets/index.js',

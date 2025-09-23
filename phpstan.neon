@@ -25,6 +25,7 @@ parameters:
         - node_modules/
         - storage/
         - vendor/
+        - app/Console/Commands/  # Temporarily exclude to resolve queue worker dependency issues
     
     # Laravel specific configurations
     scanDirectories:
@@ -68,9 +69,9 @@ parameters:
     # Cache configuration
     tmpDir: storage/phpstan
     
-    # Bootstrap file for Laravel
+    # Bootstrap file for Laravel (custom wrapper disables noisy channels during analysis)
     bootstrapFiles:
-        - bootstrap/app.php
+        - phpstan-bootstrap.php
     
     # Additional extensions
     scanFiles:

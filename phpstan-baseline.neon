@@ -1,60 +1,6 @@
 parameters:
 	ignoreErrors:
 		-
-			message: '#^Strict comparison using \!\=\= between int\<min, \-1\>\|int\<1, max\> and 0 will always evaluate to true\.$#'
-			identifier: notIdentical.alwaysTrue
-			count: 1
-			path: app/Console/Commands/GenerateScheduledReports.php
-
-		-
-			message: '#^Cannot assign offset ''features'' to string\.$#'
-			identifier: offsetAssign.dimType
-			count: 1
-			path: app/Console/Commands/InitializeAnalyticsDashboards.php
-
-		-
-			message: '#^Offset ''features'' on string on left side of \?\? does not exist\.$#'
-			identifier: nullCoalesce.offset
-			count: 1
-			path: app/Console/Commands/InitializeAnalyticsDashboards.php
-
-		-
-			message: '#^Parameter \#1 \.\.\.\$arrays of function array_merge expects array, string given\.$#'
-			identifier: argument.type
-			count: 1
-			path: app/Console/Commands/InitializeAnalyticsDashboards.php
-
-		-
-			message: '#^Negated boolean expression is always false\.$#'
-			identifier: booleanNot.alwaysFalse
-			count: 1
-			path: app/Console/Commands/MonitorAnalyticsSystem.php
-
-		-
-			message: '#^Method App\\Console\\Commands\\MonitorSportsEventEmails\:\:testConnection\(\) should return int but returns bool\.$#'
-			identifier: return.type
-			count: 1
-			path: app/Console/Commands/MonitorSportsEventEmails.php
-
-		-
-			message: '#^PHPDoc tag @param for parameter \$results with type mixed is not subtype of native type array\.$#'
-			identifier: parameter.phpDocType
-			count: 3
-			path: app/Console/Commands/RunSecurityScan.php
-
-		-
-			message: '#^Match arm comparison between ''HIGH'' and ''HIGH'' is always true\.$#'
-			identifier: match.alwaysTrue
-			count: 1
-			path: app/Console/Commands/ShowHighDemandSports.php
-
-		-
-			message: '#^Call to function function_exists\(\) with ''imap_close''\|''imap_fetchheader''\|''imap_open''\|''imap_search'' will always evaluate to true\.$#'
-			identifier: function.alreadyNarrowedType
-			count: 1
-			path: app/Console/Commands/TestImapSetup.php
-
-		-
 			message: '#^Call to static method create\(\) on an unknown class App\\Models\\Notification\.$#'
 			identifier: class.notFound
 			count: 1
@@ -187,22 +133,58 @@ parameters:
 			path: app/Http/Controllers/AccountDeletionController.php
 
 		-
-			message: '#^Parameter \#1 \$view of function view expects view\-string\|null, string given\.$#'
-			identifier: argument.type
-			count: 9
-			path: app/Http/Controllers/AccountDeletionController.php
-
-		-
 			message: '#^Parameter \#1 \$callback of method Illuminate\\Database\\Eloquent\\Collection\<\(int\|string\),Illuminate\\Database\\Eloquent\\Model\>\:\:map\(\) contains unresolvable type\.$#'
 			identifier: argument.unresolvableType
 			count: 1
 			path: app/Http/Controllers/Admin/ActivityLogController.php
 
 		-
-			message: '#^Parameter \#1 \$view of function view expects view\-string\|null, string given\.$#'
+			message: '#^Parameter \#1 \$user of method App\\Services\\SecurityService\:\:checkPermission\(\) expects App\\Models\\User, Illuminate\\Contracts\\Auth\\Authenticatable\|null given\.$#'
 			identifier: argument.type
 			count: 1
 			path: app/Http/Controllers/Admin/ActivityLogController.php
+
+		-
+			message: '#^Call to static method select\(\) on an unknown class App\\Models\\Event\.$#'
+			identifier: class.notFound
+			count: 1
+			path: app/Http/Controllers/Admin/AdminController.php
+
+		-
+			message: '#^Call to static method whereBetween\(\) on an unknown class App\\Models\\Order\.$#'
+			identifier: class.notFound
+			count: 2
+			path: app/Http/Controllers/Admin/AdminController.php
+
+		-
+			message: '#^Call to static method with\(\) on an unknown class App\\Models\\Order\.$#'
+			identifier: class.notFound
+			count: 1
+			path: app/Http/Controllers/Admin/AdminController.php
+
+		-
+			message: '#^Call to static method withCount\(\) on an unknown class App\\Models\\Event\.$#'
+			identifier: class.notFound
+			count: 1
+			path: app/Http/Controllers/Admin/AdminController.php
+
+		-
+			message: '#^Method App\\Http\\Controllers\\Admin\\AdminController\:\:bulkUserAction\(\) should return Illuminate\\Http\\JsonResponse but returns Symfony\\Component\\HttpFoundation\\StreamedResponse\.$#'
+			identifier: return.type
+			count: 1
+			path: app/Http/Controllers/Admin/AdminController.php
+
+		-
+			message: '#^Method App\\Http\\Controllers\\Admin\\AdminController\:\:exportReport\(\) should return Illuminate\\Http\\Response but returns Illuminate\\Http\\JsonResponse\.$#'
+			identifier: return.type
+			count: 1
+			path: app/Http/Controllers/Admin/AdminController.php
+
+		-
+			message: '#^Relation ''orders'' is not found in App\\Models\\User model\.$#'
+			identifier: larastan.relationExistence
+			count: 1
+			path: app/Http/Controllers/Admin/AdminController.php
 
 		-
 			message: '#^Comparison operation "\>" between 0 and 5 is always false\.$#'
@@ -215,24 +197,6 @@ parameters:
 			identifier: greater.alwaysFalse
 			count: 1
 			path: app/Http/Controllers/Admin/CacheManagementController.php
-
-		-
-			message: '#^Parameter \#1 \$view of function view expects view\-string\|null, string given\.$#'
-			identifier: argument.type
-			count: 1
-			path: app/Http/Controllers/Admin/CacheManagementController.php
-
-		-
-			message: '#^Parameter \#1 \$view of function view expects view\-string\|null, string given\.$#'
-			identifier: argument.type
-			count: 1
-			path: app/Http/Controllers/Admin/CategoryManagementController.php
-
-		-
-			message: '#^Comparison operation "\>" between 3 and 0 is always true\.$#'
-			identifier: greater.alwaysTrue
-			count: 1
-			path: app/Http/Controllers/Admin/DashboardController.php
 
 		-
 			message: '#^Method App\\Http\\Controllers\\Admin\\DashboardController\:\:checkDatabaseHealth\(\) should return bool but returns int\<60, 80\>\.$#'
@@ -427,6 +391,12 @@ parameters:
 			path: app/Http/Controllers/Admin/ReportsController.php
 
 		-
+			message: '#^Parameter \#1 \$modelOrId of method Spatie\\Activitylog\\ActivityLogger\:\:causedBy\(\) expects Illuminate\\Database\\Eloquent\\Model\|int\|string\|null, Illuminate\\Contracts\\Auth\\Authenticatable\|null given\.$#'
+			identifier: argument.type
+			count: 2
+			path: app/Http/Controllers/Admin/ReportsController.php
+
+		-
 			message: '#^Parameter \#1 \$request of method App\\Http\\Controllers\\Admin\\ReportsController\:\:agentPerformance\(\) expects Illuminate\\Http\\Request, App\\Http\\Controllers\\Admin\\Illuminate\\Http\\Request given\.$#'
 			identifier: argument.type
 			count: 1
@@ -460,12 +430,6 @@ parameters:
 			message: '#^Parameter \#1 \$request of method App\\Http\\Controllers\\Admin\\ReportsController\:\:responseTime\(\) expects Illuminate\\Http\\Request, App\\Http\\Controllers\\Admin\\Illuminate\\Http\\Request given\.$#'
 			identifier: argument.type
 			count: 1
-			path: app/Http/Controllers/Admin/ReportsController.php
-
-		-
-			message: '#^Parameter \#1 \$view of function view expects view\-string\|null, string given\.$#'
-			identifier: argument.type
-			count: 4
 			path: app/Http/Controllers/Admin/ReportsController.php
 
 		-
@@ -601,18 +565,6 @@ parameters:
 			path: app/Http/Controllers/Admin/TicketManagementController.php
 
 		-
-			message: '#^Parameter \#1 \$view of function view expects view\-string\|null, string given\.$#'
-			identifier: argument.type
-			count: 1
-			path: app/Http/Controllers/Admin/TicketManagementController.php
-
-		-
-			message: '#^Right side of && is always true\.$#'
-			identifier: booleanAnd.rightAlwaysTrue
-			count: 1
-			path: app/Http/Controllers/Admin/TicketManagementController.php
-
-		-
 			message: '#^Method App\\Http\\Controllers\\Admin\\UserManagementController\:\:bulkAction\(\) should return Illuminate\\Http\\JsonResponse but returns Illuminate\\Http\\RedirectResponse\.$#'
 			identifier: return.type
 			count: 5
@@ -697,10 +649,58 @@ parameters:
 			path: app/Http/Controllers/Admin/UserManagementController.php
 
 		-
-			message: '#^Comparison operation "\>" between int\<1, max\> and 0 is always true\.$#'
-			identifier: greater.alwaysTrue
+			message: '#^Parameter \#1 \$modelOrId of method Spatie\\Activitylog\\ActivityLogger\:\:causedBy\(\) expects Illuminate\\Database\\Eloquent\\Model\|int\|string\|null, Illuminate\\Contracts\\Auth\\Authenticatable\|null given\.$#'
+			identifier: argument.type
+			count: 2
+			path: app/Http/Controllers/Admin/UserManagementController.php
+
+		-
+			message: '#^Parameter \#1 \$user of method App\\Services\\SecurityService\:\:checkPermission\(\) expects App\\Models\\User, Illuminate\\Contracts\\Auth\\Authenticatable\|null given\.$#'
+			identifier: argument.type
 			count: 1
-			path: app/Http/Controllers/Ajax/DashboardController.php
+			path: app/Http/Controllers/Admin/UserManagementController.php
+
+		-
+			message: '#^Parameter \#3 \$user of method App\\Services\\SecurityService\:\:validateBulkOperation\(\) expects App\\Models\\User, Illuminate\\Contracts\\Auth\\Authenticatable\|null given\.$#'
+			identifier: argument.type
+			count: 1
+			path: app/Http/Controllers/Admin/UserManagementController.php
+
+		-
+			message: '#^Parameter \#1 \$user of method App\\Http\\Controllers\\AgentDashboardController\:\:getAgentMetrics\(\) expects App\\Models\\User, Illuminate\\Contracts\\Auth\\Authenticatable\|null given\.$#'
+			identifier: argument.type
+			count: 1
+			path: app/Http/Controllers/AgentDashboardController.php
+
+		-
+			message: '#^Parameter \#1 \$user of method App\\Http\\Controllers\\AgentDashboardController\:\:getAlertData\(\) expects App\\Models\\User, Illuminate\\Contracts\\Auth\\Authenticatable\|null given\.$#'
+			identifier: argument.type
+			count: 1
+			path: app/Http/Controllers/AgentDashboardController.php
+
+		-
+			message: '#^Parameter \#1 \$user of method App\\Http\\Controllers\\AgentDashboardController\:\:getPerformanceMetrics\(\) expects App\\Models\\User, Illuminate\\Contracts\\Auth\\Authenticatable\|null given\.$#'
+			identifier: argument.type
+			count: 1
+			path: app/Http/Controllers/AgentDashboardController.php
+
+		-
+			message: '#^Parameter \#1 \$user of method App\\Http\\Controllers\\AgentDashboardController\:\:getPurchaseQueueData\(\) expects App\\Models\\User, Illuminate\\Contracts\\Auth\\Authenticatable\|null given\.$#'
+			identifier: argument.type
+			count: 1
+			path: app/Http/Controllers/AgentDashboardController.php
+
+		-
+			message: '#^Parameter \#1 \$user of method App\\Http\\Controllers\\AgentDashboardController\:\:getRecentActivity\(\) expects App\\Models\\User, Illuminate\\Contracts\\Auth\\Authenticatable\|null given\.$#'
+			identifier: argument.type
+			count: 1
+			path: app/Http/Controllers/AgentDashboardController.php
+
+		-
+			message: '#^Parameter \#1 \$user of method App\\Http\\Controllers\\AgentDashboardController\:\:getTicketMonitoringData\(\) expects App\\Models\\User, Illuminate\\Contracts\\Auth\\Authenticatable\|null given\.$#'
+			identifier: argument.type
+			count: 1
+			path: app/Http/Controllers/AgentDashboardController.php
 
 		-
 			message: '#^Method App\\Http\\Controllers\\Ajax\\DashboardController\:\:liveTickets\(\) has invalid return type App\\Http\\Controllers\\Ajax\\Illuminate\\Http\\RedirectResponse\.$#'
@@ -865,18 +865,6 @@ parameters:
 			path: app/Http/Controllers/Api/CustomerDashboardApiController.php
 
 		-
-			message: '#^If condition is always false\.$#'
-			identifier: if.alwaysFalse
-			count: 1
-			path: app/Http/Controllers/Api/CustomerDashboardApiController.php
-
-		-
-			message: '#^Offset ''favorite_teams'' on array\{\}\|string on left side of \?\? does not exist\.$#'
-			identifier: nullCoalesce.offset
-			count: 1
-			path: app/Http/Controllers/Api/CustomerDashboardApiController.php
-
-		-
 			message: '#^Access to property \$id on an unknown class App\\Http\\Controllers\\Api\\App\\Models\\User\.$#'
 			identifier: class.notFound
 			count: 2
@@ -913,20 +901,8 @@ parameters:
 			path: app/Http/Controllers/Api/DashboardController.php
 
 		-
-			message: '#^Parameter \#1 \$user of method App\\Http\\Controllers\\Api\\DashboardController\:\:getUserMetrics\(\) expects App\\Http\\Controllers\\Api\\App\\Models\\User, App\\Models\\User\|null given\.$#'
-			identifier: argument.type
-			count: 1
-			path: app/Http/Controllers/Api/DashboardController.php
-
-		-
 			message: '#^Parameter \$user of method App\\Http\\Controllers\\Api\\DashboardController\:\:getUserMetrics\(\) has invalid type App\\Http\\Controllers\\Api\\App\\Models\\User\.$#'
 			identifier: class.notFound
-			count: 1
-			path: app/Http/Controllers/Api/DashboardController.php
-
-		-
-			message: '#^Strict comparison using \=\=\= between string and \-1 will always evaluate to false\.$#'
-			identifier: identical.alwaysFalse
 			count: 1
 			path: app/Http/Controllers/Api/DashboardController.php
 
@@ -959,12 +935,6 @@ parameters:
 			identifier: catch.neverThrown
 			count: 1
 			path: app/Http/Controllers/Api/ImapMonitoringController.php
-
-		-
-			message: '#^Comparison operation "\>" between int\<0, max\> and \(array\|float\|int\) results in an error\.$#'
-			identifier: greater.invalid
-			count: 1
-			path: app/Http/Controllers/Api/MonitoringController.php
 
 		-
 			message: '#^Parameter \#1 \$callback of method Illuminate\\Database\\Eloquent\\Collection\<int,App\\Models\\TicketAlert\>\:\:map\(\) contains unresolvable type\.$#'
@@ -1069,12 +1039,6 @@ parameters:
 			path: app/Http/Controllers/Api/PerformanceMetricsController.php
 
 		-
-			message: '#^Expression on left side of \?\? is not nullable\.$#'
-			identifier: nullCoalesce.expr
-			count: 2
-			path: app/Http/Controllers/Api/PurchaseController.php
-
-		-
 			message: '#^Parameter \#1 \$callback of method Illuminate\\Database\\Eloquent\\Collection\<int,App\\Models\\PurchaseAttempt\>\:\:mapWithKeys\(\) contains unresolvable type\.$#'
 			identifier: argument.unresolvableType
 			count: 1
@@ -1093,7 +1057,7 @@ parameters:
 			path: app/Http/Controllers/Api/PushSubscriptionController.php
 
 		-
-			message: '#^Parameter \#1 \$user of method App\\Http\\Controllers\\Api\\PushSubscriptionController\:\:sendTestPushNotification\(\) expects App\\Http\\Controllers\\Api\\App\\Models\\User, App\\Models\\User\|null given\.$#'
+			message: '#^Parameter \#1 \$user of method App\\Http\\Controllers\\Api\\PushSubscriptionController\:\:sendTestPushNotification\(\) expects App\\Http\\Controllers\\Api\\App\\Models\\User, Illuminate\\Contracts\\Auth\\Authenticatable\|null given\.$#'
 			identifier: argument.type
 			count: 1
 			path: app/Http/Controllers/Api/PushSubscriptionController.php
@@ -1189,24 +1153,6 @@ parameters:
 			path: app/Http/Controllers/Api/TicketPurchaseController.php
 
 		-
-			message: '#^Offset ''language'' on string\|null on left side of \?\? does not exist\.$#'
-			identifier: nullCoalesce.offset
-			count: 1
-			path: app/Http/Controllers/Auth/LoginEnhancementController.php
-
-		-
-			message: '#^Offset ''theme'' on string\|null on left side of \?\? does not exist\.$#'
-			identifier: nullCoalesce.offset
-			count: 1
-			path: app/Http/Controllers/Auth/LoginEnhancementController.php
-
-		-
-			message: '#^Offset ''timezone'' on string\|null on left side of \?\? does not exist\.$#'
-			identifier: nullCoalesce.offset
-			count: 1
-			path: app/Http/Controllers/Auth/LoginEnhancementController.php
-
-		-
 			message: '#^Method App\\Http\\Controllers\\Auth\\PublicRegistrationController\:\:showPhoneVerification\(\) should return Illuminate\\View\\View but returns Illuminate\\Http\\RedirectResponse\.$#'
 			identifier: return.type
 			count: 1
@@ -1219,13 +1165,19 @@ parameters:
 			path: app/Http/Controllers/Auth/PublicRegistrationController.php
 
 		-
-			message: '#^Parameter \#1 \$secretKey of method App\\Services\\TwoFactorAuthService\:\:verifyCode\(\) expects string, App\\Models\\User given\.$#'
+			message: '#^Parameter \#1 \$secretKey of method App\\Services\\TwoFactorAuthService\:\:verifyCode\(\) expects string, Illuminate\\Contracts\\Auth\\Authenticatable given\.$#'
 			identifier: argument.type
 			count: 1
 			path: app/Http/Controllers/Auth/PublicRegistrationController.php
 
 		-
-			message: '#^Parameter \#1 \$view of function view expects view\-string\|null, string given\.$#'
+			message: '#^Parameter \#1 \$user of method App\\Services\\PhoneVerificationService\:\:sendVerificationCode\(\) expects App\\Models\\User, Illuminate\\Contracts\\Auth\\Authenticatable given\.$#'
+			identifier: argument.type
+			count: 1
+			path: app/Http/Controllers/Auth/PublicRegistrationController.php
+
+		-
+			message: '#^Parameter \#1 \$user of method App\\Services\\PhoneVerificationService\:\:verifyCode\(\) expects App\\Models\\User, Illuminate\\Contracts\\Auth\\Authenticatable given\.$#'
 			identifier: argument.type
 			count: 1
 			path: app/Http/Controllers/Auth/PublicRegistrationController.php
@@ -1261,44 +1213,62 @@ parameters:
 			path: app/Http/Controllers/Auth/RegistrationWithPaymentController.php
 
 		-
-			message: '#^Parameter \#1 \$view of function view expects view\-string\|null, string given\.$#'
+			message: '#^Parameter \#1 \$admin of method App\\Services\\TwoFactorAuthService\:\:generateAdminBackupCodes\(\) expects App\\Models\\User, Illuminate\\Contracts\\Auth\\Authenticatable\|null given\.$#'
 			identifier: argument.type
 			count: 1
-			path: app/Http/Controllers/Auth/RegistrationWithPaymentController.php
+			path: app/Http/Controllers/Auth/TwoFactorController.php
 
 		-
-			message: '#^Expression on left side of \?\? is not nullable\.$#'
-			identifier: nullCoalesce.expr
+			message: '#^Parameter \#1 \$user of method App\\Services\\TwoFactorAuthService\:\:disableTwoFactor\(\) expects App\\Models\\User, Illuminate\\Contracts\\Auth\\Authenticatable\|null given\.$#'
+			identifier: argument.type
+			count: 1
+			path: app/Http/Controllers/Auth/TwoFactorController.php
+
+		-
+			message: '#^Parameter \#1 \$user of method App\\Services\\TwoFactorAuthService\:\:enableTwoFactor\(\) expects App\\Models\\User, Illuminate\\Contracts\\Auth\\Authenticatable\|null given\.$#'
+			identifier: argument.type
+			count: 1
+			path: app/Http/Controllers/Auth/TwoFactorController.php
+
+		-
+			message: '#^Parameter \#1 \$user of method App\\Services\\TwoFactorAuthService\:\:getQRCodeSvg\(\) expects App\\Models\\User, Illuminate\\Contracts\\Auth\\Authenticatable\|null given\.$#'
+			identifier: argument.type
+			count: 1
+			path: app/Http/Controllers/Auth/TwoFactorController.php
+
+		-
+			message: '#^Parameter \#1 \$user of method App\\Services\\TwoFactorAuthService\:\:getRecoveryCodes\(\) expects App\\Models\\User, Illuminate\\Contracts\\Auth\\Authenticatable\|null given\.$#'
+			identifier: argument.type
+			count: 2
+			path: app/Http/Controllers/Auth/TwoFactorController.php
+
+		-
+			message: '#^Parameter \#1 \$user of method App\\Services\\TwoFactorAuthService\:\:getRemainingRecoveryCodesCount\(\) expects App\\Models\\User, Illuminate\\Contracts\\Auth\\Authenticatable\|null given\.$#'
+			identifier: argument.type
+			count: 1
+			path: app/Http/Controllers/Auth/TwoFactorController.php
+
+		-
+			message: '#^Parameter \#1 \$user of method App\\Services\\TwoFactorAuthService\:\:isEnabled\(\) expects App\\Models\\User, Illuminate\\Contracts\\Auth\\Authenticatable\|null given\.$#'
+			identifier: argument.type
+			count: 4
+			path: app/Http/Controllers/Auth/TwoFactorController.php
+
+		-
+			message: '#^Parameter \#1 \$user of method App\\Services\\TwoFactorAuthService\:\:regenerateRecoveryCodes\(\) expects App\\Models\\User, Illuminate\\Contracts\\Auth\\Authenticatable\|null given\.$#'
+			identifier: argument.type
+			count: 1
+			path: app/Http/Controllers/Auth/TwoFactorController.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Contracts\\Auth\\Authenticatable\|Illuminate\\Database\\Eloquent\\Collection\<int, App\\Models\\User\>\:\:\$id\.$#'
+			identifier: property.notFound
 			count: 1
 			path: app/Http/Controllers/AutomatedPurchaseController.php
 
 		-
-			message: '#^Negated boolean expression is always true\.$#'
-			identifier: booleanNot.alwaysTrue
-			count: 1
-			path: app/Http/Controllers/AutomatedPurchaseController.php
-
-		-
-			message: '#^Offset ''auto_purchase'' on array\{\}\|string on left side of \?\? does not exist\.$#'
-			identifier: nullCoalesce.offset
-			count: 1
-			path: app/Http/Controllers/AutomatedPurchaseController.php
-
-		-
-			message: '#^Offset ''auto_purchase'' on string\|null on left side of \?\? does not exist\.$#'
-			identifier: nullCoalesce.offset
-			count: 1
-			path: app/Http/Controllers/AutomatedPurchaseController.php
-
-		-
-			message: '#^Offset ''enabled'' on array\{\} on left side of \?\? does not exist\.$#'
-			identifier: nullCoalesce.offset
-			count: 1
-			path: app/Http/Controllers/AutomatedPurchaseController.php
-
-		-
-			message: '#^Unreachable statement \- code above always terminates\.$#'
-			identifier: deadCode.unreachable
+			message: '#^Parameter \#2 \$user of method App\\Services\\AutomatedPurchaseEngine\:\:evaluatePurchaseDecision\(\) expects App\\Models\\User, Illuminate\\Contracts\\Auth\\Authenticatable\|Illuminate\\Database\\Eloquent\\Collection\<int, App\\Models\\User\>\|null given\.$#'
+			identifier: argument.type
 			count: 1
 			path: app/Http/Controllers/AutomatedPurchaseController.php
 
@@ -1327,70 +1297,58 @@ parameters:
 			path: app/Http/Controllers/DashboardController.php
 
 		-
-			message: '#^Empty array passed to foreach\.$#'
-			identifier: foreach.emptyArray
-			count: 1
-			path: app/Http/Controllers/EnhancedDashboardController.php
+			message: '#^Parameter \#1 \$user of method App\\Http\\Controllers\\DashboardController\:\:getEssentialDashboardStats\(\) expects App\\Models\\User, Illuminate\\Contracts\\Auth\\Authenticatable given\.$#'
+			identifier: argument.type
+			count: 2
+			path: app/Http/Controllers/DashboardController.php
 
 		-
-			message: '#^Offset ''favorite_teams'' on array\{\}\|string on left side of \?\? does not exist\.$#'
-			identifier: nullCoalesce.offset
+			message: '#^Expression on left side of \?\? is not nullable\.$#'
+			identifier: nullCoalesce.expr
 			count: 3
 			path: app/Http/Controllers/EnhancedDashboardController.php
 
 		-
-			message: '#^Offset ''favorite_venues'' on array\{\}\|string on left side of \?\? does not exist\.$#'
-			identifier: nullCoalesce.offset
+			message: '#^Parameter \#1 \$user of method App\\Http\\Controllers\\EnhancedDashboardController\:\:getDashboardData\(\) expects App\\Models\\User, Illuminate\\Contracts\\Auth\\Authenticatable given\.$#'
+			identifier: argument.type
 			count: 1
 			path: app/Http/Controllers/EnhancedDashboardController.php
 
 		-
-			message: '#^Offset ''max'' on \*NEVER\* in isset\(\) always exists and is not nullable\.$#'
-			identifier: isset.offset
+			message: '#^Parameter \#1 \$user of method App\\Http\\Controllers\\EnhancedDashboardController\:\:getNotifications\(\) expects App\\Models\\User, Illuminate\\Contracts\\Auth\\Authenticatable given\.$#'
+			identifier: argument.type
 			count: 1
 			path: app/Http/Controllers/EnhancedDashboardController.php
 
 		-
-			message: '#^Offset ''price_range'' on array\{\}\|string on left side of \?\? does not exist\.$#'
-			identifier: nullCoalesce.offset
+			message: '#^Parameter \#1 \$user of method App\\Http\\Controllers\\EnhancedDashboardController\:\:getRecentTickets\(\) expects App\\Models\\User, Illuminate\\Contracts\\Auth\\Authenticatable given\.$#'
+			identifier: argument.type
 			count: 1
 			path: app/Http/Controllers/EnhancedDashboardController.php
 
 		-
-			message: '#^Result of && is always false\.$#'
-			identifier: booleanAnd.alwaysFalse
+			message: '#^Parameter \#1 \$user of method App\\Http\\Controllers\\EnhancedDashboardController\:\:getStatistics\(\) expects App\\Models\\User, Illuminate\\Contracts\\Auth\\Authenticatable given\.$#'
+			identifier: argument.type
 			count: 1
 			path: app/Http/Controllers/EnhancedDashboardController.php
 
 		-
-			message: '#^Variable \$favoriteTeams in empty\(\) always exists and is always falsy\.$#'
-			identifier: empty.variable
+			message: '#^Parameter \#1 \$user of method App\\Http\\Controllers\\EnhancedDashboardController\:\:getUserMetrics\(\) expects App\\Models\\User, Illuminate\\Contracts\\Auth\\Authenticatable given\.$#'
+			identifier: argument.type
+			count: 1
+			path: app/Http/Controllers/EnhancedDashboardController.php
+
+		-
+			message: '#^Parameter \#1 \$user of method App\\Http\\Controllers\\EnhancedDashboardController\:\:isAuthorizedUser\(\) expects App\\Models\\User, Illuminate\\Contracts\\Auth\\Authenticatable given\.$#'
+			identifier: argument.type
 			count: 3
 			path: app/Http/Controllers/EnhancedDashboardController.php
 
 		-
-			message: '#^Variable \$favoriteVenues in empty\(\) always exists and is always falsy\.$#'
-			identifier: empty.variable
+			message: '#^Parameter \#1 \$user of method App\\Services\\Dashboard\\AnalyticsService\:\:buildAnalytics\(\) expects App\\Models\\User, Illuminate\\Contracts\\Auth\\Authenticatable given\.$#'
+			identifier: argument.type
 			count: 1
 			path: app/Http/Controllers/EnhancedDashboardController.php
-
-		-
-			message: '#^Variable \$priceRange in empty\(\) always exists and is always falsy\.$#'
-			identifier: empty.variable
-			count: 1
-			path: app/Http/Controllers/EnhancedDashboardController.php
-
-		-
-			message: '#^Comparison operation "\>" between \(int\|Redis\|false\) and 100 results in an error\.$#'
-			identifier: greater.invalid
-			count: 1
-			path: app/Http/Controllers/HealthCheckController.php
-
-		-
-			message: '#^Comparison operation "\>" between \(int\|Redis\|false\) and 1000 results in an error\.$#'
-			identifier: greater.invalid
-			count: 1
-			path: app/Http/Controllers/HealthCheckController.php
 
 		-
 			message: '#^Parameter \#3 \$options of static method Redis\:\:set\(\) expects array\|int, string given\.$#'
@@ -1403,18 +1361,6 @@ parameters:
 			identifier: arguments.count
 			count: 1
 			path: app/Http/Controllers/HealthController.php
-
-		-
-			message: '#^Parameter \#1 \$view of function view expects view\-string\|null, string given\.$#'
-			identifier: argument.type
-			count: 4
-			path: app/Http/Controllers/ImapDashboardController.php
-
-		-
-			message: '#^Parameter \#1 \$view of function view expects view\-string\|null, string given\.$#'
-			identifier: argument.type
-			count: 4
-			path: app/Http/Controllers/PaymentPlanController.php
 
 		-
 			message: '#^Strict comparison using \!\=\= between ''degraded''\|''healthy''\|''warning'' and ''critical'' will always evaluate to true\.$#'
@@ -1453,7 +1399,7 @@ parameters:
 			path: app/Http/Controllers/ProfilePictureController.php
 
 		-
-			message: '#^Parameter \#1 \$view of function view expects view\-string\|null, string given\.$#'
+			message: '#^Parameter \#2 \$user of method App\\Services\\AutomatedPurchaseEngine\:\:evaluatePurchaseDecision\(\) expects App\\Models\\User, Illuminate\\Contracts\\Auth\\Authenticatable\|null given\.$#'
 			identifier: argument.type
 			count: 1
 			path: app/Http/Controllers/PurchaseDecisionController.php
@@ -1469,6 +1415,18 @@ parameters:
 			identifier: deadCode.unreachable
 			count: 1
 			path: app/Http/Controllers/PurchaseDecisionController.php
+
+		-
+			message: '#^Parameter \#1 \$user of method App\\Services\\RecommendationEngineService\:\:clearUserCache\(\) expects App\\Models\\User, Illuminate\\Contracts\\Auth\\Authenticatable\|null given\.$#'
+			identifier: argument.type
+			count: 4
+			path: app/Http/Controllers/RecommendationController.php
+
+		-
+			message: '#^Parameter \#1 \$user of method App\\Services\\RecommendationEngineService\:\:generateRecommendations\(\) expects App\\Models\\User, Illuminate\\Contracts\\Auth\\Authenticatable\|null given\.$#'
+			identifier: argument.type
+			count: 7
+			path: app/Http/Controllers/RecommendationController.php
 
 		-
 			message: '#^Access to property \$id on an unknown class App\\Http\\Controllers\\App\\Models\\User\.$#'
@@ -1591,43 +1549,43 @@ parameters:
 			path: app/Http/Controllers/ScraperDashboardController.php
 
 		-
-			message: '#^Parameter \#1 \$user of method App\\Http\\Controllers\\ScraperDashboardController\:\:getActiveScrapingJobs\(\) expects App\\Http\\Controllers\\App\\Models\\User, App\\Models\\User\|null given\.$#'
+			message: '#^Parameter \#1 \$user of method App\\Http\\Controllers\\ScraperDashboardController\:\:getActiveScrapingJobs\(\) expects App\\Http\\Controllers\\App\\Models\\User, Illuminate\\Contracts\\Auth\\Authenticatable\|null given\.$#'
 			identifier: argument.type
 			count: 1
 			path: app/Http/Controllers/ScraperDashboardController.php
 
 		-
-			message: '#^Parameter \#1 \$user of method App\\Http\\Controllers\\ScraperDashboardController\:\:getPerformanceData\(\) expects App\\Http\\Controllers\\App\\Models\\User, App\\Models\\User\|null given\.$#'
+			message: '#^Parameter \#1 \$user of method App\\Http\\Controllers\\ScraperDashboardController\:\:getPerformanceData\(\) expects App\\Http\\Controllers\\App\\Models\\User, Illuminate\\Contracts\\Auth\\Authenticatable\|null given\.$#'
 			identifier: argument.type
 			count: 1
 			path: app/Http/Controllers/ScraperDashboardController.php
 
 		-
-			message: '#^Parameter \#1 \$user of method App\\Http\\Controllers\\ScraperDashboardController\:\:getRecentScrapingActivity\(\) expects App\\Http\\Controllers\\App\\Models\\User, App\\Models\\User\|null given\.$#'
+			message: '#^Parameter \#1 \$user of method App\\Http\\Controllers\\ScraperDashboardController\:\:getRecentScrapingActivity\(\) expects App\\Http\\Controllers\\App\\Models\\User, Illuminate\\Contracts\\Auth\\Authenticatable\|null given\.$#'
 			identifier: argument.type
 			count: 2
 			path: app/Http/Controllers/ScraperDashboardController.php
 
 		-
-			message: '#^Parameter \#1 \$user of method App\\Http\\Controllers\\ScraperDashboardController\:\:getScraperMetrics\(\) expects App\\Http\\Controllers\\App\\Models\\User, App\\Models\\User\|null given\.$#'
+			message: '#^Parameter \#1 \$user of method App\\Http\\Controllers\\ScraperDashboardController\:\:getScraperMetrics\(\) expects App\\Http\\Controllers\\App\\Models\\User, Illuminate\\Contracts\\Auth\\Authenticatable\|null given\.$#'
 			identifier: argument.type
 			count: 1
 			path: app/Http/Controllers/ScraperDashboardController.php
 
 		-
-			message: '#^Parameter \#1 \$user of method App\\Http\\Controllers\\ScraperDashboardController\:\:getScrapingJobData\(\) expects App\\Http\\Controllers\\App\\Models\\User, App\\Models\\User\|null given\.$#'
+			message: '#^Parameter \#1 \$user of method App\\Http\\Controllers\\ScraperDashboardController\:\:getScrapingJobData\(\) expects App\\Http\\Controllers\\App\\Models\\User, Illuminate\\Contracts\\Auth\\Authenticatable\|null given\.$#'
 			identifier: argument.type
 			count: 1
 			path: app/Http/Controllers/ScraperDashboardController.php
 
 		-
-			message: '#^Parameter \#1 \$user of method App\\Http\\Controllers\\ScraperDashboardController\:\:getScrapingStatistics\(\) expects App\\Http\\Controllers\\App\\Models\\User, App\\Models\\User\|null given\.$#'
+			message: '#^Parameter \#1 \$user of method App\\Http\\Controllers\\ScraperDashboardController\:\:getScrapingStatistics\(\) expects App\\Http\\Controllers\\App\\Models\\User, Illuminate\\Contracts\\Auth\\Authenticatable\|null given\.$#'
 			identifier: argument.type
 			count: 1
 			path: app/Http/Controllers/ScraperDashboardController.php
 
 		-
-			message: '#^Parameter \#1 \$user of method App\\Http\\Controllers\\ScraperDashboardController\:\:getTicketsScrapedToday\(\) expects App\\Http\\Controllers\\App\\Models\\User, App\\Models\\User\|null given\.$#'
+			message: '#^Parameter \#1 \$user of method App\\Http\\Controllers\\ScraperDashboardController\:\:getTicketsScrapedToday\(\) expects App\\Http\\Controllers\\App\\Models\\User, Illuminate\\Contracts\\Auth\\Authenticatable\|null given\.$#'
 			identifier: argument.type
 			count: 1
 			path: app/Http/Controllers/ScraperDashboardController.php
@@ -1681,12 +1639,6 @@ parameters:
 			path: app/Http/Controllers/ScraperDashboardController.php
 
 		-
-			message: '#^Parameter \#1 \$view of function view expects view\-string\|null, string given\.$#'
-			identifier: argument.type
-			count: 6
-			path: app/Http/Controllers/SecurityDashboardController.php
-
-		-
 			message: '#^Method App\\Http\\Controllers\\SettingsExportController\:\:exportAsJSON\(\) should return Illuminate\\Http\\Response but returns Illuminate\\Http\\JsonResponse\.$#'
 			identifier: return.type
 			count: 1
@@ -1729,15 +1681,57 @@ parameters:
 			path: app/Http/Controllers/SettingsExportController.php
 
 		-
+			message: '#^Parameter \#1 \$user of method App\\Http\\Controllers\\SettingsExportController\:\:buildExportData\(\) expects App\\Models\\User, Illuminate\\Contracts\\Auth\\Authenticatable\|null given\.$#'
+			identifier: argument.type
+			count: 2
+			path: app/Http/Controllers/SettingsExportController.php
+
+		-
+			message: '#^Parameter \#1 \$user of method App\\Http\\Controllers\\SettingsExportController\:\:createBackupFile\(\) expects App\\Models\\User, Illuminate\\Contracts\\Auth\\Authenticatable\|null given\.$#'
+			identifier: argument.type
+			count: 1
+			path: app/Http/Controllers/SettingsExportController.php
+
+		-
+			message: '#^Parameter \#1 \$user of method App\\Http\\Controllers\\SettingsExportController\:\:generateImportPreview\(\) expects App\\Models\\User, Illuminate\\Contracts\\Auth\\Authenticatable\|null given\.$#'
+			identifier: argument.type
+			count: 1
+			path: app/Http/Controllers/SettingsExportController.php
+
+		-
+			message: '#^Parameter \#1 \$user of method App\\Http\\Controllers\\SettingsExportController\:\:performReset\(\) expects App\\Models\\User, Illuminate\\Contracts\\Auth\\Authenticatable\|null given\.$#'
+			identifier: argument.type
+			count: 1
+			path: app/Http/Controllers/SettingsExportController.php
+
+		-
+			message: '#^Parameter \#1 \$user of method App\\Http\\Controllers\\SettingsExportController\:\:processImport\(\) expects App\\Models\\User, Illuminate\\Contracts\\Auth\\Authenticatable\|null given\.$#'
+			identifier: argument.type
+			count: 1
+			path: app/Http/Controllers/SettingsExportController.php
+
+		-
+			message: '#^Parameter \#2 \$user of method App\\Http\\Controllers\\SettingsExportController\:\:exportAsCSV\(\) expects App\\Models\\User, Illuminate\\Contracts\\Auth\\Authenticatable\|null given\.$#'
+			identifier: argument.type
+			count: 1
+			path: app/Http/Controllers/SettingsExportController.php
+
+		-
+			message: '#^Parameter \#2 \$user of method App\\Http\\Controllers\\SettingsExportController\:\:exportAsJSON\(\) expects App\\Models\\User, Illuminate\\Contracts\\Auth\\Authenticatable\|null given\.$#'
+			identifier: argument.type
+			count: 1
+			path: app/Http/Controllers/SettingsExportController.php
+
+		-
 			message: '#^Method App\\Http\\Controllers\\SubscriptionController\:\:success\(\) should return Illuminate\\View\\View but returns Illuminate\\Http\\RedirectResponse\.$#'
 			identifier: return.type
 			count: 1
 			path: app/Http/Controllers/SubscriptionController.php
 
 		-
-			message: '#^Parameter \#1 \$view of function view expects view\-string\|null, string given\.$#'
+			message: '#^Parameter \#1 \$user of method App\\Http\\Controllers\\SubscriptionController\:\:getTicketUsage\(\) expects App\\Models\\User, Illuminate\\Contracts\\Auth\\Authenticatable\|null given\.$#'
 			identifier: argument.type
-			count: 3
+			count: 1
 			path: app/Http/Controllers/SubscriptionController.php
 
 		-
@@ -1813,9 +1807,15 @@ parameters:
 			path: app/Http/Controllers/TicketApiController.php
 
 		-
-			message: '#^Parameter \#1 \$view of function view expects view\-string\|null, string given\.$#'
+			message: '#^Parameter \#1 \$user of method App\\Http\\Controllers\\TicketPurchaseController\:\:canAccessTickets\(\) expects App\\Models\\User, Illuminate\\Contracts\\Auth\\Authenticatable\|null given\.$#'
 			identifier: argument.type
-			count: 4
+			count: 2
+			path: app/Http/Controllers/TicketPurchaseController.php
+
+		-
+			message: '#^Parameter \#1 \$user of method App\\Http\\Controllers\\TicketPurchaseController\:\:canPurchaseTicket\(\) expects App\\Models\\User, Illuminate\\Contracts\\Auth\\Authenticatable\|null given\.$#'
+			identifier: argument.type
+			count: 2
 			path: app/Http/Controllers/TicketPurchaseController.php
 
 		-
@@ -1846,12 +1846,6 @@ parameters:
 			message: '#^Method App\\Http\\Controllers\\TicketScrapingController\:\:purchase\(\) should return Illuminate\\Http\\RedirectResponse but returns Illuminate\\Http\\JsonResponse\.$#'
 			identifier: return.type
 			count: 3
-			path: app/Http/Controllers/TicketScrapingController.php
-
-		-
-			message: '#^Parameter \#1 \$view of function view expects view\-string\|null, string given\.$#'
-			identifier: argument.type
-			count: 2
 			path: app/Http/Controllers/TicketScrapingController.php
 
 		-
@@ -1993,12 +1987,6 @@ parameters:
 			path: app/Http/Controllers/TicketSourceController.php
 
 		-
-			message: '#^Parameter \#1 \$view of function view expects view\-string\|null, string given\.$#'
-			identifier: argument.type
-			count: 1
-			path: app/Http/Controllers/TicketSourceController.php
-
-		-
 			message: '#^Relation ''category'' is not found in App\\Models\\TicketSource model\.$#'
 			identifier: larastan.relationExistence
 			count: 1
@@ -2035,12 +2023,6 @@ parameters:
 			path: app/Http/Controllers/TicketSourceController.php
 
 		-
-			message: '#^Called ''pluck'' on Laravel collection, but could have been retrieved as a query\.$#'
-			identifier: larastan.noUnnecessaryCollectionCall
-			count: 1
-			path: app/Http/Controllers/UserActivityController.php
-
-		-
 			message: '#^Method App\\Http\\Controllers\\UserContributionController\:\:create\(\) has invalid return type App\\Http\\Controllers\\Illuminate\\Contracts\\View\\View\.$#'
 			identifier: class.notFound
 			count: 1
@@ -2071,12 +2053,6 @@ parameters:
 			path: app/Http/Controllers/UserContributionController.php
 
 		-
-			message: '#^Parameter \#1 \$view of function view expects view\-string\|null, string given\.$#'
-			identifier: argument.type
-			count: 2
-			path: app/Http/Controllers/UserContributionController.php
-
-		-
 			message: '#^Static call to instance method App\\Models\\TicketSource\:\:getStatuses\(\)\.$#'
 			identifier: method.staticCall
 			count: 2
@@ -2101,12 +2077,6 @@ parameters:
 			path: app/Http/Controllers/UserFavoriteTeamController.php
 
 		-
-			message: '#^Parameter \#1 \$view of function view expects view\-string\|null, string given\.$#'
-			identifier: argument.type
-			count: 4
-			path: app/Http/Controllers/UserFavoriteTeamController.php
-
-		-
 			message: '#^Method App\\Http\\Controllers\\UserFavoriteVenueController\:\:export\(\) has invalid return type App\\Http\\Controllers\\Illuminate\\Http\\RedirectResponse\.$#'
 			identifier: class.notFound
 			count: 1
@@ -2125,12 +2095,6 @@ parameters:
 			path: app/Http/Controllers/UserFavoriteVenueController.php
 
 		-
-			message: '#^Parameter \#1 \$view of function view expects view\-string\|null, string given\.$#'
-			identifier: argument.type
-			count: 4
-			path: app/Http/Controllers/UserFavoriteVenueController.php
-
-		-
 			message: '#^Parameter \#1 \$callback of method Illuminate\\Database\\Eloquent\\Collection\<\(int\|string\),Illuminate\\Database\\Eloquent\\Collection\<int, App\\Models\\UserPreference\>\>\:\:map\(\) contains unresolvable type\.$#'
 			identifier: argument.unresolvableType
 			count: 1
@@ -2146,6 +2110,24 @@ parameters:
 			message: '#^Parameter \#1 \$string of function strtolower expects string, Symfony\\Component\\HttpFoundation\\InputBag given\.$#'
 			identifier: argument.type
 			count: 6
+			path: app/Http/Controllers/UserPreferencesController.php
+
+		-
+			message: '#^Parameter \#1 \$user of method App\\Http\\Controllers\\UserPreferencesController\:\:getUserPreferences\(\) expects App\\Models\\User, Illuminate\\Contracts\\Auth\\Authenticatable\|null given\.$#'
+			identifier: argument.type
+			count: 2
+			path: app/Http/Controllers/UserPreferencesController.php
+
+		-
+			message: '#^Parameter \#1 \$user of method App\\Http\\Controllers\\UserPreferencesController\:\:updateNotificationChannel\(\) expects App\\Models\\User, Illuminate\\Contracts\\Auth\\Authenticatable\|null given\.$#'
+			identifier: argument.type
+			count: 2
+			path: app/Http/Controllers/UserPreferencesController.php
+
+		-
+			message: '#^Parameter \#1 \$user of method App\\Http\\Controllers\\UserPreferencesController\:\:updateUserProfile\(\) expects App\\Models\\User, Illuminate\\Contracts\\Auth\\Authenticatable\|null given\.$#'
+			identifier: argument.type
+			count: 2
 			path: app/Http/Controllers/UserPreferencesController.php
 
 		-
@@ -2173,14 +2155,14 @@ parameters:
 			path: app/Http/Controllers/UserPricePreferenceController.php
 
 		-
-			message: '#^Parameter \#1 \$view of function view expects view\-string\|null, string given\.$#'
-			identifier: argument.type
-			count: 4
-			path: app/Http/Controllers/UserPricePreferenceController.php
-
-		-
 			message: '#^Method App\\Http\\Controllers\\WelcomeController\:\:getABTestVariant\(\) should return string\|null but empty return statement found\.$#'
 			identifier: return.empty
+			count: 1
+			path: app/Http/Controllers/WelcomeController.php
+
+		-
+			message: '#^Parameter \#1 \$user of method App\\Services\\WelcomePageService\:\:getUserSubscriptionInfo\(\) expects App\\Models\\User, Illuminate\\Contracts\\Auth\\Authenticatable\|null given\.$#'
+			identifier: argument.type
 			count: 1
 			path: app/Http/Controllers/WelcomeController.php
 
@@ -2197,22 +2179,40 @@ parameters:
 			path: app/Http/Middleware/ApiSecurityMiddleware.php
 
 		-
-			message: '#^Strict comparison using \=\=\= between string\|false and null will always evaluate to false\.$#'
-			identifier: identical.alwaysFalse
+			message: '#^Parameter \#1 \$user of method App\\Http\\Middleware\\CheckSubscriptionStatus\:\:hasValidSubscription\(\) expects App\\Models\\User, Illuminate\\Contracts\\Auth\\Authenticatable given\.$#'
+			identifier: argument.type
 			count: 1
-			path: app/Http/Middleware/AppendCssTimestamp.php
+			path: app/Http/Middleware/CheckSubscriptionStatus.php
+
+		-
+			message: '#^Parameter \#1 \$user of method App\\Http\\Middleware\\CheckTicketPurchasePermissions\:\:checkCustomerSubscription\(\) expects App\\Models\\User, Illuminate\\Contracts\\Auth\\Authenticatable given\.$#'
+			identifier: argument.type
+			count: 1
+			path: app/Http/Middleware/CheckTicketPurchasePermissions.php
+
+		-
+			message: '#^Parameter \#1 \$user of method App\\Http\\Middleware\\CheckTicketPurchasePermissions\:\:hasExceededTicketLimits\(\) expects App\\Models\\User, Illuminate\\Contracts\\Auth\\Authenticatable given\.$#'
+			identifier: argument.type
+			count: 1
+			path: app/Http/Middleware/CheckTicketPurchasePermissions.php
+
+		-
+			message: '#^Parameter \#1 \$user of method App\\Http\\Middleware\\CheckTicketPurchasePermissions\:\:limitExceededResponse\(\) expects App\\Models\\User, Illuminate\\Contracts\\Auth\\Authenticatable given\.$#'
+			identifier: argument.type
+			count: 1
+			path: app/Http/Middleware/CheckTicketPurchasePermissions.php
+
+		-
+			message: '#^Parameter \#1 \$user of method App\\Http\\Middleware\\CheckTicketPurchasePermissions\:\:userCanPurchaseTickets\(\) expects App\\Models\\User, Illuminate\\Contracts\\Auth\\Authenticatable given\.$#'
+			identifier: argument.type
+			count: 1
+			path: app/Http/Middleware/CheckTicketPurchasePermissions.php
 
 		-
 			message: '#^Using nullsafe property access "\?\-\>ticket_limit" on left side of \?\? is unnecessary\. Use \-\> instead\.$#'
 			identifier: nullsafe.neverNull
 			count: 1
 			path: app/Http/Middleware/CheckTicketPurchasePermissions.php
-
-		-
-			message: '#^Call to function is_array\(\) with list\<string\|null\> will always evaluate to true\.$#'
-			identifier: function.alreadyNarrowedType
-			count: 1
-			path: app/Http/Middleware/ComprehensiveLoggingMiddleware.php
 
 		-
 			message: '#^Class App\\Http\\Middleware\\QueryPerformanceMonitoringMiddleware has an uninitialized property \$requestStartTime\. Give it default value or assign it in the constructor\.$#'
@@ -2257,7 +2257,25 @@ parameters:
 			path: app/Http/Middleware/RequireTwoFactorMiddleware.php
 
 		-
-			message: '#^Parameter \#1 \$user of method App\\Http\\Middleware\\RequireTwoFactorMiddleware\:\:requiresTwoFactor\(\) expects App\\Http\\Middleware\\App\\Models\\User, App\\Models\\User given\.$#'
+			message: '#^Parameter \#1 \$model of method Spatie\\Activitylog\\ActivityLogger\:\:performedOn\(\) expects Illuminate\\Database\\Eloquent\\Model, Illuminate\\Contracts\\Auth\\Authenticatable given\.$#'
+			identifier: argument.type
+			count: 2
+			path: app/Http/Middleware/RequireTwoFactorMiddleware.php
+
+		-
+			message: '#^Parameter \#1 \$modelOrId of method Spatie\\Activitylog\\ActivityLogger\:\:causedBy\(\) expects Illuminate\\Database\\Eloquent\\Model\|int\|string\|null, Illuminate\\Contracts\\Auth\\Authenticatable given\.$#'
+			identifier: argument.type
+			count: 2
+			path: app/Http/Middleware/RequireTwoFactorMiddleware.php
+
+		-
+			message: '#^Parameter \#1 \$modelOrId of method Spatie\\Activitylog\\ActivityLogger\:\:causedBy\(\) expects Illuminate\\Database\\Eloquent\\Model\|int\|string\|null, Illuminate\\Contracts\\Auth\\Authenticatable\|null given\.$#'
+			identifier: argument.type
+			count: 2
+			path: app/Http/Middleware/RequireTwoFactorMiddleware.php
+
+		-
+			message: '#^Parameter \#1 \$user of method App\\Http\\Middleware\\RequireTwoFactorMiddleware\:\:requiresTwoFactor\(\) expects App\\Http\\Middleware\\App\\Models\\User, Illuminate\\Contracts\\Auth\\Authenticatable given\.$#'
 			identifier: argument.type
 			count: 1
 			path: app/Http/Middleware/RequireTwoFactorMiddleware.php
@@ -2266,6 +2284,12 @@ parameters:
 			message: '#^Parameter \#1 \$user of method App\\Services\\TwoFactorAuthService\:\:isEnabled\(\) expects App\\Models\\User, App\\Http\\Middleware\\App\\Models\\User given\.$#'
 			identifier: argument.type
 			count: 1
+			path: app/Http/Middleware/RequireTwoFactorMiddleware.php
+
+		-
+			message: '#^Parameter \#1 \$user of method App\\Services\\TwoFactorAuthService\:\:isEnabled\(\) expects App\\Models\\User, Illuminate\\Contracts\\Auth\\Authenticatable given\.$#'
+			identifier: argument.type
+			count: 2
 			path: app/Http/Middleware/RequireTwoFactorMiddleware.php
 
 		-
@@ -2281,20 +2305,8 @@ parameters:
 			path: app/Http/Middleware/RoleMiddleware.php
 
 		-
-			message: '#^Call to static method where\(\) on an unknown class App\\Domain\\Purchase\\Models\\TicketPurchase\.$#'
-			identifier: class.notFound
-			count: 3
-			path: app/Http/Middleware/TicketPurchaseValidationMiddleware.php
-
-		-
-			message: '#^Method App\\Http\\Middleware\\TicketPurchaseValidationMiddleware\:\:handle\(\) should return Illuminate\\Http\\RedirectResponse\|Illuminate\\Http\\Response but returns Illuminate\\Http\\JsonResponse\.$#'
-			identifier: return.type
-			count: 1
-			path: app/Http/Middleware/TicketPurchaseValidationMiddleware.php
-
-		-
-			message: '#^Negated boolean expression is always false\.$#'
-			identifier: booleanNot.alwaysFalse
+			message: '#^Call to function method_exists\(\) with App\\Models\\User and ''hasPermission'' will always evaluate to true\.$#'
+			identifier: function.alreadyNarrowedType
 			count: 1
 			path: app/Http/Middleware/TicketPurchaseValidationMiddleware.php
 
@@ -2323,7 +2335,7 @@ parameters:
 			path: app/Http/Middleware/TrackUserActivity.php
 
 		-
-			message: '#^Parameter \#1 \$user of method App\\Http\\Middleware\\TrackUserActivity\:\:trackUserActivity\(\) expects App\\Http\\Middleware\\App\\Models\\User, App\\Models\\User\|null given\.$#'
+			message: '#^Parameter \#1 \$user of method App\\Http\\Middleware\\TrackUserActivity\:\:trackUserActivity\(\) expects App\\Http\\Middleware\\App\\Models\\User, Illuminate\\Contracts\\Auth\\Authenticatable\|null given\.$#'
 			identifier: argument.type
 			count: 1
 			path: app/Http/Middleware/TrackUserActivity.php
@@ -2371,6 +2383,12 @@ parameters:
 			path: app/Imports/UsersImport.php
 
 		-
+			message: '#^Parameter \#1 \$modelOrId of method Spatie\\Activitylog\\ActivityLogger\:\:causedBy\(\) expects Illuminate\\Database\\Eloquent\\Model\|int\|string\|null, Illuminate\\Contracts\\Auth\\Authenticatable\|null given\.$#'
+			identifier: argument.type
+			count: 1
+			path: app/Imports/UsersImport.php
+
+		-
 			message: '#^Parameter \#1 \$datetime of class DateTimeImmutable constructor expects string, Carbon\\Carbon given\.$#'
 			identifier: argument.type
 			count: 2
@@ -2380,12 +2398,6 @@ parameters:
 			message: '#^Parameter \#1 \$datetime of class DateTimeImmutable constructor expects string, Carbon\\Carbon\|null given\.$#'
 			identifier: argument.type
 			count: 1
-			path: app/Infrastructure/Persistence/EloquentSportsEventRepository.php
-
-		-
-			message: '#^Ternary operator condition is always true\.$#'
-			identifier: ternary.alwaysTrue
-			count: 2
 			path: app/Infrastructure/Persistence/EloquentSportsEventRepository.php
 
 		-
@@ -2479,72 +2491,6 @@ parameters:
 			path: app/Jobs/ProcessSportsEventEmailJob.php
 
 		-
-			message: '#^Parameter \#1 \$view of method Illuminate\\Mail\\Mailable\:\:view\(\) expects view\-string, string given\.$#'
-			identifier: argument.type
-			count: 1
-			path: app/Mail/AccountDeletionRequested.php
-
-		-
-			message: '#^Parameter \#1 \$view of method Illuminate\\Mail\\Mailable\:\:view\(\) expects view\-string, string given\.$#'
-			identifier: argument.type
-			count: 1
-			path: app/Mail/AlertTriggered.php
-
-		-
-			message: '#^Parameter \#1 \$view of method Illuminate\\Mail\\Mailable\:\:view\(\) expects view\-string, string given\.$#'
-			identifier: argument.type
-			count: 1
-			path: app/Mail/BulkNotification.php
-
-		-
-			message: '#^Parameter \#1 \$view of method Illuminate\\Mail\\Mailable\:\:view\(\) expects view\-string, string given\.$#'
-			identifier: argument.type
-			count: 1
-			path: app/Mail/PaymentFailure.php
-
-		-
-			message: '#^Parameter \#1 \$view of method Illuminate\\Mail\\Mailable\:\:view\(\) expects view\-string, string given\.$#'
-			identifier: argument.type
-			count: 1
-			path: app/Mail/PurchaseConfirmation.php
-
-		-
-			message: '#^Parameter \#1 \$view of method Illuminate\\Mail\\Mailable\:\:view\(\) expects view\-string, string given\.$#'
-			identifier: argument.type
-			count: 1
-			path: app/Mail/PurchaseSuccess.php
-
-		-
-			message: '#^Parameter \#1 \$view of method Illuminate\\Mail\\Mailable\:\:view\(\) expects view\-string, string given\.$#'
-			identifier: argument.type
-			count: 1
-			path: app/Mail/SubscriptionConfirmation.php
-
-		-
-			message: '#^Call to method App\\Mail\\SystemAlertNotification\:\:getPriority\(\) on a separate line has no effect\.$#'
-			identifier: method.resultUnused
-			count: 1
-			path: app/Mail/SystemAlertNotification.php
-
-		-
-			message: '#^Parameter \#1 \$view of method Illuminate\\Mail\\Mailable\:\:view\(\) expects view\-string, string given\.$#'
-			identifier: argument.type
-			count: 1
-			path: app/Mail/TemplatedNotification.php
-
-		-
-			message: '#^Parameter \#1 \$view of method Illuminate\\Mail\\Mailable\:\:view\(\) expects view\-string, string given\.$#'
-			identifier: argument.type
-			count: 1
-			path: app/Mail/TicketAlert.php
-
-		-
-			message: '#^Parameter \#1 \$view of method Illuminate\\Mail\\Mailable\:\:view\(\) expects view\-string, string given\.$#'
-			identifier: argument.type
-			count: 1
-			path: app/Mail/WelcomeUser.php
-
-		-
 			message: '#^Cannot call method diffForHumans\(\) on string\.$#'
 			identifier: method.nonObject
 			count: 1
@@ -2611,38 +2557,26 @@ parameters:
 			path: app/Models/DeletedUser.php
 
 		-
-			message: '#^Call to function is_array\(\) with string\|null will always evaluate to false\.$#'
-			identifier: function.impossibleType
+			message: '#^Offset 1 on array\{list\<string\>, list\<non\-empty\-string\>\} on left side of \?\? always exists and is not nullable\.$#'
+			identifier: nullCoalesce.offset
 			count: 1
-			path: app/Models/LoginHistory.php
+			path: app/Models/EmailTemplate.php
 
 		-
-			message: '#^Comparison operation "\>\=" between 0 and 1 is always false\.$#'
-			identifier: greaterOrEqual.alwaysFalse
+			message: '#^PHPDoc type array\<int, string\> of property App\\Models\\EmailTemplate\:\:\$fillable is not covariant with PHPDoc type list\<string\> of overridden property Illuminate\\Database\\Eloquent\\Model\:\:\$fillable\.$#'
+			identifier: property.phpDocType
 			count: 1
-			path: app/Models/LoginHistory.php
+			path: app/Models/EmailTemplate.php
 
 		-
-			message: '#^Comparison operation "\>\=" between 0 and 3 is always false\.$#'
-			identifier: greaterOrEqual.alwaysFalse
-			count: 1
-			path: app/Models/LoginHistory.php
-
-		-
-			message: '#^Match arm comparison between ''lifetime'' and ''lifetime'' is always true\.$#'
-			identifier: match.alwaysTrue
+			message: '#^Match arm comparison between \*NEVER\* and ''lifetime'' is always false\.$#'
+			identifier: match.alwaysFalse
 			count: 2
 			path: app/Models/PaymentPlan.php
 
 		-
 			message: '#^Parameter \#1 \$value of function collect expects Illuminate\\Contracts\\Support\\Arrayable\<\(int\|string\), mixed\>\|iterable\<\(int\|string\), mixed\>\|null, non\-falsy\-string given\.$#'
 			identifier: argument.type
-			count: 1
-			path: app/Models/PaymentPlan.php
-
-		-
-			message: '#^Strict comparison using \=\=\= between float and 0 will always evaluate to false\.$#'
-			identifier: identical.alwaysFalse
 			count: 1
 			path: app/Models/PaymentPlan.php
 
@@ -2701,6 +2635,18 @@ parameters:
 			path: app/Models/ScheduledReport.php
 
 		-
+			message: '#^PHPDoc type array\<int, string\> of property App\\Models\\ScrapingSource\:\:\$fillable is not covariant with PHPDoc type list\<string\> of overridden property Illuminate\\Database\\Eloquent\\Model\:\:\$fillable\.$#'
+			identifier: property.phpDocType
+			count: 1
+			path: app/Models/ScrapingSource.php
+
+		-
+			message: '#^PHPDoc type array\<int, string\> of property App\\Models\\ScrapingSource\:\:\$hidden is not covariant with PHPDoc type list\<string\> of overridden property Illuminate\\Database\\Eloquent\\Model\:\:\$hidden\.$#'
+			identifier: property.phpDocType
+			count: 1
+			path: app/Models/ScrapingSource.php
+
+		-
 			message: '#^Called ''pluck'' on Laravel collection, but could have been retrieved as a query\.$#'
 			identifier: larastan.noUnnecessaryCollectionCall
 			count: 1
@@ -2711,6 +2657,12 @@ parameters:
 			identifier: method.nonObject
 			count: 2
 			path: app/Models/SecurityIncident.php
+
+		-
+			message: '#^PHPDoc type array\<int, string\> of property App\\Models\\SystemSetting\:\:\$fillable is not covariant with PHPDoc type list\<string\> of overridden property Illuminate\\Database\\Eloquent\\Model\:\:\$fillable\.$#'
+			identifier: property.phpDocType
+			count: 1
+			path: app/Models/SystemSetting.php
 
 		-
 			message: '#^Class App\\Events\\TicketAvailabilityUpdated constructor invoked with 1 parameter, 2 required\.$#'
@@ -2737,20 +2689,8 @@ parameters:
 			path: app/Models/TicketPriceHistory.php
 
 		-
-			message: '#^Strict comparison using \=\=\= between float and 0 will always evaluate to false\.$#'
-			identifier: identical.alwaysFalse
-			count: 1
-			path: app/Models/TicketPriceHistory.php
-
-		-
 			message: '#^Method App\\Models\\TicketPurchase\:\:getProcessingTime\(\) should return int\|null but returns float\.$#'
 			identifier: return.type
-			count: 2
-			path: app/Models/TicketPurchase.php
-
-		-
-			message: '#^Right side of && is always true\.$#'
-			identifier: booleanAnd.rightAlwaysTrue
 			count: 2
 			path: app/Models/TicketPurchase.php
 
@@ -2791,18 +2731,6 @@ parameters:
 			path: app/Models/User.php
 
 		-
-			message: '#^Dead catch \- Exception is never thrown in the try block\.$#'
-			identifier: catch.neverThrown
-			count: 1
-			path: app/Models/User.php
-
-		-
-			message: '#^Expression on left side of \?\? is not nullable\.$#'
-			identifier: nullCoalesce.expr
-			count: 1
-			path: app/Models/User.php
-
-		-
 			message: '#^Method App\\Models\\User\:\:subscribeToPlan\(\) should return App\\Models\\UserSubscription but returns Illuminate\\Database\\Eloquent\\Model\.$#'
 			identifier: return.type
 			count: 1
@@ -2827,16 +2755,16 @@ parameters:
 			path: app/Models/User.php
 
 		-
-			message: '#^Ternary operator condition is always true\.$#'
-			identifier: ternary.alwaysTrue
-			count: 3
-			path: app/Models/User.php
-
-		-
 			message: '#^Parameter \#1 \$callback of method Illuminate\\Database\\Eloquent\\Collection\<int,App\\Models\\UserFavoriteTeam\>\:\:map\(\) contains unresolvable type\.$#'
 			identifier: argument.unresolvableType
 			count: 1
 			path: app/Models/UserFavoriteTeam.php
+
+		-
+			message: '#^Empty array passed to foreach\.$#'
+			identifier: foreach.emptyArray
+			count: 1
+			path: app/Models/UserFavoriteVenue.php
 
 		-
 			message: '#^Parameter \#1 \$callback of method Illuminate\\Database\\Eloquent\\Collection\<int,App\\Models\\UserFavoriteVenue\>\:\:map\(\) contains unresolvable type\.$#'
@@ -2873,6 +2801,12 @@ parameters:
 			identifier: method.nonObject
 			count: 1
 			path: app/Models/UserPermission.php
+
+		-
+			message: '#^Parameter \#1 \$callback of method Illuminate\\Database\\Eloquent\\Collection\<int,App\\Models\\UserPreference\>\:\:mapWithKeys\(\) contains unresolvable type\.$#'
+			identifier: argument.unresolvableType
+			count: 1
+			path: app/Models/UserPreference.php
 
 		-
 			message: '#^Call to private static method castValue\(\) of class App\\Models\\UserPreference\.$#'
@@ -2923,22 +2857,10 @@ parameters:
 			path: app/Models/UserSession.php
 
 		-
-			message: '#^Left side of && is always true\.$#'
-			identifier: booleanAnd.leftAlwaysTrue
-			count: 1
-			path: app/Models/UserSubscription.php
-
-		-
 			message: '#^Method App\\Services\\ComponentCommunication\:\:createBladeToAlpineBinding\(\) invoked with 1 parameter, 2 required\.$#'
 			identifier: arguments.count
 			count: 1
 			path: app/Providers/ComponentArchitectureServiceProvider.php
-
-		-
-			message: '#^Class App\\Services\\AutomatedPurchaseEngine constructor invoked with 2 parameters, 1 required\.$#'
-			identifier: arguments.count
-			count: 1
-			path: app/Providers/PurchaseServiceProvider.php
 
 		-
 			message: '#^Anonymous function has invalid return type ActivityLogger\.$#'
@@ -3223,6 +3145,12 @@ parameters:
 			path: app/Services/AdvancedAnalyticsDashboard.php
 
 		-
+			message: '#^Call to function method_exists\(\) with App\\Models\\User and ''roles'' will always evaluate to true\.$#'
+			identifier: function.alreadyNarrowedType
+			count: 1
+			path: app/Services/AdvancedRBACService.php
+
+		-
 			message: '#^Call to static method loadView\(\) on an unknown class Barryvdh\\DomPDF\\Facades\\Pdf\.$#'
 			identifier: class.notFound
 			count: 1
@@ -3255,18 +3183,6 @@ parameters:
 		-
 			message: '#^Call to protected method sendMultiChannelNotification\(\) of class App\\Services\\EnhancedAlertSystem\.$#'
 			identifier: method.protected
-			count: 1
-			path: app/Services/AlertEscalationService.php
-
-		-
-			message: '#^Offset ''phone_alerts'' on string\|null on left side of \?\? does not exist\.$#'
-			identifier: nullCoalesce.offset
-			count: 1
-			path: app/Services/AlertEscalationService.php
-
-		-
-			message: '#^Offset ''sms_alerts'' on string\|null on left side of \?\? does not exist\.$#'
-			identifier: nullCoalesce.offset
 			count: 1
 			path: app/Services/AlertEscalationService.php
 
@@ -3322,18 +3238,6 @@ parameters:
 			message: '#^Parameter \#1 \$user of method App\\Services\\EnhancedAlertSystem\:\:sendMultiChannelNotification\(\) expects App\\Models\\User, Illuminate\\Database\\Eloquent\\Model\|null given\.$#'
 			identifier: argument.type
 			count: 1
-			path: app/Services/AlertEscalationService.php
-
-		-
-			message: '#^Result of && is always false\.$#'
-			identifier: booleanAnd.alwaysFalse
-			count: 1
-			path: app/Services/AlertEscalationService.php
-
-		-
-			message: '#^Right side of && is always false\.$#'
-			identifier: booleanAnd.rightAlwaysFalse
-			count: 2
 			path: app/Services/AlertEscalationService.php
 
 		-
@@ -3439,12 +3343,6 @@ parameters:
 			path: app/Services/AnalyticsInsightsService.php
 
 		-
-			message: '#^Expression on left side of \?\? is not nullable\.$#'
-			identifier: nullCoalesce.expr
-			count: 2
-			path: app/Services/AnalyticsService.php
-
-		-
 			message: '#^Access to property \$id on an unknown class App\\Services\\App\\Models\\Ticket\.$#'
 			identifier: class.notFound
 			count: 1
@@ -3460,48 +3358,6 @@ parameters:
 			message: '#^Access to property \$total_price on an unknown class App\\Services\\App\\Models\\Ticket\.$#'
 			identifier: class.notFound
 			count: 4
-			path: app/Services/AutomatedPurchaseEngine.php
-
-		-
-			message: '#^Negated boolean expression is always true\.$#'
-			identifier: booleanNot.alwaysTrue
-			count: 1
-			path: app/Services/AutomatedPurchaseEngine.php
-
-		-
-			message: '#^Offset ''auto_purchase'' on string\|null on left side of \?\? does not exist\.$#'
-			identifier: nullCoalesce.offset
-			count: 1
-			path: app/Services/AutomatedPurchaseEngine.php
-
-		-
-			message: '#^Offset ''enabled'' on array\{\} on left side of \?\? does not exist\.$#'
-			identifier: nullCoalesce.offset
-			count: 1
-			path: app/Services/AutomatedPurchaseEngine.php
-
-		-
-			message: '#^Offset ''max_ticket_price'' on array\{\}\|string in isset\(\) does not exist\.$#'
-			identifier: isset.offset
-			count: 1
-			path: app/Services/AutomatedPurchaseEngine.php
-
-		-
-			message: '#^Offset ''max_ticket_price'' on string\|null on left side of \?\? does not exist\.$#'
-			identifier: nullCoalesce.offset
-			count: 1
-			path: app/Services/AutomatedPurchaseEngine.php
-
-		-
-			message: '#^Offset ''preferred_platforms'' on array\{\}\|string in isset\(\) does not exist\.$#'
-			identifier: isset.offset
-			count: 1
-			path: app/Services/AutomatedPurchaseEngine.php
-
-		-
-			message: '#^Offset ''preferred_sections'' on array\{\}\|string in isset\(\) does not exist\.$#'
-			identifier: isset.offset
-			count: 1
 			path: app/Services/AutomatedPurchaseEngine.php
 
 		-
@@ -3571,6 +3427,12 @@ parameters:
 			path: app/Services/AutomatedPurchaseEngine.php
 
 		-
+			message: '#^Parameter \#2 \$user of method App\\Services\\AutomatedPurchaseEngine\:\:evaluatePurchaseDecision\(\) expects App\\Models\\User, Illuminate\\Contracts\\Auth\\Authenticatable\|null given\.$#'
+			identifier: argument.type
+			count: 1
+			path: app/Services/AutomatedPurchaseEngine.php
+
+		-
 			message: '#^Parameter \$ticket of method App\\Services\\AutomatedPurchaseEngine\:\:calculateValueScore\(\) has invalid type App\\Services\\App\\Models\\Ticket\.$#'
 			identifier: class.notFound
 			count: 1
@@ -3589,26 +3451,8 @@ parameters:
 			path: app/Services/AutomatedPurchaseEngine.php
 
 		-
-			message: '#^Result of && is always false\.$#'
-			identifier: booleanAnd.alwaysFalse
-			count: 3
-			path: app/Services/AutomatedPurchaseEngine.php
-
-		-
-			message: '#^Unreachable statement \- code above always terminates\.$#'
-			identifier: deadCode.unreachable
-			count: 1
-			path: app/Services/AutomatedPurchaseEngine.php
-
-		-
 			message: '#^Call to function is_array\(\) with array will always evaluate to true\.$#'
 			identifier: function.alreadyNarrowedType
-			count: 1
-			path: app/Services/CompetitiveIntelligenceService.php
-
-		-
-			message: '#^Negated boolean expression is always true\.$#'
-			identifier: booleanNot.alwaysTrue
 			count: 1
 			path: app/Services/CompetitiveIntelligenceService.php
 
@@ -3655,6 +3499,12 @@ parameters:
 			path: app/Services/ComponentCommunication.php
 
 		-
+			message: '#^Method App\\Services\\Core\\AuthenticationService\:\:user\(\) should return App\\Models\\User\|null but returns Illuminate\\Contracts\\Auth\\Authenticatable\|null\.$#'
+			identifier: return.type
+			count: 1
+			path: app/Services/Core/AuthenticationService.php
+
+		-
 			message: '#^Class App\\Services\\Core\\PurchaseAutomationService has an uninitialized property \$decisionChain\. Give it default value or assign it in the constructor\.$#'
 			identifier: property.uninitialized
 			count: 1
@@ -3669,18 +3519,6 @@ parameters:
 		-
 			message: '#^Class App\\Services\\Patterns\\ChainOfResponsibility\\PurchaseDecisionChain does not have a constructor and must be instantiated without any parameters\.$#'
 			identifier: new.noConstructor
-			count: 1
-			path: app/Services/Core/PurchaseAutomationService.php
-
-		-
-			message: '#^Comparison operation "\>" between \(int\<min, 100\>\|Redis\|false\) and 50 results in an error\.$#'
-			identifier: greater.invalid
-			count: 1
-			path: app/Services/Core/PurchaseAutomationService.php
-
-		-
-			message: '#^Comparison operation "\>" between \(int\|Redis\|false\) and 100 results in an error\.$#'
-			identifier: greater.invalid
 			count: 1
 			path: app/Services/Core/PurchaseAutomationService.php
 
@@ -3721,16 +3559,70 @@ parameters:
 			path: app/Services/Core/TicketMonitoringService.php
 
 		-
-			message: '#^Variable \$historyData on left side of \?\? always exists and is not nullable\.$#'
-			identifier: nullCoalesce.variable
+			message: '#^Offset ''favorite_sports'' does not exist on array\{\}\|string\.$#'
+			identifier: offsetAccess.notFound
 			count: 1
-			path: app/Services/Core/TicketMonitoringService.php
+			path: app/Services/Dashboard/AlertService.php
 
 		-
-			message: '#^Variable \$priceHistoryData on left side of \?\? always exists and is not nullable\.$#'
-			identifier: nullCoalesce.variable
+			message: '#^Offset ''favorite_teams'' does not exist on array\{\}\|string\.$#'
+			identifier: offsetAccess.notFound
 			count: 1
-			path: app/Services/Core/TicketMonitoringService.php
+			path: app/Services/Dashboard/AlertService.php
+
+		-
+			message: '#^Offset ''price_range'' does not exist on array\{\}\|string\.$#'
+			identifier: offsetAccess.notFound
+			count: 1
+			path: app/Services/Dashboard/AlertService.php
+
+		-
+			message: '#^Call to function method_exists\(\) with App\\Models\\User and ''getFreeTrialDaysRem…'' will always evaluate to true\.$#'
+			identifier: function.alreadyNarrowedType
+			count: 1
+			path: app/Services/Dashboard/DashboardCacheService.php
+
+		-
+			message: '#^Expression on left side of \?\? is not nullable\.$#'
+			identifier: nullCoalesce.expr
+			count: 5
+			path: app/Services/Dashboard/DashboardCacheService.php
+
+		-
+			message: '#^Offset ''favorite_sports'' does not exist on array\{\}\|string\.$#'
+			identifier: offsetAccess.notFound
+			count: 1
+			path: app/Services/Dashboard/RecommendationService.php
+
+		-
+			message: '#^Offset ''favorite_teams'' does not exist on array\{\}\|string\.$#'
+			identifier: offsetAccess.notFound
+			count: 1
+			path: app/Services/Dashboard/RecommendationService.php
+
+		-
+			message: '#^Parameter \#1 \$callback of method Illuminate\\Database\\Eloquent\\Collection\<int,App\\Models\\ScrapedTicket\>\:\:map\(\) contains unresolvable type\.$#'
+			identifier: argument.unresolvableType
+			count: 2
+			path: app/Services/Dashboard/RecommendationService.php
+
+		-
+			message: '#^Parameter \#3 \$value of method Illuminate\\Database\\Eloquent\\Builder\<App\\Models\\ScrapedTicket\>\:\:having\(\) expects float\|int\|string\|null, Illuminate\\Contracts\\Database\\Query\\Expression given\.$#'
+			identifier: argument.type
+			count: 1
+			path: app/Services/Dashboard/RecommendationService.php
+
+		-
+			message: '#^Expression on left side of \?\? is not nullable\.$#'
+			identifier: nullCoalesce.expr
+			count: 2
+			path: app/Services/Dashboard/UserMetricsService.php
+
+		-
+			message: '#^Using nullsafe method call on non\-nullable type Carbon\\Carbon\. Use \-\> instead\.$#'
+			identifier: nullsafe.neverNull
+			count: 1
+			path: app/Services/Dashboard/UserMetricsService.php
 
 		-
 			message: '#^Call to an undefined method Illuminate\\Support\\Collection\<\(int\|string\), mixed\>\:\:std\(\)\.$#'
@@ -3767,18 +3659,6 @@ parameters:
 			identifier: argument.unresolvableType
 			count: 1
 			path: app/Services/DataExportService.php
-
-		-
-			message: '#^If condition is always true\.$#'
-			identifier: if.alwaysTrue
-			count: 1
-			path: app/Services/DatabaseOptimizationService.php
-
-		-
-			message: '#^Left side of && is always true\.$#'
-			identifier: booleanAnd.leftAlwaysTrue
-			count: 1
-			path: app/Services/DatabaseOptimizationService.php
 
 		-
 			message: '#^Parameter \#1 \$imap of function imap_fetchbody expects IMAP\\Connection, resource given\.$#'
@@ -3883,12 +3763,6 @@ parameters:
 			path: app/Services/EncryptionService.php
 
 		-
-			message: '#^Comparison operation "\>" between \(array\|float\|int\) and 0 results in an error\.$#'
-			identifier: greater.invalid
-			count: 1
-			path: app/Services/Enhanced/AdvancedCacheService.php
-
-		-
 			message: '#^Undefined variable\: \$cacheKey$#'
 			identifier: variable.undefined
 			count: 1
@@ -3937,24 +3811,6 @@ parameters:
 			path: app/Services/Enhanced/AdvancedTicketCachingService.php
 
 		-
-			message: '#^Comparison operation "\>" between \(array\|float\|int\) and 0 results in an error\.$#'
-			identifier: greater.invalid
-			count: 2
-			path: app/Services/Enhanced/AdvancedTicketCachingService.php
-
-		-
-			message: '#^Negated boolean expression is always false\.$#'
-			identifier: booleanNot.alwaysFalse
-			count: 1
-			path: app/Services/Enhanced/AdvancedTicketCachingService.php
-
-		-
-			message: '#^Offset ''categories'' on array\{\}\|string on left side of \?\? does not exist\.$#'
-			identifier: nullCoalesce.offset
-			count: 1
-			path: app/Services/Enhanced/AdvancedTicketCachingService.php
-
-		-
 			message: '#^Parameter \#1 \$ticket of method App\\Services\\Enhanced\\AdvancedTicketCachingService\:\:cacheIndividualTicket\(\) expects App\\Services\\Enhanced\\App\\Models\\Ticket, App\\Models\\ScrapedTicket given\.$#'
 			identifier: argument.type
 			count: 2
@@ -3967,46 +3823,10 @@ parameters:
 			path: app/Services/Enhanced/AdvancedTicketCachingService.php
 
 		-
-			message: '#^Unreachable statement \- code above always terminates\.$#'
-			identifier: deadCode.unreachable
-			count: 1
-			path: app/Services/Enhanced/AdvancedTicketCachingService.php
-
-		-
-			message: '#^Variable \$preferredCategories in empty\(\) always exists and is always falsy\.$#'
-			identifier: empty.variable
-			count: 1
-			path: app/Services/Enhanced/AdvancedTicketCachingService.php
-
-		-
 			message: '#^Method App\\Services\\Enhanced\\DatabaseQueryOptimizer\:\:getOptimizedTicketsQuery\(\) should return Illuminate\\Database\\Eloquent\\Builder but returns Illuminate\\Database\\Query\\Builder\.$#'
 			identifier: return.type
 			count: 1
 			path: app/Services/Enhanced/DatabaseQueryOptimizer.php
-
-		-
-			message: '#^Ternary operator condition is always true\.$#'
-			identifier: ternary.alwaysTrue
-			count: 2
-			path: app/Services/Enhanced/DatabaseQueryOptimizer.php
-
-		-
-			message: '#^Comparison operation "\>" between \(array\|float\|int\) and 0 results in an error\.$#'
-			identifier: greater.invalid
-			count: 2
-			path: app/Services/Enhanced/PerformanceMonitoringService.php
-
-		-
-			message: '#^Comparison operation "\>" between int\<1, max\> and 0 is always true\.$#'
-			identifier: greater.alwaysTrue
-			count: 1
-			path: app/Services/Enhanced/PerformanceMonitoringService.php
-
-		-
-			message: '#^Offset 0 on non\-empty\-list\<string\> on left side of \?\? always exists and is not nullable\.$#'
-			identifier: nullCoalesce.offset
-			count: 1
-			path: app/Services/Enhanced/PerformanceMonitoringService.php
 
 		-
 			message: '#^Property App\\Services\\Enhanced\\PerformanceMonitoringService\:\:\$metrics is never read, only written\.$#'
@@ -4015,7 +3835,7 @@ parameters:
 			path: app/Services/Enhanced/PerformanceMonitoringService.php
 
 		-
-			message: '#^Strict comparison using \=\=\= between string and \-1 will always evaluate to false\.$#'
+			message: '#^Strict comparison using \=\=\= between string\|false and \-1 will always evaluate to false\.$#'
 			identifier: identical.alwaysFalse
 			count: 1
 			path: app/Services/Enhanced/PerformanceMonitoringService.php
@@ -4141,14 +3961,8 @@ parameters:
 			path: app/Services/InputValidationService.php
 
 		-
-			message: '#^Constant App\\Services\\InputValidationService\:\:DANGEROUS_PATTERNS is unused\.$#'
-			identifier: classConstant.unused
-			count: 1
-			path: app/Services/InputValidationService.php
-
-		-
-			message: '#^Unreachable statement \- code above always terminates\.$#'
-			identifier: deadCode.unreachable
+			message: '#^Call to function is_string\(\) with \*NEVER\* will always evaluate to true\.$#'
+			identifier: function.alreadyNarrowedType
 			count: 2
 			path: app/Services/InputValidationService.php
 
@@ -4157,12 +3971,6 @@ parameters:
 			identifier: parameter.defaultValue
 			count: 1
 			path: app/Services/Interfaces/TicketMonitoringInterface.php
-
-		-
-			message: '#^Function carbon not found\.$#'
-			identifier: function.notFound
-			count: 1
-			path: app/Services/LoginAnalyticsService.php
 
 		-
 			message: '#^Strict comparison using \=\=\= between false and false will always evaluate to true\.$#'
@@ -4249,12 +4057,6 @@ parameters:
 			path: app/Services/Normalization/DataNormalizationService.php
 
 		-
-			message: '#^Unreachable statement \- code above always terminates\.$#'
-			identifier: deadCode.unreachable
-			count: 1
-			path: app/Services/Normalization/DataNormalizationService.php
-
-		-
 			message: '#^Cannot access property \$api_key on array\.$#'
 			identifier: property.nonObject
 			count: 2
@@ -4315,12 +4117,6 @@ parameters:
 			path: app/Services/NotificationChannels/WebhookNotificationChannel.php
 
 		-
-			message: '#^Offset ''notifications'' on string\|null on left side of \?\? does not exist\.$#'
-			identifier: nullCoalesce.offset
-			count: 1
-			path: app/Services/NotificationManager.php
-
-		-
 			message: '#^Constant App\\Services\\NotificationService\:\:CHANNELS is unused\.$#'
 			identifier: classConstant.unused
 			count: 1
@@ -4357,28 +4153,10 @@ parameters:
 			path: app/Services/PasswordCompromiseCheckService.php
 
 		-
-			message: '#^Ternary operator condition is always true\.$#'
-			identifier: ternary.alwaysTrue
-			count: 1
-			path: app/Services/PerformanceCacheService.php
-
-		-
-			message: '#^Comparison operation "\>" between \(array\|float\|int\) and 0 results in an error\.$#'
-			identifier: greater.invalid
-			count: 1
-			path: app/Services/PerformanceMonitoringService.php
-
-		-
 			message: '#^Expression on left side of \?\? is not nullable\.$#'
 			identifier: nullCoalesce.expr
 			count: 1
 			path: app/Services/PerformanceMonitoringService.php
-
-		-
-			message: '#^Comparison operation "\>" between \(array\|float\|int\) and 0 results in an error\.$#'
-			identifier: greater.invalid
-			count: 1
-			path: app/Services/PerformanceOptimizationService.php
 
 		-
 			message: '#^If condition is always false\.$#'
@@ -4387,32 +4165,14 @@ parameters:
 			path: app/Services/PhoneVerificationService.php
 
 		-
-			message: '#^Comparison operation "\>" between \(array\|float\|int\) and 0 results in an error\.$#'
-			identifier: greater.invalid
-			count: 1
-			path: app/Services/PlatformCachingService.php
-
-		-
-			message: '#^Offset ''ticket_categories'' on array\{id\: mixed, opponent\: string, competition\: mixed, venue\: mixed, date\: non\-falsy\-string, ticket_categories\: array, club_data\: array\} in isset\(\) always exists and is not nullable\.$#'
+			message: '#^Offset ''ticket_categories'' on array\{id\: mixed, opponent\: string, competition\: mixed, venue\: mixed, date\: string\|null, ticket_categories\: array, club_data\: array\} in isset\(\) always exists and is not nullable\.$#'
 			identifier: isset.offset
 			count: 5
 			path: app/Services/Platforms/FootballClubStoresService.php
 
 		-
-			message: '#^Offset ''performances'' on non\-empty\-array in isset\(\) always exists and is not nullable\.$#'
-			identifier: isset.offset
-			count: 1
-			path: app/Services/Platforms/TicketekService.php
-
-		-
 			message: '#^Cannot call method diffInSeconds\(\) on string\.$#'
 			identifier: method.nonObject
-			count: 1
-			path: app/Services/PurchaseAnalyticsService.php
-
-		-
-			message: '#^Expression on left side of \?\? is not nullable\.$#'
-			identifier: nullCoalesce.expr
 			count: 1
 			path: app/Services/PurchaseAnalyticsService.php
 
@@ -4447,18 +4207,6 @@ parameters:
 			path: app/Services/RecommendationEngineService.php
 
 		-
-			message: '#^Call to static method where\(\) on an unknown class App\\Domain\\Purchase\\Models\\TicketPurchase\.$#'
-			identifier: class.notFound
-			count: 3
-			path: app/Services/RecommendationEngineService.php
-
-		-
-			message: '#^Offset ''score'' on array\{strategy\: ''collaborative…''\|''preference_based''\|''price_optimal''\|''seasonal…''\|''trending_events''\} on left side of \?\? does not exist\.$#'
-			identifier: nullCoalesce.offset
-			count: 1
-			path: app/Services/RecommendationEngineService.php
-
-		-
 			message: '#^Result of \|\| is always false\.$#'
 			identifier: booleanOr.alwaysFalse
 			count: 1
@@ -4487,18 +4235,6 @@ parameters:
 			identifier: argument.type
 			count: 1
 			path: app/Services/RecommendationService.php
-
-		-
-			message: '#^Ternary operator condition is always true\.$#'
-			identifier: ternary.alwaysTrue
-			count: 1
-			path: app/Services/RecommendationService.php
-
-		-
-			message: '#^Comparison operation "\>" between \(array\|float\|int\) and 0 results in an error\.$#'
-			identifier: greater.invalid
-			count: 1
-			path: app/Services/RedisCacheService.php
 
 		-
 			message: '#^Method App\\Services\\Scraping\\AdvancedAntiDetectionService\:\:generateDelayWithDistribution\(\) should return int but returns float\.$#'
@@ -4597,42 +4333,6 @@ parameters:
 			path: app/Services/Scraping/HighDemandTicketScrapingImplementation.php
 
 		-
-			message: '#^Result of && is always true\.$#'
-			identifier: booleanAnd.alwaysTrue
-			count: 1
-			path: app/Services/Scraping/Plugins/CelticFCPlugin.php
-
-		-
-			message: '#^Strict comparison using \!\=\= between non\-falsy\-string and '''' will always evaluate to true\.$#'
-			identifier: notIdentical.alwaysTrue
-			count: 1
-			path: app/Services/Scraping/Plugins/CelticFCPlugin.php
-
-		-
-			message: '#^Strict comparison using \!\=\= between non\-falsy\-string and ''0'' will always evaluate to true\.$#'
-			identifier: notIdentical.alwaysTrue
-			count: 1
-			path: app/Services/Scraping/Plugins/CelticFCPlugin.php
-
-		-
-			message: '#^Result of && is always true\.$#'
-			identifier: booleanAnd.alwaysTrue
-			count: 1
-			path: app/Services/Scraping/Plugins/LiverpoolFCPlugin.php
-
-		-
-			message: '#^Strict comparison using \!\=\= between non\-falsy\-string and '''' will always evaluate to true\.$#'
-			identifier: notIdentical.alwaysTrue
-			count: 1
-			path: app/Services/Scraping/Plugins/LiverpoolFCPlugin.php
-
-		-
-			message: '#^Strict comparison using \!\=\= between non\-falsy\-string and ''0'' will always evaluate to true\.$#'
-			identifier: notIdentical.alwaysTrue
-			count: 1
-			path: app/Services/Scraping/Plugins/LiverpoolFCPlugin.php
-
-		-
 			message: '#^Call to an undefined method App\\Services\\Scraping\\Plugins\\Manchester_unitedPlugin\:\:extractAttribute\(\)\.$#'
 			identifier: method.notFound
 			count: 1
@@ -4693,10 +4393,10 @@ parameters:
 			path: app/Services/SecurityService.php
 
 		-
-			message: '#^Right side of && is always true\.$#'
-			identifier: booleanAnd.rightAlwaysTrue
-			count: 1
-			path: app/Services/SeoService.php
+			message: '#^Parameter \#1 \$modelOrId of method Spatie\\Activitylog\\ActivityLogger\:\:causedBy\(\) expects Illuminate\\Database\\Eloquent\\Model\|int\|string\|null, Illuminate\\Contracts\\Auth\\Authenticatable\|null given\.$#'
+			identifier: argument.type
+			count: 3
+			path: app/Services/SecurityService.php
 
 		-
 			message: '#^Call to function is_array\(\) with array will always evaluate to true\.$#'
@@ -4711,22 +4411,16 @@ parameters:
 			path: app/Services/TicketApiManager.php
 
 		-
-			message: '#^Expression on left side of \?\? is not nullable\.$#'
-			identifier: nullCoalesce.expr
-			count: 2
-			path: app/Services/TicketApis/BaseApiClient.php
-
-		-
-			message: '#^Left side of && is always true\.$#'
-			identifier: booleanAnd.leftAlwaysTrue
-			count: 1
-			path: app/Services/TicketApis/BaseWebScrapingClient.php
-
-		-
 			message: '#^Parameter \#1 \$microseconds of function usleep expects int, float given\.$#'
 			identifier: argument.type
 			count: 1
 			path: app/Services/TicketApis/BaseWebScrapingClient.php
+
+		-
+			message: '#^Dead catch \- Exception is never thrown in the try block\.$#'
+			identifier: catch.neverThrown
+			count: 1
+			path: app/Services/TicketApis/SeatGeekClient.php
 
 		-
 			message: '#^Method App\\Services\\TicketApis\\SeatGeekClient\:\:parseEventDate\(\) should return DateTime\|null but returns array\.$#'
@@ -4741,10 +4435,22 @@ parameters:
 			path: app/Services/TicketApis/SeatGeekClient.php
 
 		-
+			message: '#^Dead catch \- Exception is never thrown in the try block\.$#'
+			identifier: catch.neverThrown
+			count: 1
+			path: app/Services/TicketApis/StubHubClient.php
+
+		-
 			message: '#^PHPDoc tag @param for parameter \$event with type mixed is not subtype of native type array\.$#'
 			identifier: parameter.phpDocType
 			count: 1
 			path: app/Services/TicketApis/StubHubClient.php
+
+		-
+			message: '#^Dead catch \- Exception is never thrown in the try block\.$#'
+			identifier: catch.neverThrown
+			count: 1
+			path: app/Services/TicketApis/TickPickClient.php
 
 		-
 			message: '#^PHPDoc tag @param for parameter \$event with type mixed is not subtype of native type array\.$#'
@@ -4757,6 +4463,12 @@ parameters:
 			identifier: ternary.alwaysTrue
 			count: 1
 			path: app/Services/TicketApis/TickPickClient.php
+
+		-
+			message: '#^Dead catch \- Exception is never thrown in the try block\.$#'
+			identifier: catch.neverThrown
+			count: 1
+			path: app/Services/TicketApis/ViagogoClient.php
 
 		-
 			message: '#^PHPDoc tag @param for parameter \$event with type mixed is not subtype of native type array\.$#'
@@ -4867,16 +4579,16 @@ parameters:
 			path: app/Services/UserPreferencesService.php
 
 		-
-			message: '#^Called ''pluck'' on Laravel collection, but could have been retrieved as a query\.$#'
-			identifier: larastan.noUnnecessaryCollectionCall
-			count: 1
-			path: app/Services/UserPreferencesService.php
-
-		-
 			message: '#^Parameter \#1 \$callback of method Illuminate\\Database\\Eloquent\\Collection\<\(int\|string\),Illuminate\\Database\\Eloquent\\Model\>\:\:map\(\) contains unresolvable type\.$#'
 			identifier: argument.unresolvableType
 			count: 2
 			path: app/Services/UserPreferencesService.php
+
+		-
+			message: '#^Deprecated in PHP 8\.4\: Parameter \#1 \$role \(string\) is implicitly nullable via default value null\.$#'
+			identifier: parameter.implicitlyNullable
+			count: 1
+			path: app/Support/Navigation.php
 
 		-
 			message: '#^Trait App\\Traits\\HasEncryptedAttributes is used zero times and is not analysed\.$#'
@@ -4891,34 +4603,10 @@ parameters:
 			path: config/rbac.php
 
 		-
-			message: '#^Offset 0 on non\-empty\-list\<string\> on left side of \?\? always exists and is not nullable\.$#'
-			identifier: nullCoalesce.offset
-			count: 2
-			path: database/factories/ScrapedTicketFactory.php
-
-		-
-			message: '#^PHPDoc tag @param for parameter \$executionId with type mixed is not subtype of native type int\.$#'
-			identifier: parameter.phpDocType
+			message: '#^Using nullsafe method call on non\-nullable type Illuminate\\Console\\Command\. Use \-\> instead\.$#'
+			identifier: nullsafe.neverNull
 			count: 1
-			path: database/migrations/2025_01_30_120004_phase4_migration_strategy_and_validation.php
-
-		-
-			message: '#^PHPDoc tag @param for parameter \$migrationExecutionId with type mixed is not subtype of native type int\.$#'
-			identifier: parameter.phpDocType
-			count: 1
-			path: database/migrations/2025_01_30_120004_phase4_migration_strategy_and_validation.php
-
-		-
-			message: '#^Method Illuminate\\Database\\Migrations\\Migration@anonymous/database/migrations/2025_08_04_194835_consolidate_and_optimize_schema\.php\:9\:\:addMissingIndexes\(\) is unused\.$#'
-			identifier: method.unused
-			count: 1
-			path: database/migrations/2025_08_04_194835_consolidate_and_optimize_schema.php
-
-		-
-			message: '#^If condition is always true\.$#'
-			identifier: if.alwaysTrue
-			count: 1
-			path: database/migrations/2025_09_05_190258_update_security_events_table_for_monitoring.php
+			path: database/seeders/PaymentPlansSeeder.php
 
 		-
 			message: '#^Undefined variable\: \$this$#'
@@ -4927,52 +4615,28 @@ parameters:
 			path: routes/health.php
 
 		-
-			message: '#^Parameter \#1 \$view of function view expects view\-string\|null, string given\.$#'
-			identifier: argument.type
-			count: 2
+			message: '#^Class App\\Http\\Controllers\\EnhancedDashboardController constructor invoked with 3 parameters, 5 required\.$#'
+			identifier: arguments.count
+			count: 1
 			path: routes/web.php
 
 		-
-			message: '#^Access to constant CAPABILITY on an unknown class Facebook\\WebDriver\\Chrome\\ChromeOptions\.$#'
-			identifier: class.notFound
+			message: '#^Parameter \#1 \$ticketStatsService of class App\\Http\\Controllers\\EnhancedDashboardController constructor expects App\\Services\\Dashboard\\TicketStatsService, App\\Services\\AnalyticsService given\.$#'
+			identifier: argument.type
 			count: 1
-			path: tests/DuskTestCase.php
+			path: routes/web.php
 
 		-
-			message: '#^Call to an undefined static method Tests\\DuskTestCase\:\:startChromeDriver\(\)\.$#'
-			identifier: staticMethod.notFound
+			message: '#^Parameter \#2 \$userMetricsService of class App\\Http\\Controllers\\EnhancedDashboardController constructor expects App\\Services\\Dashboard\\UserMetricsService, App\\Services\\RecommendationService given\.$#'
+			identifier: argument.type
 			count: 1
-			path: tests/DuskTestCase.php
+			path: routes/web.php
 
 		-
-			message: '#^Call to method addArguments\(\) on an unknown class Facebook\\WebDriver\\Chrome\\ChromeOptions\.$#'
-			identifier: class.notFound
+			message: '#^Parameter \#3 \$recommendationService of class App\\Http\\Controllers\\EnhancedDashboardController constructor expects App\\Services\\Dashboard\\RecommendationService, App\\Services\\Dashboard\\DashboardCacheService given\.$#'
+			identifier: argument.type
 			count: 1
-			path: tests/DuskTestCase.php
-
-		-
-			message: '#^Call to static method chrome\(\) on an unknown class Facebook\\WebDriver\\Remote\\DesiredCapabilities\.$#'
-			identifier: class.notFound
-			count: 1
-			path: tests/DuskTestCase.php
-
-		-
-			message: '#^Call to static method create\(\) on an unknown class Facebook\\WebDriver\\Remote\\RemoteWebDriver\.$#'
-			identifier: class.notFound
-			count: 1
-			path: tests/DuskTestCase.php
-
-		-
-			message: '#^Instantiated class Facebook\\WebDriver\\Chrome\\ChromeOptions not found\.$#'
-			identifier: class.notFound
-			count: 1
-			path: tests/DuskTestCase.php
-
-		-
-			message: '#^Method Tests\\DuskTestCase\:\:driver\(\) has invalid return type Facebook\\WebDriver\\Remote\\RemoteWebDriver\.$#'
-			identifier: class.notFound
-			count: 1
-			path: tests/DuskTestCase.php
+			path: routes/web.php
 
 		-
 			message: '#^Class App\\Jobs\\ProcessPurchaseAttempt not found\.$#'
@@ -5017,6 +4681,12 @@ parameters:
 			path: tests/Feature/Auth/LoginTest.php
 
 		-
+			message: '#^Call to method getId\(\) on an unknown class class@anonymous\000/srv/http/hdTickets/phpstan\-bootstrap\.php\:159\$5c4\.$#'
+			identifier: class.notFound
+			count: 1
+			path: tests/Feature/LoginValidationTest.php
+
+		-
 			message: '#^Class Tests\\Feature\\LoginValidationTest has an uninitialized property \$inactiveUser\. Give it default value or assign it in the constructor\.$#'
 			identifier: property.uninitialized
 			count: 1
@@ -5051,18 +4721,6 @@ parameters:
 			identifier: property.uninitialized
 			count: 1
 			path: tests/Feature/SportsTicketSystemTest.php
-
-		-
-			message: '#^Call to static method create\(\) on an unknown class App\\Domain\\Purchase\\Models\\TicketPurchase\.$#'
-			identifier: class.notFound
-			count: 2
-			path: tests/Feature/TicketPurchaseWorkflowTest.php
-
-		-
-			message: '#^Call to static method where\(\) on an unknown class App\\Domain\\Purchase\\Models\\TicketPurchase\.$#'
-			identifier: class.notFound
-			count: 6
-			path: tests/Feature/TicketPurchaseWorkflowTest.php
 
 		-
 			message: '#^Class Tests\\Feature\\TicketPurchaseWorkflowTest has an uninitialized property \$adminUser\. Give it default value or assign it in the constructor\.$#'
@@ -5107,50 +4765,8 @@ parameters:
 			path: tests/Integration/Api/TicketApiTest.php
 
 		-
-			message: '#^Access to property \$quantity on an unknown class App\\Domain\\Purchase\\Models\\TicketPurchase\.$#'
-			identifier: class.notFound
-			count: 1
-			path: tests/Integration/TicketPurchaseSystemTest.php
-
-		-
-			message: '#^Access to property \$status on an unknown class App\\Domain\\Purchase\\Models\\TicketPurchase\.$#'
-			identifier: class.notFound
-			count: 1
-			path: tests/Integration/TicketPurchaseSystemTest.php
-
-		-
-			message: '#^Access to property \$ticket_id on an unknown class App\\Domain\\Purchase\\Models\\TicketPurchase\.$#'
-			identifier: class.notFound
-			count: 1
-			path: tests/Integration/TicketPurchaseSystemTest.php
-
-		-
-			message: '#^Access to property \$unit_price on an unknown class App\\Domain\\Purchase\\Models\\TicketPurchase\.$#'
-			identifier: class.notFound
-			count: 1
-			path: tests/Integration/TicketPurchaseSystemTest.php
-
-		-
-			message: '#^Access to property \$user_id on an unknown class App\\Domain\\Purchase\\Models\\TicketPurchase\.$#'
-			identifier: class.notFound
-			count: 1
-			path: tests/Integration/TicketPurchaseSystemTest.php
-
-		-
-			message: '#^Class App\\Domain\\Purchase\\Models\\TicketPurchase not found\.$#'
-			identifier: class.notFound
-			count: 1
-			path: tests/Integration/TicketPurchaseSystemTest.php
-
-		-
 			message: '#^Class Tests\\TestCase has an uninitialized property \$testDataFactory\. Give it default value or assign it in the constructor\.$#'
 			identifier: property.uninitialized
-			count: 1
-			path: tests/TestCase.php
-
-		-
-			message: '#^Static method Illuminate\\Queue\\RedisQueue\:\:clear\(\) invoked with 0 parameters, 1 required\.$#'
-			identifier: arguments.count
 			count: 1
 			path: tests/TestCase.php
 
@@ -5161,21 +4777,9 @@ parameters:
 			path: tests/TestRunner.php
 
 		-
-			message: '#^Expression on left side of \?\? is not nullable\.$#'
-			identifier: nullCoalesce.expr
-			count: 1
-			path: tests/TestRunner.php
-
-		-
 			message: '#^Call to an undefined method Mockery\\ExpectationInterface\|Mockery\\HigherOrderMessage\:\:andThrow\(\)\.$#'
 			identifier: method.notFound
 			count: 1
-			path: tests/Unit/Middleware/TicketPurchaseValidationMiddlewareTest.php
-
-		-
-			message: '#^Class App\\Http\\Middleware\\TicketPurchaseValidationMiddleware constructor invoked with 1 parameter, 2 required\.$#'
-			identifier: arguments.count
-			count: 2
 			path: tests/Unit/Middleware/TicketPurchaseValidationMiddlewareTest.php
 
 		-
@@ -5203,219 +4807,27 @@ parameters:
 			path: tests/Unit/Middleware/TicketPurchaseValidationMiddlewareTest.php
 
 		-
-			message: '#^Parameter \#1 \$securityMonitoring of class App\\Http\\Middleware\\TicketPurchaseValidationMiddleware constructor expects App\\Services\\SecurityMonitoringService, App\\Services\\TicketPurchaseService given\.$#'
-			identifier: argument.type
-			count: 1
-			path: tests/Unit/Middleware/TicketPurchaseValidationMiddlewareTest.php
-
-		-
-			message: '#^Parameter \#1 \$securityMonitoring of class App\\Http\\Middleware\\TicketPurchaseValidationMiddleware constructor expects App\\Services\\SecurityMonitoringService, Mockery\\MockInterface given\.$#'
-			identifier: argument.type
-			count: 1
-			path: tests/Unit/Middleware/TicketPurchaseValidationMiddlewareTest.php
-
-		-
-			message: '#^Access to property \$purchase_id on an unknown class App\\Domain\\Purchase\\Models\\TicketPurchase\.$#'
-			identifier: class.notFound
-			count: 3
-			path: tests/Unit/Models/TicketPurchaseTest.php
-
-		-
-			message: '#^Access to property \$quantity on an unknown class App\\Domain\\Purchase\\Models\\TicketPurchase\.$#'
-			identifier: class.notFound
+			message: '#^Call to an undefined static method App\\Domain\\Purchase\\Models\\TicketPurchase\:\:cancelled\(\)\.$#'
+			identifier: staticMethod.notFound
 			count: 1
 			path: tests/Unit/Models/TicketPurchaseTest.php
 
 		-
-			message: '#^Access to property \$seat_preferences on an unknown class App\\Domain\\Purchase\\Models\\TicketPurchase\.$#'
-			identifier: class.notFound
+			message: '#^Call to an undefined static method App\\Domain\\Purchase\\Models\\TicketPurchase\:\:confirmed\(\)\.$#'
+			identifier: staticMethod.notFound
 			count: 1
 			path: tests/Unit/Models/TicketPurchaseTest.php
 
 		-
-			message: '#^Access to property \$special_requests on an unknown class App\\Domain\\Purchase\\Models\\TicketPurchase\.$#'
-			identifier: class.notFound
+			message: '#^Call to an undefined static method App\\Domain\\Purchase\\Models\\TicketPurchase\:\:currentMonth\(\)\.$#'
+			identifier: staticMethod.notFound
 			count: 1
 			path: tests/Unit/Models/TicketPurchaseTest.php
 
 		-
-			message: '#^Access to property \$status on an unknown class App\\Domain\\Purchase\\Models\\TicketPurchase\.$#'
-			identifier: class.notFound
-			count: 1
-			path: tests/Unit/Models/TicketPurchaseTest.php
-
-		-
-			message: '#^Access to property \$subtotal on an unknown class App\\Domain\\Purchase\\Models\\TicketPurchase\.$#'
-			identifier: class.notFound
-			count: 1
-			path: tests/Unit/Models/TicketPurchaseTest.php
-
-		-
-			message: '#^Access to property \$ticket_id on an unknown class App\\Domain\\Purchase\\Models\\TicketPurchase\.$#'
-			identifier: class.notFound
-			count: 1
-			path: tests/Unit/Models/TicketPurchaseTest.php
-
-		-
-			message: '#^Access to property \$total_amount on an unknown class App\\Domain\\Purchase\\Models\\TicketPurchase\.$#'
-			identifier: class.notFound
-			count: 1
-			path: tests/Unit/Models/TicketPurchaseTest.php
-
-		-
-			message: '#^Access to property \$unit_price on an unknown class App\\Domain\\Purchase\\Models\\TicketPurchase\.$#'
-			identifier: class.notFound
-			count: 1
-			path: tests/Unit/Models/TicketPurchaseTest.php
-
-		-
-			message: '#^Access to property \$user_id on an unknown class App\\Domain\\Purchase\\Models\\TicketPurchase\.$#'
-			identifier: class.notFound
-			count: 1
-			path: tests/Unit/Models/TicketPurchaseTest.php
-
-		-
-			message: '#^Call to method canBeCancelled\(\) on an unknown class App\\Domain\\Purchase\\Models\\TicketPurchase\.$#'
-			identifier: class.notFound
-			count: 3
-			path: tests/Unit/Models/TicketPurchaseTest.php
-
-		-
-			message: '#^Call to method getAgeInDays\(\) on an unknown class App\\Domain\\Purchase\\Models\\TicketPurchase\.$#'
-			identifier: class.notFound
-			count: 1
-			path: tests/Unit/Models/TicketPurchaseTest.php
-
-		-
-			message: '#^Call to method getFillable\(\) on an unknown class App\\Domain\\Purchase\\Models\\TicketPurchase\.$#'
-			identifier: class.notFound
-			count: 1
-			path: tests/Unit/Models/TicketPurchaseTest.php
-
-		-
-			message: '#^Call to method getFormattedPurchaseDate\(\) on an unknown class App\\Domain\\Purchase\\Models\\TicketPurchase\.$#'
-			identifier: class.notFound
-			count: 1
-			path: tests/Unit/Models/TicketPurchaseTest.php
-
-		-
-			message: '#^Call to method getFormattedTotalAmount\(\) on an unknown class App\\Domain\\Purchase\\Models\\TicketPurchase\.$#'
-			identifier: class.notFound
-			count: 1
-			path: tests/Unit/Models/TicketPurchaseTest.php
-
-		-
-			message: '#^Call to method getProcessingFeePercentage\(\) on an unknown class App\\Domain\\Purchase\\Models\\TicketPurchase\.$#'
-			identifier: class.notFound
+			message: '#^Call to an undefined static method App\\Domain\\Purchase\\Models\\TicketPurchase\:\:forUser\(\)\.$#'
+			identifier: staticMethod.notFound
 			count: 2
-			path: tests/Unit/Models/TicketPurchaseTest.php
-
-		-
-			message: '#^Call to method getSeatPreferencesSummary\(\) on an unknown class App\\Domain\\Purchase\\Models\\TicketPurchase\.$#'
-			identifier: class.notFound
-			count: 3
-			path: tests/Unit/Models/TicketPurchaseTest.php
-
-		-
-			message: '#^Call to method getTotalTickets\(\) on an unknown class App\\Domain\\Purchase\\Models\\TicketPurchase\.$#'
-			identifier: class.notFound
-			count: 1
-			path: tests/Unit/Models/TicketPurchaseTest.php
-
-		-
-			message: '#^Call to method isCancelled\(\) on an unknown class App\\Domain\\Purchase\\Models\\TicketPurchase\.$#'
-			identifier: class.notFound
-			count: 4
-			path: tests/Unit/Models/TicketPurchaseTest.php
-
-		-
-			message: '#^Call to method isConfirmed\(\) on an unknown class App\\Domain\\Purchase\\Models\\TicketPurchase\.$#'
-			identifier: class.notFound
-			count: 4
-			path: tests/Unit/Models/TicketPurchaseTest.php
-
-		-
-			message: '#^Call to method isFailed\(\) on an unknown class App\\Domain\\Purchase\\Models\\TicketPurchase\.$#'
-			identifier: class.notFound
-			count: 4
-			path: tests/Unit/Models/TicketPurchaseTest.php
-
-		-
-			message: '#^Call to method isPending\(\) on an unknown class App\\Domain\\Purchase\\Models\\TicketPurchase\.$#'
-			identifier: class.notFound
-			count: 4
-			path: tests/Unit/Models/TicketPurchaseTest.php
-
-		-
-			message: '#^Call to method isRecent\(\) on an unknown class App\\Domain\\Purchase\\Models\\TicketPurchase\.$#'
-			identifier: class.notFound
-			count: 2
-			path: tests/Unit/Models/TicketPurchaseTest.php
-
-		-
-			message: '#^Call to static method cancelled\(\) on an unknown class App\\Domain\\Purchase\\Models\\TicketPurchase\.$#'
-			identifier: class.notFound
-			count: 1
-			path: tests/Unit/Models/TicketPurchaseTest.php
-
-		-
-			message: '#^Call to static method confirmed\(\) on an unknown class App\\Domain\\Purchase\\Models\\TicketPurchase\.$#'
-			identifier: class.notFound
-			count: 1
-			path: tests/Unit/Models/TicketPurchaseTest.php
-
-		-
-			message: '#^Call to static method create\(\) on an unknown class App\\Domain\\Purchase\\Models\\TicketPurchase\.$#'
-			identifier: class.notFound
-			count: 6
-			path: tests/Unit/Models/TicketPurchaseTest.php
-
-		-
-			message: '#^Call to static method currentMonth\(\) on an unknown class App\\Domain\\Purchase\\Models\\TicketPurchase\.$#'
-			identifier: class.notFound
-			count: 1
-			path: tests/Unit/Models/TicketPurchaseTest.php
-
-		-
-			message: '#^Call to static method failed\(\) on an unknown class App\\Domain\\Purchase\\Models\\TicketPurchase\.$#'
-			identifier: class.notFound
-			count: 1
-			path: tests/Unit/Models/TicketPurchaseTest.php
-
-		-
-			message: '#^Call to static method forUser\(\) on an unknown class App\\Domain\\Purchase\\Models\\TicketPurchase\.$#'
-			identifier: class.notFound
-			count: 2
-			path: tests/Unit/Models/TicketPurchaseTest.php
-
-		-
-			message: '#^Call to static method inDateRange\(\) on an unknown class App\\Domain\\Purchase\\Models\\TicketPurchase\.$#'
-			identifier: class.notFound
-			count: 1
-			path: tests/Unit/Models/TicketPurchaseTest.php
-
-		-
-			message: '#^Call to static method pending\(\) on an unknown class App\\Domain\\Purchase\\Models\\TicketPurchase\.$#'
-			identifier: class.notFound
-			count: 1
-			path: tests/Unit/Models/TicketPurchaseTest.php
-
-		-
-			message: '#^Class App\\Domain\\Purchase\\Models\\TicketPurchase not found\.$#'
-			identifier: class.notFound
-			count: 1
-			path: tests/Unit/Models/TicketPurchaseTest.php
-
-		-
-			message: '#^Instantiated class App\\Domain\\Purchase\\Models\\TicketPurchase not found\.$#'
-			identifier: class.notFound
-			count: 1
-			path: tests/Unit/Models/TicketPurchaseTest.php
-
-		-
-			message: '#^Method Tests\\Unit\\Models\\TicketPurchaseTest\:\:createTestPurchase\(\) has invalid return type App\\Domain\\Purchase\\Models\\TicketPurchase\.$#'
-			identifier: class.notFound
-			count: 1
 			path: tests/Unit/Models/TicketPurchaseTest.php
 
 		-
@@ -5457,12 +4869,6 @@ parameters:
 		-
 			message: '#^Call to an undefined static method App\\Models\\User\:\:active\(\)\.$#'
 			identifier: staticMethod.notFound
-			count: 1
-			path: tests/Unit/Models/UserTest.php
-
-		-
-			message: '#^Call to method PHPUnit\\Framework\\Assert\:\:assertIsArray\(\) with string\|null will always evaluate to false\.$#'
-			identifier: method.impossibleType
 			count: 1
 			path: tests/Unit/Models/UserTest.php
 
@@ -5573,78 +4979,6 @@ parameters:
 			identifier: property.uninitialized
 			count: 1
 			path: tests/Unit/Services/ScrapingServiceTest.php
-
-		-
-			message: '#^Access to property \$purchase_id on an unknown class App\\Domain\\Purchase\\Models\\TicketPurchase\.$#'
-			identifier: class.notFound
-			count: 1
-			path: tests/Unit/Services/TicketPurchaseServiceTest.php
-
-		-
-			message: '#^Access to property \$quantity on an unknown class App\\Domain\\Purchase\\Models\\TicketPurchase\.$#'
-			identifier: class.notFound
-			count: 1
-			path: tests/Unit/Services/TicketPurchaseServiceTest.php
-
-		-
-			message: '#^Access to property \$seat_preferences on an unknown class App\\Domain\\Purchase\\Models\\TicketPurchase\.$#'
-			identifier: class.notFound
-			count: 1
-			path: tests/Unit/Services/TicketPurchaseServiceTest.php
-
-		-
-			message: '#^Access to property \$special_requests on an unknown class App\\Domain\\Purchase\\Models\\TicketPurchase\.$#'
-			identifier: class.notFound
-			count: 1
-			path: tests/Unit/Services/TicketPurchaseServiceTest.php
-
-		-
-			message: '#^Access to property \$status on an unknown class App\\Domain\\Purchase\\Models\\TicketPurchase\.$#'
-			identifier: class.notFound
-			count: 1
-			path: tests/Unit/Services/TicketPurchaseServiceTest.php
-
-		-
-			message: '#^Access to property \$subtotal on an unknown class App\\Domain\\Purchase\\Models\\TicketPurchase\.$#'
-			identifier: class.notFound
-			count: 1
-			path: tests/Unit/Services/TicketPurchaseServiceTest.php
-
-		-
-			message: '#^Access to property \$ticket_id on an unknown class App\\Domain\\Purchase\\Models\\TicketPurchase\.$#'
-			identifier: class.notFound
-			count: 1
-			path: tests/Unit/Services/TicketPurchaseServiceTest.php
-
-		-
-			message: '#^Access to property \$total_amount on an unknown class App\\Domain\\Purchase\\Models\\TicketPurchase\.$#'
-			identifier: class.notFound
-			count: 1
-			path: tests/Unit/Services/TicketPurchaseServiceTest.php
-
-		-
-			message: '#^Access to property \$unit_price on an unknown class App\\Domain\\Purchase\\Models\\TicketPurchase\.$#'
-			identifier: class.notFound
-			count: 1
-			path: tests/Unit/Services/TicketPurchaseServiceTest.php
-
-		-
-			message: '#^Access to property \$user_id on an unknown class App\\Domain\\Purchase\\Models\\TicketPurchase\.$#'
-			identifier: class.notFound
-			count: 1
-			path: tests/Unit/Services/TicketPurchaseServiceTest.php
-
-		-
-			message: '#^Call to static method create\(\) on an unknown class App\\Domain\\Purchase\\Models\\TicketPurchase\.$#'
-			identifier: class.notFound
-			count: 3
-			path: tests/Unit/Services/TicketPurchaseServiceTest.php
-
-		-
-			message: '#^Class App\\Domain\\Purchase\\Models\\TicketPurchase not found\.$#'
-			identifier: class.notFound
-			count: 1
-			path: tests/Unit/Services/TicketPurchaseServiceTest.php
 
 		-
 			message: '#^Class Tests\\Unit\\Services\\TicketPurchaseServiceTest has an uninitialized property \$adminUser\. Give it default value or assign it in the constructor\.$#'

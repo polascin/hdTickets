@@ -105,6 +105,12 @@
     "static-analysis": [
       "./vendor/bin/phpstan analyse --configuration=phpstan.neon"
     ],
+    "static-analysis-highmem": [
+      "php -d memory_limit=512M ./vendor/bin/phpstan analyse --configuration=phpstan.neon"
+    ],
+    "static-analysis-refresh-baseline": [
+      "php -d memory_limit=512M ./vendor/bin/phpstan analyse --configuration=phpstan.neon --generate-baseline"
+    ],
     "code-quality": [
       "@code-style-check",
       "@static-analysis"

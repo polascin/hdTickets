@@ -1,10 +1,11 @@
 import Alpine from 'alpinejs';
-import './bootstrap';
-import AppShellNav from './app-shell-nav';
-import BackgroundSyncManager from './background-sync-manager';
-import AutoRefreshManager from './auto-refresh-manager';
-import InstallPromptManager from './install-prompt-manager';
 import AppLifecycleManager from './app-lifecycle-manager';
+import AppShellNav from './app-shell-nav';
+import AutoRefreshManager from './auto-refresh-manager';
+import BackgroundSyncManager from './background-sync-manager';
+import './bootstrap';
+import './echo';
+import InstallPromptManager from './install-prompt-manager';
 
 window.addEventListener('DOMContentLoaded', () => {
   try {
@@ -168,7 +169,6 @@ function setupEventHandlers(
     // Could send to error tracking service
   });
 }
-import './echo';
 
 // Make Alpine available globally
 window.Alpine = Alpine;
@@ -183,14 +183,14 @@ import './components/theme-switcher';
 // Utility components
 import './utils/containerQueries';
 import './utils/gridLayout';
-import './utils/touchSupport';
 import './utils/performanceOptimizer';
+import './utils/touchSupport';
 
 // Migrated legacy utilities (from public)
-import './migrated/assets/feature-detection.js';
-import './migrated/assets/performance-monitor.js';
-import './migrated/assets/lazy-loading.js';
 import './migrated/accessibility.js';
+import './migrated/assets/feature-detection.js';
+import './migrated/assets/lazy-loading.js';
+import './migrated/assets/performance-monitor.js';
 import './migrated/pwa-manager.js';
 
 // Ticket system components (conditional loading)
