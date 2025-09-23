@@ -1,8 +1,6 @@
 /* External design system and component layers (imports must be first for PostCSS) */
 @import './design-system-v2.css';
 @import './components-v2.css';
-@import './design-system.css';
-@import './components.css';
 @import './container-queries.css';
 @import './grid-layout-system.css';
 @import './app-shell.css';
@@ -17,10 +15,8 @@
 @import './migrated/enhanced-forms.css';
 @import './migrated/mobile-enhancements.css';
 
-/* Tailwind layers */
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+/* Tailwind CSS v4 */
+@import "tailwindcss";
 
 /* Custom component styles */
 @layer components {
