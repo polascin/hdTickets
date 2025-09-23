@@ -1,6 +1,20 @@
 @extends('layouts.guest-v3')
 
-@section('title', 'Set New Password')
+@sec <div class="hdt-form-group">
+  <label for="password" class="hdt-label">New password</label>
+  <input id="password" name="password" type="password" autocomplete="new-password" required class="hdt-input"
+    placeholder="Create a new password">
+  @error('password')
+    <p class="hdt-form-error">{{ $message }}</p>
+  @enderror
+</div>tl <div class="hdt-form-group">
+  <label for="password_confirmation" class="hdt-label">Confirm new password</label>
+  <input id="password_confirmation" name="password_confirmation" type="password" autocomplete="new-password" required
+    class="hdt-input" placeholder="Confirm your new password">
+  @error('password_confirmation')
+    <p class="hdt-form-error">{{ $message }}</p>
+  @enderror
+</div> New Password')
 
 @section('content')
   <div class="min-h-screen flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
@@ -23,31 +37,31 @@
 
           <!-- Email -->
           <div class="hdt-form-group">
-            <label for="email" class="form-label">Email address</label>
+            <label for="email" class="hdt-label">Email address</label>
             <input id="email" name="email" type="email" autocomplete="email"
               value="{{ old('email', $request->email) }}" required class="hdt-input" placeholder="Enter your email">
             @error('email')
-              <p class="form-error">{{ $message }}</p>
+              <p class="hdt-form-error">{{ $message }}</p>
             @enderror
           </div>
 
           <!-- Password -->
           <div class="hdt-form-group">
-            <label for="password" class="form-label">New password</label>
+            <label for="password" class="hdt-label">New password</label>
             <input id="password" name="password" type="password" autocomplete="new-password" required class="hdt-input"
               placeholder="Enter new password">
             @error('password')
-              <p class="form-error">{{ $message }}</p>
+              <p class="hdt-form-error">{{ $message }}</p>
             @enderror
           </div>
 
           <!-- Confirm Password -->
           <div class="hdt-form-group">
-            <label for="password_confirmation" class="form-label">Confirm new password</label>
+            <label for="password_confirmation" class="hdt-label">Confirm new password</label>
             <input id="password_confirmation" name="password_confirmation" type="password" autocomplete="new-password"
               required class="hdt-input" placeholder="Confirm new password">
             @error('password_confirmation')
-              <p class="form-error">{{ $message }}</p>
+              <p class="hdt-form-error">{{ $message }}</p>
             @enderror
           </div>
 

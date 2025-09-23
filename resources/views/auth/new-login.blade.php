@@ -1,6 +1,12 @@
 @extends('layouts.guest-v3')
-
-@section('title', 'Sign In')
+<div class="hdt-form-group">
+  <label for="password" class="hdt-label">Password</label>
+  <input id="password" name="password" type="password" autocomplete="current-password" required class="hdt-input"
+    placeholder="Enter your password">
+  @error('password')
+    <p class="hdt-form-error">{{ $message }}</p>
+  @enderror
+</div>n('title', 'Sign In')
 
 @section('content')
   <div class="min-h-screen flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
@@ -18,21 +24,21 @@
 
           <!-- Email -->
           <div class="hdt-form-group">
-            <label for="email" class="form-label">Email address</label>
+            <label for="email" class="hdt-label">Email address</label>
             <input id="email" name="email" type="email" autocomplete="email" value="{{ old('email') }}" required
               class="hdt-input" placeholder="Enter your email">
             @error('email')
-              <p class="form-error">{{ $message }}</p>
+              <p class="hdt-form-error">{{ $message }}</p>
             @enderror
           </div>
 
           <!-- Password -->
           <div class="hdt-form-group">
-            <label for="password" class="form-label">Password</label>
+            <label for="password" class="hdt-label">Password</label>
             <input id="password" name="password" type="password" autocomplete="current-password" required
               class="hdt-input" placeholder="Enter your password">
             @error('password')
-              <p class="form-error">{{ $message }}</p>
+              <p class="hdt-form-error">{{ $message }}</p>
             @enderror
           </div>
 

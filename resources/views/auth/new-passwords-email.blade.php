@@ -27,11 +27,11 @@
 
           <!-- Email -->
           <div class="hdt-form-group">
-            <label for="email" class="form-label">Email address</label>
+            <label for="email" class="hdt-label">Email address</label>
             <input id="email" name="email" type="email" autocomplete="email" value="{{ old('email') }}" required
               class="hdt-input" placeholder="Enter your email">
             @error('email')
-              <p class="form-error">{{ $message }}</p>
+              <p class="hdt-form-error">{{ $message }}</p>
             @enderror
           </div>
 

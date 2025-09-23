@@ -31,6 +31,9 @@
     <!-- Styles -->
     @vite(['resources/css/app-v3.css', 'resources/js/app.js'])
 
+    <!-- Route-specific preloads -->
+    @includeWhen(request()->routeIs('home'), 'layouts.partials.preloads-welcome')
+
     @stack('styles')
   </head>
 

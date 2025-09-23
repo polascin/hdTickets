@@ -89,73 +89,45 @@
 .hdt-form-section__title { font-size:1rem; font-weight:600; color:var(--hdt-form-text); margin-bottom:.5rem; }
 .hdt-form-section__description { font-size:0.8125rem; color:var(--hdt-form-text-subtle); margin-bottom:1rem; }
 
-/* Legacy alias group for messages, progress, steps, section */
-.hdt-form-message, .form-message { display:flex; align-items:flex-start; gap:0.5rem; margin-top:0.375rem; font-size:0.875rem; line-height:1.4; transition:var(--hdt-form-transition); }
-.hdt-form-message__icon, .form-message__icon { width:16px; height:16px; flex-shrink:0; margin-top:0.125rem; }
-.hdt-form-message--success, .form-message--success { color:var(--hdt-form-success); }
-.hdt-form-message--error, .form-message--error { color:var(--hdt-form-error); }
-.hdt-form-message--warning, .form-message--warning { color:var(--hdt-form-warning); }
-.hdt-form-message--realtime, .form-message--realtime { opacity:0; transform:translateY(-4px); transition:opacity .2s ease, transform .2s ease; }
-.hdt-form-message--realtime.show, .form-message--realtime.show { opacity:1; transform:translateY(0); }
-.hdt-form-progress, .form-progress { width:100%; height:4px; background:var(--bg-tertiary,#f1f5f9); border-radius:2px; overflow:hidden; margin:1rem 0; position:relative; }
-.hdt-form-progress__bar, .form-progress__bar { height:100%; background:linear-gradient(90deg,var(--hdt-form-ring-color),color-mix(in srgb,var(--hdt-form-ring-color) 70%, white)); width:0; transition:width .3s ease; position:relative; }
-.hdt-form-progress__bar::after, .form-progress__bar::after { content:""; position:absolute; inset:0; background:linear-gradient(90deg,transparent,rgba(255,255,255,.35),transparent); animation:hdt-progress-shine 2s infinite; }
-.hdt-form-steps, .form-steps { display:flex; align-items:center; justify-content:center; gap:.75rem; margin:1.5rem 0; }
-.hdt-form-step, .form-step { display:flex; align-items:center; gap:.4rem; color:var(--hdt-form-text-subtle); font-size:0.75rem; font-weight:500; }
-.hdt-form-step__number, .form-step__number { display:flex; align-items:center; justify-content:center; width:28px; height:28px; border:2px solid var(--hdt-form-border); border-radius:50%; background:var(--hdt-form-bg); font-weight:600; transition:var(--hdt-form-transition); font-size:0.75rem; }
-.hdt-form-step--active, .form-step--active { color:var(--hdt-form-ring-color); }
-.hdt-form-step--active .hdt-form-step__number, .form-step--active .form-step__number { border-color:var(--hdt-form-ring-color); background:var(--hdt-form-ring-color); color:#fff; }
-.hdt-form-step--completed, .form-step--completed { color:var(--hdt-form-success); }
-.hdt-form-step--completed .hdt-form-step__number, .form-step--completed .form-step__number { border-color:var(--hdt-form-success); background:var(--hdt-form-success); color:#fff; }
-.hdt-form-section, .form-section { margin:1.5rem 0; padding:1.25rem; background:var(--bg-elevated,#ffffff); border-radius:var(--hdt-form-radius-lg); border:1px solid var(--hdt-form-border); }
-.hdt-form-section__title, .form-section__title { font-size:1rem; font-weight:600; color:var(--hdt-form-text); margin-bottom:.5rem; }
-.hdt-form-section__description, .form-section__description { font-size:0.8125rem; color:var(--hdt-form-text-subtle); margin-bottom:1rem; }
+/* Legacy alias group for messages, progress, steps, section - REMOVED in Phase 2E */
+.hdt-form-message { display:flex; align-items:flex-start; gap:0.5rem; margin-top:0.375rem; font-size:0.875rem; line-height:1.4; transition:var(--hdt-form-transition); }
+.hdt-form-message__icon { width:16px; height:16px; flex-shrink:0; margin-top:0.125rem; }
+.hdt-form-message--success { color:var(--hdt-form-success); }
+.hdt-form-message--error { color:var(--hdt-form-error); }
+.hdt-form-message--warning { color:var(--hdt-form-warning); }
+.hdt-form-message--realtime { opacity:0; transform:translateY(-4px); transition:opacity .2s ease, transform .2s ease; }
+.hdt-form-message--realtime.show { opacity:1; transform:translateY(0); }
+.hdt-form-progress { width:100%; height:4px; background:var(--bg-tertiary,#f1f5f9); border-radius:2px; overflow:hidden; margin:1rem 0; position:relative; }
+.hdt-form-progress__bar { height:100%; background:linear-gradient(90deg,var(--hdt-form-ring-color),color-mix(in srgb,var(--hdt-form-ring-color) 70%, white)); width:0; transition:width .3s ease; position:relative; }
+.hdt-form-progress__bar::after { content:""; position:absolute; inset:0; background:linear-gradient(90deg,transparent,rgba(255,255,255,.35),transparent); animation:hdt-progress-shine 2s infinite; }
+.hdt-form-steps { display:flex; align-items:center; justify-content:center; gap:.75rem; margin:1.5rem 0; }
+.hdt-form-step { display:flex; align-items:center; gap:.4rem; color:var(--hdt-form-text-subtle); font-size:0.75rem; font-weight:500; }
+.hdt-form-step__number { display:flex; align-items:center; justify-content:center; width:28px; height:28px; border:2px solid var(--hdt-form-border); border-radius:50%; background:var(--hdt-form-bg); font-weight:600; transition:var(--hdt-form-transition); font-size:0.75rem; }
+.hdt-form-step--active { color:var(--hdt-form-ring-color); }
+.hdt-form-step--active .hdt-form-step__number { border-color:var(--hdt-form-ring-color); background:var(--hdt-form-ring-color); color:#fff; }
+.hdt-form-step--completed { color:var(--hdt-form-success); }
+.hdt-form-step--completed .hdt-form-step__number { border-color:var(--hdt-form-success); background:var(--hdt-form-success); color:#fff; }
+.hdt-form-section { margin:1.5rem 0; padding:1.25rem; background:var(--bg-elevated,#ffffff); border-radius:var(--hdt-form-radius-lg); border:1px solid var(--hdt-form-border); }
+.hdt-form-section__title { font-size:1rem; font-weight:600; color:var(--hdt-form-text); margin-bottom:.5rem; }
+.hdt-form-section__description { font-size:0.8125rem; color:var(--hdt-form-text-subtle); margin-bottom:1rem; }
 
-/* Layout grid / group variants (semantic + legacy alias) */
-.hdt-form-grid, .form-grid { display:grid; gap:var(--hdt-form-gap); }
-.hdt-form-grid--2col, .form-grid--2col { grid-template-columns:1fr 1fr; }
-.hdt-form-grid--3col, .form-grid--3col { grid-template-columns:repeat(3,1fr); }
+/* Layout grid / group variants - semantic only */
+.hdt-form-grid { display:grid; gap:var(--hdt-form-gap); }
+.hdt-form-grid--2col { grid-template-columns:1fr 1fr; }
+.hdt-form-grid--3col { grid-template-columns:repeat(3,1fr); }
 .hdt-form-group--horizontal { flex-direction:row; align-items:center; gap:1rem; }
 .hdt-form-group--inline { flex-direction:row; align-items:flex-start; gap:0.75rem; }
 
 @media (max-width: 768px) {
-  .hdt-form-grid--2col, .form-grid--2col,
-  .hdt-form-grid--3col, .form-grid--3col { grid-template-columns:1fr; }
+  .hdt-form-grid--2col,
+  .hdt-form-grid--3col { grid-template-columns:1fr; }
   .hdt-form-group--horizontal { flex-direction:column; align-items:flex-start; }
-  .hdt-input, .form-input { height:var(--hdt-form-height-lg); font-size:1rem; }
+  .hdt-input { height:var(--hdt-form-height-lg); font-size:1rem; }
 }
 
 @media (max-width: 480px) {
-  .hdt-form-grid, .form-grid { gap:0.75rem; }
-  .hdt-form-section, .form-section { padding:0.75rem; margin:0.75rem 0; }
+  .hdt-form-grid { gap:0.75rem; }
+  .hdt-form-section { padding:0.75rem; margin:0.75rem 0; }
 }
 
-/* Aliases for legacy class names (transition layer) */
-/* Direct alias groupings (avoid non-standard composes) */
-.hdt-form-group, .form-group { display:flex; flex-direction:column; gap:0.5rem; margin-bottom:var(--hdt-form-gap); position:relative; }
-.hdt-input, .form-input, .hdt-select, .form-select, .hdt-textarea, .form-textarea { width:100%; height:var(--hdt-form-height); padding:var(--hdt-form-padding); border:1px solid var(--hdt-form-border); border-radius:var(--hdt-form-radius); background:var(--hdt-form-bg); color:var(--hdt-form-text); font:inherit; font-size:0.9375rem; line-height:1.25rem; transition:var(--hdt-form-transition); appearance:none; box-shadow:0 1px 2px rgba(0,0,0,.05); }
-.hdt-textarea, .form-textarea { height:auto; min-height:var(--hdt-form-height); resize:vertical; line-height:1.4; }
-.hdt-input:hover, .form-input:hover, .hdt-select:hover, .form-select:hover, .hdt-textarea:hover, .form-textarea:hover { border-color:var(--hdt-form-border-hover); }
-.hdt-input:focus, .form-input:focus, .hdt-select:focus, .form-select:focus, .hdt-textarea:focus, .form-textarea:focus { outline:none; border-color:var(--hdt-form-ring-color); box-shadow:0 0 0 3px color-mix(in srgb, var(--hdt-form-ring-color) 45%, transparent); }
-.hdt-input:disabled, .form-input:disabled, .hdt-select:disabled, .form-select:disabled, .hdt-textarea:disabled, .form-textarea:disabled { background:var(--hdt-form-bg-disabled); color:var(--hdt-form-text-subtle); cursor:not-allowed; opacity:0.75; }
-.hdt-input::placeholder, .form-input::placeholder, .hdt-textarea::placeholder, .form-textarea::placeholder { color:var(--hdt-form-text-subtle); }
-.hdt-input--sm, .form-input--sm, .hdt-select--sm, .form-select--sm, .hdt-textarea--sm, .form-textarea--sm { height:var(--hdt-form-height-sm); padding:var(--hdt-form-padding-sm); border-radius:var(--hdt-form-radius-sm); font-size:0.8125rem; }
-.hdt-input--lg, .form-input--lg, .hdt-select--lg, .form-select--lg, .hdt-textarea--lg, .form-textarea--lg { height:var(--hdt-form-height-lg); padding:var(--hdt-form-padding-lg); border-radius:var(--hdt-form-radius-lg); font-size:1rem; }
-.hdt-field--floating, .form-field--floating { position:relative; }
-.hdt-field--floating .hdt-input, .hdt-field--floating .form-input, .form-field--floating .hdt-input, .form-field--floating .form-input { padding-top:1.25rem; padding-bottom:0.25rem; }
-.hdt-floating-label, .form-floating-label { position:absolute; left:1rem; top:50%; transform:translateY(-50%); background:var(--hdt-form-bg); color:var(--hdt-form-text-subtle); font-size:0.9375rem; font-weight:400; pointer-events:none; transition:var(--hdt-form-transition); padding:0 0.25rem; max-width:calc(100% - 2rem); overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
-.hdt-field--floating .hdt-input:focus + .hdt-floating-label,
-.hdt-field--floating .hdt-input:not(:placeholder-shown) + .hdt-floating-label,
-.hdt-field--floating .hdt-input.has-value + .hdt-floating-label,
-.form-field--floating .form-input:focus + .form-floating-label,
-.form-field--floating .form-input:not(:placeholder-shown) + .form-floating-label,
-.form-field--floating .form-input.has-value + .form-floating-label { top:0; transform:translateY(-50%) scale(.85); color:var(--hdt-form-ring-color); font-weight:500; font-size:0.75rem; }
-.hdt-input--success, .form-input--success { border-color:var(--hdt-form-success); }
-.hdt-input--error, .form-input--error { border-color:var(--hdt-form-error); }
-.hdt-input--warning, .form-input--warning { border-color:var(--hdt-form-warning); }
-.hdt-input--success:focus, .form-input--success:focus { box-shadow:0 0 0 3px color-mix(in srgb, var(--hdt-form-success) 45%, transparent); }
-.hdt-input--error:focus, .form-input--error:focus { box-shadow:0 0 0 3px color-mix(in srgb, var(--hdt-form-error) 45%, transparent); }
-.hdt-input--warning:focus, .form-input--warning:focus { box-shadow:0 0 0 3px color-mix(in srgb, var(--hdt-form-warning) 45%, transparent); }
-
-/* Fallback if 'composes' not processed (pure CSS duplication) */
-/* Removed non-standard composes + fallback duplication after grouping */
+/* Phase 2E Complete - Legacy .form-* aliases removed */
