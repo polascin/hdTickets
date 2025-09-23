@@ -467,6 +467,9 @@
     padding: 24px 20px;
   }
 }
+
+/* Welcome Layout Base */
+.welcome-layout {
   display: grid;
   grid-template-rows: auto 1fr auto;
   place-items: center;
