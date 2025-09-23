@@ -67,6 +67,7 @@
     @include('layouts.partials.preloads-welcome')
 
     <style>
+      /* Critical CSS for immediate rendering - minimal styles only */
       * {
         margin: 0;
         padding: 0;
@@ -81,46 +82,11 @@
         padding: 0;
       }
 
-      body {
-        font-family: 'Inter', system-ui, -apple-system, sans-serif;
-        line-height: 1.6;
-        color: #ffffff;
-        background: linear-gradient(135deg, #0f172a 0%, #1e40af 25%, #3b82f6 50%, #8b5cf6 75%, #c084fc 100%);
-        background-size: 400% 400%;
-        animation: gradientShift 15s ease infinite;
-        min-height: 100vh;
-        position: relative;
-        display: grid;
-        grid-template-rows: auto 1fr auto;
-        place-items: center;
-        max-width: 100vw;
+      /* Additional layout styles moved to welcome.css for better caching */
+
+      100% {
+        background-position: 0% 50%;
       }
-
-      body::before {
-        content: '';
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 1000"><defs><radialGradient id="a"><stop offset="0%" stop-color="%23ffffff" stop-opacity="0.1"/><stop offset="100%" stop-color="%23ffffff" stop-opacity="0"/></radialGradient></defs><circle cx="200" cy="200" r="100" fill="url(%23a)"/><circle cx="800" cy="300" r="150" fill="url(%23a)"/><circle cx="400" cy="700" r="120" fill="url(%23a)"/><circle cx="900" cy="800" r="80" fill="url(%23a)"/></svg>') no-repeat;
-        background-size: cover;
-        z-index: -1;
-        pointer-events: none;
-      }
-
-      @keyframes gradientShift {
-        0% {
-          background-position: 0% 50%;
-        }
-
-        50% {
-          background-position: 100% 50%;
-        }
-
-        100% {
-          background-position: 0% 50%;
-        }
       }
 
       .container {
@@ -341,27 +307,7 @@
         font-style: italic;
       }
 
-      @keyframes gradientMove {
-        0% {
-          background-position: 0% 50%;
-        }
-
-        100% {
-          background-position: 200% 50%;
-        }
-      }
-
-      @keyframes pulse {
-
-        0%,
-        100% {
-          transform: scale(1);
-        }
-
-        50% {
-          transform: scale(1.1);
-        }
-      }
+      /* Common animations moved to welcome.css for better performance */
 
       /* Features Section */
       .features {
@@ -591,61 +537,37 @@
         }
       }
 
-      /* Animations */
+      /* Animations moved to welcome.css for better caching */
       .fade-in {
         animation: fadeIn 0.8s ease-out;
-      }
-
-      @keyframes fadeIn {
-        from {
-          opacity: 0;
-          transform: translateY(30px);
-        }
-
-        to {
-          opacity: 1;
-          transform: translateY(0);
-        }
       }
 
       .slide-up {
         animation: slideUp 0.8s ease-out;
       }
-
-      @keyframes slideUp {
-        from {
-          opacity: 0;
-          transform: translateY(50px);
-        }
-
-        to {
-          opacity: 1;
-          transform: translateY(0);
-        }
-      }
     </style>
   </head>
 
-  <body class="stadium-bg">
-    <header class="header">
+  <body class="stadium-bg field-pattern welcome-layout">
+    <header class="welcome-header">
       <div class="container">
-        <nav class="nav">
-          <a href="{{ url('/') }}" class="logo">
-            <div class="logo-icon">🎫</div>
+        <nav class="welcome-nav">
+          <a href="{{ url('/') }}" class="welcome-logo">
+            <div class="welcome-logo-icon">🎫</div>
             HD Tickets
           </a>
 
-          <div class="nav-links">
+          <div class="welcome-nav-links">
             @if (Route::has('login'))
               @auth
-                <a href="{{ url('/dashboard') }}" class="btn btn-primary">Dashboard</a>
+                <a href="{{ url('/dashboard') }}" class="welcome-btn welcome-btn-primary">Dashboard</a>
                 <form method="POST" action="{{ route('logout') }}" style="display: inline;">
                   @csrf
-                  <button type="submit" class="btn btn-secondary">Logout</button>
+                  <button type="submit" class="welcome-btn welcome-btn-secondary">Logout</button>
                 </form>
               @else
-                <a href="{{ route('login') }}" class="btn btn-secondary">Sign In</a>
-                <a href="{{ route('register.public') }}" class="btn btn-primary">Register</a>
+                <a href="{{ route('login') }}" class="welcome-btn welcome-btn-secondary">Sign In</a>
+                <a href="{{ route('register.public') }}" class="welcome-btn welcome-btn-primary">Register</a>
               @endauth
             @endif
           </div>
@@ -653,7 +575,7 @@
       </div>
     </header>
 
-    <main class="main" role="main">
+    <main class="welcome-main" role="main">
       <div class="container">
         <!-- Hero Section -->
         @include('components.welcome.hero-section')
