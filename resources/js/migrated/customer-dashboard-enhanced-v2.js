@@ -81,7 +81,7 @@ function customerDashboard() {
           return;
         }
 
-        const response = await fetch('/api/dashboard/stats', {
+  const response = await fetch('/api/v1/dashboard/stats', {
           headers: {
             'X-Requested-With': 'XMLHttpRequest',
             'Accept': 'application/json'
@@ -112,7 +112,7 @@ function customerDashboard() {
           if (value) params.append(key, value);
         });
 
-        const response = await fetch(`/api/dashboard/tickets?${params}`, {
+  const response = await fetch(`/api/v1/dashboard/tickets?${params}`, {
           headers: {
             'X-Requested-With': 'XMLHttpRequest',
             'Accept': 'application/json'
@@ -140,7 +140,7 @@ function customerDashboard() {
           return;
         }
 
-        const response = await fetch('/api/dashboard/recommendations', {
+  const response = await fetch('/api/v1/dashboard/recommendations', {
           headers: {
             'X-Requested-With': 'XMLHttpRequest',
             'Accept': 'application/json'
