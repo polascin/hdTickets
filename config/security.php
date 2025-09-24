@@ -27,11 +27,13 @@ return [
     'default-src' => ["'self'"],
     'script-src'  => [
       "'self'",
-      "'unsafe-inline'", // Required for Laravel Blade templates
-      "'unsafe-eval'", // Required for some JavaScript libraries
+      "'unsafe-inline'", // Required for Laravel Blade templates (TODO: Replace with nonce)
+      "'unsafe-eval'", // Required for some JavaScript libraries (TODO: Minimize usage)
       'https://cdn.jsdelivr.net',
       'https://unpkg.com',
       'https://cdnjs.cloudflare.com',
+      // Add specific domains for better security
+      'https://js.pusher.com',
     ],
     'style-src' => [
       "'self'",
@@ -78,8 +80,13 @@ return [
     'X-Frame-Options'           => 'DENY',
     'X-XSS-Protection'          => '1; mode=block',
     'Referrer-Policy'           => 'strict-origin-when-cross-origin',
-    'Permissions-Policy'        => 'geolocation=(), microphone=(), camera=(), payment=(), usb=()',
+    'Permissions-Policy'        => 'geolocation=(), microphone=(), camera=(), payment=(), usb=(), fullscreen=(), screen-wake-lock=()',
     'Strict-Transport-Security' => 'max-age=31536000; includeSubDomains; preload',
+    'Expect-CT'                 => 'max-age=86400, enforce',
+    'X-Permitted-Cross-Domain-Policies' => 'none',
+    'Cross-Origin-Opener-Policy' => 'same-origin',
+    'Cross-Origin-Resource-Policy' => 'same-origin',
+    'Cross-Origin-Embedder-Policy' => 'require-corp',
   ],
 
   /*
@@ -190,6 +197,37 @@ return [
     'fingerprint_validation'  => TRUE,
     'ip_validation'           => env('SESSION_IP_VALIDATION', FALSE),
     'user_agent_validation'   => TRUE,
+  ],
+
+  /*
+    |--------------------------------------------------------------------------
+    | API Security
+    |--------------------------------------------------------------------------
+    |
+    | Enhanced API security configuration
+    |
+    */
+  'api_security' => [
+    'rate_limiting' => [
+      'global' => 1000, // requests per hour
+      'per_endpoint' => 100, // requests per hour per endpoint
+      'burst_limit' => 10, // requests per minute
+    ],
+    'ip_whitelist' => env('API_IP_WHITELIST', ''),
+    'suspicious_patterns' => [
+      'bot_user_agents' => [
+        '/crawler/i',
+        '/bot/i',
+        '/spider/i',
+        '/scraper/i',
+      ],
+      'malicious_ips' => [],
+    ],
+    'geographic_restrictions' => [
+      'enabled' => env('GEO_RESTRICTIONS_ENABLED', false),
+      'allowed_countries' => ['US', 'CA', 'GB', 'EU'],
+      'blocked_countries' => [],
+    ],
   ],
 
   /*

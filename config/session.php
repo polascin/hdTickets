@@ -30,7 +30,7 @@ return [
     |
     */
 
-    'lifetime' => env('SESSION_LIFETIME', 120),
+    'lifetime' => env('SESSION_LIFETIME', 60), // Reduced to 1 hour for enhanced security
 
     'expire_on_close' => FALSE,
 
