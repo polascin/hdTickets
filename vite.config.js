@@ -1,9 +1,6 @@
 import laravel from 'laravel-vite-plugin';
-import { createRequire } from 'node:module';
 import { resolve } from 'path';
 import { defineConfig } from 'vite';
-
-const require = createRequire(import.meta.url);
 
 export default defineConfig({
   plugins: [
@@ -16,13 +13,13 @@ export default defineConfig({
         'resources/js/app.js',
         // Dashboard dedicated entry (code-split customer dashboard)
         'resources/js/dashboard/index.js',
-        
+
         // Ticket system assets
         'resources/js/tickets/index.js',
         'resources/js/tickets/TicketFilters.js',
         'resources/js/tickets/PriceMonitor.js',
         'resources/css/tickets.css',
-        
+
         // Welcome page assets
         'resources/js/welcome.js',
         'resources/css/welcome.css',
@@ -36,26 +33,26 @@ export default defineConfig({
       ],
     }),
   ],
-  
+
   resolve: {
-      alias: {
-        '@': resolve(__dirname, 'resources/js'),
-        '@css': resolve(__dirname, 'resources/css'),
-        '@images': resolve(__dirname, 'resources/images'),
-        '@components': resolve(__dirname, 'resources/js/components'),
-        '@utils': resolve(__dirname, 'resources/js/utils'),
-        '@styles': resolve(__dirname, 'resources/css'),
-        '@tickets': resolve(__dirname, 'resources/js/tickets'),
+    alias: {
+      '@': resolve(__dirname, 'resources/js'),
+      '@css': resolve(__dirname, 'resources/css'),
+      '@images': resolve(__dirname, 'resources/images'),
+      '@components': resolve(__dirname, 'resources/js/components'),
+      '@utils': resolve(__dirname, 'resources/js/utils'),
+      '@styles': resolve(__dirname, 'resources/css'),
+      '@tickets': resolve(__dirname, 'resources/js/tickets'),
     },
   },
-  
+
   build: {
     // Target modern browsers for better performance
-    target: 'es2020',
-    
+    target: 'es2022',
+
     // Optimize chunk size
     chunkSizeWarningLimit: 1000,
-    
+
     rollupOptions: {
       output: {
         // Advanced chunk splitting strategy
@@ -80,7 +77,7 @@ export default defineConfig({
             // Other vendor libraries
             return 'vendor';
           }
-          
+
           // Application chunks
           if (id.includes('/resources/js/components/')) {
             return 'components';
@@ -95,12 +92,12 @@ export default defineConfig({
             return 'component-styles';
           }
         },
-        
+
         // Optimize asset naming
         assetFileNames: (assetInfo) => {
           const info = assetInfo.name.split('.');
           const ext = info[info.length - 1];
-          
+
           if (/\.(png|jpe?g|gif|svg|webp|avif)$/i.test(assetInfo.name)) {
             return `assets/images/[name].[hash][extname]`;
           }
@@ -112,40 +109,40 @@ export default defineConfig({
           }
           return `assets/[name].[hash][extname]`;
         },
-        
+
         chunkFileNames: 'assets/js/[name].[hash].js',
         entryFileNames: 'assets/js/[name].[hash].js',
-        
+
         // Use ES modules format for better tree shaking
         format: 'es',
         compact: true,
       },
-      
+
       // External dependencies that should not be bundled
       external: [],
     },
-    
+
     // Enable source maps in development
     sourcemap: process.env.NODE_ENV === 'development' ? 'inline' : false,
-    
+
     // Use esbuild for faster minification
     minify: 'esbuild',
-    
+
     // Enable CSS minification
     cssMinify: 'esbuild',
-    
+
     // Optimize CSS code splitting
     cssCodeSplit: true,
-    
+
     // Preload assets
     modulePreload: {
       polyfill: true,
     },
-    
+
     // Report bundle analyzer results
     reportCompressedSize: false,
   },
-  
+
   // Development server configuration
   server: {
     hmr: {
@@ -160,27 +157,21 @@ export default defineConfig({
     host: '0.0.0.0',
     strictPort: false,
   },
-  
+
   // Preview server configuration
   preview: {
     host: '0.0.0.0',
     port: 4173,
     cors: true,
   },
-  
+
   // CSS processing options
   css: {
     // Enable CSS modules
     modules: {
       localsConvention: 'camelCaseOnly',
     },
-    // PostCSS configuration
-    postcss: {
-      plugins: [
-        require('autoprefixer'),
-        require('cssnano')({ preset: 'default' }),
-      ],
-    },
+    // PostCSS configuration is handled by postcss.config.js
     // CSS preprocessor options
     preprocessorOptions: {
       scss: {
@@ -188,7 +179,7 @@ export default defineConfig({
       },
     },
   },
-  
+
   // Optimization options
   optimizeDeps: {
     // Force include these dependencies
@@ -206,7 +197,7 @@ export default defineConfig({
       'laravel-vite-plugin',
     ],
   },
-  
+
   // Define global constants
   define: {
     __APP_VERSION__: JSON.stringify(process.env.npm_package_version || '1.0.0'),
