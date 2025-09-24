@@ -652,7 +652,7 @@
 
 @push('scripts')
   <!-- Welcome Page JavaScript -->
-  @vite(['resources/js/welcome-page.js'])
+  @vite(['resources/js/welcome.js'])
 
   <script>
     // Additional inline functionality for immediate page enhancements

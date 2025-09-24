@@ -1,6 +1,229 @@
 // Welcome page specific functionality
 import Alpine from 'alpinejs';
 
+// WelcomePageManager Class for enhanced functionality
+class WelcomePageManager {
+  constructor() {
+    this.statsUpdateInterval = null;
+    this.animationObserver = null;
+    this.init();
+  }
+
+  init() {
+    this.setupStatsUpdater();
+    this.setupSmoothScrolling();
+    this.setupAnimationObserver();
+    this.setupInteractiveElements();
+    this.setupAccessibilityFeatures();
+  }
+
+  setupStatsUpdater() {
+    // Update stats every 30 seconds
+    this.statsUpdateInterval = setInterval(() => {
+      this.updateStats();
+    }, 30000);
+
+    // Initial stats load after 2 seconds
+    setTimeout(() => {
+      this.updateStats();
+    }, 2000);
+  }
+
+  async updateStats() {
+    try {
+      const response = await fetch('/api/welcome-stats', {
+        method: 'GET',
+        headers: {
+          'Accept': 'application/json',
+          'X-Requested-With': 'XMLHttpRequest'
+        }
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const data = await response.json();
+      this.updateStatsElements(data);
+    } catch (error) {
+      console.log('Stats update failed:', error);
+    }
+  }
+
+  updateStatsElements(data) {
+    const statsMapping = {
+      'platforms': '[data-stat="platforms"]',
+      'tickets_tracked': '[data-stat="tickets_tracked"]',
+      'users': '[data-stat="users"]',
+      'success_rate': '[data-stat="success_rate"]',
+      'monitoring': '[data-stat="monitoring"]',
+      'events_monitored': '[data-stat="events_monitored"]'
+    };
+
+    Object.keys(statsMapping).forEach(key => {
+      const elements = document.querySelectorAll(statsMapping[key]);
+      if (data[key]) {
+        elements.forEach(element => {
+          if (element) {
+            element.textContent = data[key];
+            this.animateStatUpdate(element);
+          }
+        });
+      }
+    });
+  }
+
+  animateStatUpdate(element) {
+    element.style.transform = 'scale(1.05)';
+    element.style.transition = 'transform 0.3s ease';
+
+    setTimeout(() => {
+      element.style.transform = 'scale(1)';
+    }, 300);
+  }
+
+  setupSmoothScrolling() {
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+      anchor.addEventListener('click', (e) => {
+        e.preventDefault();
+
+        const targetId = anchor.getAttribute('href');
+        const target = document.querySelector(targetId);
+
+        if (target) {
+          const headerHeight = 80;
+          const targetPosition = target.offsetTop - headerHeight;
+
+          window.scrollTo({
+            top: targetPosition,
+            behavior: 'smooth'
+          });
+
+          history.pushState(null, null, targetId);
+        }
+      });
+    });
+  }
+
+  setupAnimationObserver() {
+    const observerOptions = {
+      threshold: 0.1,
+      rootMargin: '0px 0px -100px 0px'
+    };
+
+    this.animationObserver = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('animate-fade-in-up');
+        }
+      });
+    }, observerOptions);
+
+    document.querySelectorAll('.card, section').forEach(el => {
+      this.animationObserver.observe(el);
+    });
+  }
+
+  setupInteractiveElements() {
+    document.querySelectorAll('.card').forEach(card => {
+      card.addEventListener('mouseenter', () => {
+        card.style.transform = 'translateY(-8px)';
+        card.style.transition = 'transform 0.3s ease';
+      });
+
+      card.addEventListener('mouseleave', () => {
+        card.style.transform = 'translateY(0)';
+      });
+    });
+
+    document.querySelectorAll('.btn-primary, .btn-secondary').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        this.trackButtonClick(btn.textContent.trim(), btn.getAttribute('href'));
+      });
+    });
+
+    this.setupPricingInteractions();
+  }
+
+  setupPricingInteractions() {
+    const pricingCards = document.querySelectorAll('[data-plan]');
+
+    pricingCards.forEach(card => {
+      card.addEventListener('click', () => {
+        pricingCards.forEach(c => c.classList.remove('ring-2', 'ring-blue-500'));
+        card.classList.add('ring-2', 'ring-blue-500');
+      });
+    });
+  }
+
+  setupAccessibilityFeatures() {
+    document.querySelectorAll('.card').forEach(card => {
+      card.setAttribute('tabindex', '0');
+
+      card.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          card.click();
+        }
+      });
+    });
+
+    this.setupFocusManagement();
+  }
+
+  setupFocusManagement() {
+    const focusableElements = document.querySelectorAll('a, button, [tabindex]:not([tabindex="-1"])');
+
+    focusableElements.forEach(element => {
+      element.addEventListener('focus', () => {
+        element.classList.add('focus-visible');
+      });
+
+      element.addEventListener('blur', () => {
+        element.classList.remove('focus-visible');
+      });
+    });
+  }
+
+  trackButtonClick(buttonText, href) {
+    console.log('Button clicked:', {
+      text: buttonText,
+      href: href,
+      timestamp: new Date().toISOString(),
+      page: 'welcome'
+    });
+
+    if (typeof gtag !== 'undefined') {
+      gtag('event', 'click', {
+        event_category: 'Welcome Page',
+        event_label: buttonText,
+        value: 1
+      });
+    }
+  }
+
+  cleanup() {
+    if (this.statsUpdateInterval) {
+      clearInterval(this.statsUpdateInterval);
+    }
+
+    if (this.animationObserver) {
+      this.animationObserver.disconnect();
+    }
+  }
+}
+
+// Initialize WelcomePageManager
+document.addEventListener('DOMContentLoaded', () => {
+  window.welcomePageManager = new WelcomePageManager();
+});
+
+window.addEventListener('beforeunload', () => {
+  if (window.welcomePageManager) {
+    window.welcomePageManager.cleanup();
+  }
+});
+
 // Welcome page Alpine component
 document.addEventListener('alpine:init', () => {
   Alpine.data('welcomePage', () => ({
@@ -437,3 +660,37 @@ criticalImages.forEach(src => {
   link.href = src;
   document.head.appendChild(link);
 });
+
+// Add CSS animations via JavaScript (fallback if not in CSS)
+const style = document.createElement('style');
+style.textContent = `
+  .animate-fade-in-up {
+    opacity: 1;
+    transform: translateY(0);
+    transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+  }
+  
+  .animate-fade-in-up:not(.animate-fade-in-up) {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  
+  .focus-visible {
+    outline: 2px solid #3b82f6;
+    outline-offset: 2px;
+  }
+  
+  .section-visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  
+  @media (prefers-reduced-motion: reduce) {
+    * {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+`;
+document.head.appendChild(style);

@@ -256,4 +256,48 @@ class WelcomeController extends Controller
           'acceptable_use_policy'     => '/legal/acceptable-use-policy',
         ];
     }
+
+    /**
+     * Display the comprehensive welcome page
+     *
+     * @return View
+     */
+    public function newWelcome(Request $request)
+    {
+        try {
+            // Resolve service via container to avoid constructor DI issues
+            $service = app(WelcomePageService::class);
+
+            // Load dynamic data for the welcome page
+            $data = $service->getWelcomePageData([
+              'include_stats'      => true,
+              'include_pricing'    => true,
+              'include_features'   => true,
+              'include_legal_docs' => true,
+              'ab_variant'         => 'comprehensive',
+            ]);
+
+            return view('new-welcome', $data);
+
+        } catch (Exception $e) {
+            Log::error('Error loading comprehensive welcome page', [
+                'error' => $e->getMessage(),
+                'user_agent' => $request->userAgent(),
+                'ip' => $request->ip(),
+            ]);
+
+            // Fallback to basic welcome view
+            return view('new-welcome', [
+                'total_tickets' => 0,
+                'active_events' => 0,
+                'satisfied_customers' => 0,
+                'avg_savings' => 0,
+                'avg_purchase_time' => 0,
+                'subscription_plans' => [],
+                'key_features' => [],
+                'platform_integrations' => [],
+                'legal_documents' => [],
+            ]);
+        }
+    }
 }
