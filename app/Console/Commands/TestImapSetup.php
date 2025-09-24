@@ -35,22 +35,22 @@ class TestImapSetup extends Command
         $allTestsPassed = TRUE;
 
         // Test 1: IMAP Extension
-        if (! $this->testImapExtension()) {
+        if (!$this->testImapExtension()) {
             $allTestsPassed = FALSE;
         }
 
         // Test 2: Configuration
-        if (! $this->testConfiguration()) {
+        if (!$this->testConfiguration()) {
             $allTestsPassed = FALSE;
         }
 
         // Test 3: Service Classes
-        if (! $this->testServiceClasses()) {
+        if (!$this->testServiceClasses()) {
             $allTestsPassed = FALSE;
         }
 
         // Test 4: Email Parsing
-        if (! $this->testEmailParsing()) {
+        if (!$this->testEmailParsing()) {
             $allTestsPassed = FALSE;
         }
 
@@ -211,14 +211,14 @@ class TestImapSetup extends Command
             $this->info('      - Sports events found: ' . count($result['sports_events']));
             $this->info('      - Tickets found: ' . count($result['tickets']));
 
-            if (! empty($result['sports_events'])) {
+            if (!empty($result['sports_events'])) {
                 $event = $result['sports_events'][0];
                 $this->info("      - Event: {$event['name']}");
                 $this->info("      - Category: {$event['category']}");
                 $this->info("      - Platform: {$event['source_platform']}");
             }
 
-            if (! empty($result['tickets'])) {
+            if (!empty($result['tickets'])) {
                 $ticket = $result['tickets'][0];
                 $this->info('      - Ticket price: $' . number_format($ticket['price'], 2));
                 $this->info("      - Platform: {$ticket['source_platform']}");

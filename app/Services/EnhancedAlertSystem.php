@@ -580,7 +580,7 @@ class EnhancedAlertSystem
         $commonWords = ['vs', 'v', 'at', 'the', 'and', 'or', 'in', 'on', 'game', 'match', 'event'];
         $terms = explode(' ', strtolower($eventName));
 
-        return array_filter($terms, fn ($term): bool => strlen((string) $term) > 2 && ! in_array($term, $commonWords, TRUE));
+        return array_filter($terms, fn ($term): bool => strlen((string) $term) > 2 && !in_array($term, $commonWords, TRUE));
     }
 
     /**

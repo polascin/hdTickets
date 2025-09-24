@@ -310,7 +310,7 @@ class TicketCacheService
     protected function calculateTicketTTL(array $ticketData): int
     {
         try {
-            if (! isset($ticketData['event_date'])) {
+            if (!isset($ticketData['event_date'])) {
                 return self::DEFAULT_TTL;
             }
 

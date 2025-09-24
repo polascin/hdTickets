@@ -138,7 +138,7 @@ class TicketOneItalyPlugin extends BaseScraperPlugin
         ];
 
         // Remove empty parameters
-        $params = array_filter($params, fn ($value): bool => ! empty($value));
+        $params = array_filter($params, fn ($value): bool => !empty($value));
 
         return $this->baseUrl . '/search?' . http_build_query($params);
     }
@@ -154,7 +154,7 @@ class TicketOneItalyPlugin extends BaseScraperPlugin
             Log::info("TicketOne Italy Plugin: Scraping tickets from: {$searchUrl}");
 
             $response = $this->makeHttpRequest($searchUrl);
-            if (! $response) {
+            if (!$response) {
                 return [];
             }
 
@@ -271,7 +271,7 @@ class TicketOneItalyPlugin extends BaseScraperPlugin
             $eventDate = $this->parseDateTime($date, $time);
 
             // Build full URL if relative
-            if ($link && ! filter_var($link, FILTER_VALIDATE_URL)) {
+            if ($link && !filter_var($link, FILTER_VALIDATE_URL)) {
                 $link = rtrim($this->baseUrl, '/') . '/' . ltrim($link, '/');
             }
 

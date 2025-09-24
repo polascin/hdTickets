@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace App\Models;
 
@@ -7,19 +7,19 @@ use Illuminate\Database\Eloquent\Model;
 
 /**
  * Scraping Source Model
- * 
+ *
  * Manages ticket scraping source configurations for the HD Tickets platform.
  * Each source represents a ticket vendor/platform that can be scraped.
- * 
- * @property int $id
- * @property string $name Source name (e.g. StubHub, Vivid Seats)
- * @property string $base_url Base URL for scraping
- * @property int $rate_limit Requests per minute limit
- * @property string $priority Priority level (high, medium, low)
- * @property bool $enabled Whether the source is active
- * @property string $status Current status (online, offline, testing)
- * @property array $headers Custom headers for requests
- * @property array $config Additional configuration data
+ *
+ * @property int                        $id
+ * @property string                     $name       Source name (e.g. StubHub, Vivid Seats)
+ * @property string                     $base_url   Base URL for scraping
+ * @property int                        $rate_limit Requests per minute limit
+ * @property string                     $priority   Priority level (high, medium, low)
+ * @property bool                       $enabled    Whether the source is active
+ * @property string                     $status     Current status (online, offline, testing)
+ * @property array                      $headers    Custom headers for requests
+ * @property array                      $config     Additional configuration data
  * @property \Illuminate\Support\Carbon $created_at
  * @property \Illuminate\Support\Carbon $updated_at
  */
@@ -56,10 +56,10 @@ class ScrapingSource extends Model
      * @var array<string, string>
      */
     protected $casts = [
-        'enabled' => 'boolean',
+        'enabled'    => 'boolean',
         'rate_limit' => 'integer',
-        'headers' => 'array',
-        'config' => 'array',
+        'headers'    => 'array',
+        'config'     => 'array',
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
     ];
@@ -77,32 +77,37 @@ class ScrapingSource extends Model
      * Priority levels
      */
     public const PRIORITY_HIGH = 'high';
+
     public const PRIORITY_MEDIUM = 'medium';
+
     public const PRIORITY_LOW = 'low';
 
     /**
      * Status types
      */
     public const STATUS_ONLINE = 'online';
+
     public const STATUS_OFFLINE = 'offline';
+
     public const STATUS_TESTING = 'testing';
+
     public const STATUS_ERROR = 'error';
 
     /**
      * Get only enabled sources
-     * 
+     *
      * @return \Illuminate\Database\Eloquent\Builder
      */
     public function scopeEnabled($query)
     {
-        return $query->where('enabled', true);
+        return $query->where('enabled', TRUE);
     }
 
     /**
      * Get sources by priority
-     * 
-     * @param \Illuminate\Database\Eloquent\Builder $query
-     * @param string $priority
+     *
+     * @param  \Illuminate\Database\Eloquent\Builder $query
+     * @param  string                                $priority
      * @return \Illuminate\Database\Eloquent\Builder
      */
     public function scopeByPriority($query, string $priority)
@@ -112,9 +117,9 @@ class ScrapingSource extends Model
 
     /**
      * Get sources by status
-     * 
-     * @param \Illuminate\Database\Eloquent\Builder $query
-     * @param string $status
+     *
+     * @param  \Illuminate\Database\Eloquent\Builder $query
+     * @param  string                                $status
      * @return \Illuminate\Database\Eloquent\Builder
      */
     public function scopeByStatus($query, string $status)
@@ -124,7 +129,7 @@ class ScrapingSource extends Model
 
     /**
      * Get high priority sources
-     * 
+     *
      * @return \Illuminate\Database\Eloquent\Builder
      */
     public function scopeHighPriority($query)
@@ -134,7 +139,7 @@ class ScrapingSource extends Model
 
     /**
      * Get online sources
-     * 
+     *
      * @return \Illuminate\Database\Eloquent\Builder
      */
     public function scopeOnline($query)
@@ -144,7 +149,7 @@ class ScrapingSource extends Model
 
     /**
      * Check if source is healthy (enabled and online)
-     * 
+     *
      * @return bool
      */
     public function isHealthy(): bool
@@ -154,38 +159,38 @@ class ScrapingSource extends Model
 
     /**
      * Get priority badge color for UI
-     * 
+     *
      * @return string
      */
     public function getPriorityColorAttribute(): string
     {
-        return match($this->priority) {
-            self::PRIORITY_HIGH => 'red',
+        return match ($this->priority) {
+            self::PRIORITY_HIGH   => 'red',
             self::PRIORITY_MEDIUM => 'yellow',
-            self::PRIORITY_LOW => 'green',
-            default => 'gray'
+            self::PRIORITY_LOW    => 'green',
+            default               => 'gray'
         };
     }
 
     /**
      * Get status badge color for UI
-     * 
+     *
      * @return string
      */
     public function getStatusColorAttribute(): string
     {
-        return match($this->status) {
-            self::STATUS_ONLINE => 'green',
+        return match ($this->status) {
+            self::STATUS_ONLINE  => 'green',
             self::STATUS_TESTING => 'yellow',
             self::STATUS_OFFLINE => 'red',
-            self::STATUS_ERROR => 'red',
-            default => 'gray'
+            self::STATUS_ERROR   => 'red',
+            default              => 'gray'
         };
     }
 
     /**
      * Get formatted rate limit for display
-     * 
+     *
      * @return string
      */
     public function getFormattedRateLimitAttribute(): string
@@ -195,8 +200,8 @@ class ScrapingSource extends Model
 
     /**
      * Update source status
-     * 
-     * @param string $status
+     *
+     * @param  string $status
      * @return bool
      */
     public function updateStatus(string $status): bool
@@ -206,7 +211,7 @@ class ScrapingSource extends Model
 
     /**
      * Toggle enabled status
-     * 
+     *
      * @return bool
      */
     public function toggle(): bool
@@ -216,28 +221,28 @@ class ScrapingSource extends Model
 
     /**
      * Get configuration value by key
-     * 
-     * @param string $key
-     * @param mixed $default
+     *
+     * @param  string $key
+     * @param  mixed  $default
      * @return mixed
      */
-    public function getConfig(string $key, $default = null)
+    public function getConfig(string $key, $default = NULL)
     {
         return data_get($this->config, $key, $default);
     }
 
     /**
      * Set configuration value by key
-     * 
-     * @param string $key
-     * @param mixed $value
+     *
+     * @param  string $key
+     * @param  mixed  $value
      * @return bool
      */
     public function setConfig(string $key, $value): bool
     {
         $config = $this->config ?? [];
         data_set($config, $key, $value);
-        
+
         return $this->update(['config' => $config]);
     }
 
@@ -253,15 +258,15 @@ class ScrapingSource extends Model
             if (empty($model->status)) {
                 $model->status = self::STATUS_OFFLINE;
             }
-            
+
             if (empty($model->priority)) {
                 $model->priority = self::PRIORITY_MEDIUM;
             }
-            
+
             if (is_null($model->enabled)) {
-                $model->enabled = true;
+                $model->enabled = TRUE;
             }
-            
+
             if (empty($model->rate_limit)) {
                 $model->rate_limit = 60; // Default 60 requests per minute
             }

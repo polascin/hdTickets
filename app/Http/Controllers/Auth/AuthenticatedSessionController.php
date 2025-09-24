@@ -14,54 +14,54 @@ use Illuminate\View\View;
 
 class AuthenticatedSessionController extends Controller
 {
-  /**
-   * Display the login view.
-   */
-  /**
-   * Create
-   */
-  public function create(): View
-  {
-    // Check if enhanced login is enabled
-    $useEnhancedLogin = config('auth.enhanced_login', TRUE);
+    /**
+     * Display the login view.
+     */
+    /**
+     * Create
+     */
+    public function create(): View
+    {
+        // Check if enhanced login is enabled
+        $useEnhancedLogin = config('auth.enhanced_login', TRUE);
 
-    return view($useEnhancedLogin ? 'auth.new-login' : 'auth.new-login');
-  }
-
-  /**
-   * Handle an incoming authentication request.
-   */
-  /**
-   * Store
-   */
-  public function store(LoginRequest $request): RedirectResponse
-  {
-    $request->authenticate();
-
-    // Check if 2FA is required
-    if ($request->requires2FA()) {
-      return redirect()->route('2fa.challenge');
+        return view($useEnhancedLogin ? 'auth.new-login' : 'auth.new-login');
     }
 
-    $request->session()->regenerate();
+    /**
+     * Handle an incoming authentication request.
+     */
+    /**
+     * Store
+     */
+    public function store(LoginRequest $request): RedirectResponse
+    {
+        $request->authenticate();
 
-    return redirect()->intended(route('dashboard', absolute: FALSE));
-  }
+        // Check if 2FA is required
+        if ($request->requires2FA()) {
+            return redirect()->route('2fa.challenge');
+        }
 
-  /**
-   * Destroy an authenticated session.
-   */
-  /**
-   * Destroy
-   */
-  public function destroy(Request $request): RedirectResponse
-  {
-    Auth::guard('web')->logout();
+        $request->session()->regenerate();
 
-    $request->session()->invalidate();
+        return redirect()->intended(route('dashboard', absolute: FALSE));
+    }
 
-    $request->session()->regenerateToken();
+    /**
+     * Destroy an authenticated session.
+     */
+    /**
+     * Destroy
+     */
+    public function destroy(Request $request): RedirectResponse
+    {
+        Auth::guard('web')->logout();
 
-    return redirect('/');
-  }
+        $request->session()->invalidate();
+
+        $request->session()->regenerateToken();
+
+        return redirect('/');
+    }
 }

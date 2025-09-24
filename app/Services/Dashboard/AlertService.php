@@ -4,22 +4,20 @@ declare(strict_types=1);
 
 namespace App\Services\Dashboard;
 
-use App\Models\User;
-use App\Models\TicketAlert;
 use App\Models\ScrapedTicket;
+use App\Models\TicketAlert;
+use App\Models\User;
 use Carbon\Carbon;
-use Illuminate\Support\Facades\Cache;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Collection;
-use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Log;
 
 /**
  * AlertService - Ticket Alert Management and Matching
- * 
+ *
  * Handles creation, management, and processing of ticket alerts.
  * Provides intelligent matching algorithms and notification systems.
- * 
+ *
  * Features:
  * - Alert creation and management
  * - Intelligent ticket matching
@@ -31,8 +29,11 @@ use Illuminate\Database\Eloquent\Builder;
 class AlertService
 {
     protected const CACHE_TTL_MINUTES = 5;
+
     protected const CACHE_TTL_HOURLY = 60;
+
     protected const MAX_ALERTS_PER_USER = 50;
+
     protected const PRICE_TOLERANCE_PERCENTAGE = 5;
 
     /**
@@ -41,29 +42,30 @@ class AlertService
     public function getUserAlertStats(User $user): array
     {
         $cacheKey = "user_alert_stats:{$user->id}";
-        
+
         return Cache::remember($cacheKey, now()->addMinutes(self::CACHE_TTL_MINUTES), function () use ($user) {
             try {
                 $alerts = TicketAlert::where('user_id', $user->id)->get();
-                
+
                 return [
-                    'total_alerts' => $alerts->count(),
-                    'active_alerts' => $alerts->where('status', 'active')->count(),
-                    'triggered_today' => $this->getAlertsTriggeredToday($user),
-                    'triggered_this_week' => $this->getAlertsTriggeredThisWeek($user),
-                    'success_rate' => $this->calculateAlertSuccessRate($alerts),
-                    'avg_response_time' => $this->calculateAverageResponseTime($alerts),
-                    'top_performing_alerts' => $this->getTopPerformingAlerts($alerts),
-                    'alert_categories' => $this->getAlertCategories($alerts),
-                    'recent_matches' => $this->getRecentMatches($user),
+                    'total_alerts'             => $alerts->count(),
+                    'active_alerts'            => $alerts->where('status', 'active')->count(),
+                    'triggered_today'          => $this->getAlertsTriggeredToday($user),
+                    'triggered_this_week'      => $this->getAlertsTriggeredThisWeek($user),
+                    'success_rate'             => $this->calculateAlertSuccessRate($alerts),
+                    'avg_response_time'        => $this->calculateAverageResponseTime($alerts),
+                    'top_performing_alerts'    => $this->getTopPerformingAlerts($alerts),
+                    'alert_categories'         => $this->getAlertCategories($alerts),
+                    'recent_matches'           => $this->getRecentMatches($user),
                     'optimization_suggestions' => $this->getOptimizationSuggestions($alerts),
-                    'generated_at' => now()->toISOString()
+                    'generated_at'             => now()->toISOString(),
                 ];
             } catch (\Exception $e) {
                 Log::error('Failed to get user alert stats', [
                     'user_id' => $user->id,
-                    'error' => $e->getMessage()
+                    'error'   => $e->getMessage(),
                 ]);
+
                 return $this->getEmptyAlertStats();
             }
         });
@@ -86,32 +88,33 @@ class AlertService
 
             // Create the alert
             $alert = TicketAlert::create([
-                'user_id' => $user->id,
-                'name' => $alertData['name'] ?? $this->generateAlertName($alertData),
-                'alert_type' => $alertData['type'] ?? 'general',
-                'criteria' => $this->buildAlertCriteria($alertData),
+                'user_id'                  => $user->id,
+                'name'                     => $alertData['name'] ?? $this->generateAlertName($alertData),
+                'alert_type'               => $alertData['type'] ?? 'general',
+                'criteria'                 => $this->buildAlertCriteria($alertData),
                 'notification_preferences' => $alertData['notifications'] ?? [],
-                'status' => 'active',
-                'created_at' => now(),
-                'updated_at' => now()
+                'status'                   => 'active',
+                'created_at'               => now(),
+                'updated_at'               => now(),
             ]);
 
             // Clear related caches
             $this->clearUserAlertCache($user);
 
             Log::info('Alert created successfully', [
-                'user_id' => $user->id,
-                'alert_id' => $alert->id,
-                'alert_name' => $alert->name
+                'user_id'    => $user->id,
+                'alert_id'   => $alert->id,
+                'alert_name' => $alert->name,
             ]);
 
             return $alert;
         } catch (\Exception $e) {
             Log::error('Failed to create alert', [
-                'user_id' => $user->id,
+                'user_id'    => $user->id,
                 'alert_data' => $alertData,
-                'error' => $e->getMessage()
+                'error'      => $e->getMessage(),
             ]);
+
             throw $e;
         }
     }
@@ -129,28 +132,29 @@ class AlertService
             $this->validateAlertData($alertData);
 
             $alert->update([
-                'name' => $alertData['name'] ?? $alert->name,
-                'alert_type' => $alertData['type'] ?? $alert->alert_type,
-                'criteria' => $this->buildAlertCriteria($alertData),
+                'name'                     => $alertData['name'] ?? $alert->name,
+                'alert_type'               => $alertData['type'] ?? $alert->alert_type,
+                'criteria'                 => $this->buildAlertCriteria($alertData),
                 'notification_preferences' => $alertData['notifications'] ?? $alert->notification_preferences,
-                'status' => $alertData['status'] ?? $alert->status,
-                'updated_at' => now()
+                'status'                   => $alertData['status'] ?? $alert->status,
+                'updated_at'               => now(),
             ]);
 
             $this->clearUserAlertCache($user);
 
             Log::info('Alert updated successfully', [
-                'user_id' => $user->id,
-                'alert_id' => $alert->id
+                'user_id'  => $user->id,
+                'alert_id' => $alert->id,
             ]);
 
             return $alert;
         } catch (\Exception $e) {
             Log::error('Failed to update alert', [
-                'user_id' => $user->id,
+                'user_id'  => $user->id,
                 'alert_id' => $alertId,
-                'error' => $e->getMessage()
+                'error'    => $e->getMessage(),
             ]);
+
             throw $e;
         }
     }
@@ -169,18 +173,19 @@ class AlertService
             $this->clearUserAlertCache($user);
 
             Log::info('Alert deleted successfully', [
-                'user_id' => $user->id,
-                'alert_id' => $alertId
+                'user_id'  => $user->id,
+                'alert_id' => $alertId,
             ]);
 
-            return true;
+            return TRUE;
         } catch (\Exception $e) {
             Log::error('Failed to delete alert', [
-                'user_id' => $user->id,
+                'user_id'  => $user->id,
                 'alert_id' => $alertId,
-                'error' => $e->getMessage()
+                'error'    => $e->getMessage(),
             ]);
-            return false;
+
+            return FALSE;
         }
     }
 
@@ -198,11 +203,11 @@ class AlertService
                 foreach ($alerts as $alert) {
                     if ($this->matchesAlertCriteria($ticket, $alert)) {
                         $matchedAlerts[] = [
-                            'alert' => $alert,
-                            'ticket' => $ticket,
-                            'match_score' => $this->calculateMatchScore($ticket, $alert)
+                            'alert'       => $alert,
+                            'ticket'      => $ticket,
+                            'match_score' => $this->calculateMatchScore($ticket, $alert),
                         ];
-                        
+
                         $this->recordAlertMatch($alert, $ticket);
                         $processedCount++;
                     }
@@ -211,16 +216,17 @@ class AlertService
 
             Log::info('Alert processing completed', [
                 'tickets_processed' => $tickets->count(),
-                'alerts_matched' => count($matchedAlerts),
-                'total_matches' => $processedCount
+                'alerts_matched'    => count($matchedAlerts),
+                'total_matches'     => $processedCount,
             ]);
 
             return $matchedAlerts;
         } catch (\Exception $e) {
             Log::error('Failed to process alerts', [
                 'ticket_count' => $tickets->count(),
-                'error' => $e->getMessage()
+                'error'        => $e->getMessage(),
             ]);
+
             return [];
         }
     }
@@ -240,11 +246,11 @@ class AlertService
                 foreach ($preferences['favorite_sports'] as $sport) {
                     if (!$this->hasAlertForSport($existingAlerts, $sport)) {
                         $suggestions[] = [
-                            'type' => 'sport',
-                            'name' => "New {$sport} Events",
+                            'type'        => 'sport',
+                            'name'        => "New {$sport} Events",
                             'description' => "Get notified about new {$sport} tickets",
-                            'criteria' => ['sport' => $sport],
-                            'priority' => 'high'
+                            'criteria'    => ['sport' => $sport],
+                            'priority'    => 'high',
                         ];
                     }
                 }
@@ -255,11 +261,11 @@ class AlertService
                 foreach ($preferences['favorite_teams'] as $team) {
                     if (!$this->hasAlertForTeam($existingAlerts, $team)) {
                         $suggestions[] = [
-                            'type' => 'team',
-                            'name' => "{$team} Games",
+                            'type'        => 'team',
+                            'name'        => "{$team} Games",
                             'description' => "Get notified about {$team} tickets",
-                            'criteria' => ['team' => $team],
-                            'priority' => 'high'
+                            'criteria'    => ['team' => $team],
+                            'priority'    => 'high',
                         ];
                     }
                 }
@@ -269,11 +275,11 @@ class AlertService
             if (!empty($preferences['price_range']['max'])) {
                 $maxPrice = $preferences['price_range']['max'];
                 $suggestions[] = [
-                    'type' => 'price_drop',
-                    'name' => "Price Drops Under $" . $maxPrice,
-                    'description' => "Get notified when tickets drop below your price range",
-                    'criteria' => ['max_price' => $maxPrice],
-                    'priority' => 'medium'
+                    'type'        => 'price_drop',
+                    'name'        => 'Price Drops Under $' . $maxPrice,
+                    'description' => 'Get notified when tickets drop below your price range',
+                    'criteria'    => ['max_price' => $maxPrice],
+                    'priority'    => 'medium',
                 ];
             }
 
@@ -281,8 +287,9 @@ class AlertService
         } catch (\Exception $e) {
             Log::warning('Failed to get suggested alerts', [
                 'user_id' => $user->id,
-                'error' => $e->getMessage()
+                'error'   => $e->getMessage(),
             ]);
+
             return [];
         }
     }
@@ -300,7 +307,7 @@ class AlertService
         return TicketAlert::where('user_id', $user->id)
             ->whereBetween('last_triggered_at', [
                 Carbon::now()->startOfWeek(),
-                Carbon::now()->endOfWeek()
+                Carbon::now()->endOfWeek(),
             ])
             ->count();
     }
@@ -311,14 +318,15 @@ class AlertService
             return 0.0;
         }
 
-        $successfulAlerts = $alerts->filter(fn($alert) => ($alert->matches_count ?? 0) > 0);
+        $successfulAlerts = $alerts->filter(fn ($alert) => ($alert->matches_count ?? 0) > 0);
+
         return round(($successfulAlerts->count() / $alerts->count()) * 100, 1);
     }
 
     protected function calculateAverageResponseTime(Collection $alerts): float
     {
         $responseTimes = [];
-        
+
         foreach ($alerts as $alert) {
             if ($alert->last_triggered_at && $alert->created_at) {
                 $responseTimes[] = $alert->created_at->diffInHours($alert->last_triggered_at);
@@ -334,11 +342,11 @@ class AlertService
             ->take(3)
             ->map(function ($alert) {
                 return [
-                    'id' => $alert->id,
-                    'name' => $alert->name ?? 'Unnamed Alert',
-                    'matches' => $alert->matches_count ?? 0,
-                    'type' => $alert->alert_type,
-                    'created_at' => $alert->created_at?->format('M j, Y')
+                    'id'         => $alert->id,
+                    'name'       => $alert->name ?? 'Unnamed Alert',
+                    'matches'    => $alert->matches_count ?? 0,
+                    'type'       => $alert->alert_type,
+                    'created_at' => $alert->created_at?->format('M j, Y'),
                 ];
             })
             ->values()
@@ -348,12 +356,12 @@ class AlertService
     protected function getAlertCategories(Collection $alerts): array
     {
         return [
-            'price_drop' => $alerts->where('alert_type', 'price_drop')->count(),
-            'availability' => $alerts->where('alert_type', 'availability')->count(),
+            'price_drop'     => $alerts->where('alert_type', 'price_drop')->count(),
+            'availability'   => $alerts->where('alert_type', 'availability')->count(),
             'event_specific' => $alerts->where('alert_type', 'event_specific')->count(),
-            'team_specific' => $alerts->where('alert_type', 'team_specific')->count(),
+            'team_specific'  => $alerts->where('alert_type', 'team_specific')->count(),
             'sport_specific' => $alerts->where('alert_type', 'sport_specific')->count(),
-            'general' => $alerts->whereNull('alert_type')->count()
+            'general'        => $alerts->whereNull('alert_type')->count(),
         ];
     }
 
@@ -372,7 +380,7 @@ class AlertService
                 'alert_name' => $alert->name ?? 'Unnamed Alert',
                 'matched_at' => $alert->last_triggered_at?->diffForHumans(),
                 'match_type' => 'New tickets found',
-                'alert_id' => $alert->id
+                'alert_id'   => $alert->id,
             ];
         })->toArray();
     }
@@ -391,20 +399,21 @@ class AlertService
 
         // Check for similar alerts
         $duplicateTypes = $alerts->groupBy('alert_type')
-            ->filter(fn($group) => $group->count() > 3);
+            ->filter(fn ($group) => $group->count() > 3);
 
         if ($duplicateTypes->count() > 0) {
-            $suggestions[] = "Consider consolidating similar alert types";
+            $suggestions[] = 'Consider consolidating similar alert types';
         }
 
         // Check for overly broad criteria
         $broadAlerts = $alerts->filter(function ($alert) {
             $criteria = $alert->criteria ?? [];
+
             return empty($criteria) || (count($criteria) === 1 && isset($criteria['sport']));
         });
 
         if ($broadAlerts->count() > 2) {
-            $suggestions[] = "Add more specific criteria to improve alert precision";
+            $suggestions[] = 'Add more specific criteria to improve alert precision';
         }
 
         return $suggestions;
@@ -413,17 +422,17 @@ class AlertService
     protected function getEmptyAlertStats(): array
     {
         return [
-            'total_alerts' => 0,
-            'active_alerts' => 0,
-            'triggered_today' => 0,
-            'triggered_this_week' => 0,
-            'success_rate' => 0,
-            'avg_response_time' => 0,
-            'top_performing_alerts' => [],
-            'alert_categories' => [],
-            'recent_matches' => [],
+            'total_alerts'             => 0,
+            'active_alerts'            => 0,
+            'triggered_today'          => 0,
+            'triggered_this_week'      => 0,
+            'success_rate'             => 0,
+            'avg_response_time'        => 0,
+            'top_performing_alerts'    => [],
+            'alert_categories'         => [],
+            'recent_matches'           => [],
             'optimization_suggestions' => ['Create your first alert to start monitoring tickets'],
-            'generated_at' => now()->toISOString()
+            'generated_at'             => now()->toISOString(),
         ];
     }
 
@@ -453,7 +462,7 @@ class AlertService
         }
 
         if (isset($criteria['max_price'])) {
-            $parts[] = "under $" . $criteria['max_price'];
+            $parts[] = 'under $' . $criteria['max_price'];
         }
 
         return !empty($parts) ? implode(' ', $parts) : 'Custom Alert';
@@ -462,26 +471,26 @@ class AlertService
     protected function buildAlertCriteria(array $data): array
     {
         $criteria = $data['criteria'] ?? [];
-        
+
         // Normalize criteria format
         $normalized = [];
-        
+
         if (isset($criteria['sport'])) {
             $normalized['sport'] = $criteria['sport'];
         }
-        
+
         if (isset($criteria['team'])) {
             $normalized['team'] = $criteria['team'];
         }
-        
+
         if (isset($criteria['venue'])) {
             $normalized['venue'] = $criteria['venue'];
         }
-        
+
         if (isset($criteria['max_price'])) {
             $normalized['max_price'] = (float) $criteria['max_price'];
         }
-        
+
         if (isset($criteria['min_price'])) {
             $normalized['min_price'] = (float) $criteria['min_price'];
         }
@@ -506,14 +515,14 @@ class AlertService
 
         // Quick filters before detailed matching
         if (isset($criteria['sport']) && $criteria['sport'] !== $ticket->sport) {
-            return false;
+            return FALSE;
         }
 
         if (isset($criteria['max_price']) && $ticket->price > $criteria['max_price']) {
-            return false;
+            return FALSE;
         }
 
-        return true;
+        return TRUE;
     }
 
     protected function matchesAlertCriteria(ScrapedTicket $ticket, TicketAlert $alert): bool
@@ -523,7 +532,7 @@ class AlertService
         $totalCriteria = count($criteria);
 
         if ($totalCriteria === 0) {
-            return false; // No criteria means no match
+            return FALSE; // No criteria means no match
         }
 
         // Sport matching
@@ -531,18 +540,18 @@ class AlertService
             if (strtolower($ticket->sport) === strtolower($criteria['sport'])) {
                 $matchScore++;
             } else {
-                return false; // Sport is usually mandatory
+                return FALSE; // Sport is usually mandatory
             }
         }
 
         // Team matching
         if (isset($criteria['team'])) {
             $team = strtolower($criteria['team']);
-            if (stripos($ticket->home_team, $team) !== false || 
-                stripos($ticket->away_team, $team) !== false) {
+            if (stripos($ticket->home_team, $team) !== FALSE ||
+                stripos($ticket->away_team, $team) !== FALSE) {
                 $matchScore++;
             } else {
-                return false; // Team matching is strict
+                return FALSE; // Team matching is strict
             }
         }
 
@@ -550,18 +559,18 @@ class AlertService
         if (isset($criteria['max_price']) && $ticket->price <= $criteria['max_price']) {
             $matchScore++;
         } elseif (isset($criteria['max_price'])) {
-            return false; // Exceeds max price
+            return FALSE; // Exceeds max price
         }
 
         if (isset($criteria['min_price']) && $ticket->price >= $criteria['min_price']) {
             $matchScore++;
         } elseif (isset($criteria['min_price'])) {
-            return false; // Below min price
+            return FALSE; // Below min price
         }
 
         // Venue matching (flexible)
         if (isset($criteria['venue'])) {
-            if (stripos($ticket->venue, $criteria['venue']) !== false) {
+            if (stripos($ticket->venue, $criteria['venue']) !== FALSE) {
                 $matchScore++;
             }
             // Don't fail for venue mismatch, just don't count it
@@ -586,7 +595,7 @@ class AlertService
         // Team match (high weight)
         if (isset($criteria['team'])) {
             $team = strtolower($criteria['team']);
-            if (stripos($ticket->home_team, $team) !== false || stripos($ticket->away_team, $team) !== false) {
+            if (stripos($ticket->home_team, $team) !== FALSE || stripos($ticket->away_team, $team) !== FALSE) {
                 $score += 0.3;
             }
         }
@@ -601,7 +610,7 @@ class AlertService
 
         // Venue match (low weight)
         if (isset($criteria['venue'])) {
-            if (stripos($ticket->venue, $criteria['venue']) !== false) {
+            if (stripos($ticket->venue, $criteria['venue']) !== FALSE) {
                 $score += 0.1;
             }
         }
@@ -617,15 +626,15 @@ class AlertService
             $alert->update(['last_triggered_at' => now()]);
 
             Log::debug('Alert match recorded', [
-                'alert_id' => $alert->id,
+                'alert_id'  => $alert->id,
                 'ticket_id' => $ticket->id,
-                'user_id' => $alert->user_id
+                'user_id'   => $alert->user_id,
             ]);
         } catch (\Exception $e) {
             Log::warning('Failed to record alert match', [
-                'alert_id' => $alert->id,
+                'alert_id'  => $alert->id,
                 'ticket_id' => $ticket->id,
-                'error' => $e->getMessage()
+                'error'     => $e->getMessage(),
             ]);
         }
     }
@@ -635,6 +644,7 @@ class AlertService
     {
         return $alerts->contains(function ($alert) use ($sport) {
             $criteria = $alert->criteria ?? [];
+
             return isset($criteria['sport']) && strtolower($criteria['sport']) === strtolower($sport);
         });
     }
@@ -643,7 +653,8 @@ class AlertService
     {
         return $alerts->contains(function ($alert) use ($team) {
             $criteria = $alert->criteria ?? [];
-            return isset($criteria['team']) && stripos($criteria['team'], $team) !== false;
+
+            return isset($criteria['team']) && stripos($criteria['team'], $team) !== FALSE;
         });
     }
 

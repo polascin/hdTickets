@@ -370,7 +370,7 @@ class AdvancedReportingController extends Controller
             // Mock implementation - in reality, you'd retrieve from storage
             $filePath = storage_path("app/reports/pdf/report_{$reportId}.pdf");
 
-            if (! file_exists($filePath)) {
+            if (!file_exists($filePath)) {
                 return response()->json([
                     'success' => FALSE,
                     'message' => 'Report file not found',

@@ -256,7 +256,7 @@ class ProductionHealthController extends Controller
             $horizonStatus = Cache::get('horizon:master_supervisor');
             $isRunning = $horizonStatus !== NULL;
 
-            if (! $isRunning) {
+            if (!$isRunning) {
                 $status = 'critical';
                 $details['message'] = 'Horizon is not running';
             } else {

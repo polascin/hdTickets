@@ -137,7 +137,7 @@ class PerformanceMonitoringService
             'success'   => $success,
         ]);
 
-        if (! $success) {
+        if (!$success) {
             $this->recordMetric('scraping.failure_rate', 1, [
                 'platform'  => $platform,
                 'operation' => $operation,

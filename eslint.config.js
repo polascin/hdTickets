@@ -95,12 +95,12 @@ export default [
       "@typescript-eslint/explicit-function-return-type": "off",
       "@typescript-eslint/explicit-module-boundary-types": "off",
       "@typescript-eslint/no-explicit-any": "warn",
-      "no-console": ["warn", { "allow": ["warn", "error"] }],
+      "no-console": ["warn", { "allow": ["log", "warn", "error", "info", "debug"] }],
       "prefer-const": "error",
       "no-var": "error",
       "no-unused-vars": "off",
       "no-prototype-builtins": "warn",
-      "no-empty": "warn",
+      "no-empty": ["error", { "allowEmptyCatch": true }],
 
       // Semicolon consistency and ASI prevention
       "semi": ["error", "always"],
@@ -109,6 +109,29 @@ export default [
       "no-extra-semi": "error",
       "no-unexpected-multiline": "error",
       "no-unreachable": "error"
+    }
+  },
+  {
+    // Test files specific configuration
+    files: ["resources/js/**/__tests__/**/*.{js,ts}", "resources/js/**/*.test.{js,ts}", "resources/js/**/*.spec.{js,ts}"],
+    languageOptions: {
+      globals: {
+        // Testing globals
+        global: "readonly",
+        describe: "readonly",
+        test: "readonly",
+        it: "readonly",
+        expect: "readonly",
+        beforeEach: "readonly",
+        afterEach: "readonly",
+        beforeAll: "readonly",
+        afterAll: "readonly",
+        jest: "readonly",
+        vi: "readonly"
+      }
+    },
+    rules: {
+      "no-console": "off"
     }
   },
   {

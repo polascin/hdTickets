@@ -4,21 +4,20 @@ declare(strict_types=1);
 
 namespace App\Services\Dashboard;
 
-use App\Models\User;
 use App\Models\ScrapedTicket;
 use App\Models\TicketAlert;
+use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Collection;
 
 /**
  * RecommendationService - Personalized Ticket Recommendations
- * 
- * Provides intelligent ticket recommendations based on user preferences, 
+ *
+ * Provides intelligent ticket recommendations based on user preferences,
  * historical behavior, alert patterns, and real-time data analysis.
- * 
+ *
  * Features:
  * - Personalized recommendations based on user preferences
  * - ML-powered suggestion algorithms
@@ -30,11 +29,15 @@ use Illuminate\Support\Collection;
 class RecommendationService
 {
     protected const CACHE_TTL_MINUTES = 15;
+
     protected const CACHE_TTL_HOURLY = 60;
+
     protected const MAX_RECOMMENDATIONS = 20;
+
     protected const MIN_RECOMMENDATION_SCORE = 0.3;
 
     protected UserMetricsService $userMetricsService;
+
     protected TicketStatsService $ticketStatsService;
 
     public function __construct(
@@ -51,24 +54,25 @@ class RecommendationService
     public function getDashboardRecommendations(User $user): array
     {
         $cacheKey = "recommendations_dashboard:{$user->id}";
-        
+
         return Cache::remember($cacheKey, now()->addMinutes(self::CACHE_TTL_MINUTES), function () use ($user) {
             try {
                 return [
-                    'featured_events' => $this->getFeaturedEventRecommendations($user),
-                    'price_alerts' => $this->getPriceAlertRecommendations($user),
-                    'trending_matches' => $this->getTrendingRecommendations($user),
-                    'similar_user_picks' => $this->getSimilarUserRecommendations($user),
-                    'upcoming_events' => $this->getUpcomingEventRecommendations($user),
-                    'personalization_score' => $this->calculatePersonalizationScore($user),
+                    'featured_events'        => $this->getFeaturedEventRecommendations($user),
+                    'price_alerts'           => $this->getPriceAlertRecommendations($user),
+                    'trending_matches'       => $this->getTrendingRecommendations($user),
+                    'similar_user_picks'     => $this->getSimilarUserRecommendations($user),
+                    'upcoming_events'        => $this->getUpcomingEventRecommendations($user),
+                    'personalization_score'  => $this->calculatePersonalizationScore($user),
                     'recommendation_reasons' => $this->getDashboardRecommendationReasons($user),
-                    'generated_at' => now()->toISOString()
+                    'generated_at'           => now()->toISOString(),
                 ];
             } catch (\Exception $e) {
                 Log::error('Failed to get dashboard recommendations', [
                     'user_id' => $user->id,
-                    'error' => $e->getMessage()
+                    'error'   => $e->getMessage(),
                 ]);
+
                 return $this->getFallbackRecommendations();
             }
         });
@@ -118,8 +122,9 @@ class RecommendationService
         } catch (\Exception $e) {
             Log::warning('Failed to get featured event recommendations', [
                 'user_id' => $user->id,
-                'error' => $e->getMessage()
+                'error'   => $e->getMessage(),
             ]);
+
             return [];
         }
     }
@@ -137,7 +142,7 @@ class RecommendationService
 
             $userPreferences = $user->preferences ?? [];
             $favoriteSports = $userPreferences['favorite_sports'] ?? [];
-            
+
             $query = ScrapedTicket::select('event_name', 'sport', 'home_team', 'away_team')
                 ->selectRaw('AVG(price) as avg_price, MIN(price) as min_price, MAX(price) as max_price, COUNT(*) as listing_count')
                 ->where('status', 'available')
@@ -156,16 +161,16 @@ class RecommendationService
                 ->get()
                 ->map(function ($event) {
                     return [
-                        'event_name' => $event->event_name,
-                        'sport' => $event->sport,
-                        'teams' => trim($event->home_team . ' vs ' . $event->away_team),
-                        'avg_price' => round($event->avg_price, 2),
-                        'min_price' => round($event->min_price, 2),
-                        'max_price' => round($event->max_price, 2),
-                        'savings_potential' => round($event->max_price - $event->min_price, 2),
-                        'listing_count' => $event->listing_count,
+                        'event_name'          => $event->event_name,
+                        'sport'               => $event->sport,
+                        'teams'               => trim($event->home_team . ' vs ' . $event->away_team),
+                        'avg_price'           => round($event->avg_price, 2),
+                        'min_price'           => round($event->min_price, 2),
+                        'max_price'           => round($event->max_price, 2),
+                        'savings_potential'   => round($event->max_price - $event->min_price, 2),
+                        'listing_count'       => $event->listing_count,
                         'recommendation_type' => 'price_alert',
-                        'confidence_score' => $this->calculatePriceAlertConfidence($event)
+                        'confidence_score'    => $this->calculatePriceAlertConfidence($event),
                     ];
                 })
                 ->toArray();
@@ -174,8 +179,9 @@ class RecommendationService
         } catch (\Exception $e) {
             Log::warning('Failed to get price alert recommendations', [
                 'user_id' => $user->id,
-                'error' => $e->getMessage()
+                'error'   => $e->getMessage(),
             ]);
+
             return [];
         }
     }
@@ -208,16 +214,16 @@ class RecommendationService
                 ->get()
                 ->map(function ($event) {
                     return [
-                        'event_name' => $event->event_name,
-                        'sport' => $event->sport,
-                        'teams' => trim($event->home_team . ' vs ' . $event->away_team),
-                        'event_date' => $event->event_date,
-                        'listing_count' => $event->listing_count,
-                        'avg_price' => round($event->avg_price, 2),
-                        'min_price' => round($event->min_price, 2),
+                        'event_name'          => $event->event_name,
+                        'sport'               => $event->sport,
+                        'teams'               => trim($event->home_team . ' vs ' . $event->away_team),
+                        'event_date'          => $event->event_date,
+                        'listing_count'       => $event->listing_count,
+                        'avg_price'           => round($event->avg_price, 2),
+                        'min_price'           => round($event->min_price, 2),
                         'recommendation_type' => 'trending',
-                        'popularity_score' => min(100, $event->listing_count * 10),
-                        'days_until_event' => Carbon::parse($event->event_date)->diffInDays(now())
+                        'popularity_score'    => min(100, $event->listing_count * 10),
+                        'days_until_event'    => Carbon::parse($event->event_date)->diffInDays(now()),
                     ];
                 })
                 ->toArray();
@@ -226,8 +232,9 @@ class RecommendationService
         } catch (\Exception $e) {
             Log::warning('Failed to get trending recommendations', [
                 'user_id' => $user->id,
-                'error' => $e->getMessage()
+                'error'   => $e->getMessage(),
             ]);
+
             return [];
         }
     }
@@ -263,8 +270,9 @@ class RecommendationService
         } catch (\Exception $e) {
             Log::warning('Failed to get similar user recommendations', [
                 'user_id' => $user->id,
-                'error' => $e->getMessage()
+                'error'   => $e->getMessage(),
             ]);
+
             return [];
         }
     }
@@ -309,8 +317,9 @@ class RecommendationService
         } catch (\Exception $e) {
             Log::warning('Failed to get upcoming event recommendations', [
                 'user_id' => $user->id,
-                'error' => $e->getMessage()
+                'error'   => $e->getMessage(),
             ]);
+
             return [];
         }
     }
@@ -324,27 +333,27 @@ class RecommendationService
         $matchScore = $this->calculateMatchScore($ticket, $userPreferences);
 
         return [
-            'ticket_id' => $ticket->id,
-            'event_name' => $ticket->event_name,
-            'sport' => $ticket->sport,
-            'home_team' => $ticket->home_team,
-            'away_team' => $ticket->away_team,
-            'venue' => $ticket->venue,
-            'event_date' => $ticket->event_date,
-            'price' => $ticket->price,
-            'currency' => $ticket->currency ?? 'USD',
-            'platform' => $ticket->platform,
-            'section' => $ticket->section,
-            'row' => $ticket->row,
-            'seat_numbers' => $ticket->seat_numbers,
+            'ticket_id'           => $ticket->id,
+            'event_name'          => $ticket->event_name,
+            'sport'               => $ticket->sport,
+            'home_team'           => $ticket->home_team,
+            'away_team'           => $ticket->away_team,
+            'venue'               => $ticket->venue,
+            'event_date'          => $ticket->event_date,
+            'price'               => $ticket->price,
+            'currency'            => $ticket->currency ?? 'USD',
+            'platform'            => $ticket->platform,
+            'section'             => $ticket->section,
+            'row'                 => $ticket->row,
+            'seat_numbers'        => $ticket->seat_numbers,
             'recommendation_type' => $type,
-            'match_score' => $matchScore,
-            'confidence_level' => $this->getConfidenceLevel($matchScore),
-            'reasons' => $this->getRecommendationReasons($ticket, $userPreferences),
-            'urgency' => $this->calculateUrgency($ticket),
-            'price_trend' => $this->getPriceTrend($ticket),
-            'days_until_event' => Carbon::parse($ticket->event_date)->diffInDays(now()),
-            'scraped_at' => $ticket->scraped_at
+            'match_score'         => $matchScore,
+            'confidence_level'    => $this->getConfidenceLevel($matchScore),
+            'reasons'             => $this->getRecommendationReasons($ticket, $userPreferences),
+            'urgency'             => $this->calculateUrgency($ticket),
+            'price_trend'         => $this->getPriceTrend($ticket),
+            'days_until_event'    => Carbon::parse($ticket->event_date)->diffInDays(now()),
+            'scraped_at'          => $ticket->scraped_at,
         ];
     }
 
@@ -366,16 +375,17 @@ class RecommendationService
         $favoriteTeams = $preferences['favorite_teams'] ?? [];
         if (!empty($favoriteTeams)) {
             foreach ($favoriteTeams as $team) {
-                if (stripos($ticket->home_team, $team) !== false || 
-                    stripos($ticket->away_team, $team) !== false) {
+                if (stripos($ticket->home_team, $team) !== FALSE ||
+                    stripos($ticket->away_team, $team) !== FALSE) {
                     $score += 0.25;
+
                     break;
                 }
             }
         }
 
         // Price range (20% weight)
-        $priceRange = $preferences['price_range'] ?? null;
+        $priceRange = $preferences['price_range'] ?? NULL;
         if ($priceRange && isset($priceRange['min'], $priceRange['max'])) {
             if ($ticket->price >= $priceRange['min'] && $ticket->price <= $priceRange['max']) {
                 $score += 0.2;
@@ -404,8 +414,13 @@ class RecommendationService
      */
     protected function getConfidenceLevel(float $score): string
     {
-        if ($score >= 0.8) return 'high';
-        if ($score >= 0.5) return 'medium';
+        if ($score >= 0.8) {
+            return 'high';
+        }
+        if ($score >= 0.5) {
+            return 'medium';
+        }
+
         return 'low';
     }
 
@@ -423,27 +438,29 @@ class RecommendationService
 
         $favoriteTeams = $preferences['favorite_teams'] ?? [];
         foreach ($favoriteTeams as $team) {
-            if (stripos($ticket->home_team, $team) !== false) {
+            if (stripos($ticket->home_team, $team) !== FALSE) {
                 $reasons[] = "Features your favorite team: {$ticket->home_team}";
+
                 break;
             }
-            if (stripos($ticket->away_team, $team) !== false) {
+            if (stripos($ticket->away_team, $team) !== FALSE) {
                 $reasons[] = "Features your favorite team: {$ticket->away_team}";
+
                 break;
             }
         }
 
-        $priceRange = $preferences['price_range'] ?? null;
+        $priceRange = $preferences['price_range'] ?? NULL;
         if ($priceRange && $ticket->price <= $priceRange['max']) {
-            $reasons[] = "Within your price range";
+            $reasons[] = 'Within your price range';
         }
 
         if (Carbon::parse($ticket->event_date)->diffInDays(now()) <= 7) {
-            $reasons[] = "Event happening soon";
+            $reasons[] = 'Event happening soon';
         }
 
         if (empty($reasons)) {
-            $reasons[] = "Popular event in your area";
+            $reasons[] = 'Popular event in your area';
         }
 
         return array_slice($reasons, 0, 3); // Limit to 3 reasons
@@ -455,11 +472,17 @@ class RecommendationService
     protected function calculateUrgency(ScrapedTicket $ticket): string
     {
         $daysUntilEvent = Carbon::parse($ticket->event_date)->diffInDays(now());
-        
-        if ($daysUntilEvent <= 3) return 'high';
-        if ($daysUntilEvent <= 7) return 'medium';
-        if ($daysUntilEvent <= 14) return 'low';
-        
+
+        if ($daysUntilEvent <= 3) {
+            return 'high';
+        }
+        if ($daysUntilEvent <= 7) {
+            return 'medium';
+        }
+        if ($daysUntilEvent <= 14) {
+            return 'low';
+        }
+
         return 'none';
     }
 
@@ -471,20 +494,20 @@ class RecommendationService
         // This would analyze historical price data
         $trends = ['stable', 'rising', 'falling'];
         $trend = $trends[array_rand($trends)];
-        
+
         return [
-            'direction' => $trend,
-            'confidence' => rand(60, 95),
-            'recommendation' => $this->getPriceTrendRecommendation($trend)
+            'direction'      => $trend,
+            'confidence'     => rand(60, 95),
+            'recommendation' => $this->getPriceTrendRecommendation($trend),
         ];
     }
 
     protected function getPriceTrendRecommendation(string $trend): string
     {
-        return match($trend) {
-            'rising' => 'Price may increase - consider buying soon',
+        return match ($trend) {
+            'rising'  => 'Price may increase - consider buying soon',
             'falling' => 'Price may drop - consider waiting',
-            default => 'Price appears stable'
+            default   => 'Price appears stable'
         };
     }
 
@@ -495,14 +518,20 @@ class RecommendationService
     {
         $priceVariation = $event->max_price - $event->min_price;
         $avgPrice = $event->avg_price;
-        
+
         $variationPercentage = $avgPrice > 0 ? ($priceVariation / $avgPrice) * 100 : 0;
-        
+
         // Higher variation = higher confidence for price alerts
-        if ($variationPercentage > 50) return 0.9;
-        if ($variationPercentage > 30) return 0.7;
-        if ($variationPercentage > 20) return 0.5;
-        
+        if ($variationPercentage > 50) {
+            return 0.9;
+        }
+        if ($variationPercentage > 30) {
+            return 0.7;
+        }
+        if ($variationPercentage > 20) {
+            return 0.5;
+        }
+
         return 0.3;
     }
 
@@ -513,43 +542,58 @@ class RecommendationService
     {
         $preferences = $user->preferences ?? [];
         $alertCount = TicketAlert::where('user_id', $user->id)->count();
-        
+
         $score = 0;
         $factors = [];
-        
+
         // Preferences completeness (40%)
         $preferenceScore = 0;
-        if (!empty($preferences['favorite_sports'])) $preferenceScore += 10;
-        if (!empty($preferences['favorite_teams'])) $preferenceScore += 10;
-        if (!empty($preferences['preferred_venues'])) $preferenceScore += 10;
-        if (!empty($preferences['price_range'])) $preferenceScore += 10;
-        
+        if (!empty($preferences['favorite_sports'])) {
+            $preferenceScore += 10;
+        }
+        if (!empty($preferences['favorite_teams'])) {
+            $preferenceScore += 10;
+        }
+        if (!empty($preferences['preferred_venues'])) {
+            $preferenceScore += 10;
+        }
+        if (!empty($preferences['price_range'])) {
+            $preferenceScore += 10;
+        }
+
         $score += $preferenceScore;
         $factors['preferences'] = $preferenceScore;
-        
+
         // Alert activity (35%)
         $alertScore = min(35, $alertCount * 5);
         $score += $alertScore;
         $factors['alerts'] = $alertScore;
-        
+
         // Account age and activity (25%)
         $activityScore = min(25, $user->created_at->diffInDays(now()) * 0.5);
         $score += $activityScore;
         $factors['activity'] = $activityScore;
-        
+
         return [
             'total_score' => min(100, $score),
-            'percentage' => min(100, $score),
-            'level' => $this->getPersonalizationLevel($score),
-            'factors' => $factors
+            'percentage'  => min(100, $score),
+            'level'       => $this->getPersonalizationLevel($score),
+            'factors'     => $factors,
         ];
     }
 
     protected function getPersonalizationLevel(float $score): string
     {
-        if ($score >= 80) return 'excellent';
-        if ($score >= 60) return 'good';
-        if ($score >= 40) return 'fair';
+        if ($score >= 80) {
+            return 'excellent';
+        }
+        if ($score >= 60) {
+            return 'good';
+        }
+        if ($score >= 40) {
+            return 'fair';
+        }
+
         return 'basic';
     }
 
@@ -560,24 +604,24 @@ class RecommendationService
     {
         $preferences = $user->preferences ?? [];
         $reasons = [];
-        
+
         if (!empty($preferences['favorite_sports'])) {
             $reasons[] = 'Based on your favorite sports: ' . implode(', ', $preferences['favorite_sports']);
         }
-        
+
         if (!empty($preferences['favorite_teams'])) {
             $reasons[] = 'Featuring your favorite teams: ' . implode(', ', array_slice($preferences['favorite_teams'], 0, 3));
         }
-        
+
         $alertCount = TicketAlert::where('user_id', $user->id)->count();
         if ($alertCount > 0) {
             $reasons[] = "Based on your {$alertCount} active alert" . ($alertCount > 1 ? 's' : '');
         }
-        
+
         if (empty($reasons)) {
             $reasons[] = 'Popular events and trending matches';
         }
-        
+
         return array_slice($reasons, 0, 3);
     }
 
@@ -587,14 +631,14 @@ class RecommendationService
     protected function getFallbackRecommendations(): array
     {
         return [
-            'featured_events' => [],
-            'price_alerts' => [],
-            'trending_matches' => [],
-            'similar_user_picks' => [],
-            'upcoming_events' => [],
-            'personalization_score' => ['total_score' => 0, 'level' => 'basic'],
+            'featured_events'        => [],
+            'price_alerts'           => [],
+            'trending_matches'       => [],
+            'similar_user_picks'     => [],
+            'upcoming_events'        => [],
+            'personalization_score'  => ['total_score' => 0, 'level' => 'basic'],
             'recommendation_reasons' => ['System temporarily unavailable'],
-            'generated_at' => now()->toISOString()
+            'generated_at'           => now()->toISOString(),
         ];
     }
 
@@ -613,13 +657,15 @@ class RecommendationService
             }
 
             Log::info('RecommendationService cache cleared for user', ['user_id' => $user->id]);
-            return true;
+
+            return TRUE;
         } catch (\Exception $e) {
             Log::error('Failed to clear RecommendationService cache', [
                 'user_id' => $user->id,
-                'error' => $e->getMessage()
+                'error'   => $e->getMessage(),
             ]);
-            return false;
+
+            return FALSE;
         }
     }
 }

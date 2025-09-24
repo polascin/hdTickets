@@ -123,7 +123,7 @@ class DataNormalizationService
         $required = ['platform', 'name', 'currency'];
 
         foreach ($required as $field) {
-            if (! isset($normalizedEvent[$field]) || empty($normalizedEvent[$field])) {
+            if (!isset($normalizedEvent[$field]) || empty($normalizedEvent[$field])) {
                 return FALSE;
             }
         }
@@ -212,7 +212,7 @@ class DataNormalizationService
         $platform = $eventData['platform'] ?? 'unknown';
         $id = $eventData['id'] ?? $eventData['external_id'] ?? NULL;
 
-        if (! $id) {
+        if (!$id) {
             return NULL;
         }
 
@@ -279,7 +279,7 @@ class DataNormalizationService
      */
     protected function normalizeTime(array $eventData): ?string
     {
-        if (! isset($eventData['parsed_date'])) {
+        if (!isset($eventData['parsed_date'])) {
             return $eventData['time'] ?? NULL;
         }
         if ($eventData['parsed_date'] instanceof DateTime) {
@@ -338,7 +338,7 @@ class DataNormalizationService
      */
     protected function normalizeCountry(array $eventData, string $platform): string
     {
-        if (isset($eventData['country']) && ! empty($eventData['country'])) {
+        if (isset($eventData['country']) && !empty($eventData['country'])) {
             return $eventData['country'];
         }
 
@@ -388,7 +388,7 @@ class DataNormalizationService
      */
     protected function normalizeCurrency(array $eventData, string $platform): string
     {
-        if (isset($eventData['currency']) && ! empty($eventData['currency'])) {
+        if (isset($eventData['currency']) && !empty($eventData['currency'])) {
             return strtoupper((string) $eventData['currency']);
         }
 

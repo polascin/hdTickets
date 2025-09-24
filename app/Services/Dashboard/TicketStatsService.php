@@ -7,15 +7,14 @@ namespace App\Services\Dashboard;
 use App\Models\ScrapedTicket;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Cache;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
 /**
  * TicketStatsService - Comprehensive Sports Event Ticket Statistics
- * 
+ *
  * Handles all ticket-related statistics and analytics for the dashboard.
  * Provides cached, optimized queries for real-time dashboard updates.
- * 
+ *
  * Features:
  * - Available tickets count with platform breakdown
  * - Daily, weekly, and monthly trends
@@ -27,7 +26,9 @@ use Illuminate\Support\Facades\Log;
 class TicketStatsService
 {
     protected const CACHE_TTL_MINUTES = 5;
+
     protected const CACHE_TTL_REALTIME = 2;
+
     protected const CACHE_TTL_DAILY = 60; // 1 hour
 
     /**
@@ -37,14 +38,14 @@ class TicketStatsService
     {
         return Cache::remember('ticket_stats_dashboard', now()->addMinutes(self::CACHE_TTL_MINUTES), function () {
             return [
-                'available_tickets' => $this->getAvailableTicketsCount(),
-                'new_today' => $this->getNewTicketsToday(),
-                'high_demand_count' => $this->getHighDemandTicketsCount(),
-                'unique_events' => $this->getUniqueEventsCount(),
+                'available_tickets'  => $this->getAvailableTicketsCount(),
+                'new_today'          => $this->getNewTicketsToday(),
+                'high_demand_count'  => $this->getHighDemandTicketsCount(),
+                'unique_events'      => $this->getUniqueEventsCount(),
                 'platform_breakdown' => $this->getPlatformBreakdown(),
-                'price_stats' => $this->getPriceStatistics(),
-                'trend_indicators' => $this->getTrendIndicators(),
-                'generated_at' => now()->toISOString()
+                'price_stats'        => $this->getPriceStatistics(),
+                'trend_indicators'   => $this->getTrendIndicators(),
+                'generated_at'       => now()->toISOString(),
             ];
         });
     }
@@ -56,11 +57,11 @@ class TicketStatsService
     {
         return Cache::remember('ticket_stats_realtime', now()->addMinutes(self::CACHE_TTL_REALTIME), function () {
             return [
-                'available_now' => $this->getAvailableTicketsCount(),
-                'scraped_last_hour' => $this->getTicketsScrapedLastHour(),
+                'available_now'       => $this->getAvailableTicketsCount(),
+                'scraped_last_hour'   => $this->getTicketsScrapedLastHour(),
                 'price_changes_today' => $this->getPriceChangesToday(),
                 'new_platforms_today' => $this->getNewPlatformsToday(),
-                'last_updated' => now()->toISOString()
+                'last_updated'        => now()->toISOString(),
             ];
         });
     }
@@ -75,8 +76,9 @@ class TicketStatsService
                 ->count();
         } catch (\Exception $e) {
             Log::warning('Failed to get available tickets count', [
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ]);
+
             return 0;
         }
     }
@@ -91,8 +93,9 @@ class TicketStatsService
                 ->count();
         } catch (\Exception $e) {
             Log::warning('Failed to get new tickets today', [
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ]);
+
             return 0;
         }
     }
@@ -105,14 +108,15 @@ class TicketStatsService
         try {
             return ScrapedTicket::available()
                 ->where(function ($query) {
-                    $query->where('is_high_demand', true)
+                    $query->where('is_high_demand', TRUE)
                           ->orWhere('popularity_score', '>', 80);
                 })
                 ->count();
         } catch (\Exception $e) {
             Log::warning('Failed to get high demand tickets count', [
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ]);
+
             return 0;
         }
     }
@@ -128,8 +132,9 @@ class TicketStatsService
                 ->value('unique_events') ?: 0;
         } catch (\Exception $e) {
             Log::warning('Failed to get unique events count', [
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ]);
+
             return 0;
         }
     }
@@ -156,23 +161,24 @@ class TicketStatsService
                     ->get()
                     ->map(function ($item) {
                         return [
-                            'platform' => $item->platform ?: 'Unknown',
-                            'total_tickets' => (int) $item->total_tickets,
-                            'avg_min_price' => round((float) $item->avg_min_price, 2),
-                            'avg_max_price' => round((float) $item->avg_max_price, 2),
-                            'high_demand_count' => (int) $item->high_demand_count,
-                            'avg_popularity' => round((float) $item->avg_popularity, 2),
-                            'high_demand_percentage' => $item->total_tickets > 0 
+                            'platform'               => $item->platform ?: 'Unknown',
+                            'total_tickets'          => (int) $item->total_tickets,
+                            'avg_min_price'          => round((float) $item->avg_min_price, 2),
+                            'avg_max_price'          => round((float) $item->avg_max_price, 2),
+                            'high_demand_count'      => (int) $item->high_demand_count,
+                            'avg_popularity'         => round((float) $item->avg_popularity, 2),
+                            'high_demand_percentage' => $item->total_tickets > 0
                                 ? round(($item->high_demand_count / $item->total_tickets) * 100, 1)
-                                : 0
+                                : 0,
                         ];
                     })
                     ->toArray();
             });
         } catch (\Exception $e) {
             Log::warning('Failed to get platform breakdown', [
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ]);
+
             return [];
         }
     }
@@ -196,18 +202,19 @@ class TicketStatsService
                     ->first();
 
                 return [
-                    'lowest_price' => round((float) ($stats->lowest_price ?? 0), 2),
-                    'highest_price' => round((float) ($stats->highest_price ?? 0), 2),
-                    'avg_min_price' => round((float) ($stats->avg_min_price ?? 0), 2),
-                    'avg_max_price' => round((float) ($stats->avg_max_price ?? 0), 2),
-                    'budget_tickets' => (int) ($stats->budget_tickets ?? 0),
-                    'premium_tickets' => (int) ($stats->premium_tickets ?? 0)
+                    'lowest_price'    => round((float) ($stats->lowest_price ?? 0), 2),
+                    'highest_price'   => round((float) ($stats->highest_price ?? 0), 2),
+                    'avg_min_price'   => round((float) ($stats->avg_min_price ?? 0), 2),
+                    'avg_max_price'   => round((float) ($stats->avg_max_price ?? 0), 2),
+                    'budget_tickets'  => (int) ($stats->budget_tickets ?? 0),
+                    'premium_tickets' => (int) ($stats->premium_tickets ?? 0),
                 ];
             });
         } catch (\Exception $e) {
             Log::warning('Failed to get price statistics', [
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ]);
+
             return [];
         }
     }
@@ -224,16 +231,17 @@ class TicketStatsService
                 $weekAgo = Carbon::now()->subWeek();
 
                 return [
-                    'daily_change' => $this->calculateDailyChange($today, $yesterday),
-                    'weekly_change' => $this->calculateWeeklyChange($today, $weekAgo),
-                    'price_trend' => $this->calculatePriceTrend(),
-                    'popularity_trend' => $this->calculatePopularityTrend()
+                    'daily_change'     => $this->calculateDailyChange($today, $yesterday),
+                    'weekly_change'    => $this->calculateWeeklyChange($today, $weekAgo),
+                    'price_trend'      => $this->calculatePriceTrend(),
+                    'popularity_trend' => $this->calculatePopularityTrend(),
                 ];
             });
         } catch (\Exception $e) {
             Log::warning('Failed to get trend indicators', [
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ]);
+
             return [];
         }
     }
@@ -248,8 +256,9 @@ class TicketStatsService
                 ->count();
         } catch (\Exception $e) {
             Log::warning('Failed to get tickets scraped last hour', [
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ]);
+
             return 0;
         }
     }
@@ -265,8 +274,9 @@ class TicketStatsService
             return rand(15, 45); // Simulated price changes
         } catch (\Exception $e) {
             Log::warning('Failed to get price changes today', [
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ]);
+
             return 0;
         }
     }
@@ -282,8 +292,9 @@ class TicketStatsService
                 ->count('platform');
         } catch (\Exception $e) {
             Log::warning('Failed to get new platforms today', [
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ]);
+
             return 0;
         }
     }
@@ -297,20 +308,21 @@ class TicketStatsService
             $todayCount = ScrapedTicket::whereDate('scraped_at', $today)->count();
             $yesterdayCount = ScrapedTicket::whereDate('scraped_at', $yesterday)->count();
 
-            $change = $yesterdayCount > 0 
+            $change = $yesterdayCount > 0
                 ? (($todayCount - $yesterdayCount) / $yesterdayCount) * 100
                 : ($todayCount > 0 ? 100 : 0);
 
             return [
-                'value' => round($change, 1),
-                'direction' => $change > 0 ? 'up' : ($change < 0 ? 'down' : 'stable'),
-                'today_count' => $todayCount,
-                'yesterday_count' => $yesterdayCount
+                'value'           => round($change, 1),
+                'direction'       => $change > 0 ? 'up' : ($change < 0 ? 'down' : 'stable'),
+                'today_count'     => $todayCount,
+                'yesterday_count' => $yesterdayCount,
             ];
         } catch (\Exception $e) {
             Log::warning('Failed to calculate daily change', [
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ]);
+
             return ['value' => 0, 'direction' => 'stable'];
         }
     }
@@ -323,28 +335,29 @@ class TicketStatsService
         try {
             $thisWeekCount = ScrapedTicket::whereBetween('scraped_at', [
                 Carbon::now()->startOfWeek(),
-                Carbon::now()->endOfWeek()
+                Carbon::now()->endOfWeek(),
             ])->count();
 
             $lastWeekCount = ScrapedTicket::whereBetween('scraped_at', [
                 Carbon::now()->subWeek()->startOfWeek(),
-                Carbon::now()->subWeek()->endOfWeek()
+                Carbon::now()->subWeek()->endOfWeek(),
             ])->count();
 
-            $change = $lastWeekCount > 0 
+            $change = $lastWeekCount > 0
                 ? (($thisWeekCount - $lastWeekCount) / $lastWeekCount) * 100
                 : ($thisWeekCount > 0 ? 100 : 0);
 
             return [
-                'value' => round($change, 1),
-                'direction' => $change > 0 ? 'up' : ($change < 0 ? 'down' : 'stable'),
+                'value'           => round($change, 1),
+                'direction'       => $change > 0 ? 'up' : ($change < 0 ? 'down' : 'stable'),
                 'this_week_count' => $thisWeekCount,
-                'last_week_count' => $lastWeekCount
+                'last_week_count' => $lastWeekCount,
             ];
         } catch (\Exception $e) {
             Log::warning('Failed to calculate weekly change', [
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ]);
+
             return ['value' => 0, 'direction' => 'stable'];
         }
     }
@@ -358,28 +371,29 @@ class TicketStatsService
             // Compare average prices from this week vs last week
             $thisWeekAvg = ScrapedTicket::whereBetween('scraped_at', [
                 Carbon::now()->startOfWeek(),
-                Carbon::now()->endOfWeek()
+                Carbon::now()->endOfWeek(),
             ])->avg('min_price') ?: 0;
 
             $lastWeekAvg = ScrapedTicket::whereBetween('scraped_at', [
                 Carbon::now()->subWeek()->startOfWeek(),
-                Carbon::now()->subWeek()->endOfWeek()
+                Carbon::now()->subWeek()->endOfWeek(),
             ])->avg('min_price') ?: 0;
 
-            $change = $lastWeekAvg > 0 
+            $change = $lastWeekAvg > 0
                 ? (($thisWeekAvg - $lastWeekAvg) / $lastWeekAvg) * 100
                 : 0;
 
             return [
                 'change_percentage' => round($change, 1),
-                'direction' => $change > 0 ? 'up' : ($change < 0 ? 'down' : 'stable'),
-                'current_avg' => round($thisWeekAvg, 2),
-                'previous_avg' => round($lastWeekAvg, 2)
+                'direction'         => $change > 0 ? 'up' : ($change < 0 ? 'down' : 'stable'),
+                'current_avg'       => round($thisWeekAvg, 2),
+                'previous_avg'      => round($lastWeekAvg, 2),
             ];
         } catch (\Exception $e) {
             Log::warning('Failed to calculate price trend', [
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ]);
+
             return ['change_percentage' => 0, 'direction' => 'stable'];
         }
     }
@@ -395,12 +409,13 @@ class TicketStatsService
 
             return [
                 'average_score' => round($avgPopularity, 1),
-                'level' => $avgPopularity >= 80 ? 'high' : ($avgPopularity >= 50 ? 'medium' : 'low')
+                'level'         => $avgPopularity >= 80 ? 'high' : ($avgPopularity >= 50 ? 'medium' : 'low'),
             ];
         } catch (\Exception $e) {
             Log::warning('Failed to calculate popularity trend', [
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ]);
+
             return ['average_score' => 0, 'level' => 'low'];
         }
     }
@@ -426,21 +441,22 @@ class TicketStatsService
                     ->get()
                     ->map(function ($item) {
                         return [
-                            'sport' => $item->sport,
-                            'total_tickets' => (int) $item->total_tickets,
-                            'avg_price' => round((float) $item->avg_price, 2),
+                            'sport'             => $item->sport,
+                            'total_tickets'     => (int) $item->total_tickets,
+                            'avg_price'         => round((float) $item->avg_price, 2),
                             'high_demand_count' => (int) $item->high_demand_count,
-                            'demand_percentage' => $item->total_tickets > 0 
+                            'demand_percentage' => $item->total_tickets > 0
                                 ? round(($item->high_demand_count / $item->total_tickets) * 100, 1)
-                                : 0
+                                : 0,
                         ];
                     })
                     ->toArray();
             });
         } catch (\Exception $e) {
             Log::warning('Failed to get sports breakdown', [
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ]);
+
             return [];
         }
     }
@@ -457,7 +473,7 @@ class TicketStatsService
                 'platform_breakdown',
                 'price_statistics',
                 'trend_indicators',
-                'sports_breakdown'
+                'sports_breakdown',
             ];
 
             foreach ($cacheKeys as $key) {
@@ -465,12 +481,14 @@ class TicketStatsService
             }
 
             Log::info('TicketStatsService cache cleared successfully');
-            return true;
+
+            return TRUE;
         } catch (\Exception $e) {
             Log::error('Failed to clear TicketStatsService cache', [
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ]);
-            return false;
+
+            return FALSE;
         }
     }
 }

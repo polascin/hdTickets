@@ -113,7 +113,7 @@ abstract class BaseService implements ServiceInterface
      */
     protected function ensureInitialized(): void
     {
-        if (! $this->initialized) {
+        if (!$this->initialized) {
             throw new RuntimeException('Service must be initialized before use');
         }
     }
@@ -217,7 +217,7 @@ abstract class BaseService implements ServiceInterface
     protected function validateDependencies(array $required): void
     {
         foreach ($required as $dependency) {
-            if (! $this->hasDependency($dependency)) {
+            if (!$this->hasDependency($dependency)) {
                 throw new InvalidArgumentException("Required dependency '{$dependency}' not provided");
             }
         }

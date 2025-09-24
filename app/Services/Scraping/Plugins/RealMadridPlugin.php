@@ -122,28 +122,28 @@ class RealMadridPlugin extends BaseScraperPlugin
 
         $params = [];
 
-        if (! empty($criteria['keyword'])) {
+        if (!empty($criteria['keyword'])) {
             $params['buscar'] = $criteria['keyword'];
         }
 
-        if (! empty($criteria['competition'])) {
+        if (!empty($criteria['competition'])) {
             $params['competicion'] = $this->mapCompetition($criteria['competition']);
         }
 
-        if (! empty($criteria['date_from'])) {
+        if (!empty($criteria['date_from'])) {
             $params['fecha_desde'] = $criteria['date_from'];
         }
 
-        if (! empty($criteria['date_to'])) {
+        if (!empty($criteria['date_to'])) {
             $params['fecha_hasta'] = $criteria['date_to'];
         }
 
-        if (! empty($criteria['opponent'])) {
+        if (!empty($criteria['opponent'])) {
             $params['rival'] = $criteria['opponent'];
         }
 
         // Remove empty parameters
-        $params = array_filter($params, fn ($value): bool => ! empty($value));
+        $params = array_filter($params, fn ($value): bool => !empty($value));
 
         if ($params !== []) {
             return $baseSearchUrl . '?' . http_build_query($params);
@@ -163,7 +163,7 @@ class RealMadridPlugin extends BaseScraperPlugin
             Log::info("Real Madrid Plugin: Scraping tickets from: {$searchUrl}");
 
             $response = $this->makeHttpRequest($searchUrl);
-            if (! $response) {
+            if (!$response) {
                 return [];
             }
 
@@ -301,7 +301,7 @@ class RealMadridPlugin extends BaseScraperPlugin
             $eventDate = $this->parseDate($date);
 
             // Build full URL if relative
-            if ($link && ! filter_var($link, FILTER_VALIDATE_URL)) {
+            if ($link && !filter_var($link, FILTER_VALIDATE_URL)) {
                 $link = rtrim($this->baseUrl, '/') . '/' . ltrim($link, '/');
             }
 

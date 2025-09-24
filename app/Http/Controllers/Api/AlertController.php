@@ -145,7 +145,7 @@ class AlertController extends Controller
             ->where('user_id', auth()->id())
             ->first();
 
-        if (! $alert) {
+        if (!$alert) {
             return response()->json([
                 'success' => FALSE,
                 'message' => 'Alert not found',
@@ -170,7 +170,7 @@ class AlertController extends Controller
             ->where('user_id', auth()->id())
             ->first();
 
-        if (! $alert) {
+        if (!$alert) {
             return response()->json([
                 'success' => FALSE,
                 'message' => 'Alert not found',
@@ -233,7 +233,7 @@ class AlertController extends Controller
             ->where('user_id', auth()->id())
             ->first();
 
-        if (! $alert) {
+        if (!$alert) {
             return response()->json([
                 'success' => FALSE,
                 'message' => 'Alert not found',
@@ -260,7 +260,7 @@ class AlertController extends Controller
             ->where('user_id', auth()->id())
             ->first();
 
-        if (! $alert) {
+        if (!$alert) {
             return response()->json([
                 'success' => FALSE,
                 'message' => 'Alert not found',
@@ -293,7 +293,7 @@ class AlertController extends Controller
             ->where('user_id', auth()->id())
             ->first();
 
-        if (! $alert) {
+        if (!$alert) {
             return response()->json([
                 'success' => FALSE,
                 'message' => 'Alert not found',

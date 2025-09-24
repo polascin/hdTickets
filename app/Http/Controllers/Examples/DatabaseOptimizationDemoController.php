@@ -244,7 +244,7 @@ class DatabaseOptimizationDemoController extends Controller
             ];
         }
 
-        if ($queryType === 'events' && ! $request->input('cache_used', FALSE)) {
+        if ($queryType === 'events' && !$request->input('cache_used', FALSE)) {
             $suggestions[] = [
                 'type'       => 'caching',
                 'priority'   => 'medium',

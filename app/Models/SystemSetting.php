@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace App\Models;
 
@@ -7,12 +7,12 @@ use Illuminate\Database\Eloquent\Model;
 
 /**
  * System Setting Model
- * 
+ *
  * Stores configuration settings for the HD Tickets platform.
  * Used for persisting admin panel system configurations.
- * 
- * @property string $key Configuration key
- * @property string $value Configuration value (can be JSON encoded)
+ *
+ * @property string                     $key        Configuration key
+ * @property string                     $value      Configuration value (can be JSON encoded)
  * @property \Illuminate\Support\Carbon $created_at
  * @property \Illuminate\Support\Carbon $updated_at
  */
@@ -49,47 +49,48 @@ class SystemSetting extends Model
 
     /**
      * Get a setting value by key
-     * 
-     * @param string $key
-     * @param mixed $default
+     *
+     * @param  string $key
+     * @param  mixed  $default
      * @return mixed
      */
-    public static function get(string $key, $default = null)
+    public static function get(string $key, $default = NULL)
     {
         $setting = static::where('key', $key)->first();
-        
+
         if (!$setting) {
             return $default;
         }
 
         // Try to decode JSON, return raw value if not JSON
-        $decoded = json_decode($setting->value, true);
+        $decoded = json_decode($setting->value, TRUE);
+
         return json_last_error() === JSON_ERROR_NONE ? $decoded : $setting->value;
     }
 
     /**
      * Set a setting value by key
-     * 
-     * @param string $key
-     * @param mixed $value
+     *
+     * @param  string $key
+     * @param  mixed  $value
      * @return bool
      */
     public static function set(string $key, $value): bool
     {
-        $encodedValue = is_array($value) || is_object($value) 
-            ? json_encode($value) 
+        $encodedValue = is_array($value) || is_object($value)
+            ? json_encode($value)
             : $value;
 
         return static::updateOrCreate(
             ['key' => $key],
             ['value' => $encodedValue]
-        ) !== null;
+        ) !== NULL;
     }
 
     /**
      * Get multiple settings by prefix
-     * 
-     * @param string $prefix
+     *
+     * @param  string                         $prefix
      * @return \Illuminate\Support\Collection
      */
     public static function getByPrefix(string $prefix)
@@ -98,15 +99,16 @@ class SystemSetting extends Model
             ->get()
             ->pluck('value', 'key')
             ->map(function ($value) {
-                $decoded = json_decode($value, true);
+                $decoded = json_decode($value, TRUE);
+
                 return json_last_error() === JSON_ERROR_NONE ? $decoded : $value;
             });
     }
 
     /**
      * Delete settings by prefix
-     * 
-     * @param string $prefix
+     *
+     * @param  string $prefix
      * @return int
      */
     public static function deleteByPrefix(string $prefix): int

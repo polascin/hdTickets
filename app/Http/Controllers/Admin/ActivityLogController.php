@@ -27,7 +27,7 @@ class ActivityLogController extends Controller
     public function index(Request $request): View|RedirectResponse
     {
         // Check permissions
-        if (! auth()->user()->canManageSystem()) {
+        if (!auth()->user()->canManageSystem()) {
             abort(403, 'You do not have permission to view activity logs.');
         }
 
@@ -88,7 +88,7 @@ class ActivityLogController extends Controller
      */
     public function show(int $id): View|RedirectResponse
     {
-        if (! auth()->user()?->canManageSystem()) {
+        if (!auth()->user()?->canManageSystem()) {
             abort(403, 'You do not have permission to view activity log details.');
         }
 
@@ -109,7 +109,7 @@ class ActivityLogController extends Controller
      */
     public function getSecurityActivities(Request $request): JsonResponse|RedirectResponse
     {
-        if (! auth()->user()?->canManageSystem()) {
+        if (!auth()->user()?->canManageSystem()) {
             return response()->json(['error' => 'Unauthorized'], 403);
         }
 
@@ -137,7 +137,7 @@ class ActivityLogController extends Controller
      */
     public function getUserActivitySummary(Request $request): JsonResponse|RedirectResponse
     {
-        if (! auth()->user()?->canManageUsers()) {
+        if (!auth()->user()?->canManageUsers()) {
             return response()->json(['error' => 'Unauthorized'], 403);
         }
 
@@ -162,7 +162,7 @@ class ActivityLogController extends Controller
             'items'     => 'required|array',
         ]);
 
-        if (! $this->securityService->checkPermission(auth()->user(), 'bulk_operations')) {
+        if (!$this->securityService->checkPermission(auth()->user(), 'bulk_operations')) {
             return response()->json(['error' => 'Unauthorized'], 403);
         }
 
@@ -182,7 +182,7 @@ class ActivityLogController extends Controller
      */
     public function export(Request $request): StreamedResponse|RedirectResponse
     {
-        if (! auth()->user()->canManageSystem()) {
+        if (!auth()->user()->canManageSystem()) {
             abort(403, 'You do not have permission to export activity logs.');
         }
 
@@ -267,7 +267,7 @@ class ActivityLogController extends Controller
      */
     public function cleanup(Request $request): JsonResponse|RedirectResponse
     {
-        if (! auth()->user()?->isRootAdmin()) {
+        if (!auth()->user()?->isRootAdmin()) {
             abort(403, 'Only root admin can perform log cleanup.');
         }
 

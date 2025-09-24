@@ -22,7 +22,7 @@ class AccessibilityManager {
     this.announceRegion = null;
     this.skipLink = null;
     this.reducedMotion = false;
-    
+
     this.init();
   }
 
@@ -37,10 +37,10 @@ class AccessibilityManager {
     this.setupFocusManagement();
     this.setupAlpineStore();
     this.addAccessibilityCSS();
-    
+
     // Monitor for reduced motion changes
     this.watchMotionPreference();
-    
+
     // Set up global keyboard shortcuts
     this.setupGlobalShortcuts();
   }
@@ -55,7 +55,7 @@ class AccessibilityManager {
     skipLink.className = 'hdt-skip-link sr-only-focusable';
     skipLink.setAttribute('role', 'navigation');
     skipLink.setAttribute('aria-label', 'Skip to main content');
-    
+
     // Add keyboard interaction
     skipLink.addEventListener('click', (e) => {
       e.preventDefault();
@@ -77,10 +77,10 @@ class AccessibilityManager {
    * Skip to main content functionality
    */
   skipToMainContent() {
-    const mainContent = document.getElementById('main-content') || 
-                       document.querySelector('main[role="main"]') ||
-                       document.querySelector('main') ||
-                       document.querySelector('[role="main"]');
+    const mainContent = document.getElementById('main-content') ||
+      document.querySelector('main[role="main"]') ||
+      document.querySelector('main') ||
+      document.querySelector('[role="main"]');
 
     if (mainContent) {
       mainContent.focus();
@@ -99,7 +99,7 @@ class AccessibilityManager {
     announceRegion.setAttribute('role', 'status');
     announceRegion.className = 'sr-only';
     announceRegion.id = 'hdt-announce-region';
-    
+
     document.body.appendChild(announceRegion);
     this.announceRegion = announceRegion;
   }
@@ -112,10 +112,10 @@ class AccessibilityManager {
 
     // Clear previous message
     this.announceRegion.textContent = '';
-    
+
     // Set priority
     this.announceRegion.setAttribute('aria-live', priority);
-    
+
     // Announce new message with slight delay for screen readers
     setTimeout(() => {
       this.announceRegion.textContent = message;
@@ -136,12 +136,12 @@ class AccessibilityManager {
       if (e.key === 'Escape') {
         this.handleEscape();
       }
-      
+
       // Tab key management for focus traps
       if (e.key === 'Tab') {
         this.handleTabKey(e);
       }
-      
+
       // Arrow key navigation for components
       if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(e.key)) {
         this.handleArrowKeys(e);
@@ -156,7 +156,7 @@ class AccessibilityManager {
     // Close any open modals or overlays
     const openModals = document.querySelectorAll('[role="dialog"][aria-hidden="false"]');
     const openMenus = document.querySelectorAll('[role="menu"][aria-expanded="true"]');
-    const openDropdowns = document.querySelectorAll('[aria-expanded="true"]');
+    const _openDropdowns = document.querySelectorAll('[aria-expanded="true"]');
 
     openModals.forEach(modal => {
       const closeButton = modal.querySelector('[data-close], .modal-close');
@@ -211,12 +211,12 @@ class AccessibilityManager {
     if (role === 'menuitem' || target.closest('[role="menu"]')) {
       this.handleMenuNavigation(e);
     }
-    
+
     // Tab navigation
     if (role === 'tab' || target.closest('[role="tablist"]')) {
       this.handleTabNavigation(e);
     }
-    
+
     // Grid navigation
     if (role === 'gridcell' || target.closest('[role="grid"]')) {
       this.handleGridNavigation(e);
@@ -228,7 +228,7 @@ class AccessibilityManager {
    */
   handleMenuNavigation(e) {
     if (!['ArrowUp', 'ArrowDown'].includes(e.key)) return;
-    
+
     e.preventDefault();
     const menu = e.target.closest('[role="menu"]');
     if (!menu) return;
@@ -251,7 +251,7 @@ class AccessibilityManager {
    */
   handleTabNavigation(e) {
     if (!['ArrowLeft', 'ArrowRight'].includes(e.key)) return;
-    
+
     e.preventDefault();
     const tablist = e.target.closest('[role="tablist"]');
     if (!tablist) return;
@@ -319,7 +319,7 @@ class AccessibilityManager {
   setupMotionPreferences() {
     const mediaQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
     this.reducedMotion = mediaQuery.matches;
-    
+
     mediaQuery.addEventListener('change', (e) => {
       this.reducedMotion = e.matches;
       this.updateMotionSettings();
@@ -344,7 +344,7 @@ class AccessibilityManager {
    */
   updateMotionSettings() {
     const root = document.documentElement;
-    
+
     if (this.reducedMotion) {
       root.classList.add('hdt-reduced-motion');
       // Override all duration tokens to 0ms
@@ -376,13 +376,13 @@ class AccessibilityManager {
         e.preventDefault();
         this.skipToMainContent();
       }
-      
+
       // Alt + 2: Skip to navigation
       if (e.altKey && e.key === '2') {
         e.preventDefault();
         this.skipToNavigation();
       }
-      
+
       // Alt + R: Announce current page/section
       if (e.altKey && e.key === 'r') {
         e.preventDefault();
@@ -396,9 +396,9 @@ class AccessibilityManager {
    */
   skipToNavigation() {
     const nav = document.querySelector('nav[role="navigation"]') ||
-                document.querySelector('nav') ||
-                document.querySelector('[role="navigation"]');
-    
+      document.querySelector('nav') ||
+      document.querySelector('[role="navigation"]');
+
     if (nav) {
       const firstLink = nav.querySelector('a, button, [tabindex="0"]');
       if (firstLink) {
@@ -415,18 +415,18 @@ class AccessibilityManager {
     const title = document.title;
     const heading = document.querySelector('h1');
     const breadcrumbs = document.querySelector('[aria-label="breadcrumb"]');
-    
+
     let announcement = `Current page: ${title}`;
-    
+
     if (heading) {
       announcement += `. Main heading: ${heading.textContent.trim()}`;
     }
-    
+
     if (breadcrumbs) {
       const breadcrumbText = breadcrumbs.textContent.trim().replace(/\s+/g, ' ');
       announcement += `. Location: ${breadcrumbText}`;
     }
-    
+
     this.announce(announcement, 'assertive');
   }
 
@@ -468,16 +468,16 @@ class AccessibilityManager {
    */
   createFocusTrap(container) {
     if (!container) return null;
-    
+
     const trap = {
       container,
       active: false,
       previousFocus: document.activeElement
     };
-    
+
     this.trapStack.push(trap);
     this.activateFocusTrap(trap);
-    
+
     return trap;
   }
 
@@ -486,7 +486,7 @@ class AccessibilityManager {
    */
   activateFocusTrap(trap) {
     trap.active = true;
-    
+
     // Focus first focusable element
     const focusableElements = this.getFocusableElements(trap.container);
     if (focusableElements.length > 0) {
@@ -499,12 +499,12 @@ class AccessibilityManager {
    */
   removeFocusTrap(trap) {
     if (!trap) return;
-    
+
     const index = this.trapStack.indexOf(trap);
     if (index > -1) {
       this.trapStack.splice(index, 1);
     }
-    
+
     // Restore focus to previous element
     if (trap.previousFocus && trap.previousFocus.focus) {
       trap.previousFocus.focus();
@@ -523,7 +523,7 @@ class AccessibilityManager {
    * Check if element is within a focus trap
    */
   isInFocusTrap(element) {
-    return this.trapStack.some(trap => 
+    return this.trapStack.some(trap =>
       trap.active && trap.container.contains(element)
     );
   }
@@ -544,10 +544,10 @@ class AccessibilityManager {
 
     return Array.from(container.querySelectorAll(focusableSelectors))
       .filter(element => {
-        return element.offsetWidth > 0 && 
-               element.offsetHeight > 0 && 
-               !element.hasAttribute('hidden') &&
-               window.getComputedStyle(element).visibility !== 'hidden';
+        return element.offsetWidth > 0 &&
+          element.offsetHeight > 0 &&
+          !element.hasAttribute('hidden') &&
+          window.getComputedStyle(element).visibility !== 'hidden';
       });
   }
 
@@ -655,32 +655,32 @@ class AccessibilityManager {
   setupAlpineStore() {
     Alpine.store('a11y', {
       reducedMotion: this.reducedMotion,
-      
+
       // Methods
       announce: (message, priority = 'polite') => {
         this.announce(message, priority);
       },
-      
+
       saveFocus: () => {
         this.saveFocus();
       },
-      
+
       restoreFocus: () => {
         this.restoreFocus();
       },
-      
+
       createFocusTrap: (container) => {
         return this.createFocusTrap(container);
       },
-      
+
       removeFocusTrap: (trap) => {
         this.removeFocusTrap(trap);
       },
-      
+
       skipToMain: () => {
         this.skipToMainContent();
       },
-      
+
       // State getters
       get hasReducedMotion() {
         return this.reducedMotion;
@@ -704,12 +704,12 @@ class AccessibilityManager {
       const r = (rgb >> 16) & 0xff;
       const g = (rgb >> 8) & 0xff;
       const b = (rgb >> 0) & 0xff;
-      
+
       const [rs, gs, bs] = [r, g, b].map(c => {
         c = c / 255;
         return c <= 0.03928 ? c / 12.92 : Math.pow((c + 0.055) / 1.055, 2.4);
       });
-      
+
       return 0.2126 * rs + 0.7152 * gs + 0.0722 * bs;
     };
 
@@ -772,17 +772,17 @@ Alpine.data('accessibleTabs', (defaultTab = 0) => ({
 
   onKeydown(event, index) {
     const tabs = this.$el.querySelectorAll('[role="tab"]');
-    
+
     if (event.key === 'ArrowRight' || event.key === 'ArrowLeft') {
       event.preventDefault();
-      
+
       let nextIndex;
       if (event.key === 'ArrowRight') {
         nextIndex = (index + 1) % tabs.length;
       } else {
         nextIndex = (index - 1 + tabs.length) % tabs.length;
       }
-      
+
       this.selectTab(nextIndex);
       tabs[nextIndex].focus();
     }
@@ -795,7 +795,7 @@ Alpine.data('accessibleDropdown', () => ({
 
   toggle() {
     this.open = !this.open;
-    
+
     if (this.open) {
       this.$nextTick(() => {
         const firstItem = this.$el.querySelector('[role="menuitem"]');

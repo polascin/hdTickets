@@ -195,7 +195,7 @@ class ComponentArchitectureServiceProvider extends ServiceProvider
                 $componentType = $this->determineComponentType($viewName);
 
                 // Register component if not already registered
-                if (! $registry->get($componentName)) {
+                if (!$registry->get($componentName)) {
                     $config = [
                         'auto_discovered' => TRUE,
                         'view_name'       => $viewName,

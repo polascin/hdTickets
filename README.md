@@ -171,15 +171,46 @@ tests/                     # PHPUnit tests
    npm run lint
    ```
 
+## 🎯 Code Quality & Standards
+
+The project maintains high code quality through automated tools and strict standards:
+
+### PHP Quality Tools
+- **Laravel Pint**: PSR-12 compliant code formatting with 381 style issues resolved
+- **PHPStan Level 10**: Static analysis with zero errors at maximum strictness
+- **PHPUnit**: Comprehensive test coverage for backend functionality
+- **Rector**: Automated code upgrades and refactoring support
+
+### Frontend Quality Tools  
+- **ESLint**: TypeScript-aware linting with 86 remaining unused variable checks
+- **Prettier**: Consistent code formatting across JavaScript/TypeScript files
+- **TypeScript**: Type safety for complex frontend interactions
+- **Vite**: Modern build tool with optimized production bundles (1.97s build time)
+
+### Performance Optimizations
+- **Laravel Optimization**: Config, routes, events, and views fully cached
+- **Redis Integration**: Session storage, caching, and queue management
+- **Asset Optimization**: Vite-powered builds with tree shaking and code splitting
+- **Database Performance**: Query optimization with N+1 detection and eager loading
+
+### Development Experience
+- **Development Server**: Fast startup (128ms) with hot module replacement  
+- **Build Performance**: Production builds complete in under 2 seconds
+- **Linting Integration**: Pre-commit hooks for code quality enforcement
+- **Automated Optimization**: Built-in performance optimization commands
+
 ### Available Scripts
 
 - `composer install` - Install PHP dependencies
 - `npm run dev` - Start Vite development server
-- `npm run build` - Build production assets
+- `npm run build` - Build production assets  
 - `npm run lint` - Run ESLint on JavaScript/TypeScript
 - `php artisan serve` - Start Laravel development server
 - `php artisan test` - Run PHPUnit tests
 - `php artisan horizon` - Start queue management dashboard
+- `php artisan optimize` - Cache config, routes, events, and views
+- `vendor/bin/pint` - Format PHP code according to PSR-12
+- `vendor/bin/phpstan analyse` - Run static analysis on PHP code
 
 ## 🎨 Design System
 

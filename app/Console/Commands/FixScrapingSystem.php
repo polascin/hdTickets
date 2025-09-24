@@ -44,7 +44,7 @@ class FixScrapingSystem extends Command
             $this->checkDatabase();
 
             // 5. Test scraping functionality
-            if (! $testMode) {
+            if (!$testMode) {
                 $this->info('🧪 Testing scraping functionality...');
                 $this->testScraping();
             }
@@ -70,20 +70,20 @@ class FixScrapingSystem extends Command
     private function checkDependencies(): void
     {
         // Check cURL
-        if (! extension_loaded('curl')) {
+        if (!extension_loaded('curl')) {
             throw new Exception('cURL extension is not loaded');
         }
         $this->comment('✓ cURL extension loaded');
 
         // Check allow_url_fopen
-        if (! ini_get('allow_url_fopen')) {
+        if (!ini_get('allow_url_fopen')) {
             $this->warn('⚠️ allow_url_fopen is disabled - some features may not work');
         } else {
             $this->comment('✓ allow_url_fopen enabled');
         }
 
         // Check GuzzleHttp
-        if (! class_exists(Client::class)) {
+        if (!class_exists(Client::class)) {
             throw new Exception('GuzzleHttp is not installed');
         }
         $this->comment('✓ GuzzleHttp available');

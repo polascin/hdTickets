@@ -35,7 +35,7 @@ class WimbledonPlugin extends BaseScraperPlugin
     #[Override]
     public function scrape(array $criteria): array
     {
-        if (! $this->enabled) {
+        if (!$this->enabled) {
             throw new Exception("{$this->pluginName} plugin is disabled");
         }
 
@@ -172,23 +172,23 @@ class WimbledonPlugin extends BaseScraperPlugin
 
         $params = [];
 
-        if (! empty($criteria['keyword'])) {
+        if (!empty($criteria['keyword'])) {
             $params['search'] = urlencode((string) $criteria['keyword']);
         }
 
-        if (! empty($criteria['court'])) {
+        if (!empty($criteria['court'])) {
             $params['court'] = urlencode((string) $criteria['court']);
         }
 
-        if (! empty($criteria['ticket_type'])) {
+        if (!empty($criteria['ticket_type'])) {
             $params['type'] = urlencode((string) $criteria['ticket_type']);
         }
 
-        if (! empty($criteria['session'])) {
+        if (!empty($criteria['session'])) {
             $params['session'] = urlencode((string) $criteria['session']);
         }
 
-        if (! empty($criteria['date_range'])) {
+        if (!empty($criteria['date_range'])) {
             if (isset($criteria['date_range']['start'])) {
                 $params['date_from'] = $criteria['date_range']['start'];
             }

@@ -1,16 +1,17 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace App\Support;
 
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Config;
+use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Str;
 
 class Navigation
 {
     protected array $config;
+
     protected ?object $user;
 
     public function __construct()
@@ -22,19 +23,19 @@ class Navigation
     /**
      * Get navigation items for the current user's role
      */
-    public function getMenuForRole(string $role = null): Collection
+    public function getMenuForRole(string $role = NULL): Collection
     {
         $role = $role ?? $this->getCurrentUserRole();
-        
+
         if (!isset($this->config['menus'][$role])) {
             return collect();
         }
 
         $menuItems = $this->config['menus'][$role]['items'] ?? [];
-        
+
         return collect($menuItems)
-            ->filter(fn($item) => $this->canSeeItem($item))
-            ->map(fn($item) => $this->processMenuItem($item))
+            ->filter(fn ($item) => $this->canSeeItem($item))
+            ->map(fn ($item) => $this->processMenuItem($item))
             ->values();
     }
 
@@ -44,30 +45,30 @@ class Navigation
     public function getUserMenu(): Collection
     {
         $userMenuItems = $this->config['user_menu'] ?? [];
-        
+
         return collect($userMenuItems)
-            ->filter(fn($item) => $this->canSeeItem($item))
-            ->map(fn($item) => $this->processUserMenuItem($item))
+            ->filter(fn ($item) => $this->canSeeItem($item))
+            ->map(fn ($item) => $this->processUserMenuItem($item))
             ->values();
     }
 
     /**
      * Get quick actions for the current user
      */
-    public function getQuickActions($user = null): Collection
+    public function getQuickActions($user = NULL): Collection
     {
         $quickActions = $this->config['quick_actions'] ?? [];
-        
+
         return collect($quickActions)
-            ->filter(fn($action) => $this->canSeeItem($action))
-            ->map(fn($action, $key) => array_merge($action, ['id' => $key]))
+            ->filter(fn ($action) => $this->canSeeItem($action))
+            ->map(fn ($action, $key) => array_merge($action, ['id' => $key]))
             ->values();
     }
 
     /**
      * Get user menu items for the header dropdown
      */
-    public function getUserMenuItems($user = null): Collection
+    public function getUserMenuItems($user = NULL): Collection
     {
         return $this->getUserMenu();
     }
@@ -89,15 +90,16 @@ class Navigation
             if ($this->user->hasRole('agent')) {
                 return 'agent';
             }
+
             return 'customer';
         }
 
         // Fallback to property-based role detection
-        if ($this->user->is_admin ?? false) {
+        if ($this->user->is_admin ?? FALSE) {
             return 'admin';
         }
 
-        if ($this->user->is_agent ?? false) {
+        if ($this->user->is_agent ?? FALSE) {
             return 'agent';
         }
 
@@ -110,11 +112,11 @@ class Navigation
     public function canSeeItem(array $item): bool
     {
         if (!isset($item['permissions'])) {
-            return true;
+            return TRUE;
         }
 
         $userRole = $this->getCurrentUserRole();
-        
+
         return in_array($userRole, $item['permissions']);
     }
 
@@ -126,20 +128,21 @@ class Navigation
         if (!isset($item['active_patterns'])) {
             // Fall back to checking current route name
             if (isset($item['route']) && Route::currentRouteName() === $item['route']) {
-                return true;
+                return TRUE;
             }
-            return false;
+
+            return FALSE;
         }
 
         $currentPath = request()->path();
-        
+
         foreach ($item['active_patterns'] as $pattern) {
             if (Str::is($pattern, $currentPath)) {
-                return true;
+                return TRUE;
             }
         }
 
-        return false;
+        return FALSE;
     }
 
     /**
@@ -148,24 +151,24 @@ class Navigation
     public function getBadge(string $badgeKey): ?array
     {
         if (!$badgeKey || !isset($this->config['badges'][$badgeKey])) {
-            return null;
+            return NULL;
         }
 
         $badgeConfig = $this->config['badges'][$badgeKey];
-        
+
         // Ensure badge config has required fields
         if (!isset($badgeConfig['source']) || !isset($badgeConfig['type'])) {
-            return null;
+            return NULL;
         }
-        
+
         $value = $this->getBadgeValue($badgeConfig['source']);
 
-        if ($value === null || $value === 0) {
-            return null;
+        if ($value === NULL || $value === 0) {
+            return NULL;
         }
 
         $variant = $this->getBadgeVariant($badgeConfig, $value);
-        
+
         // Ensure we always have a valid variant
         $validVariants = ['default', 'primary', 'secondary', 'success', 'warning', 'error', 'info'];
         if (!in_array($variant, $validVariants)) {
@@ -173,10 +176,10 @@ class Navigation
         }
 
         return [
-            'type' => $badgeConfig['type'],
-            'value' => $this->formatBadgeValue($value, $badgeConfig),
-            'variant' => $variant,
-            'raw_value' => $value
+            'type'      => $badgeConfig['type'],
+            'value'     => $this->formatBadgeValue($value, $badgeConfig),
+            'variant'   => $variant,
+            'raw_value' => $value,
         ];
     }
 
@@ -185,7 +188,7 @@ class Navigation
      */
     public function getIcon(string $iconKey): ?string
     {
-        return $this->config['icons'][$iconKey] ?? null;
+        return $this->config['icons'][$iconKey] ?? NULL;
     }
 
     /**
@@ -210,9 +213,9 @@ class Navigation
     public function shouldCollapseByDefault(): bool
     {
         $responsive = $this->getResponsiveConfig();
-        return $responsive['desktop']['default_collapsed'] ?? false;
-    }
 
+        return $responsive['desktop']['default_collapsed'] ?? FALSE;
+    }
 
     /**
      * Process a menu item and add computed properties
@@ -220,20 +223,20 @@ class Navigation
     protected function processMenuItem(array $item): array
     {
         $processedItem = $item;
-        
+
         // Add active state
         $processedItem['is_active'] = $this->isActive($item);
-        
+
         // Add badge data
         if (isset($item['badge'])) {
             $processedItem['badge_data'] = $this->getBadge($item['badge']);
         }
-        
+
         // Add icon SVG
         if (isset($item['icon'])) {
             $processedItem['icon_svg'] = $this->getIcon($item['icon']);
         }
-        
+
         // Add URL
         if (isset($item['route'])) {
             try {
@@ -242,20 +245,20 @@ class Navigation
                 $processedItem['url'] = '#';
             }
         }
-        
+
         // Process children recursively
         if (isset($item['children']) && is_array($item['children'])) {
             $processedItem['children'] = collect($item['children'])
-                ->filter(fn($child) => $this->canSeeItem($child))
-                ->map(fn($child) => $this->processMenuItem($child))
+                ->filter(fn ($child) => $this->canSeeItem($child))
+                ->map(fn ($child) => $this->processMenuItem($child))
                 ->values()
                 ->toArray();
-            
+
             // Check if any children are active
             $processedItem['has_active_child'] = collect($processedItem['children'])
-                ->some(fn($child) => $child['is_active'] ?? false);
+                ->some(fn ($child) => $child['is_active'] ?? FALSE);
         }
-        
+
         return $processedItem;
     }
 
@@ -265,13 +268,13 @@ class Navigation
     protected function getBadgeValue(string $source): mixed
     {
         if (!$this->user) {
-            return null;
+            return NULL;
         }
 
         // Handle special system sources
         if (str_starts_with($source, 'system.')) {
             // For now, return null for system sources until they're implemented
-            return null;
+            return NULL;
         }
 
         // Handle dot notation for nested properties
@@ -285,12 +288,12 @@ class Navigation
                 } elseif (method_exists($value, $part)) {
                     $value = $value->$part();
                 } else {
-                    return null;
+                    return NULL;
                 }
             } elseif (is_array($value) && isset($value[$part])) {
                 $value = $value[$part];
             } else {
-                return null;
+                return NULL;
             }
         }
 
@@ -304,14 +307,15 @@ class Navigation
     {
         if ($config['type'] === 'count') {
             $maxDisplay = $config['max_display'] ?? 99;
-            return $value > $maxDisplay ? "{$maxDisplay}+" : (string)$value;
+
+            return $value > $maxDisplay ? "{$maxDisplay}+" : (string) $value;
         }
 
         if ($config['type'] === 'status') {
             return ucfirst($value);
         }
 
-        return (string)$value;
+        return (string) $value;
     }
 
     /**
@@ -336,12 +340,12 @@ class Navigation
     protected function processUserMenuItem(array $item): array
     {
         $processedItem = $item;
-        
+
         // Add icon SVG
         if (isset($item['icon'])) {
             $processedItem['icon_svg'] = $this->getIcon($item['icon']);
         }
-        
+
         // Add URL from route
         if (isset($item['route'])) {
             try {
@@ -350,7 +354,7 @@ class Navigation
                 $processedItem['url'] = '#';
             }
         }
-        
+
         // Handle logout action
         if ($item['id'] === 'logout') {
             $processedItem['type'] = 'action';
@@ -358,7 +362,7 @@ class Navigation
         } else {
             $processedItem['type'] = 'link';
         }
-        
+
         return $processedItem;
     }
 
@@ -369,12 +373,13 @@ class Navigation
     {
         $currentRoute = Route::currentRouteName();
         $breadcrumbs = collect();
-        
+
         // Find the current menu item across all roles
         foreach ($this->config['menus'] as $roleMenu) {
             $found = $this->findMenuItemByRoute($roleMenu['items'], $currentRoute);
             if ($found) {
                 $breadcrumbs = $this->buildBreadcrumbTrail($found['path']);
+
                 break;
             }
         }
@@ -389,11 +394,11 @@ class Navigation
     {
         foreach ($items as $item) {
             $currentPath = array_merge($path, [$item]);
-            
-            if (($item['route'] ?? null) === $routeName) {
+
+            if (($item['route'] ?? NULL) === $routeName) {
                 return ['item' => $item, 'path' => $currentPath];
             }
-            
+
             if (isset($item['children'])) {
                 $found = $this->findMenuItemByRoute($item['children'], $routeName, $currentPath);
                 if ($found) {
@@ -401,8 +406,8 @@ class Navigation
                 }
             }
         }
-        
-        return null;
+
+        return NULL;
     }
 
     /**
@@ -413,6 +418,7 @@ class Navigation
         return collect($path)->map(function ($item, $index) use ($path) {
             $processedItem = $this->processMenuItem($item);
             $processedItem['is_last'] = $index === count($path) - 1;
+
             return $processedItem;
         });
     }
@@ -422,7 +428,7 @@ class Navigation
      */
     public function shouldShowIcons(): bool
     {
-        return $this->config['defaults']['show_icons'] ?? true;
+        return $this->config['defaults']['show_icons'] ?? TRUE;
     }
 
     /**
@@ -430,7 +436,7 @@ class Navigation
      */
     public function shouldShowBadges(): bool
     {
-        return $this->config['defaults']['show_badges'] ?? true;
+        return $this->config['defaults']['show_badges'] ?? TRUE;
     }
 
     /**
@@ -438,6 +444,6 @@ class Navigation
      */
     public function shouldAnimateTransitions(): bool
     {
-        return $this->config['defaults']['animate_transitions'] ?? true;
+        return $this->config['defaults']['animate_transitions'] ?? TRUE;
     }
 }

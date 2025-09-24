@@ -57,19 +57,20 @@ return [
 
   'channels' => [
     'stack' => [
-      'driver'            => 'stack',
-      'channels'          => (function () {
-        $channels = explode(',', (string) env('LOG_STACK_CHANNELS', 'single,performance'));
-        $perfEnabled = (bool) env('PERFORMANCE_LOGGING', false);
-        $logsWritable = @is_writable(storage_path('logs'));
-        if (! $perfEnabled || ! $logsWritable) {
-          $channels = array_filter($channels, fn($c) => trim($c) !== 'performance');
-        }
-        // Ensure at least one channel remains
-        if (empty($channels)) {
-          $channels = ['single'];
-        }
-        return array_values($channels);
+      'driver'   => 'stack',
+      'channels' => (function () {
+          $channels = explode(',', (string) env('LOG_STACK_CHANNELS', 'single,performance'));
+          $perfEnabled = (bool) env('PERFORMANCE_LOGGING', FALSE);
+          $logsWritable = @is_writable(storage_path('logs'));
+          if (!$perfEnabled || !$logsWritable) {
+              $channels = array_filter($channels, fn ($c) => trim($c) !== 'performance');
+          }
+          // Ensure at least one channel remains
+          if (empty($channels)) {
+              $channels = ['single'];
+          }
+
+          return array_values($channels);
       })(),
       'ignore_exceptions' => FALSE,
     ],
@@ -188,11 +189,11 @@ return [
     'performance' => array_merge([
       // Allow disabling via env to avoid permission issues in limited environments / CI
       // Set PERFORMANCE_LOGGING=false in .env (or unset) to disable this channel safely
-      'driver' => env('PERFORMANCE_LOGGING', false) ? 'daily' : 'single',
+      'driver' => env('PERFORMANCE_LOGGING', FALSE) ? 'daily' : 'single',
       'path'   => storage_path('logs/performance.log'),
       'level'  => env('LOG_LEVEL', 'info'),
       'days'   => 14,
-    ], env('PERFORMANCE_LOGGING', false) ? [
+    ], env('PERFORMANCE_LOGGING', FALSE) ? [
       'tap' => [PerformanceLogger::class],
     ] : []),
 

@@ -28,7 +28,7 @@ class PhoneVerificationService
      */
     public function sendVerificationCode(User $user): bool
     {
-        if (! $user->phone) {
+        if (!$user->phone) {
             throw new Exception('User has no phone number');
         }
 
@@ -40,7 +40,7 @@ class PhoneVerificationService
         Cache::put($cacheKey, $code, now()->addMinutes(10));
 
         // If no Twilio client or in development mode, just log the code
-        if (! $this->twilio || $this->isDevelopmentMode()) {
+        if (!$this->twilio || $this->isDevelopmentMode()) {
             Log::info('Phone verification code (DEVELOPMENT MODE)', [
                 'user_id' => $user->id,
                 'phone'   => $user->phone,
@@ -99,7 +99,7 @@ class PhoneVerificationService
         $cacheKey = "phone_verification:{$user->id}";
         $storedCode = Cache::get($cacheKey);
 
-        if (! $storedCode || $storedCode !== $code) {
+        if (!$storedCode || $storedCode !== $code) {
             return FALSE;
         }
 
@@ -121,7 +121,7 @@ class PhoneVerificationService
     {
         $rateLimitKey = "phone_verification_rate_limit:{$user->id}";
 
-        return ! Cache::has($rateLimitKey);
+        return !Cache::has($rateLimitKey);
     }
 
     /**

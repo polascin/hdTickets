@@ -63,7 +63,7 @@ class ComponentCommunication
         foreach ($props as $propName => $propValue) {
             $validator = $this->propValidators->get($propName);
 
-            if ($validator && ! $validator($propValue)) {
+            if ($validator && !$validator($propValue)) {
                 $errors[] = "Invalid prop '{$propName}' for component '{$componentName}'";
             }
         }
@@ -208,7 +208,7 @@ class ComponentCommunication
         $channelKey = "{$sourceType}-to-{$targetType}";
         $channel = $this->communicationChannels[$channelKey] ?? NULL;
 
-        if (! $channel) {
+        if (!$channel) {
             throw new InvalidArgumentException("Communication channel not supported: {$channelKey}");
         }
 
@@ -458,7 +458,7 @@ class ComponentCommunication
 
         if (isset($typeValidations[$propName])) {
             $validator = $typeValidations[$propName];
-            if (! $validator($propValue)) {
+            if (!$validator($propValue)) {
                 return "Prop '{$propName}' has invalid type or format";
             }
         }

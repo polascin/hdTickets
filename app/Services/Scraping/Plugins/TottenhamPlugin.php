@@ -176,32 +176,32 @@ class TottenhamPlugin extends BaseScraperPlugin
 
         $params = [];
 
-        if (! empty($criteria['keyword'])) {
+        if (!empty($criteria['keyword'])) {
             $params['search'] = $criteria['keyword'];
         }
 
-        if (! empty($criteria['competition'])) {
+        if (!empty($criteria['competition'])) {
             $params['competition'] = $this->mapCompetition($criteria['competition']);
         }
 
-        if (! empty($criteria['team'])) {
+        if (!empty($criteria['team'])) {
             $params['team'] = $criteria['team'];
         }
 
-        if (! empty($criteria['date_from'])) {
+        if (!empty($criteria['date_from'])) {
             $params['from'] = $criteria['date_from'];
         }
 
-        if (! empty($criteria['date_to'])) {
+        if (!empty($criteria['date_to'])) {
             $params['to'] = $criteria['date_to'];
         }
 
-        if (! empty($criteria['ticket_type'])) {
+        if (!empty($criteria['ticket_type'])) {
             $params['type'] = $criteria['ticket_type'];
         }
 
         // Remove empty parameters
-        $params = array_filter($params, fn ($value): bool => ! empty($value));
+        $params = array_filter($params, fn ($value): bool => !empty($value));
 
         if ($params !== []) {
             return $baseSearchUrl . '?' . http_build_query($params);
@@ -221,7 +221,7 @@ class TottenhamPlugin extends BaseScraperPlugin
             Log::info("Tottenham Plugin: Scraping tickets from: {$searchUrl}");
 
             $response = $this->makeHttpRequest($searchUrl);
-            if (! $response) {
+            if (!$response) {
                 return [];
             }
 
@@ -369,7 +369,7 @@ class TottenhamPlugin extends BaseScraperPlugin
             $eventDate = $this->parseDateTime($date, $time);
 
             // Build full URL if relative
-            if ($link && ! filter_var($link, FILTER_VALIDATE_URL)) {
+            if ($link && !filter_var($link, FILTER_VALIDATE_URL)) {
                 $link = rtrim($this->baseUrl, '/') . '/' . ltrim($link, '/');
             }
 

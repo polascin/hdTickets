@@ -1,12 +1,11 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
-use Illuminate\Database\Seeder;
-use App\Models\SystemSetting;
-use App\Models\ScrapingSource;
 use App\Models\EmailTemplate;
+use App\Models\ScrapingSource;
+use App\Models\SystemSetting;
+use Illuminate\Database\Seeder;
 
 class AdminPanelSeeder extends Seeder
 {
@@ -27,51 +26,51 @@ class AdminPanelSeeder extends Seeder
     {
         $settings = [
             // General Settings
-            'general.platform_name' => 'HD Tickets',
-            'general.platform_url' => config('app.url', 'http://localhost'),
-            'general.support_email' => 'support@hdtickets.com',
-            'general.default_currency' => 'USD',
-            'general.timezone' => 'America/New_York',
-            'general.maintenance_mode' => false,
-            'general.user_registration' => true,
-            'general.email_verification' => true,
-            'general.debug_mode' => config('app.debug', false),
-            'general.analytics_tracking' => true,
+            'general.platform_name'      => 'HD Tickets',
+            'general.platform_url'       => config('app.url', 'http://localhost'),
+            'general.support_email'      => 'support@hdtickets.com',
+            'general.default_currency'   => 'USD',
+            'general.timezone'           => 'America/New_York',
+            'general.maintenance_mode'   => FALSE,
+            'general.user_registration'  => TRUE,
+            'general.email_verification' => TRUE,
+            'general.debug_mode'         => config('app.debug', FALSE),
+            'general.analytics_tracking' => TRUE,
 
             // API Configuration
             'api.stripe.publishable_key' => config('services.stripe.key', ''),
-            'api.paypal.environment' => 'sandbox',
-            
+            'api.paypal.environment'     => 'sandbox',
+
             // Notification Settings
-            'notifications.email.price_alerts' => true,
-            'notifications.email.booking_confirmations' => true,
-            'notifications.email.account_updates' => true,
-            'notifications.email.marketing' => false,
-            'notifications.push.price_drops' => true,
-            'notifications.push.new_events' => true,
-            'notifications.push.booking_updates' => true,
+            'notifications.email.price_alerts'          => TRUE,
+            'notifications.email.booking_confirmations' => TRUE,
+            'notifications.email.account_updates'       => TRUE,
+            'notifications.email.marketing'             => FALSE,
+            'notifications.push.price_drops'            => TRUE,
+            'notifications.push.new_events'             => TRUE,
+            'notifications.push.booking_updates'        => TRUE,
 
             // Security Settings
-            'security.session_timeout' => 60,
-            'security.password_min_length' => 8,
-            'security.two_factor_auth' => false,
-            'security.login_attempts_limit' => true,
-            'security.password_requirements' => true,
-            'security.api_rate_limit' => 100,
-            'security.api_key_required' => true,
-            'security.ssl_required' => true,
+            'security.session_timeout'       => 60,
+            'security.password_min_length'   => 8,
+            'security.two_factor_auth'       => FALSE,
+            'security.login_attempts_limit'  => TRUE,
+            'security.password_requirements' => TRUE,
+            'security.api_rate_limit'        => 100,
+            'security.api_key_required'      => TRUE,
+            'security.ssl_required'          => TRUE,
         ];
 
         foreach ($settings as $key => $value) {
             $processedValue = $value;
-            
+
             // Handle different value types
             if (is_bool($value)) {
                 $processedValue = json_encode($value);
             } elseif (is_null($value) || $value === '') {
                 $processedValue = '';
             }
-            
+
             SystemSetting::updateOrCreate(
                 ['key' => $key],
                 ['value' => $processedValue]
@@ -88,70 +87,70 @@ class AdminPanelSeeder extends Seeder
     {
         $sources = [
             [
-                'name' => 'StubHub',
-                'base_url' => 'https://www.stubhub.com',
+                'name'       => 'StubHub',
+                'base_url'   => 'https://www.stubhub.com',
                 'rate_limit' => 60,
-                'priority' => 'high',
-                'enabled' => true,
-                'status' => 'online',
-                'config' => [
-                    'timeout' => 30,
+                'priority'   => 'high',
+                'enabled'    => TRUE,
+                'status'     => 'online',
+                'config'     => [
+                    'timeout'        => 30,
                     'retry_attempts' => 3,
-                    'user_agent' => 'HDTickets-Bot/1.0'
-                ]
+                    'user_agent'     => 'HDTickets-Bot/1.0',
+                ],
             ],
             [
-                'name' => 'Vivid Seats',
-                'base_url' => 'https://www.vividseats.com',
+                'name'       => 'Vivid Seats',
+                'base_url'   => 'https://www.vividseats.com',
                 'rate_limit' => 120,
-                'priority' => 'high',
-                'enabled' => true,
-                'status' => 'online',
-                'config' => [
-                    'timeout' => 25,
+                'priority'   => 'high',
+                'enabled'    => TRUE,
+                'status'     => 'online',
+                'config'     => [
+                    'timeout'        => 25,
                     'retry_attempts' => 2,
-                    'user_agent' => 'HDTickets-Bot/1.0'
-                ]
+                    'user_agent'     => 'HDTickets-Bot/1.0',
+                ],
             ],
             [
-                'name' => 'SeatGeek',
-                'base_url' => 'https://seatgeek.com',
+                'name'       => 'SeatGeek',
+                'base_url'   => 'https://seatgeek.com',
                 'rate_limit' => 90,
-                'priority' => 'medium',
-                'enabled' => true,
-                'status' => 'online',
-                'config' => [
-                    'timeout' => 20,
+                'priority'   => 'medium',
+                'enabled'    => TRUE,
+                'status'     => 'online',
+                'config'     => [
+                    'timeout'        => 20,
                     'retry_attempts' => 3,
-                    'user_agent' => 'HDTickets-Bot/1.0'
-                ]
+                    'user_agent'     => 'HDTickets-Bot/1.0',
+                ],
             ],
             [
-                'name' => 'Ticketmaster',
-                'base_url' => 'https://www.ticketmaster.com',
+                'name'       => 'Ticketmaster',
+                'base_url'   => 'https://www.ticketmaster.com',
                 'rate_limit' => 30,
-                'priority' => 'medium',
-                'enabled' => false,
-                'status' => 'offline',
-                'config' => [
-                    'timeout' => 35,
+                'priority'   => 'medium',
+                'enabled'    => FALSE,
+                'status'     => 'offline',
+                'config'     => [
+                    'timeout'        => 35,
                     'retry_attempts' => 2,
-                    'user_agent' => 'HDTickets-Bot/1.0'
-                ]
+                    'user_agent'     => 'HDTickets-Bot/1.0',
+                ],
             ],
             [
-                'name' => 'TickPick',
-                'base_url' => 'https://www.tickpick.com',
+                'name'       => 'TickPick',
+                'base_url'   => 'https://www.tickpick.com',
                 'rate_limit' => 75,
-                'priority' => 'low',
-                'enabled' => true,
-                'status' => 'testing',
-                'config' => [
-                    'timeout' => 20,
+                'priority'   => 'low',
+                'enabled'    => TRUE,
+                'status'     => 'testing',
+                'config'     => [
+                    'timeout'        => 20,
                     'retry_attempts' => 1,
-                    'user_agent' => 'HDTickets-Bot/1.0'
-                ]
-            ]
+                    'user_agent'     => 'HDTickets-Bot/1.0',
+                ],
+            ],
         ];
 
         foreach ($sources as $sourceData) {
@@ -171,8 +170,8 @@ class AdminPanelSeeder extends Seeder
     {
         $templates = [
             [
-                'key' => 'welcome',
-                'name' => 'Welcome Email',
+                'key'     => 'welcome',
+                'name'    => 'Welcome Email',
                 'subject' => 'Welcome to {{platform_name}}!',
                 'content' => '<div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
                     <h1 style="color: #10B981; text-align: center;">Welcome to {{platform_name}}!</h1>
@@ -191,13 +190,13 @@ class AdminPanelSeeder extends Seeder
                 'variables' => [
                     'event_name' => 'Name of the sports event',
                     'venue_name' => 'Event venue name',
-                    'event_date' => 'Event date and time'
+                    'event_date' => 'Event date and time',
                 ],
-                'active' => true
+                'active' => TRUE,
             ],
             [
-                'key' => 'price_alert',
-                'name' => 'Price Drop Alert',
+                'key'     => 'price_alert',
+                'name'    => 'Price Drop Alert',
                 'subject' => 'Price Drop Alert: {{event_name}}',
                 'content' => '<div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
                     <h1 style="color: #EF4444; text-align: center;">🚨 Price Drop Alert!</h1>
@@ -217,16 +216,16 @@ class AdminPanelSeeder extends Seeder
                 </div>',
                 'variables' => [
                     'ticket_price' => 'Current ticket price',
-                    'old_price' => 'Previous ticket price',
-                    'savings' => 'Amount saved',
-                    'venue_name' => 'Event venue name',
-                    'event_date' => 'Event date and time'
+                    'old_price'    => 'Previous ticket price',
+                    'savings'      => 'Amount saved',
+                    'venue_name'   => 'Event venue name',
+                    'event_date'   => 'Event date and time',
                 ],
-                'active' => true
+                'active' => TRUE,
             ],
             [
-                'key' => 'booking_confirmation',
-                'name' => 'Booking Confirmation',
+                'key'     => 'booking_confirmation',
+                'name'    => 'Booking Confirmation',
                 'subject' => 'Booking Confirmed: {{event_name}}',
                 'content' => '<div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
                     <h1 style="color: #10B981; text-align: center;">✅ Booking Confirmed!</h1>
@@ -253,13 +252,13 @@ class AdminPanelSeeder extends Seeder
                 </div>',
                 'variables' => [
                     'booking_reference' => 'Unique booking reference number',
-                    'ticket_price' => 'Total amount paid',
-                    'venue_name' => 'Event venue name',
-                    'event_date' => 'Event date and time',
-                    'seat_details' => 'Seat or section information'
+                    'ticket_price'      => 'Total amount paid',
+                    'venue_name'        => 'Event venue name',
+                    'event_date'        => 'Event date and time',
+                    'seat_details'      => 'Seat or section information',
                 ],
-                'active' => true
-            ]
+                'active' => TRUE,
+            ],
         ];
 
         foreach ($templates as $templateData) {

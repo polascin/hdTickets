@@ -16,7 +16,7 @@ class PaymentPlansSeeder extends Seeder
         $defaults = PaymentPlan::getDefaultPlans();
 
         foreach ($defaults as $planData) {
-            if (! isset($planData['slug'])) {
+            if (!isset($planData['slug'])) {
                 // Skip invalid entries without slug
                 continue;
             }

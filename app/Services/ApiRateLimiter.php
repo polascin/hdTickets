@@ -21,7 +21,7 @@ class ApiRateLimiter
     {
         $config = config("ticket_apis.{$platform}.rate_limit");
 
-        if (! $config) {
+        if (!$config) {
             return TRUE;
         }
 
@@ -74,7 +74,7 @@ class ApiRateLimiter
     {
         $config = config("ticket_apis.{$platform}.rate_limit");
 
-        if (! $config) {
+        if (!$config) {
             return 0;
         }
 
@@ -107,7 +107,7 @@ class ApiRateLimiter
      */
     protected function checkPerSecondLimit(string $platform, string $endpoint, array $config): bool
     {
-        if (! isset($config['requests_per_second'])) {
+        if (!isset($config['requests_per_second'])) {
             return TRUE;
         }
 
@@ -131,7 +131,7 @@ class ApiRateLimiter
      */
     protected function checkPerHourLimit(string $platform, string $endpoint, array $config): bool
     {
-        if (! isset($config['requests_per_hour'])) {
+        if (!isset($config['requests_per_hour'])) {
             return TRUE;
         }
 
@@ -155,7 +155,7 @@ class ApiRateLimiter
      */
     protected function checkPerDayLimit(string $platform, string $endpoint, array $config): bool
     {
-        if (! isset($config['requests_per_day'])) {
+        if (!isset($config['requests_per_day'])) {
             return TRUE;
         }
 

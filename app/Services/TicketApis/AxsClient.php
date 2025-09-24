@@ -135,7 +135,7 @@ class AxsClient extends BaseWebScrapingClient
                     }
 
                     $event = $this->extractEventFromNode($node);
-                    if (! empty($event['name'])) {
+                    if (!empty($event['name'])) {
                         $events[] = $event;
                         $count++;
                     }

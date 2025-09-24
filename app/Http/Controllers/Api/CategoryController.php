@@ -87,7 +87,7 @@ class CategoryController extends Controller
     {
         $category = Category::withCount(['scrapedTickets'])->find($id);
 
-        if (! $category) {
+        if (!$category) {
             return response()->json([
                 'success' => FALSE,
                 'message' => 'Category not found',
@@ -138,7 +138,7 @@ class CategoryController extends Controller
     {
         $category = Category::find($id);
 
-        if (! $category) {
+        if (!$category) {
             return response()->json([
                 'success' => FALSE,
                 'message' => 'Category not found',
@@ -303,7 +303,7 @@ class CategoryController extends Controller
     {
         $category = Category::find($id);
 
-        if (! $category) {
+        if (!$category) {
             return response()->json([
                 'success' => FALSE,
                 'message' => 'Category not found',
@@ -345,7 +345,7 @@ class CategoryController extends Controller
     {
         $category = Category::find($id);
 
-        if (! $category) {
+        if (!$category) {
             return response()->json([
                 'success' => FALSE,
                 'message' => 'Category not found',

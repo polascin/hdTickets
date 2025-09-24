@@ -73,7 +73,7 @@ class MonitorAnalyticsSystem extends Command
             // Additional check for running state after sleep
             if (function_exists('pcntl_signal_dispatch')) {
                 pcntl_signal_dispatch();
-                if (! $running) {
+                if (!$running) {
                     break;
                 }
             }

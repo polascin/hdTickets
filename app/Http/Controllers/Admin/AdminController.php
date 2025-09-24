@@ -1,35 +1,32 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Models\User;
-use App\Models\Event;
-use App\Models\Ticket;
-use App\Models\Order;
-use App\Models\SystemSetting;
-use App\Models\ScrapingSource;
 use App\Models\EmailTemplate;
-use Illuminate\Http\Request;
-use Illuminate\Http\JsonResponse;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Cache;
-use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Mail;
-use Illuminate\Support\Facades\Http;
-use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Facades\Validator;
-use Illuminate\Support\Facades\Log;
+use App\Models\Event;
+use App\Models\Order;
+use App\Models\ScrapingSource;
+use App\Models\SystemSetting;
+use App\Models\Ticket;
+use App\Models\User;
 use Carbon\Carbon;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Validator;
 use PDF;
 
 /**
  * Admin Controller
- * 
+ *
  * Handles all admin panel operations including user management,
  * system configuration, analytics, and real-time features.
- * 
- * @package App\Http\Controllers\Admin
  */
 class AdminController extends Controller
 {
@@ -47,8 +44,8 @@ class AdminController extends Controller
 
     /**
      * Get paginated users with filtering and search
-     * 
-     * @param Request $request
+     *
+     * @param  Request      $request
      * @return JsonResponse
      */
     public function getUsers(Request $request): JsonResponse
@@ -56,14 +53,14 @@ class AdminController extends Controller
         try {
             $query = User::with(['orders', 'tickets'])
                 ->select([
-                    'id', 'name', 'email', 'role', 'status', 
-                    'email_verified_at', 'last_login_at', 'created_at'
+                    'id', 'name', 'email', 'role', 'status',
+                    'email_verified_at', 'last_login_at', 'created_at',
                 ]);
 
             // Apply search filter
             if ($request->has('search') && !empty($request->search)) {
                 $search = $request->search;
-                $query->where(function($q) use ($search) {
+                $query->where(function ($q) use ($search) {
                     $q->where('name', 'like', "%{$search}%")
                       ->orWhere('email', 'like', "%{$search}%");
                 });
@@ -83,7 +80,7 @@ class AdminController extends Controller
             if ($request->has('date_from') && $request->has('date_to')) {
                 $query->whereBetween('created_at', [
                     Carbon::parse($request->date_from)->startOfDay(),
-                    Carbon::parse($request->date_to)->endOfDay()
+                    Carbon::parse($request->date_to)->endOfDay(),
                 ]);
             }
 
@@ -111,47 +108,46 @@ class AdminController extends Controller
                 $user->total_spent = $user->orders->where('status', 'completed')->sum('total');
                 $user->total_tickets = $user->tickets->count();
                 $user->is_email_verified = !is_null($user->email_verified_at);
-                
+
                 // Remove relations to reduce payload size
                 unset($user->orders, $user->tickets);
-                
+
                 return $user;
             });
 
             return response()->json([
-                'success' => true,
-                'data' => $users
+                'success' => TRUE,
+                'data'    => $users,
             ]);
-
         } catch (\Exception $e) {
             Log::error('Admin: Failed to get users - ' . $e->getMessage());
-            
+
             return response()->json([
-                'success' => false,
-                'error' => 'Failed to retrieve users'
+                'success' => FALSE,
+                'error'   => 'Failed to retrieve users',
             ], 500);
         }
     }
 
     /**
      * Perform user action (activate, suspend, delete, etc.)
-     * 
-     * @param Request $request
-     * @param int $id
+     *
+     * @param  Request      $request
+     * @param  int          $id
      * @return JsonResponse
      */
     public function userAction(Request $request, $id): JsonResponse
     {
         $validator = Validator::make($request->all(), [
             'action' => 'required|string|in:activate,suspend,ban,delete,reset_password,change_role,login_as',
-            'role' => 'sometimes|string|in:user,vip,moderator,admin',
-            'reason' => 'sometimes|string|max:500'
+            'role'   => 'sometimes|string|in:user,vip,moderator,admin',
+            'reason' => 'sometimes|string|max:500',
         ]);
 
         if ($validator->fails()) {
             return response()->json([
-                'success' => false,
-                'errors' => $validator->errors()
+                'success' => FALSE,
+                'errors'  => $validator->errors(),
             ], 422);
         }
 
@@ -162,119 +158,118 @@ class AdminController extends Controller
             // Prevent self-actions
             if ($user->id === auth()->id() && in_array($action, ['suspend', 'ban', 'delete'])) {
                 return response()->json([
-                    'success' => false,
-                    'error' => 'Cannot perform this action on your own account'
+                    'success' => FALSE,
+                    'error'   => 'Cannot perform this action on your own account',
                 ], 403);
             }
 
             switch ($action) {
                 case 'activate':
                     $user->update(['status' => 'active']);
-                    break;
 
+                    break;
                 case 'suspend':
                     $user->update(['status' => 'suspended']);
-                    break;
 
+                    break;
                 case 'ban':
                     $user->update(['status' => 'banned']);
-                    break;
 
+                    break;
                 case 'delete':
                     // Soft delete with anonymization
                     $user->update([
-                        'name' => 'Deleted User',
-                        'email' => 'deleted_' . $user->id . '@deleted.com',
-                        'status' => 'deleted'
+                        'name'   => 'Deleted User',
+                        'email'  => 'deleted_' . $user->id . '@deleted.com',
+                        'status' => 'deleted',
                     ]);
                     $user->delete();
-                    break;
 
+                    break;
                 case 'reset_password':
                     $newPassword = str()->random(12);
                     $user->update(['password' => Hash::make($newPassword)]);
-                    
+
                     // Send email with new password (in real app, use password reset link)
                     Mail::send('emails.password-reset', [
-                        'user' => $user,
-                        'password' => $newPassword
+                        'user'     => $user,
+                        'password' => $newPassword,
                     ], function ($message) use ($user) {
                         $message->to($user->email)->subject('Password Reset');
                     });
-                    break;
 
+                    break;
                 case 'change_role':
                     $user->update(['role' => $request->role]);
-                    break;
 
+                    break;
                 case 'login_as':
                     // Generate login token for admin login as user
                     $token = str()->random(64);
                     Cache::put("admin_login_as_{$token}", [
                         'admin_id' => auth()->id(),
-                        'user_id' => $user->id
+                        'user_id'  => $user->id,
                     ], now()->addMinutes(5));
-                    
+
                     return response()->json([
-                        'success' => true,
-                        'login_url' => url("/admin/login-as/{$token}")
+                        'success'   => TRUE,
+                        'login_url' => url("/admin/login-as/{$token}"),
                     ]);
             }
 
             // Log admin action
             Log::info("Admin action: {$action} performed on user {$user->id} by admin " . auth()->id(), [
-                'user_id' => $user->id,
+                'user_id'  => $user->id,
                 'admin_id' => auth()->id(),
-                'action' => $action,
-                'reason' => $request->reason
+                'action'   => $action,
+                'reason'   => $request->reason,
             ]);
 
             return response()->json([
-                'success' => true,
-                'message' => ucfirst($action) . ' action completed successfully'
+                'success' => TRUE,
+                'message' => ucfirst($action) . ' action completed successfully',
             ]);
-
         } catch (\Exception $e) {
-            Log::error("Admin: User action failed - " . $e->getMessage());
-            
+            Log::error('Admin: User action failed - ' . $e->getMessage());
+
             return response()->json([
-                'success' => false,
-                'error' => 'Action failed to complete'
+                'success' => FALSE,
+                'error'   => 'Action failed to complete',
             ], 500);
         }
     }
 
     /**
      * Bulk user actions
-     * 
-     * @param Request $request
+     *
+     * @param  Request      $request
      * @return JsonResponse
      */
     public function bulkUserAction(Request $request): JsonResponse
     {
         $validator = Validator::make($request->all(), [
-            'user_ids' => 'required|array|min:1',
+            'user_ids'   => 'required|array|min:1',
             'user_ids.*' => 'integer|exists:users,id',
-            'action' => 'required|string|in:activate,suspend,ban,delete,change_role,export',
-            'role' => 'sometimes|string|in:user,vip,moderator,admin'
+            'action'     => 'required|string|in:activate,suspend,ban,delete,change_role,export',
+            'role'       => 'sometimes|string|in:user,vip,moderator,admin',
         ]);
 
         if ($validator->fails()) {
             return response()->json([
-                'success' => false,
-                'errors' => $validator->errors()
+                'success' => FALSE,
+                'errors'  => $validator->errors(),
             ], 422);
         }
 
         try {
             $userIds = $request->user_ids;
             $action = $request->action;
-            
+
             // Prevent self-actions
             if (in_array(auth()->id(), $userIds) && in_array($action, ['suspend', 'ban', 'delete'])) {
                 return response()->json([
-                    'success' => false,
-                    'error' => 'Cannot perform bulk action on your own account'
+                    'success' => FALSE,
+                    'error'   => 'Cannot perform bulk action on your own account',
                 ], 403);
             }
 
@@ -283,29 +278,29 @@ class AdminController extends Controller
             switch ($action) {
                 case 'activate':
                     $affectedCount = User::whereIn('id', $userIds)->update(['status' => 'active']);
-                    break;
 
+                    break;
                 case 'suspend':
                     $affectedCount = User::whereIn('id', $userIds)->update(['status' => 'suspended']);
-                    break;
 
+                    break;
                 case 'ban':
                     $affectedCount = User::whereIn('id', $userIds)->update(['status' => 'banned']);
-                    break;
 
+                    break;
                 case 'delete':
                     User::whereIn('id', $userIds)->update([
                         'status' => 'deleted',
-                        'name' => DB::raw("CONCAT('Deleted User ', id)"),
-                        'email' => DB::raw("CONCAT('deleted_', id, '@deleted.com')")
+                        'name'   => DB::raw("CONCAT('Deleted User ', id)"),
+                        'email'  => DB::raw("CONCAT('deleted_', id, '@deleted.com')"),
                     ]);
                     $affectedCount = User::whereIn('id', $userIds)->delete();
-                    break;
 
+                    break;
                 case 'change_role':
                     $affectedCount = User::whereIn('id', $userIds)->update(['role' => $request->role]);
-                    break;
 
+                    break;
                 case 'export':
                     return $this->exportUsers($userIds);
             }
@@ -313,16 +308,15 @@ class AdminController extends Controller
             Log::info("Admin bulk action: {$action} performed on {$affectedCount} users by admin " . auth()->id());
 
             return response()->json([
-                'success' => true,
-                'message' => "Bulk {$action} completed successfully on {$affectedCount} users"
+                'success' => TRUE,
+                'message' => "Bulk {$action} completed successfully on {$affectedCount} users",
             ]);
-
         } catch (\Exception $e) {
-            Log::error("Admin: Bulk user action failed - " . $e->getMessage());
-            
+            Log::error('Admin: Bulk user action failed - ' . $e->getMessage());
+
             return response()->json([
-                'success' => false,
-                'error' => 'Bulk action failed to complete'
+                'success' => FALSE,
+                'error'   => 'Bulk action failed to complete',
             ], 500);
         }
     }
@@ -333,7 +327,7 @@ class AdminController extends Controller
 
     /**
      * Get system settings
-     * 
+     *
      * @return JsonResponse
      */
     public function getSettings(): JsonResponse
@@ -341,107 +335,106 @@ class AdminController extends Controller
         try {
             $settings = Cache::remember('system_settings', 300, function () {
                 $dbSettings = SystemSetting::all()->pluck('value', 'key');
-                
+
                 // Default structure if no settings exist
                 $defaultSettings = [
                     'general' => [
-                        'platform_name' => 'HD Tickets',
-                        'platform_url' => config('app.url'),
-                        'support_email' => 'support@hdtickets.com',
-                        'default_currency' => 'USD',
-                        'timezone' => 'America/New_York',
-                        'maintenance_mode' => false,
-                        'user_registration' => true,
-                        'email_verification' => true,
-                        'debug_mode' => config('app.debug'),
-                        'analytics_tracking' => true
+                        'platform_name'      => 'HD Tickets',
+                        'platform_url'       => config('app.url'),
+                        'support_email'      => 'support@hdtickets.com',
+                        'default_currency'   => 'USD',
+                        'timezone'           => 'America/New_York',
+                        'maintenance_mode'   => FALSE,
+                        'user_registration'  => TRUE,
+                        'email_verification' => TRUE,
+                        'debug_mode'         => config('app.debug'),
+                        'analytics_tracking' => TRUE,
                     ],
                     'scraping' => [
-                        'sources' => ScrapingSource::all()->toArray()
+                        'sources' => ScrapingSource::all()->toArray(),
                     ],
                     'api' => [
                         'stripe' => [
                             'publishable_key' => config('services.stripe.key'),
-                            'secret_key' => '****' // Masked for security
+                            'secret_key'      => '****', // Masked for security
                         ],
                         'paypal' => [
-                            'environment' => config('services.paypal.environment')
+                            'environment' => config('services.paypal.environment'),
                         ],
                         'google_maps' => [
-                            'api_key' => '****'
+                            'api_key' => '****',
                         ],
                         'sendgrid' => [
-                            'api_key' => '****'
+                            'api_key' => '****',
                         ],
                         'twilio' => [
                             'account_sid' => config('services.twilio.account_sid'),
-                            'auth_token' => '****'
-                        ]
+                            'auth_token'  => '****',
+                        ],
                     ],
                     'email' => [
-                        'templates' => EmailTemplate::all()->keyBy('key')->toArray()
+                        'templates' => EmailTemplate::all()->keyBy('key')->toArray(),
                     ],
                     'notifications' => [
                         'email' => [
-                            'price_alerts' => true,
-                            'booking_confirmations' => true,
-                            'account_updates' => true,
-                            'marketing' => false
+                            'price_alerts'          => TRUE,
+                            'booking_confirmations' => TRUE,
+                            'account_updates'       => TRUE,
+                            'marketing'             => FALSE,
                         ],
                         'push' => [
-                            'firebase_key' => '****',
-                            'price_drops' => true,
-                            'new_events' => true,
-                            'booking_updates' => true
-                        ]
+                            'firebase_key'    => '****',
+                            'price_drops'     => TRUE,
+                            'new_events'      => TRUE,
+                            'booking_updates' => TRUE,
+                        ],
                     ],
                     'security' => [
-                        'session_timeout' => 60,
-                        'password_min_length' => 8,
-                        'two_factor_auth' => false,
-                        'login_attempts_limit' => true,
-                        'password_requirements' => true,
-                        'api_rate_limit' => 100,
-                        'cors_origins' => '',
-                        'api_key_required' => true,
-                        'ssl_required' => true
-                    ]
+                        'session_timeout'       => 60,
+                        'password_min_length'   => 8,
+                        'two_factor_auth'       => FALSE,
+                        'login_attempts_limit'  => TRUE,
+                        'password_requirements' => TRUE,
+                        'api_rate_limit'        => 100,
+                        'cors_origins'          => '',
+                        'api_key_required'      => TRUE,
+                        'ssl_required'          => TRUE,
+                    ],
                 ];
 
                 // Merge with database settings
                 foreach ($dbSettings as $key => $value) {
                     $keys = explode('.', $key);
                     $current = &$defaultSettings;
-                    
+
                     foreach ($keys as $k) {
                         $current = &$current[$k];
                     }
-                    
-                    $current = json_decode($value, true) ?? $value;
+
+                    $current = json_decode($value, TRUE) ?? $value;
                 }
 
                 return $defaultSettings;
             });
 
             return response()->json([
-                'success' => true,
-                'settings' => $settings
+                'success'  => TRUE,
+                'settings' => $settings,
             ]);
-
         } catch (\Exception $e) {
             Log::error('Admin: Failed to get settings - ' . $e->getMessage());
-            
+
             return response()->json([
-                'success' => false,
-                'error' => 'Failed to retrieve settings'
+                'success' => FALSE,
+                'error'   => 'Failed to retrieve settings',
             ], 500);
         }
     }
 
     /**
      * Save system settings
-     * 
-     * @param Request $request
+     *
+     * @param  Request      $request
      * @return JsonResponse
      */
     public function saveSettings(Request $request): JsonResponse
@@ -452,7 +445,7 @@ class AdminController extends Controller
             DB::transaction(function () use ($settings) {
                 // Flatten settings and save to database
                 $this->saveSettingsRecursive($settings);
-                
+
                 // Update scraping sources
                 if (isset($settings['scraping']['sources'])) {
                     ScrapingSource::truncate();
@@ -478,64 +471,62 @@ class AdminController extends Controller
             Log::info('Admin: System settings updated by admin ' . auth()->id());
 
             return response()->json([
-                'success' => true,
-                'message' => 'Settings saved successfully'
+                'success' => TRUE,
+                'message' => 'Settings saved successfully',
             ]);
-
         } catch (\Exception $e) {
             Log::error('Admin: Failed to save settings - ' . $e->getMessage());
-            
+
             return response()->json([
-                'success' => false,
-                'error' => 'Failed to save settings'
+                'success' => FALSE,
+                'error'   => 'Failed to save settings',
             ], 500);
         }
     }
 
     /**
      * Test scraping source connection
-     * 
-     * @param Request $request
+     *
+     * @param  Request      $request
      * @return JsonResponse
      */
     public function testScrapingSource(Request $request): JsonResponse
     {
         $validator = Validator::make($request->all(), [
-            'url' => 'required|url',
-            'rate_limit' => 'required|integer|min:1|max:1000'
+            'url'        => 'required|url',
+            'rate_limit' => 'required|integer|min:1|max:1000',
         ]);
 
         if ($validator->fails()) {
             return response()->json([
-                'success' => false,
-                'errors' => $validator->errors()
+                'success' => FALSE,
+                'errors'  => $validator->errors(),
             ], 422);
         }
 
         try {
             $response = Http::timeout(10)
                 ->withHeaders([
-                    'User-Agent' => 'HDTickets-Bot/1.0'
+                    'User-Agent' => 'HDTickets-Bot/1.0',
                 ])
                 ->get($request->url);
 
             if ($response->successful()) {
                 return response()->json([
-                    'success' => true,
+                    'success'       => TRUE,
                     'response_time' => $response->transferStats->getTransferTime(),
-                    'status_code' => $response->status()
+                    'status_code'   => $response->status(),
                 ]);
             }
 
             return response()->json([
-                'success' => false,
-                'error' => "HTTP {$response->status()}: Connection failed"
+                'success' => FALSE,
+                'error'   => "HTTP {$response->status()}: Connection failed",
             ]);
-
         } catch (\Exception $e) {
             return response()->json([
-                'success' => false,
-                'error' => $e->getMessage()
+                'success' => FALSE,
+                'error'   => $e->getMessage(),
             ]);
         }
     }
@@ -546,8 +537,8 @@ class AdminController extends Controller
 
     /**
      * Get analytics data
-     * 
-     * @param Request $request
+     *
+     * @param  Request      $request
      * @return JsonResponse
      */
     public function getAnalytics(Request $request): JsonResponse
@@ -562,52 +553,51 @@ class AdminController extends Controller
 
                 // Calculate metrics
                 $metrics = $this->calculateMetrics($dateRange, $previousRange);
-                
+
                 // Get top events
                 $topEvents = $this->getTopEvents($dateRange);
-                
+
                 // Get category breakdown
                 $topCategories = $this->getTopCategories($dateRange);
-                
+
                 // Get traffic sources (simulated data)
                 $trafficSources = $this->getTrafficSources();
-                
+
                 // Get recent activity
                 $recentActivity = $this->getRecentActivity();
-                
+
                 // Get system health
                 $systemHealth = $this->getSystemHealth();
 
                 return [
-                    'metrics' => $metrics,
-                    'topEvents' => $topEvents,
-                    'topCategories' => $topCategories,
+                    'metrics'        => $metrics,
+                    'topEvents'      => $topEvents,
+                    'topCategories'  => $topCategories,
                     'trafficSources' => $trafficSources,
                     'recentActivity' => $recentActivity,
-                    'systemHealth' => $systemHealth,
-                    'chartData' => $this->getChartData($period)
+                    'systemHealth'   => $systemHealth,
+                    'chartData'      => $this->getChartData($period),
                 ];
             });
 
             return response()->json([
-                'success' => true,
-                'data' => $analytics
+                'success' => TRUE,
+                'data'    => $analytics,
             ]);
-
         } catch (\Exception $e) {
             Log::error('Admin: Failed to get analytics - ' . $e->getMessage());
-            
+
             return response()->json([
-                'success' => false,
-                'error' => 'Failed to retrieve analytics data'
+                'success' => FALSE,
+                'error'   => 'Failed to retrieve analytics data',
             ], 500);
         }
     }
 
     /**
      * Export analytics report
-     * 
-     * @param Request $request
+     *
+     * @param  Request                   $request
      * @return \Illuminate\Http\Response
      */
     public function exportReport(Request $request)
@@ -620,36 +610,35 @@ class AdminController extends Controller
                 // Generate fresh analytics data
                 $request->merge(['period' => $period]);
                 $response = $this->getAnalytics($request);
-                $analytics = $response->getData(true)['data'];
+                $analytics = $response->getData(TRUE)['data'];
             }
 
             $theme = in_array($request->get('theme'), ['light', 'dark']) ? $request->get('theme') : 'light';
 
             // Prepare logo data URI for reliable PDF embedding
-            $logoDataUri = null;
+            $logoDataUri = NULL;
             $logoPath = public_path('images/logo-hdtickets.svg');
             if (file_exists($logoPath)) {
                 $logoDataUri = 'data:image/svg+xml;base64,' . base64_encode(file_get_contents($logoPath));
             }
 
             $pdf = PDF::loadView('admin.reports.analytics', [
-                'analytics' => $analytics,
-                'period' => $period,
+                'analytics'    => $analytics,
+                'period'       => $period,
                 'generated_at' => now(),
-                'theme' => $theme,
-                'logoDataUri' => $logoDataUri,
+                'theme'        => $theme,
+                'logoDataUri'  => $logoDataUri,
             ]);
 
             $filename = "analytics-report-{$period}-" . now()->format('Y-m-d') . '.pdf';
 
             return $pdf->download($filename);
-
         } catch (\Exception $e) {
             Log::error('Admin: Failed to export report - ' . $e->getMessage());
-            
+
             return response()->json([
-                'success' => false,
-                'error' => 'Failed to export report'
+                'success' => FALSE,
+                'error'   => 'Failed to export report',
             ], 500);
         }
     }
@@ -660,15 +649,15 @@ class AdminController extends Controller
 
     /**
      * Save settings recursively to database
-     * 
-     * @param array $settings
+     *
+     * @param array  $settings
      * @param string $prefix
      */
     private function saveSettingsRecursive(array $settings, string $prefix = ''): void
     {
         foreach ($settings as $key => $value) {
             $fullKey = $prefix ? "{$prefix}.{$key}" : $key;
-            
+
             if (is_array($value) && !in_array($key, ['sources', 'templates'])) {
                 $this->saveSettingsRecursive($value, $fullKey);
             } else {
@@ -682,8 +671,8 @@ class AdminController extends Controller
 
     /**
      * Get date range based on period
-     * 
-     * @param string $period
+     *
+     * @param  string $period
      * @return array
      */
     private function getDateRange(string $period): array
@@ -704,8 +693,8 @@ class AdminController extends Controller
 
     /**
      * Get previous date range for comparison
-     * 
-     * @param string $period
+     *
+     * @param  string $period
      * @return array
      */
     private function getPreviousDateRange(string $period): array
@@ -726,9 +715,9 @@ class AdminController extends Controller
 
     /**
      * Calculate key metrics
-     * 
-     * @param array $dateRange
-     * @param array $previousRange
+     *
+     * @param  array $dateRange
+     * @param  array $previousRange
      * @return array
      */
     private function calculateMetrics(array $dateRange, array $previousRange): array
@@ -737,18 +726,18 @@ class AdminController extends Controller
         $currentRevenue = Order::whereBetween('created_at', $dateRange)
             ->where('status', 'completed')
             ->sum('total');
-            
+
         $currentUsers = User::whereBetween('created_at', $dateRange)->count();
-        
+
         $currentTickets = Ticket::whereBetween('created_at', $dateRange)->count();
-        
+
         // Previous period metrics for comparison
         $previousRevenue = Order::whereBetween('created_at', $previousRange)
             ->where('status', 'completed')
             ->sum('total');
-            
+
         $previousUsers = User::whereBetween('created_at', $previousRange)->count();
-        
+
         $previousTickets = Ticket::whereBetween('created_at', $previousRange)->count();
 
         // Calculate conversion rate
@@ -758,53 +747,53 @@ class AdminController extends Controller
 
         return [
             'revenue' => [
-                'total' => $currentRevenue,
-                'change' => $previousRevenue > 0 
-                    ? (($currentRevenue - $previousRevenue) / $previousRevenue) * 100 
-                    : 0
+                'total'  => $currentRevenue,
+                'change' => $previousRevenue > 0
+                    ? (($currentRevenue - $previousRevenue) / $previousRevenue) * 100
+                    : 0,
             ],
             'users' => [
-                'total' => $currentUsers,
-                'change' => $previousUsers > 0 
-                    ? (($currentUsers - $previousUsers) / $previousUsers) * 100 
-                    : 0
+                'total'  => $currentUsers,
+                'change' => $previousUsers > 0
+                    ? (($currentUsers - $previousUsers) / $previousUsers) * 100
+                    : 0,
             ],
             'tickets' => [
-                'sold' => $currentTickets,
-                'change' => $previousTickets > 0 
-                    ? (($currentTickets - $previousTickets) / $previousTickets) * 100 
-                    : 0
+                'sold'   => $currentTickets,
+                'change' => $previousTickets > 0
+                    ? (($currentTickets - $previousTickets) / $previousTickets) * 100
+                    : 0,
             ],
             'conversion' => [
-                'rate' => round($conversionRate, 2),
-                'change' => $previousConversionRate > 0 
-                    ? (($conversionRate - $previousConversionRate) / $previousConversionRate) * 100 
-                    : 0
-            ]
+                'rate'   => round($conversionRate, 2),
+                'change' => $previousConversionRate > 0
+                    ? (($conversionRate - $previousConversionRate) / $previousConversionRate) * 100
+                    : 0,
+            ],
         ];
     }
 
     /**
      * Get top performing events
-     * 
-     * @param array $dateRange
+     *
+     * @param  array $dateRange
      * @return array
      */
     private function getTopEvents(array $dateRange): array
     {
         return Event::withCount(['tickets as tickets_sold'])
-            ->with(['orders' => function($query) use ($dateRange) {
+            ->with(['orders' => function ($query) use ($dateRange) {
                 $query->whereBetween('created_at', $dateRange)
                       ->where('status', 'completed');
             }])
             ->get()
-            ->map(function($event) {
+            ->map(function ($event) {
                 return [
-                    'id' => $event->id,
-                    'name' => $event->name,
-                    'venue' => $event->venue,
+                    'id'           => $event->id,
+                    'name'         => $event->name,
+                    'venue'        => $event->venue,
                     'tickets_sold' => $event->tickets_sold,
-                    'revenue' => $event->orders->sum('total')
+                    'revenue'      => $event->orders->sum('total'),
                 ];
             })
             ->sortByDesc('revenue')
@@ -815,8 +804,8 @@ class AdminController extends Controller
 
     /**
      * Get category performance breakdown
-     * 
-     * @param array $dateRange
+     *
+     * @param  array $dateRange
      * @return array
      */
     private function getTopCategories(array $dateRange): array
@@ -828,18 +817,18 @@ class AdminController extends Controller
         $total = $categories->sum('event_count');
         $colors = ['#10B981', '#3B82F6', '#8B5CF6', '#F59E0B', '#EF4444'];
 
-        return $categories->map(function($category, $index) use ($total, $colors) {
+        return $categories->map(function ($category, $index) use ($total, $colors) {
             return [
-                'name' => ucfirst($category->category),
+                'name'       => ucfirst($category->category),
                 'percentage' => $total > 0 ? round(($category->event_count / $total) * 100, 1) : 0,
-                'color' => $colors[$index % count($colors)]
+                'color'      => $colors[$index % count($colors)],
             ];
         })->toArray();
     }
 
     /**
      * Get traffic sources (simulated data)
-     * 
+     *
      * @return array
      */
     private function getTrafficSources(): array
@@ -849,13 +838,13 @@ class AdminController extends Controller
             ['name' => 'Facebook', 'type' => 'social', 'visitors' => 8321, 'percentage' => 30],
             ['name' => 'Direct', 'type' => 'direct', 'visitors' => 4562, 'percentage' => 16],
             ['name' => 'Instagram', 'type' => 'social', 'visitors' => 2134, 'percentage' => 8],
-            ['name' => 'Other', 'type' => 'other', 'visitors' => 287, 'percentage' => 1]
+            ['name' => 'Other', 'type' => 'other', 'visitors' => 287, 'percentage' => 1],
         ];
     }
 
     /**
      * Get recent activity
-     * 
+     *
      * @return array
      */
     private function getRecentActivity(): array
@@ -866,10 +855,10 @@ class AdminController extends Controller
         $recentOrders = Order::with('user')->latest()->take(3)->get();
         foreach ($recentOrders as $order) {
             $activities->push([
-                'id' => $order->id,
-                'type' => 'purchase',
+                'id'          => $order->id,
+                'type'        => 'purchase',
                 'description' => "User {$order->user->name} purchased tickets for {$order->total}",
-                'timestamp' => $order->created_at->diffForHumans()
+                'timestamp'   => $order->created_at->diffForHumans(),
             ]);
         }
 
@@ -877,10 +866,10 @@ class AdminController extends Controller
         $recentUsers = User::latest()->take(2)->get();
         foreach ($recentUsers as $user) {
             $activities->push([
-                'id' => $user->id,
-                'type' => 'registration',
+                'id'          => $user->id,
+                'type'        => 'registration',
                 'description' => "New user registered: {$user->email}",
-                'timestamp' => $user->created_at->diffForHumans()
+                'timestamp'   => $user->created_at->diffForHumans(),
             ]);
         }
 
@@ -889,58 +878,58 @@ class AdminController extends Controller
 
     /**
      * Get system health status
-     * 
+     *
      * @return array
      */
     private function getSystemHealth(): array
     {
         return [
             [
-                'name' => 'Web Server',
+                'name'        => 'Web Server',
                 'description' => 'Apache/Nginx',
-                'status' => 'healthy',
-                'uptime' => '99.9%'
+                'status'      => 'healthy',
+                'uptime'      => '99.9%',
             ],
             [
-                'name' => 'Database',
+                'name'        => 'Database',
                 'description' => 'MySQL/PostgreSQL',
-                'status' => 'healthy',
-                'uptime' => '99.8%'
+                'status'      => 'healthy',
+                'uptime'      => '99.8%',
             ],
             [
-                'name' => 'Cache System',
+                'name'        => 'Cache System',
                 'description' => 'Redis/Memcached',
-                'status' => 'warning',
-                'uptime' => '98.5%'
+                'status'      => 'warning',
+                'uptime'      => '98.5%',
             ],
             [
-                'name' => 'Email Service',
+                'name'        => 'Email Service',
                 'description' => 'SendGrid/Mailgun',
-                'status' => 'healthy',
-                'uptime' => '99.7%'
+                'status'      => 'healthy',
+                'uptime'      => '99.7%',
             ],
             [
-                'name' => 'Payment Gateway',
+                'name'        => 'Payment Gateway',
                 'description' => 'Stripe/PayPal',
-                'status' => 'healthy',
-                'uptime' => '99.9%'
-            ]
+                'status'      => 'healthy',
+                'uptime'      => '99.9%',
+            ],
         ];
     }
 
     /**
      * Get chart data for analytics
-     * 
-     * @param string $period
+     *
+     * @param  string $period
      * @return array
      */
     private function getChartData(string $period): array
     {
-        $days = match($period) {
-            '7d' => 7,
-            '30d' => 30,
-            '90d' => 90,
-            '1y' => 365,
+        $days = match ($period) {
+            '7d'    => 7,
+            '30d'   => 30,
+            '90d'   => 90,
+            '1y'    => 365,
             default => 30
         };
 
@@ -951,23 +940,23 @@ class AdminController extends Controller
         for ($i = $days - 1; $i >= 0; $i--) {
             $date = Carbon::now()->subDays($i);
             $labels[] = $date->format('M j');
-            
+
             // Simulated data - replace with real queries
             $revenueData[] = rand(10000, 50000);
             $userData[] = rand(500, 2000);
         }
 
         return [
-            'labels' => $labels,
+            'labels'  => $labels,
             'revenue' => $revenueData,
-            'users' => $userData
+            'users'   => $userData,
         ];
     }
 
     /**
      * Export users to Excel/CSV
-     * 
-     * @param array $userIds
+     *
+     * @param  array                                              $userIds
      * @return \Symfony\Component\HttpFoundation\StreamedResponse
      */
     private function exportUsers(array $userIds)
@@ -979,16 +968,16 @@ class AdminController extends Controller
         $filename = 'users-export-' . now()->format('Y-m-d-H-i-s') . '.csv';
 
         $headers = [
-            'Content-Type' => 'text/csv',
+            'Content-Type'        => 'text/csv',
             'Content-Disposition' => "attachment; filename=\"{$filename}\"",
         ];
 
         return response()->stream(function () use ($users) {
             $handle = fopen('php://output', 'w');
-            
+
             // CSV headers
             fputcsv($handle, ['ID', 'Name', 'Email', 'Role', 'Status', 'Created At']);
-            
+
             foreach ($users as $user) {
                 fputcsv($handle, [
                     $user->id,
@@ -996,10 +985,10 @@ class AdminController extends Controller
                     $user->email,
                     $user->role,
                     $user->status,
-                    $user->created_at->format('Y-m-d H:i:s')
+                    $user->created_at->format('Y-m-d H:i:s'),
                 ]);
             }
-            
+
             fclose($handle);
         }, 200, $headers);
     }
