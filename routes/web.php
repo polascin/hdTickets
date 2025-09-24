@@ -90,8 +90,8 @@ Route::get('/', function () {
         return redirect()->route('dashboard');
     }
 
-    // If not logged in, redirect to home page
-    return redirect()->route('home');
+    // If not logged in, redirect to welcome page
+    return redirect()->route('welcome');
 })->name('root');
 
 // Welcome page - Public landing page for sports events ticket monitoring

@@ -66,7 +66,7 @@ class WelcomeController extends Controller
             $cacheKey = 'welcome_page_data_' . ($abVariant ?? 'default');
             $cachedData = Cache::remember($cacheKey, 300, fn () => $data);
 
-            return view('new-welcome', array_merge($cachedData, [
+            return view('welcome', array_merge($cachedData, [
               'user'              => $data['user'] ?? NULL,
               'user_subscription' => $data['user_subscription'] ?? NULL,
             ]));
@@ -79,7 +79,7 @@ class WelcomeController extends Controller
             ]);
 
             // Fallback to simple welcome view without dynamic data
-            return view('new-welcome', [
+            return view('welcome', [
               'stats'      => $this->getFallbackStats(),
               'features'   => $this->getFallbackFeatures(),
               'pricing'    => $this->getFallbackPricing(),
@@ -277,7 +277,7 @@ class WelcomeController extends Controller
               'ab_variant'         => 'comprehensive',
             ]);
 
-            return view('new-welcome', $data);
+            return view('welcome', $data);
 
         } catch (Exception $e) {
             Log::error('Error loading comprehensive welcome page', [
@@ -287,7 +287,7 @@ class WelcomeController extends Controller
             ]);
 
             // Fallback to basic welcome view
-            return view('new-welcome', [
+            return view('welcome', [
                 'total_tickets' => 0,
                 'active_events' => 0,
                 'satisfied_customers' => 0,

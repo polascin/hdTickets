@@ -1,53 +1,318 @@
-<!DOCTYPE html>
-<html lang="en">
+@php
+  $user = auth()->user();
+@endphp
 
-  <head>
+<!DOCTYPE html>
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}" class="scroll-smooth">
+
+<head>
     <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="description"
-      content="HD Tickets - Professional Sports Event Ticket Monitoring Platform with Role-Based Access, Subscription Management, and Legal Compliance">
-    <meta name="keywords"
-      content="sports tickets, ticket monitoring, event tickets, subscription platform, GDPR compliant, 2FA security, role-based access">
-    <meta name="author" content="HD Tickets">
-    <meta name="robots" content="index, follow">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
-    <!-- Open Graph Meta Tags -->
-    <meta property="og:title" content="HD Tickets - Professional Sports Ticket Monitoring Platform">
-    <meta property="og:description"
-      content="Never miss your team again! Professional sports ticket monitoring with role-based access, subscription plans, and enterprise security.">
+    <!-- SEO Meta Tags -->
+    <title>hdTickets - Professional Sports Event Ticket Monitoring Platform</title>
+    <meta name="description" content="Advanced sports event ticket monitoring with automated purchasing and real-time analytics across multiple platforms. Never miss your favorite events again.">
+    <meta name="keywords"
+      content="sports tickets, ticket monitoring, event tickets, sports events, automated purchasing, ticket alerts, NFL tickets, NBA tickets, MLB tickets, NHL tickets">
+    <meta name="author" content="HD Tickets">
+
+    <!-- Open Graph / Social Media -->
     <meta property="og:type" content="website">
-    <meta property="og:url" content="{{ url('/') }}">
-    <meta property="og:image" content="{{ asset('assets/images/social/og-image.png') }}">
     <meta property="og:site_name" content="HD Tickets">
+    <meta property="og:title" content="hdTickets - Professional Sports Event Ticket Monitoring Platform">
+    <meta property="og:description" content="Advanced sports event ticket monitoring with automated purchasing and real-time analytics across multiple platforms. Never miss your favorite events again.">
+    <meta property="og:image" content="{{ asset('assets/images/og-image.jpg') }}">
+    <meta property="og:url" content="{{ url()->current() }}">
 
-    <!-- Twitter Card Meta Tags -->
-    <meta property="og:image:alt" content="HD Tickets - Sports ticket monitoring platform">
-    <meta name="twitter:image:alt" content="HD Tickets - Sports ticket monitoring platform">
+    <!-- Twitter Card -->
     <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="HD Tickets - Professional Sports Ticket Monitoring">
-    <meta name="twitter:description"
-      content="Monitor 50+ platforms, role-based access, GDPR compliant, 7-day free trial">
-    <meta name="twitter:image" content="{{ asset('assets/images/social/twitter-card.png') }}">
+    <meta name="twitter:title" content="hdTickets - Professional Sports Event Ticket Monitoring Platform">
+    <meta name="twitter:description" content="Advanced sports event ticket monitoring with automated purchasing and real-time analytics across multiple platforms. Never miss your favorite events again.">
+    <meta name="twitter:image" content="{{ asset('assets/images/og-image.jpg') }}">
 
-    <!-- Structured Data -->
+    <!-- Theme and PWA -->
+    <meta name="theme-color" content="#1e40af">
+    <meta name="color-scheme" content="light dark">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+
+    <!-- Performance hints -->
+    <link rel="preconnect" href="https://fonts.bunny.net" crossorigin>
+    <link rel="dns-prefetch" href="//fonts.bunny.net">
+
+    <!-- Fonts with font-display for better loading -->
+    <link rel="preload" href="https://fonts.bunny.net/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+      as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <noscript>
+      <link rel="stylesheet" href="https://fonts.bunny.net/css2?family=Inter:wght@300;400;500;600;700;800&display=swap">
+    </noscript>
+
+    <!-- Icons with proper sizes -->
+    <link rel="icon" type="image/png" sizes="32x32" href="{{ asset('favicon-32x32.png') }}">
+    <link rel="icon" type="image/png" sizes="16x16" href="{{ asset('favicon-16x16.png') }}">
+    <link rel="apple-touch-icon" sizes="180x180" href="{{ asset('apple-touch-icon.png') }}">
+    <link rel="manifest" href="{{ asset('site.webmanifest') }}">
+
+    <!-- Styles -->
+    @vite(['resources/css/app-v3.css', 'resources/js/app.js'])
+
+    <!-- Performance and analytics (structured data) -->
     <script type="application/ld+json">
     {
       "@context": "https://schema.org",
       "@type": "SoftwareApplication",
       "name": "HD Tickets",
-      "description": "Professional Sports Event Ticket Monitoring Platform",
+      "description": "Professional sports event ticket monitoring platform",
       "applicationCategory": "BusinessApplication",
-      "operatingSystem": "Web Browser",
+      "operatingSystem": "Web",
       "offers": {
         "@type": "Offer",
-        "price": "29.99",
-        "priceCurrency": "USD",
-        "availability": "https://schema.org/InStock",
-        "validFrom": "{{ date('Y-m-d') }}"
-      },
-      "aggregateRating": {
-        "@type": "AggregateRating",
+        "price": "29",
+        "priceCurrency": "USD"
+      }
+    }
+    </script>
+
+    <!-- Welcome Page Specific Styles -->
+    <style>
+    /* Prevent horizontal overflow and ensure usability */
+    body {
+      overflow-x: hidden;
+    }
+    
+    .max-w-7xl {
+      max-width: min(80rem, calc(100vw - 2rem));
+    }
+
+    /* Enhanced card styles */
+    .feature-card {
+      @apply bg-white dark:bg-gray-800 rounded-xl shadow-md hover:shadow-lg transition-all duration-300 p-6 sm:p-8 border border-gray-200 dark:border-gray-700;
+      min-height: 320px;
+      /* Increased for better content distribution */
+      display: flex;
+      flex-direction: column;
+    }
+
+    .feature-card:hover {
+      @apply transform -translate-y-1;
+    }
+
+    .feature-icon {
+      @apply mx-auto flex items-center justify-center rounded-xl mb-4 sm:mb-6 transition-colors duration-300;
+      width: 3rem !important;
+      height: 3rem !important;
+      flex-shrink: 0;
+    }
+
+    /* Fix potential SVG sizing issues */
+    .feature-icon svg,
+    .feature-card svg {
+      flex-shrink: 0 !important;
+      max-width: none !important;
+    }
+
+    .feature-icon svg {
+      width: 1.5rem !important;
+      height: 1.5rem !important;
+    }
+
+    /* Ensure consistent icon sizing */
+    .w-4 {
+      width: 1rem !important;
+    }
+
+    .h-4 {
+      height: 1rem !important;
+    }
+
+    .w-5 {
+      width: 1.25rem !important;
+    }
+
+    .h-5 {
+      height: 1.25rem !important;
+    }
+
+    .w-6 {
+      width: 1.5rem !important;
+    }
+
+    .h-6 {
+      height: 1.5rem !important;
+    }
+
+    /* Pricing card styles */
+    .pricing-card {
+      @apply bg-white dark:bg-gray-800 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 p-6 sm:p-8 border border-gray-200 dark:border-gray-700 relative;
+      min-height: 450px;
+      /* Ensure consistent pricing card heights */
+      display: flex;
+      flex-direction: column;
+    }
+
+    .pricing-card:hover {
+      @apply transform -translate-y-2;
+    }
+
+    .pricing-card-featured {
+      @apply ring-2 ring-blue-500 dark:ring-blue-400;
+      transform: scale(1.02);
+      /* Reduced from 1.05 to prevent layout issues */
+    }
+
+    .pricing-badge {
+      @apply absolute -top-4 left-1/2 transform -translate-x-1/2 z-10;
+    }
+
+    .pricing-header {
+      @apply text-center flex-shrink-0;
+    }
+
+    .pricing-amount {
+      @apply flex items-baseline justify-center mb-4;
+    }
+
+    .pricing-features {
+      @apply space-y-3 mb-8 flex-1;
+      min-height: 160px;
+      /* Ensure consistent feature list height */
+    }
+
+    .pricing-footer {
+      @apply mt-auto flex-shrink-0;
+    }
+
+    .feature-item {
+      @apply flex items-start;
+    }
+
+    .pricing-cta {
+      @apply block w-full text-center font-semibold py-4 px-6 rounded-xl transition-all duration-200 focus:outline-none focus:ring-4;
+    }
+
+    .pricing-cta-primary {
+      @apply bg-blue-600 hover:bg-blue-700 focus:bg-blue-700 text-white focus:ring-blue-300;
+    }
+
+    .pricing-cta-secondary {
+      @apply bg-gray-100 hover:bg-gray-200 focus:bg-gray-200 text-gray-900 focus:ring-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 dark:text-white dark:focus:ring-gray-500;
+    }
+
+    /* Animation utilities */
+    .fade-in {
+      opacity: 0;
+      transform: translateY(20px);
+      transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+    }
+
+    .fade-in.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    /* Loading states for stats */
+    [data-stat].loading::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      height: 100%;
+      width: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+      animation: loading 1.5s infinite;
+    }
+
+    @keyframes loading {
+      0% {
+        left: -100%;
+      }
+
+      100% {
+        left: 100%;
+      }
+    }
+
+    /* Responsive adjustments */
+    @media (max-width: 640px) {
+      .hero-section {
+        min-height: 85vh;
+      }
+
+      .feature-card {
+        min-height: auto;
+      }
+
+      .pricing-card {
+        min-height: auto;
+      }
+    }
+
+    /* SVG containment */
+    </style>
+</head>
+
+<body
+    class="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 antialiased flex flex-col">
+    <!-- Skip to main content for accessibility -->
+    <a href="#main-content"
+      class="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 bg-blue-600 text-white px-4 py-2 rounded-md z-50 transition-all duration-200 hover:bg-blue-700">
+      Skip to main content
+    </a>
+
+    <!-- Enhanced Navigation -->
+    <nav
+      class="bg-white/90 dark:bg-gray-900/90 backdrop-blur-md border-b border-gray-200/30 dark:border-gray-700/30 sticky top-0 z-40 shadow-sm">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex justify-between items-center h-16">
+          <div class="flex items-center">
+            <a href="{{ route('home') }}" class="flex items-center space-x-3 group">
+              <img src="{{ asset('assets/images/hdTicketsLogo.png') }}" alt="HD Tickets Logo"
+                class="w-8 h-8 transition-transform duration-200 group-hover:scale-110">
+              <span
+                class="font-bold text-xl text-gray-900 dark:text-white group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors duration-200">HD
+                Tickets</span>
+            </a>
+          </div>
+
+          <div class="flex items-center space-x-4">
+            @if ($user)
+              <div class="flex items-center space-x-4">
+                <span class="text-sm text-gray-700 dark:text-gray-300 hidden sm:inline-block">
+                  Welcome, <span class="font-medium">{{ $user->name }}</span>
+                </span>
+                <a href="/dashboard"
+                  class="text-sm text-gray-700 hover:text-blue-600 dark:text-gray-300 dark:hover:text-blue-400 transition-colors duration-200">
+                  Dashboard
+                </a>
+                <form method="POST" action="{{ route('logout') }}" class="inline">
+                  @csrf
+                  <button type="submit"
+                    class="text-sm text-gray-700 hover:text-red-600 dark:text-gray-300 dark:hover:text-red-400 transition-colors duration-200">
+                    Sign Out
+                  </button>
+                </form>
+              </div>
+            @else
+              <a href="{{ route('login') }}"
+                class="text-sm font-medium text-gray-700 hover:text-blue-600 dark:text-gray-300 dark:hover:text-blue-400 transition-colors duration-200">
+                Sign In
+              </a>
+              <a href="{{ route('register') }}"
+                class="inline-flex items-center px-4 py-2 bg-blue-600 hover:bg-blue-700 focus:bg-blue-700 text-white text-sm font-medium rounded-lg transition-all duration-200 focus:outline-none focus:ring-4 focus:ring-blue-300 shadow-sm hover:shadow-md">
+                Get Started
+              </a>
+            @endif
+          </div>
+        </div>
+      </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main id="main-content" class="flex-1">
+    </style>
+</head>
         "ratingValue": "4.8",
         "reviewCount": "1250"
       }
@@ -67,7 +332,7 @@
     @include('layouts.partials.preloads-welcome')
 
     <style>
-      /* Critical CSS for immediate rendering - minimal styles only */
+      /* Critical CSS for immediate rendering */
       * {
         margin: 0;
         padding: 0;
@@ -82,554 +347,212 @@
         padding: 0;
       }
 
-      /* Additional layout styles moved to welcome.css for better caching */
-
-      100% {
-        background-position: 0% 50%;
-      }
-      }
-
-      .container {
-        max-width: 1200px;
-        margin: 0 auto;
-        padding: 0 20px;
-        width: 100%;
-        position: relative;
+      /* Prevent flash of unstyled content */
+      .welcome-layout {
+        opacity: 0;
+        animation: fadeIn 0.5s ease-out forwards;
       }
 
-      /* Header Styles */
-      .header {
-        padding: 20px 0;
-        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-        width: 100%;
-        z-index: 100;
-        background: rgba(15, 23, 42, 0.9);
-        backdrop-filter: blur(10px);
-        grid-row: 1;
-        place-self: stretch;
-      }
-
-      .header .container {
-        display: block;
-        max-width: 1200px;
-        margin: 0 auto;
-        padding: 0 20px;
-        width: 100%;
-      }
-
-      .nav {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-      }
-
-      .logo {
-        display: flex;
-        align-items: center;
-        gap: 12px;
-        font-size: 28px;
-        font-weight: 700;
-        color: #ffffff;
-        text-decoration: none;
-      }
-
-      .logo-icon {
-        width: 40px;
-        height: 40px;
-        background: rgba(255, 255, 255, 0.1);
-        border-radius: 8px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 20px;
-      }
-
-      .nav-links {
-        display: flex;
-        gap: 16px;
-      }
-
-      .btn {
-        padding: 12px 24px;
-        border-radius: 8px;
-        text-decoration: none;
-        font-weight: 500;
-        transition: all 0.3s ease;
-        border: none;
-        cursor: pointer;
-        font-size: 16px;
-      }
-
-      .btn-primary {
-        background: #ffffff;
-        color: #1e40af;
-      }
-
-      .btn-primary:hover {
-        background: rgba(255, 255, 255, 0.9);
-        transform: translateY(-2px);
-      }
-
-      .btn-secondary {
-        background: rgba(255, 255, 255, 0.1);
-        color: #ffffff;
-        border: 1px solid rgba(255, 255, 255, 0.2);
-      }
-
-      .btn-secondary:hover {
-        background: rgba(255, 255, 255, 0.2);
-        transform: translateY(-2px);
-      }
-
-      /* Main Content */
-      .main {
-        padding: 80px 20px;
-        text-align: center;
-        width: 100%;
-        max-width: 1200px;
-        position: relative;
-        grid-row: 2;
-        place-self: center;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-      }
-
-      .hero {
-        margin: 0 auto 80px auto;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        text-align: center;
-        width: 100%;
-        max-width: 900px;
-      }
-
-      .hero-title {
-        font-size: 64px;
-        font-weight: 700;
-        margin-bottom: 24px;
-        background: linear-gradient(135deg, #ffffff 0%, #e0e7ff 100%);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-        background-clip: text;
-      }
-
-      .hero-subtitle {
-        font-size: 24px;
-        margin-bottom: 16px;
-        color: rgba(255, 255, 255, 0.9);
-      }
-
-      .hero-description {
-        font-size: 18px;
-        color: rgba(255, 255, 255, 0.7);
-        max-width: 600px;
-        margin: 0 auto 40px;
-      }
-
-      .hero-cta {
-        display: flex;
-        gap: 16px;
-        justify-content: center;
-        margin-top: 40px;
-      }
-
-      /* Stats Section */
-      .stats {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-        gap: 32px;
-        margin: 80px auto;
-        width: 100%;
-        max-width: 1200px;
-        justify-content: center;
-      }
-
-      .stat-card {
-        background: rgba(255, 255, 255, 0.1);
-        backdrop-filter: blur(15px);
-        border: 1px solid rgba(255, 255, 255, 0.2);
-        border-radius: 20px;
-        padding: 40px 24px;
-        transition: all 0.4s ease;
-        position: relative;
-        overflow: hidden;
-      }
-
-      .stat-card::before {
-        content: '';
-        position: absolute;
-        top: 0;
-        left: 0;
-        right: 0;
-        height: 3px;
-        background: linear-gradient(90deg, #10b981, #3b82f6, #8b5cf6, #f59e0b);
-        background-size: 200% 100%;
-        animation: gradientMove 3s linear infinite;
-      }
-
-      .stat-card:hover {
-        transform: translateY(-8px) scale(1.02);
-        background: rgba(255, 255, 255, 0.15);
-        border-color: rgba(255, 255, 255, 0.3);
-        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
-      }
-
-      .stat-icon {
-        font-size: 32px;
-        margin-bottom: 16px;
-        display: block;
-        animation: pulse 2s infinite;
-      }
-
-      .stat-number {
-        font-size: 52px;
-        font-weight: 700;
-        color: #ffffff;
-        display: block;
-        margin-bottom: 8px;
-        text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-      }
-
-      .stat-label {
-        font-size: 16px;
-        color: rgba(255, 255, 255, 0.9);
-        text-transform: uppercase;
-        letter-spacing: 0.05em;
-        font-weight: 600;
-        margin-bottom: 4px;
-      }
-
-      .stat-description {
-        font-size: 14px;
-        color: rgba(255, 255, 255, 0.6);
-        font-style: italic;
-      }
-
-      /* Common animations moved to welcome.css for better performance */
-
-      /* Features Section */
-      .features {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-        gap: 32px;
-        margin: 80px auto;
-        width: 100%;
-        max-width: 1200px;
-        justify-content: center;
-      }
-
-      .feature-card {
-        background: rgba(255, 255, 255, 0.1);
-        backdrop-filter: blur(10px);
-        border: 1px solid rgba(255, 255, 255, 0.2);
-        border-radius: 16px;
-        padding: 32px;
-        text-align: left;
-        transition: all 0.3s ease;
-      }
-
-      .feature-card:hover {
-        transform: translateY(-4px);
-        background: rgba(255, 255, 255, 0.15);
-      }
-
-      .feature-icon {
-        width: 64px;
-        height: 64px;
-        background: rgba(255, 255, 255, 0.1);
-        border-radius: 12px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 24px;
-        margin-bottom: 20px;
-      }
-
-      .feature-title {
-        font-size: 24px;
-        font-weight: 600;
-        margin-bottom: 12px;
-        color: #ffffff;
-      }
-
-      .feature-description {
-        color: rgba(255, 255, 255, 0.7);
-        line-height: 1.6;
-      }
-
-      /* Auth Section */
-      .auth-section {
-        background: rgba(255, 255, 255, 0.1);
-        backdrop-filter: blur(10px);
-        border: 1px solid rgba(255, 255, 255, 0.2);
-        border-radius: 16px;
-        padding: 40px;
-        margin: 40px 0;
-      }
-
-      .auth-welcome {
-        font-size: 28px;
-        font-weight: 600;
-        margin-bottom: 16px;
-        color: #ffffff;
-      }
-
-      .auth-subtitle {
-        color: rgba(255, 255, 255, 0.8);
-        margin-bottom: 24px;
-      }
-
-      /* Footer */
-      .footer {
-        padding: 40px 0;
-        border-top: 1px solid rgba(255, 255, 255, 0.1);
-        text-align: center;
-        color: rgba(255, 255, 255, 0.6);
-        width: 100%;
-        grid-row: 3;
-        place-self: stretch;
-      }
-
-      /* Responsive Design */
-      @media (max-width: 768px) {
-        body {
-          background-size: 200% 200%;
+      @keyframes fadeIn {
+        to {
+          opacity: 1;
         }
-
-        .container {
-          padding: 0 16px;
-        }
-
-        .header {
-          padding: 16px 0;
-        }
-
-        .main {
-          padding: 40px 16px;
-        }
-
-        .hero {
-          margin-bottom: 60px;
-        }
-
-        .hero-title {
-          font-size: 42px;
-          line-height: 1.1;
-        }
-
-        .hero-subtitle {
-          font-size: 18px;
-          margin-bottom: 12px;
-        }
-
-        .hero-description {
-          font-size: 16px;
-          margin-bottom: 32px;
-        }
-
-        .hero-cta {
-          flex-direction: column;
-          align-items: center;
-          gap: 12px;
-        }
-
-        .nav {
-          flex-direction: column;
-          gap: 16px;
-          align-items: center;
-          text-align: center;
-          justify-content: center;
-        }
-
-        .nav-links {
-          flex-wrap: wrap;
-          justify-content: center;
-        }
-
-        .logo {
-          font-size: 24px;
-        }
-
-        .logo-icon {
-          width: 32px;
-          height: 32px;
-          font-size: 16px;
-        }
-
-        .stats {
-          grid-template-columns: 1fr;
-          gap: 20px;
-          margin: 60px 0;
-        }
-
-        .stat-card {
-          padding: 32px 20px;
-        }
-
-        .stat-number {
-          font-size: 44px;
-        }
-
-        .stat-label {
-          font-size: 14px;
-        }
-
-        .stat-description {
-          font-size: 12px;
-        }
-
-        .features {
-          grid-template-columns: 1fr;
-          gap: 20px;
-          margin: 60px 0;
-        }
-
-        .feature-card {
-          padding: 24px;
-        }
-
-        .feature-icon {
-          width: 48px;
-          height: 48px;
-          font-size: 20px;
-        }
-
-        .feature-title {
-          font-size: 20px;
-        }
-
-        .btn {
-          padding: 16px 24px;
-          font-size: 16px;
-          text-align: center;
-        }
-      }
-
-      @media (max-width: 480px) {
-        .hero-title {
-          font-size: 36px;
-        }
-
-        .hero-subtitle {
-          font-size: 16px;
-        }
-
-        .hero-description {
-          font-size: 15px;
-        }
-
-        .stats {
-          margin: 40px 0;
-        }
-
-        .stat-card {
-          padding: 24px 16px;
-        }
-
-        .stat-number {
-          font-size: 36px;
-        }
-
-        .stat-icon {
-          font-size: 24px;
-        }
-      }
-
-      /* Animations moved to welcome.css for better caching */
-      .fade-in {
-        animation: fadeIn 0.8s ease-out;
-      }
-
-      .slide-up {
-        animation: slideUp 0.8s ease-out;
       }
     </style>
   </head>
 
   <body class="stadium-bg field-pattern welcome-layout">
+    <!-- Header -->
     <header class="welcome-header">
-      <div class="container">
-        <nav class="welcome-nav">
-          <a href="{{ url('/') }}" class="welcome-logo">
-            <div class="welcome-logo-icon">🎫</div>
-            HD Tickets
-          </a>
+      <nav class="welcome-nav">
+        <a href="{{ url('/') }}" class="welcome-logo">
+          <div class="welcome-logo-icon">🎫</div>
+          HD Tickets
+        </a>
 
-          <div class="welcome-nav-links">
-            @if (Route::has('login'))
-              @auth
-                <a href="{{ url('/dashboard') }}" class="welcome-btn welcome-btn-primary">Dashboard</a>
-                <form method="POST" action="{{ route('logout') }}" style="display: inline;">
-                  @csrf
-                  <button type="submit" class="welcome-btn welcome-btn-secondary">Logout</button>
-                </form>
-              @else
-                <a href="{{ route('login') }}" class="welcome-btn welcome-btn-secondary">Sign In</a>
-                <a href="{{ route('register.public') }}" class="welcome-btn welcome-btn-primary">Register</a>
-              @endauth
-            @endif
-          </div>
-        </nav>
-      </div>
+        <div class="welcome-nav-links">
+          @if (Route::has('login'))
+            @auth
+              <a href="{{ url('/dashboard') }}" class="welcome-btn welcome-btn-primary">Dashboard</a>
+              <form method="POST" action="{{ route('logout') }}" style="display: inline;">
+                @csrf
+                <button type="submit" class="welcome-btn welcome-btn-secondary">Logout</button>
+              </form>
+            @else
+              <a href="{{ route('login') }}" class="welcome-btn welcome-btn-secondary">Sign In</a>
+              <a href="{{ route('register.public') }}" class="welcome-btn welcome-btn-primary">Register</a>
+            @endauth
+          @endif
+        </div>
+      </nav>
     </header>
 
+    <!-- Main Content -->
     <main class="welcome-main" role="main">
-      <div class="container">
-        <!-- Hero Section -->
-        @include('components.welcome.hero-section')
+      <!-- Hero Section -->
+      <section class="welcome-hero">
+        <h1 class="welcome-hero-title hero-title-enhanced">
+          Never Miss Your Team Again
+        </h1>
+        <h2 class="welcome-hero-subtitle">
+          Professional Sports Ticket Monitoring Platform
+        </h2>
+        <p class="welcome-hero-description">
+          Monitor 50+ ticket platforms, get instant alerts for your favorite teams,
+          and never pay full price again. Role-based access, enterprise security,
+          and GDPR compliance included.
+        </p>
+        <div class="welcome-hero-cta">
+          <a href="{{ route('register.public') }}" class="welcome-btn welcome-btn-primary stadium-lights">
+            Start Free Trial
+          </a>
+          <a href="#features" class="welcome-btn welcome-btn-secondary">
+            Learn More
+          </a>
+        </div>
+      </section>
 
-        <!-- Statistics Section -->
-        <section class="stats slide-up" aria-label="Platform statistics">
-          <div class="stat-card premium-stat" x-data="{ count: 0 }" x-intersect="count = 75">
-            <div class="stat-icon">🌐</div>
-            <span class="stat-number" x-text="count + '+'" x-transition></span>
-            <span class="stat-label">Integrated Platforms</span>
-            <span class="stat-description">Major ticket vendors worldwide</span>
-          </div>
-          <div class="stat-card premium-stat" x-data="{ visible: false }" x-intersect="visible = true">
-            <div class="stat-icon">⚡</div>
-            <span class="stat-number" x-show="visible" x-transition>24/7</span>
-            <span class="stat-label">AI-Powered Monitoring</span>
-            <span class="stat-description">Real-time price tracking</span>
-          </div>
-          <div class="stat-card premium-stat" x-data="{ count: 0 }" x-intersect="count = 25">
-            <div class="stat-icon">👥</div>
-            <span class="stat-number" x-text="count + 'K+'" x-transition></span>
-            <span class="stat-label">Happy Customers</span>
-            <span class="stat-description">Sports fans like you</span>
-          </div>
-          <div class="stat-card premium-stat" x-data="{ count: 0 }" x-intersect="count = 2">
-            <div class="stat-icon">💰</div>
-            <span class="stat-number" x-text="'$' + count + 'M+'" x-transition></span>
-            <span class="stat-label">Saved on Tickets</span>
-            <span class="stat-description">By our community</span>
-          </div>
-        </section>
+      <!-- Live Stats Section -->
+      <section class="welcome-stats" x-data="welcomeStats()">
+        <div class="welcome-stat-card scoreboard-stat" x-data="{ count: 0 }" x-intersect="count = 15000">
+          <div class="welcome-stat-icon">🎯</div>
+          <span class="welcome-stat-number" x-text="count.toLocaleString() + '+'" x-transition></span>
+          <span class="welcome-stat-label">Active Alerts</span>
+          <span class="welcome-stat-description">Currently monitoring</span>
+        </div>
 
-        <!-- Social Proof Section -->
-        @include('components.welcome.social-proof')
+        <div class="welcome-stat-card scoreboard-stat" x-data="{ count: 0 }" x-intersect="count = 50">
+          <div class="welcome-stat-icon">🏟️</div>
+          <span class="welcome-stat-number" x-text="count + '+'" x-transition></span>
+          <span class="welcome-stat-label">Platforms</span>
+          <span class="welcome-stat-description">Monitored daily</span>
+        </div>
 
-        <!-- Role Comparison Section -->
-        @include('components.welcome.role-comparison')
+        <div class="welcome-stat-card scoreboard-stat" x-data="{ count: 0 }" x-intersect="count = 25000">
+          <div class="welcome-stat-icon">👥</div>
+          <span class="welcome-stat-number" x-text="count.toLocaleString() + '+'" x-transition></span>
+          <span class="welcome-stat-label">Happy Users</span>
+          <span class="welcome-stat-description">Sports fans like you</span>
+        </div>
 
-        <!-- Subscription Showcase Section -->
-        @include('components.welcome.subscription-showcase')
+        <div class="welcome-stat-card scoreboard-stat" x-data="{ count: 0 }" x-intersect="count = 2">
+          <div class="welcome-stat-icon">💰</div>
+          <span class="welcome-stat-number" x-text="'$' + count + 'M+'" x-transition></span>
+          <span class="welcome-stat-label">Saved on Tickets</span>
+          <span class="welcome-stat-description">By our community</span>
+        </div>
+      </section>
 
-        <!-- Security Features Section -->
-        @include('components.welcome.security-features')
+      <!-- Features Section -->
+      <section id="features" class="welcome-features">
+        <div class="welcome-feature-card feature-card-enhanced ticket-stub">
+          <div class="welcome-feature-icon">⚡</div>
+          <h3 class="welcome-feature-title">Real-Time Monitoring</h3>
+          <p class="welcome-feature-description">
+            Get instant notifications when tickets become available for your favorite teams and events.
+          </p>
+        </div>
 
-        <!-- Legal Compliance Section -->
-        @include('components.welcome.legal-compliance')
-      </div>
+        <div class="welcome-feature-card feature-card-enhanced ticket-stub">
+          <div class="welcome-feature-icon">🔒</div>
+          <h3 class="welcome-feature-title">Enterprise Security</h3>
+          <p class="welcome-feature-description">
+            2FA authentication, role-based access control, and GDPR compliance for peace of mind.
+          </p>
+        </div>
+
+        <div class="welcome-feature-card feature-card-enhanced ticket-stub">
+          <div class="welcome-feature-icon">📊</div>
+          <h3 class="welcome-feature-title">Price Analytics</h3>
+          <p class="welcome-feature-description">
+            Advanced analytics to help you find the best deals and track pricing trends.
+          </p>
+        </div>
+
+        <div class="welcome-feature-card feature-card-enhanced ticket-stub">
+          <div class="welcome-feature-icon">📱</div>
+          <h3 class="welcome-feature-title">Multi-Platform</h3>
+          <p class="welcome-feature-description">
+            Monitor StubHub, Ticketmaster, SeatGeek, and 50+ other platforms from one dashboard.
+          </p>
+        </div>
+
+        <div class="welcome-feature-card feature-card-enhanced ticket-stub">
+          <div class="welcome-feature-icon">⚙️</div>
+          <h3 class="welcome-feature-title">Smart Automation</h3>
+          <p class="welcome-feature-description">
+            Set custom filters, price alerts, and automated purchasing rules to never miss a deal.
+          </p>
+        </div>
+
+        <div class="welcome-feature-card feature-card-enhanced ticket-stub">
+          <div class="welcome-feature-icon">🎯</div>
+          <h3 class="welcome-feature-title">Team-Specific Alerts</h3>
+          <p class="welcome-feature-description">
+            Follow your favorite teams across all sports and get notified about home and away games.
+          </p>
+        </div>
+      </section>
+
+      <!-- Call to Action Section -->
+      <section class="welcome-cta-section celebration-particles">
+        <h2 class="welcome-cta-title">Ready to Join the Game?</h2>
+        <p class="welcome-cta-description">
+          Start your 7-day free trial today and never miss another game.
+          No credit card required, cancel anytime.
+        </p>
+        <div class="welcome-cta-buttons">
+          <a href="{{ route('register.public') }}" class="welcome-btn welcome-btn-primary">
+            Start Free Trial
+          </a>
+          <a href="{{ route('login') }}" class="welcome-btn welcome-btn-secondary">
+            Sign In
+          </a>
+        </div>
+      </section>
     </main>
 
-    <!-- Enhanced Footer with Legal Links -->
-    @include('components.welcome.footer-legal')
+    <!-- Footer -->
+    <footer class="welcome-footer">
+      <div class="welcome-footer-content">
+        <div class="welcome-footer-links">
+          <a href="{{ route('legal.privacy-policy') }}" class="welcome-footer-link">Privacy Policy</a>
+          <a href="{{ route('legal.terms-of-service') }}" class="welcome-footer-link">Terms of Service</a>
+          <a href="{{ route('legal.disclaimer') }}" class="welcome-footer-link">Disclaimer</a>
+          <a href="mailto:support@hdtickets.com" class="welcome-footer-link">Support</a>
+        </div>
+        <p>&copy; {{ date('Y') }} HD Tickets. All rights reserved.</p>
+      </div>
+    </footer>
+
+    <!-- Alpine.js for interactivity -->
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
 
     <script>
-      // Simple fade-in animation on scroll
+      // Welcome page stats animation
+      function welcomeStats() {
+        return {
+          init() {
+            // Initialize any additional stats functionality
+          }
+        }
+      }
+
+      // Smooth scrolling for anchor links
+      document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener('click', function(e) {
+          e.preventDefault();
+          const target = document.querySelector(this.getAttribute('href'));
+          if (target) {
+            target.scrollIntoView({
+              behavior: 'smooth',
+              block: 'start'
+            });
+          }
+        });
+      });
+
+      // Add intersection observer for animations
       const observerOptions = {
         threshold: 0.1,
         rootMargin: '0px 0px -50px 0px'
@@ -638,54 +561,47 @@
       const observer = new IntersectionObserver((entries) => {
         entries.forEach(entry => {
           if (entry.isIntersecting) {
-            entry.target.style.opacity = '1';
-            entry.target.style.transform = 'translateY(0)';
+            entry.target.style.animationPlayState = 'running';
           }
         });
       }, observerOptions);
 
       // Observe elements for animation
-      document.querySelectorAll('.slide-up').forEach(el => {
-        el.style.opacity = '0';
-        el.style.transform = 'translateY(30px)';
-        el.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
+      document.querySelectorAll('.welcome-feature-card, .welcome-stat-card').forEach(el => {
         observer.observe(el);
       });
 
-      // Add some interactivity to stat cards
-      document.querySelectorAll('.stat-card').forEach(card => {
-        card.addEventListener('mouseenter', () => {
-          card.style.transform = 'translateY(-8px) scale(1.02)';
-        });
+      // Add ripple effect to buttons
+      document.querySelectorAll('.welcome-btn').forEach(button => {
+        button.addEventListener('click', function(e) {
+          const ripple = document.createElement('span');
+          const rect = this.getBoundingClientRect();
+          const size = Math.max(rect.width, rect.height);
+          const x = e.clientX - rect.left - size / 2;
+          const y = e.clientY - rect.top - size / 2;
 
-        card.addEventListener('mouseleave', () => {
-          card.style.transform = 'translateY(-4px) scale(1)';
-        });
-      });
+          ripple.style.cssText = `
+                    position: absolute;
+                    width: ${size}px;
+                    height: ${size}px;
+                    left: ${x}px;
+                    top: ${y}px;
+                    background: rgba(255, 255, 255, 0.3);
+                    border-radius: 50%;
+                    transform: scale(0);
+                    animation: ripple 0.6s linear;
+                    pointer-events: none;
+                `;
 
-      // Add click effect to buttons
-      document.querySelectorAll('.btn').forEach(btn => {
-        btn.addEventListener('click', (e) => {
-          const ripple = document.createElement('div');
-          ripple.style.position = 'absolute';
-          ripple.style.borderRadius = '50%';
-          ripple.style.background = 'rgba(255, 255, 255, 0.3)';
-          ripple.style.width = ripple.style.height = '10px';
-          ripple.style.left = (e.clientX - e.target.offsetLeft - 5) + 'px';
-          ripple.style.top = (e.clientY - e.target.offsetTop - 5) + 'px';
-          ripple.style.animation = 'ripple 0.6s linear';
+          this.style.position = 'relative';
+          this.style.overflow = 'hidden';
+          this.appendChild(ripple);
 
-          btn.style.position = 'relative';
-          btn.style.overflow = 'hidden';
-          btn.appendChild(ripple);
-
-          setTimeout(() => {
-            ripple.remove();
-          }, 600);
+          setTimeout(() => ripple.remove(), 600);
         });
       });
 
-      // Add ripple animation CSS
+      // Add ripple animation
       const style = document.createElement('style');
       style.textContent = `
             @keyframes ripple {

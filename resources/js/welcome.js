@@ -6,6 +6,10 @@ class WelcomePageManager {
   constructor() {
     this.statsUpdateInterval = null;
     this.animationObserver = null;
+    this.lastStatsUpdate = 0;
+    this.statsUpdateThrottle = 60000; // Reduced from 30s to 60s for better performance
+    this.retryCount = 0;
+    this.maxRetries = 3;
     this.init();
   }
 
@@ -15,28 +19,56 @@ class WelcomePageManager {
     this.setupAnimationObserver();
     this.setupInteractiveElements();
     this.setupAccessibilityFeatures();
+    this.setupErrorHandling();
   }
 
   setupStatsUpdater() {
-    // Update stats every 30 seconds
+    // Only update stats if user is active and page is visible
     this.statsUpdateInterval = setInterval(() => {
-      this.updateStats();
-    }, 30000);
+      if (document.visibilityState === 'visible' && this.isUserActive()) {
+        this.updateStats();
+      }
+    }, this.statsUpdateThrottle);
 
-    // Initial stats load after 2 seconds
-    setTimeout(() => {
-      this.updateStats();
-    }, 2000);
+    // Initial stats load after page is fully loaded
+    if (document.readyState === 'complete') {
+      setTimeout(() => this.updateStats(), 2000);
+    } else {
+      window.addEventListener('load', () => {
+        setTimeout(() => this.updateStats(), 2000);
+      });
+    }
+
+    // Pause updates when page is not visible
+    document.addEventListener('visibilitychange', () => {
+      if (document.visibilityState === 'hidden') {
+        this.pauseStatsUpdates();
+      } else {
+        this.resumeStatsUpdates();
+      }
+    });
   }
 
   async updateStats() {
+    const now = Date.now();
+
+    // Throttle requests
+    if (now - this.lastStatsUpdate < this.statsUpdateThrottle) {
+      return;
+    }
+
+    this.lastStatsUpdate = now;
+
     try {
+      this.setStatsLoadingState(true);
+
       const response = await fetch('/api/welcome-stats', {
         method: 'GET',
         headers: {
           'Accept': 'application/json',
           'X-Requested-With': 'XMLHttpRequest'
-        }
+        },
+        signal: AbortSignal.timeout(10000) // 10 second timeout
       });
 
       if (!response.ok) {
@@ -45,30 +77,93 @@ class WelcomePageManager {
 
       const data = await response.json();
       this.updateStatsElements(data);
+      this.retryCount = 0; // Reset retry count on success
+
     } catch (error) {
-      console.log('Stats update failed:', error);
+      console.warn('Stats update failed:', error.message);
+      this.handleStatsError(error);
+    } finally {
+      this.setStatsLoadingState(false);
     }
   }
 
   updateStatsElements(data) {
     const statsMapping = {
-      'platforms': '[data-stat="platforms"]',
-      'tickets_tracked': '[data-stat="tickets_tracked"]',
-      'users': '[data-stat="users"]',
-      'success_rate': '[data-stat="success_rate"]',
-      'monitoring': '[data-stat="monitoring"]',
-      'events_monitored': '[data-stat="events_monitored"]'
+      'total_tickets': '#total-tickets',
+      'active_events': '#active-events',
+      'satisfied_customers': '#satisfied-customers',
+      'avg_savings': '#avg-savings'
     };
 
     Object.keys(statsMapping).forEach(key => {
-      const elements = document.querySelectorAll(statsMapping[key]);
-      if (data[key]) {
-        elements.forEach(element => {
-          if (element) {
-            element.textContent = data[key];
-            this.animateStatUpdate(element);
-          }
-        });
+      const element = document.querySelector(statsMapping[key]);
+      if (element && data[key]) {
+        // Format numbers appropriately
+        let formattedValue = data[key];
+        if (key === 'avg_savings') {
+          formattedValue = '$' + parseInt(data[key]).toLocaleString();
+        } else {
+          formattedValue = parseInt(data[key]).toLocaleString();
+        }
+
+        element.textContent = formattedValue;
+        this.animateStatUpdate(element);
+      }
+    });
+  }
+
+  setStatsLoadingState(isLoading) {
+    const statElements = document.querySelectorAll('[data-stat]');
+    statElements.forEach(element => {
+      if (isLoading) {
+        element.classList.add('loading');
+        element.setAttribute('aria-busy', 'true');
+      } else {
+        element.classList.remove('loading');
+        element.removeAttribute('aria-busy');
+      }
+    });
+  }
+
+  handleStatsError(error) {
+    this.retryCount++;
+
+    if (this.retryCount < this.maxRetries) {
+      // Exponential backoff retry
+      const retryDelay = Math.pow(2, this.retryCount) * 1000;
+      setTimeout(() => {
+        this.updateStats();
+      }, retryDelay);
+    } else {
+      console.error('Max retries exceeded for stats update');
+      // Could show user notification here
+    }
+  }
+
+  isUserActive() {
+    // Simple user activity detection
+    return document.hasFocus() && !document.hidden;
+  }
+
+  pauseStatsUpdates() {
+    if (this.statsUpdateInterval) {
+      clearInterval(this.statsUpdateInterval);
+      this.statsUpdateInterval = null;
+    }
+  }
+
+  resumeStatsUpdates() {
+    if (!this.statsUpdateInterval) {
+      this.setupStatsUpdater();
+    }
+  }
+
+  setupErrorHandling() {
+    // Global error handling for better UX
+    window.addEventListener('unhandledrejection', (event) => {
+      if (event.reason && event.reason.message && event.reason.message.includes('welcome-stats')) {
+        event.preventDefault();
+        console.warn('Stats API error handled gracefully');
       }
     });
   }
