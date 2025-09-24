@@ -56,7 +56,7 @@
     "@tailwindcss/postcss": "^4.1.13",
     "@tailwindcss/typography": "^0.5.18",
     "@types/alpinejs": "^3.13.10",
-    "@types/node": "^22.18.0",
+    "@types/node": "^24.5.2",
     "@types/pusher-js": "^5.1.0",
     "@typescript-eslint/eslint-plugin": "^8.28.1",
     "@typescript-eslint/parser": "^8.28.1",
