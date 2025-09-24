@@ -6,6 +6,8 @@ export default defineConfig({
   plugins: [
     laravel({
       input: [
+        // Tailwind CSS - Main utility-first CSS framework
+        'resources/css/tailwind.css',
         // Core application assets
         'resources/css/app.css',
         'resources/css/app-v3.css',

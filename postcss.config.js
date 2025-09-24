@@ -1,6 +1,7 @@
 export default {
   plugins: {
-    // Tailwind removed: only autoprefixer + (prod) cssnano remain
+    // TailwindCSS - utility-first CSS framework (v4 PostCSS plugin)
+    '@tailwindcss/postcss': {},
     // Autoprefixer - automatically add vendor prefixes based on browser support
     autoprefixer: {
       // Target browsers based on browserslist config
@@ -19,7 +20,7 @@ export default {
       // Support for flexbox bugs
       flexbox: 'no-2009'
     },
-    
+
     // CSSnano - CSS minification and optimization (production only)
     ...(process.env.NODE_ENV === 'production' ? {
       cssnano: {
