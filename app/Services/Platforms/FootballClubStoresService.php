@@ -150,7 +150,7 @@ class FootballClubStoresService extends BasePlatformService
         $errors = [];
 
         foreach ($clubs as $clubKey) {
-            if (!isset($this->clubStores[$clubKey])) {
+            if (! isset($this->clubStores[$clubKey])) {
                 $errors[] = "Unknown club: {$clubKey}";
 
                 continue;
@@ -193,7 +193,7 @@ class FootballClubStoresService extends BasePlatformService
     {
         $searchResults = $this->searchTickets($clubs, $filters);
 
-        if (!$searchResults['success']) {
+        if (! $searchResults['success']) {
             return [
                 'success' => FALSE,
                 'error'   => 'Search failed',
@@ -327,7 +327,7 @@ class FootballClubStoresService extends BasePlatformService
             'Referer'         => $clubData['url'],
         ])->timeout(30)->get($clubData['api_endpoint'], $params);
 
-        if (!$response->successful()) {
+        if (! $response->successful()) {
             throw new Exception('API request failed: ' . $response->status());
         }
 
@@ -351,7 +351,7 @@ class FootballClubStoresService extends BasePlatformService
             'Cache-Control'   => 'no-cache',
         ])->timeout(30)->get($clubData['url']);
 
-        if (!$response->successful()) {
+        if (! $response->successful()) {
             throw new Exception('Web scraping failed: ' . $response->status());
         }
 
@@ -687,7 +687,7 @@ class FootballClubStoresService extends BasePlatformService
      */
     private function hasApiAccess(array $clubData): bool
     {
-        return isset($clubData['api_endpoint']) && !empty($clubData['api_endpoint']);
+        return isset($clubData['api_endpoint']) && ! empty($clubData['api_endpoint']);
     }
 
     /**
@@ -760,7 +760,7 @@ class FootballClubStoresService extends BasePlatformService
         $possibleFields = ['opponent', 'away_team', 'visitor', 'rival'];
 
         foreach ($possibleFields as $field) {
-            if (isset($data[$field]) && !empty($data[$field])) {
+            if (isset($data[$field]) && ! empty($data[$field])) {
                 return $data[$field];
             }
         }
@@ -826,7 +826,7 @@ class FootballClubStoresService extends BasePlatformService
         }
 
         if (isset($ticket['status'])) {
-            return !in_array(strtolower($ticket['status']), ['sold_out', 'unavailable', 'agotado'], TRUE);
+            return ! in_array(strtolower($ticket['status']), ['sold_out', 'unavailable', 'agotado'], TRUE);
         }
 
         return TRUE; // Default to available
@@ -921,7 +921,7 @@ class FootballClubStoresService extends BasePlatformService
     {
         // Extract fixture title
         $titleNode = $xpath->query($selectors['title'], $node)->item(0);
-        if (!$titleNode) {
+        if (! $titleNode) {
             return NULL;
         }
 
@@ -970,7 +970,7 @@ class FootballClubStoresService extends BasePlatformService
 
         // Extract price
         $priceNode = $xpath->query('.//span[@class="price"] | .//*[contains(@class, "price")]', $ticketNode)->item(0);
-        if (!$priceNode) {
+        if (! $priceNode) {
             return NULL;
         }
 
@@ -985,7 +985,7 @@ class FootballClubStoresService extends BasePlatformService
         $available = TRUE;
         if ($availNode) {
             $availText = strtolower(trim($availNode->textContent));
-            $available = !str_contains($availText, 'sold out') && !str_contains($availText, 'unavailable');
+            $available = ! str_contains($availText, 'sold out') && ! str_contains($availText, 'unavailable');
         }
 
         return [

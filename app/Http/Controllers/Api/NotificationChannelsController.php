@@ -146,7 +146,7 @@ class NotificationChannelsController extends Controller
                 ->where('channel', $channel)
                 ->first();
 
-            if (!$setting) {
+            if (! $setting) {
                 return response()->json([
                     'success' => FALSE,
                     'message' => 'Channel not configured',
@@ -189,7 +189,7 @@ class NotificationChannelsController extends Controller
                 ->where('channel', $channel)
                 ->first();
 
-            if (!$setting) {
+            if (! $setting) {
                 return response()->json([
                     'success' => FALSE,
                     'message' => 'Channel not configured',
@@ -262,7 +262,7 @@ class NotificationChannelsController extends Controller
                 ->where('channel', $channel)
                 ->first();
 
-            if (!$setting) {
+            if (! $setting) {
                 return response()->json([
                     'success' => FALSE,
                     'message' => 'Channel not configured',
@@ -295,7 +295,7 @@ class NotificationChannelsController extends Controller
         try {
             $user = $request->user();
 
-            if (!isset($this->channelServices[$channel])) {
+            if (! isset($this->channelServices[$channel])) {
                 return response()->json([
                     'success' => FALSE,
                     'message' => 'Unknown channel: ' . $channel,
@@ -337,14 +337,14 @@ class NotificationChannelsController extends Controller
                 ->where('channel', $channel)
                 ->first();
 
-            if (!$setting) {
+            if (! $setting) {
                 return response()->json([
                     'success' => FALSE,
                     'message' => 'Channel not configured',
                 ], 404);
             }
 
-            $setting->update(['is_enabled' => !$setting->is_enabled]);
+            $setting->update(['is_enabled' => ! $setting->is_enabled]);
 
             return response()->json([
                 'success' => TRUE,

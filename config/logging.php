@@ -11,7 +11,7 @@ use Monolog\Handler\StreamHandler;
 use Monolog\Handler\SyslogUdpHandler;
 
 return [
-  /*
+    /*
     |--------------------------------------------------------------------------
     | Default Log Channel
     |--------------------------------------------------------------------------
@@ -22,9 +22,9 @@ return [
     |
     */
 
-  'default' => env('LOG_CHANNEL', 'stack'),
+    'default' => env('LOG_CHANNEL', 'stack'),
 
-  /*
+    /*
     |--------------------------------------------------------------------------
     | Deprecations Log Channel
     |--------------------------------------------------------------------------
@@ -35,12 +35,12 @@ return [
     |
     */
 
-  'deprecations' => [
-    'channel' => env('LOG_DEPRECATIONS_CHANNEL', 'null'),
-    'trace'   => FALSE,
-  ],
+    'deprecations' => [
+        'channel' => env('LOG_DEPRECATIONS_CHANNEL', 'null'),
+        'trace'   => FALSE,
+    ],
 
-  /*
+    /*
     |--------------------------------------------------------------------------
     | Log Channels
     |--------------------------------------------------------------------------
@@ -55,98 +55,98 @@ return [
     |
     */
 
-  'channels' => [
-    'stack' => [
-      'driver'   => 'stack',
-      'channels' => (function () {
-          $channels = explode(',', (string) env('LOG_STACK_CHANNELS', 'single,performance'));
-          $perfEnabled = (bool) env('PERFORMANCE_LOGGING', FALSE);
-          $logsWritable = @is_writable(storage_path('logs'));
-          if (!$perfEnabled || !$logsWritable) {
-              $channels = array_filter($channels, fn ($c) => trim($c) !== 'performance');
-          }
-          // Ensure at least one channel remains
-          if (empty($channels)) {
-              $channels = ['single'];
-          }
+    'channels' => [
+        'stack' => [
+            'driver'   => 'stack',
+            'channels' => (function () {
+                $channels = explode(',', (string) env('LOG_STACK_CHANNELS', 'single,performance'));
+                $perfEnabled = (bool) env('PERFORMANCE_LOGGING', FALSE);
+                $logsWritable = @is_writable(storage_path('logs'));
+                if (! $perfEnabled || ! $logsWritable) {
+                    $channels = array_filter($channels, fn ($c) => trim($c) !== 'performance');
+                }
+                // Ensure at least one channel remains
+                if (empty($channels)) {
+                    $channels = ['single'];
+                }
 
-          return array_values($channels);
-      })(),
-      'ignore_exceptions' => FALSE,
-    ],
+                return array_values($channels);
+            })(),
+            'ignore_exceptions' => FALSE,
+        ],
 
-    'single' => [
-      'driver'               => 'single',
-      'path'                 => storage_path('logs/laravel.log'),
-      'level'                => env('LOG_LEVEL', 'debug'),
-      'replace_placeholders' => TRUE,
-    ],
+        'single' => [
+            'driver'               => 'single',
+            'path'                 => storage_path('logs/laravel.log'),
+            'level'                => env('LOG_LEVEL', 'debug'),
+            'replace_placeholders' => TRUE,
+        ],
 
-    'daily' => [
-      'driver'               => 'daily',
-      'path'                 => storage_path('logs/laravel.log'),
-      'level'                => env('LOG_LEVEL', 'debug'),
-      'days'                 => 30,
-      'replace_placeholders' => TRUE,
-    ],
+        'daily' => [
+            'driver'               => 'daily',
+            'path'                 => storage_path('logs/laravel.log'),
+            'level'                => env('LOG_LEVEL', 'debug'),
+            'days'                 => 30,
+            'replace_placeholders' => TRUE,
+        ],
 
-    'slack' => [
-      'driver'   => 'slack',
-      'url'      => env('LOG_SLACK_WEBHOOK_URL'),
-      'username' => 'HDTickets Monitor',
-      'emoji'    => ':warning:',
-      'level'    => env('LOG_LEVEL', 'critical'),
-    ],
+        'slack' => [
+            'driver'   => 'slack',
+            'url'      => env('LOG_SLACK_WEBHOOK_URL'),
+            'username' => 'HDTickets Monitor',
+            'emoji'    => ':warning:',
+            'level'    => env('LOG_LEVEL', 'critical'),
+        ],
 
-    'papertrail' => [
-      'driver'       => 'monolog',
-      'level'        => env('LOG_LEVEL', 'debug'),
-      'handler'      => env('LOG_PAPERTRAIL_HANDLER', SyslogUdpHandler::class),
-      'handler_with' => [
-        'host'             => env('PAPERTRAIL_URL'),
-        'port'             => env('PAPERTRAIL_PORT'),
-        'connectionString' => 'tls://' . env('PAPERTRAIL_URL') . ':' . env('PAPERTRAIL_PORT'),
-      ],
-    ],
+        'papertrail' => [
+            'driver'       => 'monolog',
+            'level'        => env('LOG_LEVEL', 'debug'),
+            'handler'      => env('LOG_PAPERTRAIL_HANDLER', SyslogUdpHandler::class),
+            'handler_with' => [
+                'host'             => env('PAPERTRAIL_URL'),
+                'port'             => env('PAPERTRAIL_PORT'),
+                'connectionString' => 'tls://' . env('PAPERTRAIL_URL') . ':' . env('PAPERTRAIL_PORT'),
+            ],
+        ],
 
-    'stderr' => [
-      'driver'    => 'monolog',
-      'level'     => env('LOG_LEVEL', 'debug'),
-      'handler'   => StreamHandler::class,
-      'formatter' => env('LOG_STDERR_FORMATTER'),
-      'with'      => [
-        'stream' => 'php://stderr',
-      ],
-    ],
+        'stderr' => [
+            'driver'    => 'monolog',
+            'level'     => env('LOG_LEVEL', 'debug'),
+            'handler'   => StreamHandler::class,
+            'formatter' => env('LOG_STDERR_FORMATTER'),
+            'with'      => [
+                'stream' => 'php://stderr',
+            ],
+        ],
 
-    'syslog' => [
-      'driver' => 'syslog',
-      'level'  => env('LOG_LEVEL', 'debug'),
-    ],
+        'syslog' => [
+            'driver' => 'syslog',
+            'level'  => env('LOG_LEVEL', 'debug'),
+        ],
 
-    'errorlog' => [
-      'driver' => 'errorlog',
-      'level'  => env('LOG_LEVEL', 'debug'),
-    ],
+        'errorlog' => [
+            'driver' => 'errorlog',
+            'level'  => env('LOG_LEVEL', 'debug'),
+        ],
 
-    'null' => [
-      'driver'  => 'monolog',
-      'handler' => NullHandler::class,
-    ],
+        'null' => [
+            'driver'  => 'monolog',
+            'handler' => NullHandler::class,
+        ],
 
-    'emergency' => [
-      'path' => storage_path('logs/laravel.log'),
-    ],
+        'emergency' => [
+            'path' => storage_path('logs/laravel.log'),
+        ],
 
-    'imap' => [
-      'driver'               => 'daily',
-      'path'                 => storage_path('logs/imap.log'),
-      'level'                => env('LOG_LEVEL', 'debug'),
-      'days'                 => 14,
-      'replace_placeholders' => TRUE,
-    ],
+        'imap' => [
+            'driver'               => 'daily',
+            'path'                 => storage_path('logs/imap.log'),
+            'level'                => env('LOG_LEVEL', 'debug'),
+            'days'                 => 14,
+            'replace_placeholders' => TRUE,
+        ],
 
-    /*
+        /*
         |--------------------------------------------------------------------------
         | Ticket APIs Log Channel
         |--------------------------------------------------------------------------
@@ -155,15 +155,15 @@ return [
         | This channel logs to a separate file for better organization and analysis.
         |
         */
-    'ticket_apis' => [
-      'driver' => 'daily',
-      'path'   => storage_path('logs/ticket_apis.log'),
-      'level'  => env('LOG_LEVEL', 'debug'),
-      'days'   => 30, // Keep logs for 30 days
-      'tap'    => [TicketApiFormatter::class],
-    ],
+        'ticket_apis' => [
+            'driver' => 'daily',
+            'path'   => storage_path('logs/ticket_apis.log'),
+            'level'  => env('LOG_LEVEL', 'debug'),
+            'days'   => 30, // Keep logs for 30 days
+            'tap'    => [TicketApiFormatter::class],
+        ],
 
-    /*
+        /*
         |--------------------------------------------------------------------------
         | Monitoring Log Channel
         |--------------------------------------------------------------------------
@@ -171,14 +171,14 @@ return [
         | Dedicated channel for platform monitoring alerts and statistics.
         |
         */
-    'monitoring' => [
-      'driver' => 'daily',
-      'path'   => storage_path('logs/monitoring.log'),
-      'level'  => env('LOG_LEVEL', 'info'),
-      'days'   => 60, // Keep monitoring logs longer
-    ],
+        'monitoring' => [
+            'driver' => 'daily',
+            'path'   => storage_path('logs/monitoring.log'),
+            'level'  => env('LOG_LEVEL', 'info'),
+            'days'   => 60, // Keep monitoring logs longer
+        ],
 
-    /*
+        /*
         |--------------------------------------------------------------------------
         | Performance Log Channel
         |--------------------------------------------------------------------------
@@ -186,18 +186,18 @@ return [
         | Channel for tracking performance metrics and slow operations.
         |
         */
-    'performance' => array_merge([
-      // Allow disabling via env to avoid permission issues in limited environments / CI
-      // Set PERFORMANCE_LOGGING=false in .env (or unset) to disable this channel safely
-      'driver' => env('PERFORMANCE_LOGGING', FALSE) ? 'daily' : 'single',
-      'path'   => storage_path('logs/performance.log'),
-      'level'  => env('LOG_LEVEL', 'info'),
-      'days'   => 14,
-    ], env('PERFORMANCE_LOGGING', FALSE) ? [
-      'tap' => [PerformanceLogger::class],
-    ] : []),
+        'performance' => array_merge([
+            // Allow disabling via env to avoid permission issues in limited environments / CI
+            // Set PERFORMANCE_LOGGING=false in .env (or unset) to disable this channel safely
+            'driver' => env('PERFORMANCE_LOGGING', FALSE) ? 'daily' : 'single',
+            'path'   => storage_path('logs/performance.log'),
+            'level'  => env('LOG_LEVEL', 'info'),
+            'days'   => 14,
+        ], env('PERFORMANCE_LOGGING', FALSE) ? [
+            'tap' => [PerformanceLogger::class],
+        ] : []),
 
-    /*
+        /*
         |--------------------------------------------------------------------------
         | Security Log Channel
         |--------------------------------------------------------------------------
@@ -205,14 +205,14 @@ return [
         | Dedicated channel for security events, authentication, and suspicious activities.
         |
         */
-    'security' => [
-      'driver' => 'daily',
-      'path'   => storage_path('logs/security.log'),
-      'level'  => env('LOG_LEVEL', 'info'),
-      'days'   => 90, // Keep security logs for 90 days
-    ],
+        'security' => [
+            'driver' => 'daily',
+            'path'   => storage_path('logs/security.log'),
+            'level'  => env('LOG_LEVEL', 'info'),
+            'days'   => 90, // Keep security logs for 90 days
+        ],
 
-    /*
+        /*
         |--------------------------------------------------------------------------
         | Critical Alerts Channel
         |--------------------------------------------------------------------------
@@ -221,13 +221,13 @@ return [
         | Uses Slack for real-time notifications.
         |
         */
-    'critical_alerts' => [
-      'driver'            => 'stack',
-      'channels'          => ['daily', 'slack'],
-      'ignore_exceptions' => FALSE,
-    ],
+        'critical_alerts' => [
+            'driver'            => 'stack',
+            'channels'          => ['daily', 'slack'],
+            'ignore_exceptions' => FALSE,
+        ],
 
-    /*
+        /*
         |--------------------------------------------------------------------------
         | Audit Log Channel
         |--------------------------------------------------------------------------
@@ -235,14 +235,14 @@ return [
         | Channel for audit trails of sensitive operations and administrative actions.
         |
         */
-    'audit' => [
-      'driver' => 'daily',
-      'path'   => storage_path('logs/audit.log'),
-      'level'  => 'info',
-      'days'   => 180, // Keep audit logs for 6 months
-    ],
+        'audit' => [
+            'driver' => 'daily',
+            'path'   => storage_path('logs/audit.log'),
+            'level'  => 'info',
+            'days'   => 180, // Keep audit logs for 6 months
+        ],
 
-    /*
+        /*
         |--------------------------------------------------------------------------
         | Authentication Debug Log Channel
         |--------------------------------------------------------------------------
@@ -251,14 +251,14 @@ return [
         | and session management. Used for diagnosing auth issues.
         |
         */
-    'auth_debug' => [
-      'driver' => 'daily',
-      'path'   => storage_path('logs/auth_debug.log'),
-      'level'  => env('LOG_LEVEL', 'debug'),
-      'days'   => 7, // Keep auth debug logs for 7 days
-    ],
+        'auth_debug' => [
+            'driver' => 'daily',
+            'path'   => storage_path('logs/auth_debug.log'),
+            'level'  => env('LOG_LEVEL', 'debug'),
+            'days'   => 7, // Keep auth debug logs for 7 days
+        ],
 
-    /*
+        /*
         |--------------------------------------------------------------------------
         | Database Query Log Channel
         |--------------------------------------------------------------------------
@@ -267,15 +267,15 @@ return [
         | Logs slow queries and query patterns for analysis.
         |
         */
-    'query' => [
-      'driver' => 'daily',
-      'path'   => storage_path('logs/queries.log'),
-      'level'  => env('LOG_LEVEL', 'debug'),
-      'days'   => 7,
-      'tap'    => [QueryLogger::class],
-    ],
+        'query' => [
+            'driver' => 'daily',
+            'path'   => storage_path('logs/queries.log'),
+            'level'  => env('LOG_LEVEL', 'debug'),
+            'days'   => 7,
+            'tap'    => [QueryLogger::class],
+        ],
 
-    /*
+        /*
         |--------------------------------------------------------------------------
         | Error Tracking Log Channel
         |--------------------------------------------------------------------------
@@ -283,15 +283,15 @@ return [
         | Dedicated channel for structured error tracking and analysis.
         |
         */
-    'error_tracking' => [
-      'driver' => 'daily',
-      'path'   => storage_path('logs/error_tracking.log'),
-      'level'  => 'error',
-      'days'   => 30,
-      'tap'    => [ErrorTrackingLogger::class],
-    ],
+        'error_tracking' => [
+            'driver' => 'daily',
+            'path'   => storage_path('logs/error_tracking.log'),
+            'level'  => 'error',
+            'days'   => 30,
+            'tap'    => [ErrorTrackingLogger::class],
+        ],
 
-    /*
+        /*
         |--------------------------------------------------------------------------
         | System Metrics Log Channel
         |--------------------------------------------------------------------------
@@ -299,14 +299,14 @@ return [
         | Channel for logging system metrics like CPU, memory, disk usage.
         |
         */
-    'metrics' => [
-      'driver' => 'daily',
-      'path'   => storage_path('logs/metrics.log'),
-      'level'  => 'info',
-      'days'   => 30,
-    ],
+        'metrics' => [
+            'driver' => 'daily',
+            'path'   => storage_path('logs/metrics.log'),
+            'level'  => 'info',
+            'days'   => 30,
+        ],
 
-    /*
+        /*
         |--------------------------------------------------------------------------
         | Request/Response Log Channel
         |--------------------------------------------------------------------------
@@ -314,11 +314,11 @@ return [
         | Channel for logging HTTP requests and responses for debugging and monitoring.
         |
         */
-    'requests' => [
-      'driver' => 'daily',
-      'path'   => storage_path('logs/requests.log'),
-      'level'  => env('LOG_LEVEL', 'info'),
-      'days'   => 7,
+        'requests' => [
+            'driver' => 'daily',
+            'path'   => storage_path('logs/requests.log'),
+            'level'  => env('LOG_LEVEL', 'info'),
+            'days'   => 7,
+        ],
     ],
-  ],
 ];

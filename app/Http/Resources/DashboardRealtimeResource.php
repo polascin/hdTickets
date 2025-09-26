@@ -8,7 +8,7 @@ use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 use Override;
 
-/** @property-read array $statistics */
+/** @property array $statistics */
 class DashboardRealtimeResource extends JsonResource
 {
     /**
@@ -23,12 +23,12 @@ class DashboardRealtimeResource extends JsonResource
         $data = $this->resource;
 
         return [
-          'statistics'     => $data['statistics'] ?? [],
-          'recent_tickets' => $data['recent_tickets'] ?? [],
-          'user_metrics'   => $data['user_metrics'] ?? [],
-          'system_status'  => $data['system_status'] ?? [],
-          'notifications'  => $data['notifications'] ?? [],
-          'last_updated'   => $data['last_updated'] ?? NULL,
+            'statistics'     => $data['statistics'] ?? [],
+            'recent_tickets' => $data['recent_tickets'] ?? [],
+            'user_metrics'   => $data['user_metrics'] ?? [],
+            'system_status'  => $data['system_status'] ?? [],
+            'notifications'  => $data['notifications'] ?? [],
+            'last_updated'   => $data['last_updated'] ?? NULL,
         ];
     }
 }

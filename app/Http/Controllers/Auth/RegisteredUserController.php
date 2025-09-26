@@ -27,7 +27,7 @@ class RegisteredUserController extends Controller
     public function create(): View|Response
     {
         // Check if user is authenticated and is an admin
-        if (!Auth::check() || !Auth::user()->isAdmin()) {
+        if (! Auth::check() || ! Auth::user()->isAdmin()) {
             abort(403, 'Access denied. User registration is restricted to administrators only.');
         }
 
@@ -46,36 +46,36 @@ class RegisteredUserController extends Controller
     public function store(Request $request): RedirectResponse
     {
         // Check if user is authenticated and is an admin
-        if (!Auth::check() || !Auth::user()->isAdmin()) {
+        if (! Auth::check() || ! Auth::user()->isAdmin()) {
             abort(403, 'Access denied. User registration is restricted to administrators only.');
         }
 
         $request->validate([
-          'name'        => ['required', 'string', 'max:255'],
-          'surname'     => ['sometimes', 'string', 'max:255'],
-          'username'    => ['sometimes', 'string', 'max:255', 'unique:' . User::class],
-          'email'       => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:' . User::class],
-          'phone'       => ['sometimes', 'string', 'max:20'],
-          'password'    => ['required', 'confirmed', Password::defaults()],
-          'role'        => ['sometimes', 'string', 'in:admin,agent,customer,scraper'],
-          'is_active'   => ['sometimes', 'boolean'],
-          'require_2fa' => ['sometimes', 'boolean'],
+            'name'        => ['required', 'string', 'max:255'],
+            'surname'     => ['sometimes', 'string', 'max:255'],
+            'username'    => ['sometimes', 'string', 'max:255', 'unique:' . User::class],
+            'email'       => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:' . User::class],
+            'phone'       => ['sometimes', 'string', 'max:20'],
+            'password'    => ['required', 'confirmed', Password::defaults()],
+            'role'        => ['sometimes', 'string', 'in:admin,agent,customer,scraper'],
+            'is_active'   => ['sometimes', 'boolean'],
+            'require_2fa' => ['sometimes', 'boolean'],
         ]);
 
         $user = User::create([
-          'name'                => $request->name,
-          'surname'             => $request->surname,
-          'username'            => $request->username ?? strtolower(str_replace(' ', '.', $request->name)),
-          'email'               => $request->email,
-          'phone'               => $request->phone,
-          'password'            => Hash::make($request->password),
-          'role'                => $request->role ?? User::ROLE_CUSTOMER,
-          'is_active'           => $request->is_active ?? TRUE,
-          'require_2fa'         => $request->require_2fa ?? FALSE,
-          'registration_source' => 'admin',
-          'created_by_type'     => 'admin',
-          'created_by_id'       => Auth::id(),
-          'password_changed_at' => now(),
+            'name'                => $request->name,
+            'surname'             => $request->surname,
+            'username'            => $request->username ?? strtolower(str_replace(' ', '.', $request->name)),
+            'email'               => $request->email,
+            'phone'               => $request->phone,
+            'password'            => Hash::make($request->password),
+            'role'                => $request->role ?? User::ROLE_CUSTOMER,
+            'is_active'           => $request->is_active ?? TRUE,
+            'require_2fa'         => $request->require_2fa ?? FALSE,
+            'registration_source' => 'admin',
+            'created_by_type'     => 'admin',
+            'created_by_id'       => Auth::id(),
+            'password_changed_at' => now(),
         ]);
 
         event(new Registered($user));
@@ -83,6 +83,6 @@ class RegisteredUserController extends Controller
         // Don't automatically log in the new user since this is admin registration
         // Redirect back to admin user management with success message
         return redirect()->route('admin.users.index')
-          ->with('success', "User '{$user->name}' has been successfully created with role '{$user->role}'.");
+            ->with('success', "User '{$user->name}' has been successfully created with role '{$user->role}'.");
     }
 }

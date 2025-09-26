@@ -11,6 +11,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 use function count;
+use function defined;
 use function in_array;
 use function is_array;
 use function is_bool;
@@ -27,15 +28,15 @@ class AuditLog extends Model
     use HasFactory;
 
     protected $fillable = [
-      'user_id',
-      'action',
-      'resource_type',
-      'resource_id',
-      'changes',
-      'ip_address',
-      'user_agent',
-      'session_id',
-      'performed_at',
+        'user_id',
+        'action',
+        'resource_type',
+        'resource_id',
+        'changes',
+        'ip_address',
+        'user_agent',
+        'session_id',
+        'performed_at',
     ];
 
     /**
@@ -51,13 +52,13 @@ class AuditLog extends Model
      */
     public function getResource(): ?Model
     {
-        if (!$this->resource_type || !$this->resource_id) {
+        if (! $this->resource_type || ! $this->resource_id) {
             return NULL;
         }
 
         try {
             $modelClass = $this->getResourceModelClass();
-            if (!$modelClass) {
+            if (! $modelClass) {
                 return NULL;
             }
 
@@ -73,19 +74,19 @@ class AuditLog extends Model
     public function isSensitiveAction(): bool
     {
         $sensitiveActions = [
-          'delete',
-          'force_delete',
-          'restore',
-          'login',
-          'logout',
-          'password_change',
-          'role_change',
-          'permission_grant',
-          'permission_revoke',
-          'account_lock',
-          'account_unlock',
-          'data_export',
-          'system_config_change',
+            'delete',
+            'force_delete',
+            'restore',
+            'login',
+            'logout',
+            'password_change',
+            'role_change',
+            'permission_grant',
+            'permission_revoke',
+            'account_lock',
+            'account_unlock',
+            'data_export',
+            'system_config_change',
         ];
 
         return in_array($this->action, $sensitiveActions, TRUE);
@@ -153,7 +154,7 @@ class AuditLog extends Model
     public function scopeResource($query, string $resourceType, $resourceId)
     {
         return $query->where('resource_type', $resourceType)
-          ->where('resource_id', $resourceId);
+            ->where('resource_id', $resourceId);
     }
 
     /**
@@ -176,19 +177,19 @@ class AuditLog extends Model
     public function scopeSensitive($query)
     {
         $sensitiveActions = [
-          'delete',
-          'force_delete',
-          'restore',
-          'login',
-          'logout',
-          'password_change',
-          'role_change',
-          'permission_grant',
-          'permission_revoke',
-          'account_lock',
-          'account_unlock',
-          'data_export',
-          'system_config_change',
+            'delete',
+            'force_delete',
+            'restore',
+            'login',
+            'logout',
+            'password_change',
+            'role_change',
+            'permission_grant',
+            'permission_revoke',
+            'account_lock',
+            'account_unlock',
+            'data_export',
+            'system_config_change',
         ];
 
         return $query->whereIn('action', $sensitiveActions);
@@ -219,15 +220,15 @@ class AuditLog extends Model
         $request = request();
 
         return static::create([
-          'user_id'       => $user?->id,
-          'action'        => $action,
-          'resource_type' => $resourceType,
-          'resource_id'   => $resourceId,
-          'changes'       => $changes,
-          'ip_address'    => $request->ip(),
-          'user_agent'    => $request->header('User-Agent'),
-          'session_id'    => defined('PHPSTAN_RUNNING') ? NULL : session()->getId(),
-          'performed_at'  => now(),
+            'user_id'       => $user?->id,
+            'action'        => $action,
+            'resource_type' => $resourceType,
+            'resource_id'   => $resourceId,
+            'changes'       => $changes,
+            'ip_address'    => $request->ip(),
+            'user_agent'    => $request->header('User-Agent'),
+            'session_id'    => defined('PHPSTAN_RUNNING') ? NULL : session()->getId(),
+            'performed_at'  => now(),
         ]);
     }
 
@@ -237,13 +238,13 @@ class AuditLog extends Model
     protected function getResourceModelClass(): ?string
     {
         $resourceTypeMap = [
-          'user'       => User::class,
-          'ticket'     => Ticket::class,
-          'role'       => Role::class,
-          'permission' => Permission::class,
-          'event'      => SportsEvent::class,
-          'purchase'   => TicketPurchase::class,
-          // Add more resource type mappings as needed
+            'user'       => User::class,
+            'ticket'     => Ticket::class,
+            'role'       => Role::class,
+            'permission' => Permission::class,
+            'event'      => SportsEvent::class,
+            'purchase'   => TicketPurchase::class,
+            // Add more resource type mappings as needed
         ];
 
         return $resourceTypeMap[$this->resource_type] ?? NULL;
@@ -278,10 +279,10 @@ class AuditLog extends Model
     protected function casts(): array
     {
         return [
-          'changes'      => 'array',
-          'performed_at' => 'datetime',
-          'created_at'   => 'datetime',
-          'updated_at'   => 'datetime',
+            'changes'      => 'array',
+            'performed_at' => 'datetime',
+            'created_at'   => 'datetime',
+            'updated_at'   => 'datetime',
         ];
     }
 }

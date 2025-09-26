@@ -84,14 +84,14 @@ class ApiSecurityService
 
         // Check IP-based rate limiting
         $ipResult = $this->checkIpRateLimit($request, $endpoint, $config);
-        if (!$ipResult['allowed']) {
+        if (! $ipResult['allowed']) {
             return $ipResult;
         }
 
         // Check user-based rate limiting
         if ($user instanceof User) {
             $userResult = $this->checkUserRateLimit($user, $endpoint, $config);
-            if (!$userResult['allowed']) {
+            if (! $userResult['allowed']) {
                 return $userResult;
             }
         }
@@ -99,7 +99,7 @@ class ApiSecurityService
         // Check concurrent request limits
         if (isset($config['concurrent_limit'])) {
             $concurrentResult = $this->checkConcurrentLimit($identifier, $endpoint, $config);
-            if (!$concurrentResult['allowed']) {
+            if (! $concurrentResult['allowed']) {
                 return $concurrentResult;
             }
         }
@@ -107,7 +107,7 @@ class ApiSecurityService
         // Check burst limits
         if (isset($config['burst_limit'])) {
             $burstResult = $this->checkBurstLimit($identifier, $endpoint, $config);
-            if (!$burstResult['allowed']) {
+            if (! $burstResult['allowed']) {
                 return $burstResult;
             }
         }
@@ -180,7 +180,7 @@ class ApiSecurityService
     public function validateApiKey(string $apiKey): ?array
     {
         // Parse API key
-        if (!str_starts_with($apiKey, 'hdtickets_')) {
+        if (! str_starts_with($apiKey, 'hdtickets_')) {
             return NULL;
         }
 
@@ -195,12 +195,12 @@ class ApiSecurityService
 
         // Get API key data
         $apiKeyData = Cache::get("api_key:{$keyId}");
-        if (!$apiKeyData || !$apiKeyData['is_active']) {
+        if (! $apiKeyData || ! $apiKeyData['is_active']) {
             return NULL;
         }
 
         // Verify key secret
-        if (!Hash::check($keySecret, $apiKeyData['key_hash'])) {
+        if (! Hash::check($keySecret, $apiKeyData['key_hash'])) {
             $this->logInvalidKeyAttempt($keyId);
 
             return NULL;
@@ -217,7 +217,7 @@ class ApiSecurityService
 
         // Get user
         $user = User::find($apiKeyData['user_id']);
-        if (!$user || !$user->is_active) {
+        if (! $user || ! $user->is_active) {
             return NULL;
         }
 
@@ -239,7 +239,7 @@ class ApiSecurityService
     public function rotateApiKey(string $keyId, User $user): ?array
     {
         $apiKeyData = Cache::get("api_key:{$keyId}");
-        if (!$apiKeyData || $apiKeyData['user_id'] !== $user->id) {
+        if (! $apiKeyData || $apiKeyData['user_id'] !== $user->id) {
             return NULL;
         }
 
@@ -278,7 +278,7 @@ class ApiSecurityService
     public function revokeApiKey(string $keyId, User $user): bool
     {
         $apiKeyData = Cache::get("api_key:{$keyId}");
-        if (!$apiKeyData || $apiKeyData['user_id'] !== $user->id) {
+        if (! $apiKeyData || $apiKeyData['user_id'] !== $user->id) {
             return FALSE;
         }
 
@@ -311,7 +311,7 @@ class ApiSecurityService
         $timestampHeader = $request->header('X-Timestamp');
 
         // Validate numeric timestamp header
-        if ($timestampHeader === NULL || !is_numeric($timestampHeader)) {
+        if ($timestampHeader === NULL || ! is_numeric($timestampHeader)) {
             return FALSE; // Missing or non-numeric timestamp
         }
 

@@ -176,7 +176,7 @@ Route::get('/live', fn () => response()->json([
 |--------------------------------------------------------------------------
 */
 
-if (!function_exists('measureDatabaseResponseTime')) {
+if (! function_exists('measureDatabaseResponseTime')) {
     function measureDatabaseResponseTime(): ?float
     {
         $start = microtime(TRUE);
@@ -191,7 +191,7 @@ if (!function_exists('measureDatabaseResponseTime')) {
     }
 }
 
-if (!function_exists('measureCacheResponseTime')) {
+if (! function_exists('measureCacheResponseTime')) {
     function measureCacheResponseTime(): ?float
     {
         $start = microtime(TRUE);

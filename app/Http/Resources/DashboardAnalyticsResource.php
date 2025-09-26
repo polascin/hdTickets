@@ -9,7 +9,7 @@ use Illuminate\Http\Resources\Json\JsonResource;
 use Override;
 
 /**
- * @property-read array $totals
+ * @property array $totals
  */
 class DashboardAnalyticsResource extends JsonResource
 {
@@ -23,16 +23,16 @@ class DashboardAnalyticsResource extends JsonResource
         $data = $this->resource;
 
         return [
-          'generated_at' => $data['generated_at'] ?? NULL,
-          'totals'       => $data['totals'] ?? [],
-          'trends'       => $data['trends'] ?? [
-            'demand' => [
-              'high_demand'       => 0,
-              'demand_percentage' => 0,
+            'generated_at' => $data['generated_at'] ?? NULL,
+            'totals'       => $data['totals'] ?? [],
+            'trends'       => $data['trends'] ?? [
+                'demand' => [
+                    'high_demand'       => 0,
+                    'demand_percentage' => 0,
+                ],
+                'pricing' => [],
             ],
-            'pricing' => [],
-          ],
-          'platforms' => $data['platforms'] ?? [],
+            'platforms' => $data['platforms'] ?? [],
         ];
     }
 }

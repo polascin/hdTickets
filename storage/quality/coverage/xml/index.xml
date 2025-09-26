@@ -1,0 +1,1038 @@
+<?xml version="1.0"?>
+<phpunit xmlns="https://schema.phpunit.de/coverage/1.0">
+  <build time="Fri Sep 26 19:41:25 UTC 2025" phpunit="11.5.41" coverage="11.0.11">
+    <runtime name="PHP" version="8.3.25" url="https://www.php.net/"/>
+    <driver name="pcov" version="1.0.12"/>
+  </build>
+  <project source="/var/www/hdtickets/app">
+    <tests>
+      <test name="Tests\Unit\Services\Email\ImapConnectionServiceTest::it_can_be_instantiated" size="unknown" status="success"/>
+      <test name="Tests\Unit\Services\Email\ImapConnectionServiceTest::it_throws_exception_for_unknown_connection" size="unknown" status="success"/>
+      <test name="Tests\Unit\Services\Email\ImapConnectionServiceTest::it_throws_exception_for_missing_credentials" size="unknown" status="success"/>
+      <test name="Tests\Unit\Services\Email\ImapConnectionServiceTest::it_gets_connection_statistics" size="unknown" status="success"/>
+      <test name="Tests\Unit\Services\Email\ImapConnectionServiceTest::it_handles_connection_cleanup" size="unknown" status="success"/>
+      <test name="Tests\Unit\Services\Email\ImapConnectionServiceTest::it_can_close_all_connections" size="unknown" status="success"/>
+      <test name="Tests\Unit\Services\Email\ImapConnectionServiceTest::test_connection_returns_failure_for_invalid_config" size="unknown" status="failure"/>
+      <test name="Tests\Feature\Ui\SkipLinkRemovedTest::legal_index_view_does_not_render_skip_link" size="unknown" status="success"/>
+      <test name="Tests\Feature\Ui\SkipLinkRemovedTest::legal_show_view_does_not_render_skip_link_for_terms" size="unknown" status="success"/>
+      <test name="Tests\Feature\Ui\SkipLinkRemovedTest::legal_show_view_does_not_render_skip_link_for_privacy" size="unknown" status="success"/>
+    </tests>
+    <directory name="/">
+      <totals>
+        <lines total="35035" comments="7022" code="28013" executable="14841" executed="480" percent="3.23"/>
+        <methods count="1642" tested="45" percent="2.74"/>
+        <functions count="0" tested="0" percent="0"/>
+        <classes count="85" tested="4" percent="4.71"/>
+        <traits count="4" tested="0" percent="0.00"/>
+      </totals>
+      <directory name="Http">
+        <totals>
+          <lines total="2728" comments="425" code="2303" executable="1297" executed="0" percent="0.00"/>
+          <methods count="151" tested="0" percent="0.00"/>
+          <functions count="0" tested="0" percent="0"/>
+          <classes count="4" tested="0" percent="0.00"/>
+          <traits count="0" tested="0" percent="0"/>
+        </totals>
+        <directory name="Controllers">
+          <totals>
+            <lines total="2728" comments="425" code="2303" executable="1297" executed="0" percent="0.00"/>
+            <methods count="151" tested="0" percent="0.00"/>
+            <functions count="0" tested="0" percent="0"/>
+            <classes count="4" tested="0" percent="0.00"/>
+            <traits count="0" tested="0" percent="0"/>
+          </totals>
+          <file name="AgentDashboardController.php" href="Http/Controllers/AgentDashboardController.php.xml">
+            <totals>
+              <lines total="389" comments="32" code="357" executable="158" executed="0" percent="0.00"/>
+              <methods count="36" tested="0" percent="0.00"/>
+              <functions count="0" tested="0" percent="0"/>
+              <classes count="1" tested="0" percent="0.00"/>
+              <traits count="0" tested="0" percent="0"/>
+            </totals>
+          </file>
+          <file name="Controller.php" href="Http/Controllers/Controller.php.xml">
+            <totals>
+              <lines total="20" comments="5" code="15" executable="0" executed="0" percent="0"/>
+              <methods count="0" tested="0" percent="0"/>
+              <functions count="0" tested="0" percent="0"/>
+              <classes count="0" tested="0" percent="0"/>
+              <traits count="0" tested="0" percent="0"/>
+            </totals>
+          </file>
+          <file name="DashboardController.php" href="Http/Controllers/DashboardController.php.xml">
+            <totals>
+              <lines total="919" comments="164" code="755" executable="497" executed="0" percent="0.00"/>
+              <methods count="26" tested="0" percent="0.00"/>
+              <functions count="0" tested="0" percent="0"/>
+              <classes count="1" tested="0" percent="0.00"/>
+              <traits count="0" tested="0" percent="0"/>
+            </totals>
+          </file>
+          <file name="EnhancedDashboardController.php" href="Http/Controllers/EnhancedDashboardController.php.xml">
+            <totals>
+              <lines total="660" comments="78" code="582" executable="304" executed="0" percent="0.00"/>
+              <methods count="47" tested="0" percent="0.00"/>
+              <functions count="0" tested="0" percent="0"/>
+              <classes count="1" tested="0" percent="0.00"/>
+              <traits count="0" tested="0" percent="0"/>
+            </totals>
+          </file>
+          <file name="ScraperDashboardController.php" href="Http/Controllers/ScraperDashboardController.php.xml">
+            <totals>
+              <lines total="740" comments="146" code="594" executable="338" executed="0" percent="0.00"/>
+              <methods count="42" tested="0" percent="0.00"/>
+              <functions count="0" tested="0" percent="0"/>
+              <classes count="1" tested="0" percent="0.00"/>
+              <traits count="0" tested="0" percent="0"/>
+            </totals>
+          </file>
+        </directory>
+      </directory>
+      <directory name="Infrastructure">
+        <totals>
+          <lines total="1319" comments="280" code="1039" executable="506" executed="19" percent="3.75"/>
+          <methods count="53" tested="4" percent="7.55"/>
+          <functions count="0" tested="0" percent="0"/>
+          <classes count="4" tested="0" percent="0.00"/>
+          <traits count="0" tested="0" percent="0"/>
+        </totals>
+        <directory name="EventBus">
+          <totals>
+            <lines total="271" comments="67" code="204" executable="83" executed="4" percent="4.82"/>
+            <methods count="11" tested="2" percent="18.18"/>
+            <functions count="0" tested="0" percent="0"/>
+            <classes count="1" tested="0" percent="0.00"/>
+            <traits count="0" tested="0" percent="0"/>
+          </totals>
+          <file name="EventBusInterface.php" href="Infrastructure/EventBus/EventBusInterface.php.xml">
+            <totals>
+              <lines total="39" comments="18" code="21" executable="0" executed="0" percent="0"/>
+              <methods count="0" tested="0" percent="0"/>
+              <functions count="0" tested="0" percent="0"/>
+              <classes count="0" tested="0" percent="0"/>
+              <traits count="0" tested="0" percent="0"/>
+            </totals>
+          </file>
+          <file name="LaravelEventBus.php" href="Infrastructure/EventBus/LaravelEventBus.php.xml">
+            <totals>
+              <lines total="232" comments="49" code="183" executable="83" executed="4" percent="4.82"/>
+              <methods count="11" tested="2" percent="18.18"/>
+              <functions count="0" tested="0" percent="0"/>
+              <classes count="1" tested="0" percent="0.00"/>
+              <traits count="0" tested="0" percent="0"/>
+            </totals>
+          </file>
+        </directory>
+        <directory name="EventStore">
+          <totals>
+            <lines total="408" comments="88" code="320" executable="151" executed="15" percent="9.93"/>
+            <methods count="17" tested="2" percent="11.76"/>
+            <functions count="0" tested="0" percent="0"/>
+            <classes count="1" tested="0" percent="0.00"/>
+            <traits count="0" tested="0" percent="0"/>
+          </totals>
+          <file name="EventStoreInterface.php" href="Infrastructure/EventStore/EventStoreInterface.php.xml">
+            <totals>
+              <lines total="70" comments="36" code="34" executable="0" executed="0" percent="0"/>
+              <methods count="0" tested="0" percent="0"/>
+              <functions count="0" tested="0" percent="0"/>
+              <classes count="0" tested="0" percent="0"/>
+              <traits count="0" tested="0" percent="0"/>
+            </totals>
+          </file>
+          <file name="PostgreSqlEventStore.php" href="Infrastructure/EventStore/PostgreSqlEventStore.php.xml">
+            <totals>
+              <lines total="338" comments="52" code="286" executable="151" executed="15" percent="9.93"/>
+              <methods count="17" tested="2" percent="11.76"/>
+              <functions count="0" tested="0" percent="0"/>
+              <classes count="1" tested="0" percent="0.00"/>
+              <traits count="0" tested="0" percent="0"/>
+            </totals>
+          </file>
+        </directory>
+        <directory name="Projections">
+          <totals>
+            <lines total="640" comments="125" code="515" executable="272" executed="0" percent="0.00"/>
+            <methods count="25" tested="0" percent="0.00"/>
+            <functions count="0" tested="0" percent="0"/>
+            <classes count="2" tested="0" percent="0.00"/>
+            <traits count="0" tested="0" percent="0"/>
+          </totals>
+          <file name="ProjectionInterface.php" href="Infrastructure/Projections/ProjectionInterface.php.xml">
+            <totals>
+              <lines total="39" comments="18" code="21" executable="0" executed="0" percent="0"/>
+              <methods count="0" tested="0" percent="0"/>
+              <functions count="0" tested="0" percent="0"/>
+              <classes count="0" tested="0" percent="0"/>
+              <traits count="0" tested="0" percent="0"/>
+            </totals>
+          </file>
+          <file name="ProjectionManager.php" href="Infrastructure/Projections/ProjectionManager.php.xml">
+            <totals>
+              <lines total="285" comments="50" code="235" executable="128" executed="0" percent="0.00"/>
+              <methods count="14" tested="0" percent="0.00"/>
+              <functions count="0" tested="0" percent="0"/>
+              <classes count="1" tested="0" percent="0.00"/>
+              <traits count="0" tested="0" percent="0"/>
+            </totals>
+          </file>
+          <file name="ProjectionManagerInterface.php" href="Infrastructure/Projections/ProjectionManagerInterface.php.xml">
+            <totals>
+              <lines total="49" comments="24" code="25" executable="0" executed="0" percent="0"/>
+              <methods count="0" tested="0" percent="0"/>
+              <functions count="0" tested="0" percent="0"/>
+              <classes count="0" tested="0" percent="0"/>
+              <traits count="0" tested="0" percent="0"/>
+            </totals>
+          </file>
+          <file name="TicketReadModelProjection.php" href="Infrastructure/Projections/TicketReadModelProjection.php.xml">
+            <totals>
+              <lines total="267" comments="33" code="234" executable="144" executed="0" percent="0.00"/>
+              <methods count="11" tested="0" percent="0.00"/>
+              <functions count="0" tested="0" percent="0"/>
+              <classes count="1" tested="0" percent="0.00"/>
+              <traits count="0" tested="0" percent="0"/>
+            </totals>
+          </file>
+        </directory>
+      </directory>
+      <directory name="Providers">
+        <totals>
+          <lines total="1230" comments="377" code="853" executable="359" executed="228" percent="63.51"/>
+          <methods count="42" tested="22" percent="52.38"/>
+          <functions count="0" tested="0" percent="0"/>
+          <classes count="12" tested="4" percent="33.33"/>
+          <traits count="0" tested="0" percent="0"/>
+        </totals>
+        <file name="ActivityLoggerServiceProvider.php" href="Providers/ActivityLoggerServiceProvider.php.xml">
+          <totals>
+            <lines total="52" comments="20" code="32" executable="7" executed="3" percent="42.86"/>
+            <methods count="3" tested="2" percent="66.67"/>
+            <functions count="0" tested="0" percent="0"/>
+            <classes count="1" tested="0" percent="0.00"/>
+            <traits count="0" tested="0" percent="0"/>
+          </totals>
+        </file>
+        <file name="AppServiceProvider.php" href="Providers/AppServiceProvider.php.xml">
+          <totals>
+            <lines total="36" comments="13" code="23" executable="3" executed="2" percent="66.67"/>
+            <methods count="2" tested="1" percent="50.00"/>
+            <functions count="0" tested="0" percent="0"/>
+            <classes count="1" tested="0" percent="0.00"/>
+            <traits count="0" tested="0" percent="0"/>
+          </totals>
+        </file>
+        <file name="AuthServiceProvider.php" href="Providers/AuthServiceProvider.php.xml">
+          <totals>
+            <lines total="86" comments="19" code="67" executable="27" executed="25" percent="92.59"/>
+            <methods count="1" tested="0" percent="0.00"/>
+            <functions count="0" tested="0" percent="0"/>
+            <classes count="1" tested="0" percent="0.00"/>
+            <traits count="0" tested="0" percent="0"/>
+          </totals>
+        </file>
+        <file name="BroadcastServiceProvider.php" href="Providers/BroadcastServiceProvider.php.xml">
+          <totals>
+            <lines total="23" comments="6" code="17" executable="2" executed="2" percent="100.00"/>
+            <methods count="1" tested="1" percent="100.00"/>
+            <functions count="0" tested="0" percent="0"/>
+            <classes count="1" tested="1" percent="100.00"/>
+            <traits count="0" tested="0" percent="0"/>
+          </totals>
+        </file>
+        <file name="ComponentArchitectureServiceProvider.php" href="Providers/ComponentArchitectureServiceProvider.php.xml">
+          <totals>
+            <lines total="355" comments="99" code="256" executable="133" executed="77" percent="57.89"/>
+            <methods count="10" tested="5" percent="50.00"/>
+            <functions count="0" tested="0" percent="0"/>
+            <classes count="1" tested="0" percent="0.00"/>
+            <traits count="0" tested="0" percent="0"/>
+          </totals>
+        </file>
+        <file name="CssTimestampServiceProvider.php" href="Providers/CssTimestampServiceProvider.php.xml">
+          <totals>
+            <lines total="80" comments="31" code="49" executable="13" executed="3" percent="23.08"/>
+            <methods count="2" tested="1" percent="50.00"/>
+            <functions count="0" tested="0" percent="0"/>
+            <classes count="1" tested="0" percent="0.00"/>
+            <traits count="0" tested="0" percent="0"/>
+          </totals>
+        </file>
+        <file name="DomainDrivenDesignServiceProvider.php" href="Providers/DomainDrivenDesignServiceProvider.php.xml">
+          <totals>
+            <lines total="261" comments="95" code="166" executable="87" executed="45" percent="51.72"/>
+            <methods count="11" tested="4" percent="36.36"/>
+            <functions count="0" tested="0" percent="0"/>
+            <classes count="1" tested="0" percent="0.00"/>
+            <traits count="0" tested="0" percent="0"/>
+          </totals>
+        </file>
+        <file name="EnvServiceProvider.php" href="Providers/EnvServiceProvider.php.xml">
+          <totals>
+            <lines total="42" comments="14" code="28" executable="9" executed="9" percent="100.00"/>
+            <methods count="2" tested="2" percent="100.00"/>
+            <functions count="0" tested="0" percent="0"/>
+            <classes count="1" tested="1" percent="100.00"/>
+            <traits count="0" tested="0" percent="0"/>
+          </totals>
+        </file>
+        <file name="EventDrivenArchitectureServiceProvider.php" href="Providers/EventDrivenArchitectureServiceProvider.php.xml">
+          <totals>
+            <lines total="147" comments="36" code="111" executable="53" executed="38" percent="71.70"/>
+            <methods count="5" tested="2" percent="40.00"/>
+            <functions count="0" tested="0" percent="0"/>
+            <classes count="1" tested="0" percent="0.00"/>
+            <traits count="0" tested="0" percent="0"/>
+          </totals>
+        </file>
+        <file name="EventServiceProvider.php" href="Providers/EventServiceProvider.php.xml">
+          <totals>
+            <lines total="47" comments="17" code="30" executable="2" executed="2" percent="100.00"/>
+            <methods count="2" tested="2" percent="100.00"/>
+            <functions count="0" tested="0" percent="0"/>
+            <classes count="1" tested="1" percent="100.00"/>
+            <traits count="0" tested="0" percent="0"/>
+          </totals>
+        </file>
+        <file name="PurchaseServiceProvider.php" href="Providers/PurchaseServiceProvider.php.xml">
+          <totals>
+            <lines total="45" comments="13" code="32" executable="7" executed="7" percent="100.00"/>
+            <methods count="2" tested="2" percent="100.00"/>
+            <functions count="0" tested="0" percent="0"/>
+            <classes count="1" tested="1" percent="100.00"/>
+            <traits count="0" tested="0" percent="0"/>
+          </totals>
+        </file>
+        <file name="RouteServiceProvider.php" href="Providers/RouteServiceProvider.php.xml">
+          <totals>
+            <lines total="56" comments="14" code="42" executable="16" executed="15" percent="93.75"/>
+            <methods count="1" tested="0" percent="0.00"/>
+            <functions count="0" tested="0" percent="0"/>
+            <classes count="1" tested="0" percent="0.00"/>
+            <traits count="0" tested="0" percent="0"/>
+          </totals>
+        </file>
+      </directory>
+      <directory name="Services">
+        <totals>
+          <lines total="29758" comments="5940" code="23818" executable="12679" executed="233" percent="1.84"/>
+          <methods count="1396" tested="19" percent="1.36"/>
+          <functions count="0" tested="0" percent="0"/>
+          <classes count="65" tested="0" percent="0.00"/>
+          <traits count="4" tested="0" percent="0.00"/>
+        </totals>
+        <directory name="Analytics">
+          <totals>
+            <lines total="3383" comments="474" code="2909" executable="1572" executed="0" percent="0.00"/>
+            <methods count="211" tested="0" percent="0.00"/>
+            <functions count="0" tested="0" percent="0"/>
+            <classes count="5" tested="0" percent="0.00"/>
+            <traits count="0" tested="0" percent="0"/>
+          </totals>
+          <file name="AdvancedAnalyticsService.php" href="Services/Analytics/AdvancedAnalyticsService.php.xml">
+            <totals>
+              <lines total="702" comments="104" code="598" executable="346" executed="0" percent="0.00"/>
+              <methods count="49" tested="0" percent="0.00"/>
+              <functions count="0" tested="0" percent="0"/>
+              <classes count="1" tested="0" percent="0.00"/>
+              <traits count="0" tested="0" percent="0"/>
+            </totals>
+          </file>
+          <file name="AnalyticsExportService.php" href="Services/Analytics/AnalyticsExportService.php.xml">
+            <totals>
+              <lines total="914" comments="137" code="777" executable="434" executed="0" percent="0.00"/>
+              <methods count="27" tested="0" percent="0.00"/>
+              <functions count="0" tested="0" percent="0"/>
+              <classes count="1" tested="0" percent="0.00"/>
+              <traits count="0" tested="0" percent="0"/>
+            </totals>
+          </file>
+          <file name="AnomalyDetectionService.php" href="Services/Analytics/AnomalyDetectionService.php.xml">
+            <totals>
+              <lines total="558" comments="66" code="492" executable="230" executed="0" percent="0.00"/>
+              <methods count="47" tested="0" percent="0.00"/>
+              <functions count="0" tested="0" percent="0"/>
+              <classes count="1" tested="0" percent="0.00"/>
+              <traits count="0" tested="0" percent="0"/>
+            </totals>
+          </file>
+          <file name="AutomatedReportingService.php" href="Services/Analytics/AutomatedReportingService.php.xml">
+            <totals>
+              <lines total="641" comments="116" code="525" executable="333" executed="0" percent="0.00"/>
+              <methods count="21" tested="0" percent="0.00"/>
+              <functions count="0" tested="0" percent="0"/>
+              <classes count="1" tested="0" percent="0.00"/>
+              <traits count="0" tested="0" percent="0"/>
+            </totals>
+          </file>
+          <file name="PredictiveAnalyticsEngine.php" href="Services/Analytics/PredictiveAnalyticsEngine.php.xml">
+            <totals>
+              <lines total="568" comments="51" code="517" executable="229" executed="0" percent="0.00"/>
+              <methods count="67" tested="0" percent="0.00"/>
+              <functions count="0" tested="0" percent="0"/>
+              <classes count="1" tested="0" percent="0.00"/>
+              <traits count="0" tested="0" percent="0"/>
+            </totals>
+          </file>
+        </directory>
+        <directory name="Dashboard">
+          <totals>
+            <lines total="487" comments="77" code="410" executable="236" executed="0" percent="0.00"/>
+            <methods count="23" tested="0" percent="0.00"/>
+            <functions count="0" tested="0" percent="0"/>
+            <classes count="1" tested="0" percent="0.00"/>
+            <traits count="0" tested="0" percent="0"/>
+          </totals>
+          <file name="DashboardCacheService.php" href="Services/Dashboard/DashboardCacheService.php.xml">
+            <totals>
+              <lines total="487" comments="77" code="410" executable="236" executed="0" percent="0.00"/>
+              <methods count="23" tested="0" percent="0.00"/>
+              <functions count="0" tested="0" percent="0"/>
+              <classes count="1" tested="0" percent="0.00"/>
+              <traits count="0" tested="0" percent="0"/>
+            </totals>
+          </file>
+        </directory>
+        <directory name="Email">
+          <totals>
+            <lines total="1755" comments="403" code="1352" executable="797" executed="31" percent="3.89"/>
+            <methods count="47" tested="2" percent="4.26"/>
+            <functions count="0" tested="0" percent="0"/>
+            <classes count="3" tested="0" percent="0.00"/>
+            <traits count="0" tested="0" percent="0"/>
+          </totals>
+          <file name="EmailMonitoringService.php" href="Services/Email/EmailMonitoringService.php.xml">
+            <totals>
+              <lines total="651" comments="150" code="501" executable="287" executed="0" percent="0.00"/>
+              <methods count="17" tested="0" percent="0.00"/>
+              <functions count="0" tested="0" percent="0"/>
+              <classes count="1" tested="0" percent="0.00"/>
+              <traits count="0" tested="0" percent="0"/>
+            </totals>
+          </file>
+          <file name="EmailParsingService.php" href="Services/Email/EmailParsingService.php.xml">
+            <totals>
+              <lines total="589" comments="133" code="456" executable="294" executed="0" percent="0.00"/>
+              <methods count="14" tested="0" percent="0.00"/>
+              <functions count="0" tested="0" percent="0"/>
+              <classes count="1" tested="0" percent="0.00"/>
+              <traits count="0" tested="0" percent="0"/>
+            </totals>
+          </file>
+          <file name="ImapConnectionService.php" href="Services/Email/ImapConnectionService.php.xml">
+            <totals>
+              <lines total="515" comments="120" code="395" executable="216" executed="31" percent="14.35"/>
+              <methods count="16" tested="2" percent="12.50"/>
+              <functions count="0" tested="0" percent="0"/>
+              <classes count="1" tested="0" percent="0.00"/>
+              <traits count="0" tested="0" percent="0"/>
+            </totals>
+          </file>
+        </directory>
+        <directory name="Enhanced">
+          <totals>
+            <lines total="2480" comments="600" code="1880" executable="1032" executed="0" percent="0.00"/>
+            <methods count="97" tested="0" percent="0.00"/>
+            <functions count="0" tested="0" percent="0"/>
+            <classes count="4" tested="0" percent="0.00"/>
+            <traits count="0" tested="0" percent="0"/>
+          </totals>
+          <file name="AdvancedCacheService.php" href="Services/Enhanced/AdvancedCacheService.php.xml">
+            <totals>
+              <lines total="572" comments="154" code="418" executable="220" executed="0" percent="0.00"/>
+              <methods count="24" tested="0" percent="0.00"/>
+              <functions count="0" tested="0" percent="0"/>
+              <classes count="1" tested="0" percent="0.00"/>
+              <traits count="0" tested="0" percent="0"/>
+            </totals>
+          </file>
+          <file name="AdvancedTicketCachingService.php" href="Services/Enhanced/AdvancedTicketCachingService.php.xml">
+            <totals>
+              <lines total="714" comments="154" code="560" executable="301" executed="0" percent="0.00"/>
+              <methods count="28" tested="0" percent="0.00"/>
+              <functions count="0" tested="0" percent="0"/>
+              <classes count="1" tested="0" percent="0.00"/>
+              <traits count="0" tested="0" percent="0"/>
+            </totals>
+          </file>
+          <file name="DatabaseQueryOptimizer.php" href="Services/Enhanced/DatabaseQueryOptimizer.php.xml">
+            <totals>
+              <lines total="611" comments="124" code="487" executable="270" executed="0" percent="0.00"/>
+              <methods count="17" tested="0" percent="0.00"/>
+              <functions count="0" tested="0" percent="0"/>
+              <classes count="1" tested="0" percent="0.00"/>
+              <traits count="0" tested="0" percent="0"/>
+            </totals>
+          </file>
+          <file name="ViewFragmentCachingService.php" href="Services/Enhanced/ViewFragmentCachingService.php.xml">
+            <totals>
+              <lines total="583" comments="168" code="415" executable="241" executed="0" percent="0.00"/>
+              <methods count="28" tested="0" percent="0.00"/>
+              <functions count="0" tested="0" percent="0"/>
+              <classes count="1" tested="0" percent="0.00"/>
+              <traits count="0" tested="0" percent="0"/>
+            </totals>
+          </file>
+        </directory>
+        <directory name="Platforms">
+          <totals>
+            <lines total="1015" comments="172" code="843" executable="422" executed="0" percent="0.00"/>
+            <methods count="31" tested="0" percent="0.00"/>
+            <functions count="0" tested="0" percent="0"/>
+            <classes count="1" tested="0" percent="0.00"/>
+            <traits count="0" tested="0" percent="0"/>
+          </totals>
+          <file name="BasePlatformService.php" href="Services/Platforms/BasePlatformService.php.xml">
+            <totals>
+              <lines total="15" comments="2" code="13" executable="0" executed="0" percent="0"/>
+              <methods count="0" tested="0" percent="0"/>
+              <functions count="0" tested="0" percent="0"/>
+              <classes count="0" tested="0" percent="0"/>
+              <traits count="0" tested="0" percent="0"/>
+            </totals>
+          </file>
+          <file name="FootballClubStoresService.php" href="Services/Platforms/FootballClubStoresService.php.xml">
+            <totals>
+              <lines total="1000" comments="170" code="830" executable="422" executed="0" percent="0.00"/>
+              <methods count="31" tested="0" percent="0.00"/>
+              <functions count="0" tested="0" percent="0"/>
+              <classes count="1" tested="0" percent="0.00"/>
+              <traits count="0" tested="0" percent="0"/>
+            </totals>
+          </file>
+        </directory>
+        <directory name="Scraping">
+          <totals>
+            <lines total="17386" comments="3277" code="14109" executable="7403" executed="0" percent="0.00"/>
+            <methods count="848" tested="0" percent="0.00"/>
+            <functions count="0" tested="0" percent="0"/>
+            <classes count="45" tested="0" percent="0.00"/>
+            <traits count="4" tested="0" percent="0.00"/>
+          </totals>
+          <directory name="Plugins">
+            <totals>
+              <lines total="15283" comments="2709" code="12574" executable="6597" executed="0" percent="0.00"/>
+              <methods count="780" tested="0" percent="0.00"/>
+              <functions count="0" tested="0" percent="0"/>
+              <classes count="43" tested="0" percent="0.00"/>
+              <traits count="0" tested="0" percent="0"/>
+            </totals>
+            <file name="AXSPlugin.php" href="Services/Scraping/Plugins/AXSPlugin.php.xml">
+              <totals>
+                <lines total="354" comments="59" code="295" executable="165" executed="0" percent="0.00"/>
+                <methods count="17" tested="0" percent="0.00"/>
+                <functions count="0" tested="0" percent="0"/>
+                <classes count="1" tested="0" percent="0.00"/>
+                <traits count="0" tested="0" percent="0"/>
+              </totals>
+            </file>
+            <file name="Ac_milanPlugin.php" href="Services/Scraping/Plugins/Ac_milanPlugin.php.xml">
+              <totals>
+                <lines total="234" comments="76" code="158" executable="76" executed="0" percent="0.00"/>
+                <methods count="12" tested="0" percent="0.00"/>
+                <functions count="0" tested="0" percent="0"/>
+                <classes count="1" tested="0" percent="0.00"/>
+                <traits count="0" tested="0" percent="0"/>
+              </totals>
+            </file>
+            <file name="ArsenalFCPlugin.php" href="Services/Scraping/Plugins/ArsenalFCPlugin.php.xml">
+              <totals>
+                <lines total="502" comments="80" code="422" executable="241" executed="0" percent="0.00"/>
+                <methods count="22" tested="0" percent="0.00"/>
+                <functions count="0" tested="0" percent="0"/>
+                <classes count="1" tested="0" percent="0.00"/>
+                <traits count="0" tested="0" percent="0"/>
+              </totals>
+            </file>
+            <file name="Atletico_madridPlugin.php" href="Services/Scraping/Plugins/Atletico_madridPlugin.php.xml">
+              <totals>
+                <lines total="230" comments="67" code="163" executable="81" executed="0" percent="0.00"/>
+                <methods count="12" tested="0" percent="0.00"/>
+                <functions count="0" tested="0" percent="0"/>
+                <classes count="1" tested="0" percent="0.00"/>
+                <traits count="0" tested="0" percent="0"/>
+              </totals>
+            </file>
+            <file name="BandsintownPlugin.php" href="Services/Scraping/Plugins/BandsintownPlugin.php.xml">
+              <totals>
+                <lines total="434" comments="65" code="369" executable="180" executed="0" percent="0.00"/>
+                <methods count="23" tested="0" percent="0.00"/>
+                <functions count="0" tested="0" percent="0"/>
+                <classes count="1" tested="0" percent="0.00"/>
+                <traits count="0" tested="0" percent="0"/>
+              </totals>
+            </file>
+            <file name="BarcelonaPlugin.php" href="Services/Scraping/Plugins/BarcelonaPlugin.php.xml">
+              <totals>
+                <lines total="230" comments="68" code="162" executable="81" executed="0" percent="0.00"/>
+                <methods count="12" tested="0" percent="0.00"/>
+                <functions count="0" tested="0" percent="0"/>
+                <classes count="1" tested="0" percent="0.00"/>
+                <traits count="0" tested="0" percent="0"/>
+              </totals>
+            </file>
+            <file name="Bayern_munichPlugin.php" href="Services/Scraping/Plugins/Bayern_munichPlugin.php.xml">
+              <totals>
+                <lines total="230" comments="68" code="162" executable="81" executed="0" percent="0.00"/>
+                <methods count="12" tested="0" percent="0.00"/>
+                <functions count="0" tested="0" percent="0"/>
+                <classes count="1" tested="0" percent="0.00"/>
+                <traits count="0" tested="0" percent="0"/>
+              </totals>
+            </file>
+            <file name="Borussia_dortmundPlugin.php" href="Services/Scraping/Plugins/Borussia_dortmundPlugin.php.xml">
+              <totals>
+                <lines total="234" comments="76" code="158" executable="76" executed="0" percent="0.00"/>
+                <methods count="12" tested="0" percent="0.00"/>
+                <functions count="0" tested="0" percent="0"/>
+                <classes count="1" tested="0" percent="0.00"/>
+                <traits count="0" tested="0" percent="0"/>
+              </totals>
+            </file>
+            <file name="CelticFCPlugin.php" href="Services/Scraping/Plugins/CelticFCPlugin.php.xml">
+              <totals>
+                <lines total="453" comments="64" code="389" executable="192" executed="0" percent="0.00"/>
+                <methods count="23" tested="0" percent="0.00"/>
+                <functions count="0" tested="0" percent="0"/>
+                <classes count="1" tested="0" percent="0.00"/>
+                <traits count="0" tested="0" percent="0"/>
+              </totals>
+            </file>
+            <file name="ChelseaFCPlugin.php" href="Services/Scraping/Plugins/ChelseaFCPlugin.php.xml">
+              <totals>
+                <lines total="502" comments="80" code="422" executable="241" executed="0" percent="0.00"/>
+                <methods count="22" tested="0" percent="0.00"/>
+                <functions count="0" tested="0" percent="0"/>
+                <classes count="1" tested="0" percent="0.00"/>
+                <traits count="0" tested="0" percent="0"/>
+              </totals>
+            </file>
+            <file name="EnglandCricketPlugin.php" href="Services/Scraping/Plugins/EnglandCricketPlugin.php.xml">
+              <totals>
+                <lines total="277" comments="13" code="264" executable="132" executed="0" percent="0.00"/>
+                <methods count="18" tested="0" percent="0.00"/>
+                <functions count="0" tested="0" percent="0"/>
+                <classes count="1" tested="0" percent="0.00"/>
+                <traits count="0" tested="0" percent="0"/>
+              </totals>
+            </file>
+            <file name="EntradiumSpainPlugin.php" href="Services/Scraping/Plugins/EntradiumSpainPlugin.php.xml">
+              <totals>
+                <lines total="424" comments="73" code="351" executable="193" executed="0" percent="0.00"/>
+                <methods count="21" tested="0" percent="0.00"/>
+                <functions count="0" tested="0" percent="0"/>
+                <classes count="1" tested="0" percent="0.00"/>
+                <traits count="0" tested="0" percent="0"/>
+              </totals>
+            </file>
+            <file name="EventbritePlugin.php" href="Services/Scraping/Plugins/EventbritePlugin.php.xml">
+              <totals>
+                <lines total="445" comments="71" code="374" executable="179" executed="0" percent="0.00"/>
+                <methods count="26" tested="0" percent="0.00"/>
+                <functions count="0" tested="0" percent="0"/>
+                <classes count="1" tested="0" percent="0.00"/>
+                <traits count="0" tested="0" percent="0"/>
+              </totals>
+            </file>
+            <file name="EventimPlugin.php" href="Services/Scraping/Plugins/EventimPlugin.php.xml">
+              <totals>
+                <lines total="246" comments="76" code="170" executable="86" executed="0" percent="0.00"/>
+                <methods count="12" tested="0" percent="0.00"/>
+                <functions count="0" tested="0" percent="0"/>
+                <classes count="1" tested="0" percent="0.00"/>
+                <traits count="0" tested="0" percent="0"/>
+              </totals>
+            </file>
+            <file name="GiganticPlugin.php" href="Services/Scraping/Plugins/GiganticPlugin.php.xml">
+              <totals>
+                <lines total="386" comments="63" code="323" executable="189" executed="0" percent="0.00"/>
+                <methods count="18" tested="0" percent="0.00"/>
+                <functions count="0" tested="0" percent="0"/>
+                <classes count="1" tested="0" percent="0.00"/>
+                <traits count="0" tested="0" percent="0"/>
+              </totals>
+            </file>
+            <file name="InterMilanPlugin.php" href="Services/Scraping/Plugins/InterMilanPlugin.php.xml">
+              <totals>
+                <lines total="416" comments="71" code="345" executable="187" executed="0" percent="0.00"/>
+                <methods count="20" tested="0" percent="0.00"/>
+                <functions count="0" tested="0" percent="0"/>
+                <classes count="1" tested="0" percent="0.00"/>
+                <traits count="0" tested="0" percent="0"/>
+              </totals>
+            </file>
+            <file name="JuventusPlugin.php" href="Services/Scraping/Plugins/JuventusPlugin.php.xml">
+              <totals>
+                <lines total="234" comments="76" code="158" executable="76" executed="0" percent="0.00"/>
+                <methods count="12" tested="0" percent="0.00"/>
+                <functions count="0" tested="0" percent="0"/>
+                <classes count="1" tested="0" percent="0.00"/>
+                <traits count="0" tested="0" percent="0"/>
+              </totals>
+            </file>
+            <file name="LiveNationUKPlugin.php" href="Services/Scraping/Plugins/LiveNationUKPlugin.php.xml">
+              <totals>
+                <lines total="411" comments="67" code="344" executable="205" executed="0" percent="0.00"/>
+                <methods count="19" tested="0" percent="0.00"/>
+                <functions count="0" tested="0" percent="0"/>
+                <classes count="1" tested="0" percent="0.00"/>
+                <traits count="0" tested="0" percent="0"/>
+              </totals>
+            </file>
+            <file name="LiverpoolFCPlugin.php" href="Services/Scraping/Plugins/LiverpoolFCPlugin.php.xml">
+              <totals>
+                <lines total="243" comments="30" code="213" executable="110" executed="0" percent="0.00"/>
+                <methods count="14" tested="0" percent="0.00"/>
+                <functions count="0" tested="0" percent="0"/>
+                <classes count="1" tested="0" percent="0.00"/>
+                <traits count="0" tested="0" percent="0"/>
+              </totals>
+            </file>
+            <file name="LordsCricketPlugin.php" href="Services/Scraping/Plugins/LordsCricketPlugin.php.xml">
+              <totals>
+                <lines total="236" comments="13" code="223" executable="111" executed="0" percent="0.00"/>
+                <methods count="16" tested="0" percent="0.00"/>
+                <functions count="0" tested="0" percent="0"/>
+                <classes count="1" tested="0" percent="0.00"/>
+                <traits count="0" tested="0" percent="0"/>
+              </totals>
+            </file>
+            <file name="Manchester_cityPlugin.php" href="Services/Scraping/Plugins/Manchester_cityPlugin.php.xml">
+              <totals>
+                <lines total="233" comments="75" code="158" executable="75" executed="0" percent="0.00"/>
+                <methods count="12" tested="0" percent="0.00"/>
+                <functions count="0" tested="0" percent="0"/>
+                <classes count="1" tested="0" percent="0.00"/>
+                <traits count="0" tested="0" percent="0"/>
+              </totals>
+            </file>
+            <file name="Manchester_unitedPlugin.php" href="Services/Scraping/Plugins/Manchester_unitedPlugin.php.xml">
+              <totals>
+                <lines total="501" comments="80" code="421" executable="240" executed="0" percent="0.00"/>
+                <methods count="22" tested="0" percent="0.00"/>
+                <functions count="0" tested="0" percent="0"/>
+                <classes count="1" tested="0" percent="0.00"/>
+                <traits count="0" tested="0" percent="0"/>
+              </totals>
+            </file>
+            <file name="PsgPlugin.php" href="Services/Scraping/Plugins/PsgPlugin.php.xml">
+              <totals>
+                <lines total="236" comments="76" code="160" executable="78" executed="0" percent="0.00"/>
+                <methods count="12" tested="0" percent="0.00"/>
+                <functions count="0" tested="0" percent="0"/>
+                <classes count="1" tested="0" percent="0.00"/>
+                <traits count="0" tested="0" percent="0"/>
+              </totals>
+            </file>
+            <file name="RealMadridPlugin.php" href="Services/Scraping/Plugins/RealMadridPlugin.php.xml">
+              <totals>
+                <lines total="374" comments="63" code="311" executable="167" executed="0" percent="0.00"/>
+                <methods count="18" tested="0" percent="0.00"/>
+                <functions count="0" tested="0" percent="0"/>
+                <classes count="1" tested="0" percent="0.00"/>
+                <traits count="0" tested="0" percent="0"/>
+              </totals>
+            </file>
+            <file name="Real_madridPlugin.php" href="Services/Scraping/Plugins/Real_madridPlugin.php.xml">
+              <totals>
+                <lines total="230" comments="76" code="154" executable="72" executed="0" percent="0.00"/>
+                <methods count="12" tested="0" percent="0.00"/>
+                <functions count="0" tested="0" percent="0"/>
+                <classes count="1" tested="0" percent="0.00"/>
+                <traits count="0" tested="0" percent="0"/>
+              </totals>
+            </file>
+            <file name="SeatgeekPlugin.php" href="Services/Scraping/Plugins/SeatgeekPlugin.php.xml">
+              <totals>
+                <lines total="335" comments="50" code="285" executable="135" executed="0" percent="0.00"/>
+                <methods count="20" tested="0" percent="0.00"/>
+                <functions count="0" tested="0" percent="0"/>
+                <classes count="1" tested="0" percent="0.00"/>
+                <traits count="0" tested="0" percent="0"/>
+              </totals>
+            </file>
+            <file name="SeeTicketsUKPlugin.php" href="Services/Scraping/Plugins/SeeTicketsUKPlugin.php.xml">
+              <totals>
+                <lines total="185" comments="4" code="181" executable="77" executed="0" percent="0.00"/>
+                <methods count="15" tested="0" percent="0.00"/>
+                <functions count="0" tested="0" percent="0"/>
+                <classes count="1" tested="0" percent="0.00"/>
+                <traits count="0" tested="0" percent="0"/>
+              </totals>
+            </file>
+            <file name="SilverstoneF1Plugin.php" href="Services/Scraping/Plugins/SilverstoneF1Plugin.php.xml">
+              <totals>
+                <lines total="252" comments="13" code="239" executable="117" executed="0" percent="0.00"/>
+                <methods count="17" tested="0" percent="0.00"/>
+                <functions count="0" tested="0" percent="0"/>
+                <classes count="1" tested="0" percent="0.00"/>
+                <traits count="0" tested="0" percent="0"/>
+              </totals>
+            </file>
+            <file name="SkiddlePlugin.php" href="Services/Scraping/Plugins/SkiddlePlugin.php.xml">
+              <totals>
+                <lines total="396" comments="65" code="331" executable="194" executed="0" percent="0.00"/>
+                <methods count="18" tested="0" percent="0.00"/>
+                <functions count="0" tested="0" percent="0"/>
+                <classes count="1" tested="0" percent="0.00"/>
+                <traits count="0" tested="0" percent="0"/>
+              </totals>
+            </file>
+            <file name="StadionWeltGermanyPlugin.php" href="Services/Scraping/Plugins/StadionWeltGermanyPlugin.php.xml">
+              <totals>
+                <lines total="398" comments="70" code="328" executable="181" executed="0" percent="0.00"/>
+                <methods count="20" tested="0" percent="0.00"/>
+                <functions count="0" tested="0" percent="0"/>
+                <classes count="1" tested="0" percent="0.00"/>
+                <traits count="0" tested="0" percent="0"/>
+              </totals>
+            </file>
+            <file name="StargreenPlugin.php" href="Services/Scraping/Plugins/StargreenPlugin.php.xml">
+              <totals>
+                <lines total="391" comments="69" code="322" executable="186" executed="0" percent="0.00"/>
+                <methods count="18" tested="0" percent="0.00"/>
+                <functions count="0" tested="0" percent="0"/>
+                <classes count="1" tested="0" percent="0.00"/>
+                <traits count="0" tested="0" percent="0"/>
+              </totals>
+            </file>
+            <file name="StubHubPlugin.php" href="Services/Scraping/Plugins/StubHubPlugin.php.xml">
+              <totals>
+                <lines total="499" comments="106" code="393" executable="214" executed="0" percent="0.00"/>
+                <methods count="20" tested="0" percent="0.00"/>
+                <functions count="0" tested="0" percent="0"/>
+                <classes count="1" tested="0" percent="0.00"/>
+                <traits count="0" tested="0" percent="0"/>
+              </totals>
+            </file>
+            <file name="TicketOneItalyPlugin.php" href="Services/Scraping/Plugins/TicketOneItalyPlugin.php.xml">
+              <totals>
+                <lines total="402" comments="71" code="331" executable="180" executed="0" percent="0.00"/>
+                <methods count="20" tested="0" percent="0.00"/>
+                <functions count="0" tested="0" percent="0"/>
+                <classes count="1" tested="0" percent="0.00"/>
+                <traits count="0" tested="0" percent="0"/>
+              </totals>
+            </file>
+            <file name="TicketOnePlugin.php" href="Services/Scraping/Plugins/TicketOnePlugin.php.xml">
+              <totals>
+                <lines total="395" comments="69" code="326" executable="190" executed="0" percent="0.00"/>
+                <methods count="18" tested="0" percent="0.00"/>
+                <functions count="0" tested="0" percent="0"/>
+                <classes count="1" tested="0" percent="0.00"/>
+                <traits count="0" tested="0" percent="0"/>
+              </totals>
+            </file>
+            <file name="TicketSwapPlugin.php" href="Services/Scraping/Plugins/TicketSwapPlugin.php.xml">
+              <totals>
+                <lines total="424" comments="70" code="354" executable="209" executed="0" percent="0.00"/>
+                <methods count="20" tested="0" percent="0.00"/>
+                <functions count="0" tested="0" percent="0"/>
+                <classes count="1" tested="0" percent="0.00"/>
+                <traits count="0" tested="0" percent="0"/>
+              </totals>
+            </file>
+            <file name="TicketekUKPlugin.php" href="Services/Scraping/Plugins/TicketekUKPlugin.php.xml">
+              <totals>
+                <lines total="184" comments="4" code="180" executable="76" executed="0" percent="0.00"/>
+                <methods count="15" tested="0" percent="0.00"/>
+                <functions count="0" tested="0" percent="0"/>
+                <classes count="1" tested="0" percent="0.00"/>
+                <traits count="0" tested="0" percent="0"/>
+              </totals>
+            </file>
+            <file name="TicketmasterPlugin.php" href="Services/Scraping/Plugins/TicketmasterPlugin.php.xml">
+              <totals>
+                <lines total="477" comments="109" code="368" executable="188" executed="0" percent="0.00"/>
+                <methods count="22" tested="0" percent="0.00"/>
+                <functions count="0" tested="0" percent="0"/>
+                <classes count="1" tested="0" percent="0.00"/>
+                <traits count="0" tested="0" percent="0"/>
+              </totals>
+            </file>
+            <file name="TickpickPlugin.php" href="Services/Scraping/Plugins/TickpickPlugin.php.xml">
+              <totals>
+                <lines total="400" comments="61" code="339" executable="164" executed="0" percent="0.00"/>
+                <methods count="23" tested="0" percent="0.00"/>
+                <functions count="0" tested="0" percent="0"/>
+                <classes count="1" tested="0" percent="0.00"/>
+                <traits count="0" tested="0" percent="0"/>
+              </totals>
+            </file>
+            <file name="TottenhamPlugin.php" href="Services/Scraping/Plugins/TottenhamPlugin.php.xml">
+              <totals>
+                <lines total="502" comments="80" code="422" executable="241" executed="0" percent="0.00"/>
+                <methods count="22" tested="0" percent="0.00"/>
+                <functions count="0" tested="0" percent="0"/>
+                <classes count="1" tested="0" percent="0.00"/>
+                <traits count="0" tested="0" percent="0"/>
+              </totals>
+            </file>
+            <file name="TwickenhamPlugin.php" href="Services/Scraping/Plugins/TwickenhamPlugin.php.xml">
+              <totals>
+                <lines total="446" comments="61" code="385" executable="188" executed="0" percent="0.00"/>
+                <methods count="24" tested="0" percent="0.00"/>
+                <functions count="0" tested="0" percent="0"/>
+                <classes count="1" tested="0" percent="0.00"/>
+                <traits count="0" tested="0" percent="0"/>
+              </totals>
+            </file>
+            <file name="ViagogoPlugin.php" href="Services/Scraping/Plugins/ViagogoPlugin.php.xml">
+              <totals>
+                <lines total="381" comments="54" code="327" executable="165" executed="0" percent="0.00"/>
+                <methods count="21" tested="0" percent="0.00"/>
+                <functions count="0" tested="0" percent="0"/>
+                <classes count="1" tested="0" percent="0.00"/>
+                <traits count="0" tested="0" percent="0"/>
+              </totals>
+            </file>
+            <file name="WembleyStadiumPlugin.php" href="Services/Scraping/Plugins/WembleyStadiumPlugin.php.xml">
+              <totals>
+                <lines total="480" comments="67" code="413" executable="204" executed="0" percent="0.00"/>
+                <methods count="25" tested="0" percent="0.00"/>
+                <functions count="0" tested="0" percent="0"/>
+                <classes count="1" tested="0" percent="0.00"/>
+                <traits count="0" tested="0" percent="0"/>
+              </totals>
+            </file>
+            <file name="WimbledonPlugin.php" href="Services/Scraping/Plugins/WimbledonPlugin.php.xml">
+              <totals>
+                <lines total="441" comments="60" code="381" executable="174" executed="0" percent="0.00"/>
+                <methods count="23" tested="0" percent="0.00"/>
+                <functions count="0" tested="0" percent="0"/>
+                <classes count="1" tested="0" percent="0.00"/>
+                <traits count="0" tested="0" percent="0"/>
+              </totals>
+            </file>
+          </directory>
+          <directory name="Traits">
+            <totals>
+              <lines total="1040" comments="288" code="752" executable="428" executed="0" percent="0.00"/>
+              <methods count="32" tested="0" percent="0.00"/>
+              <functions count="0" tested="0" percent="0"/>
+              <classes count="0" tested="0" percent="0"/>
+              <traits count="4" tested="0" percent="0.00"/>
+            </totals>
+            <file name="AntiDetectionTrait.php" href="Services/Scraping/Traits/AntiDetectionTrait.php.xml">
+              <totals>
+                <lines total="297" comments="84" code="213" executable="109" executed="0" percent="0.00"/>
+                <methods count="11" tested="0" percent="0.00"/>
+                <functions count="0" tested="0" percent="0"/>
+                <classes count="0" tested="0" percent="0"/>
+                <traits count="1" tested="0" percent="0.00"/>
+              </totals>
+            </file>
+            <file name="CurrencyHandlingTrait.php" href="Services/Scraping/Traits/CurrencyHandlingTrait.php.xml">
+              <totals>
+                <lines total="298" comments="74" code="224" executable="131" executed="0" percent="0.00"/>
+                <methods count="8" tested="0" percent="0.00"/>
+                <functions count="0" tested="0" percent="0"/>
+                <classes count="0" tested="0" percent="0"/>
+                <traits count="1" tested="0" percent="0.00"/>
+              </totals>
+            </file>
+            <file name="MultiLanguageTrait.php" href="Services/Scraping/Traits/MultiLanguageTrait.php.xml">
+              <totals>
+                <lines total="277" comments="77" code="200" executable="126" executed="0" percent="0.00"/>
+                <methods count="7" tested="0" percent="0.00"/>
+                <functions count="0" tested="0" percent="0"/>
+                <classes count="0" tested="0" percent="0"/>
+                <traits count="1" tested="0" percent="0.00"/>
+              </totals>
+            </file>
+            <file name="RateLimitingTrait.php" href="Services/Scraping/Traits/RateLimitingTrait.php.xml">
+              <totals>
+                <lines total="168" comments="53" code="115" executable="62" executed="0" percent="0.00"/>
+                <methods count="6" tested="0" percent="0.00"/>
+                <functions count="0" tested="0" percent="0"/>
+                <classes count="0" tested="0" percent="0"/>
+                <traits count="1" tested="0" percent="0.00"/>
+              </totals>
+            </file>
+          </directory>
+          <file name="BaseScraperPlugin.php" href="Services/Scraping/BaseScraperPlugin.php.xml">
+            <totals>
+              <lines total="561" comments="153" code="408" executable="179" executed="0" percent="0.00"/>
+              <methods count="18" tested="0" percent="0.00"/>
+              <functions count="0" tested="0" percent="0"/>
+              <classes count="1" tested="0" percent="0.00"/>
+              <traits count="0" tested="0" percent="0"/>
+            </totals>
+          </file>
+          <file name="PluginBasedScraperManager.php" href="Services/Scraping/PluginBasedScraperManager.php.xml">
+            <totals>
+              <lines total="460" comments="106" code="354" executable="199" executed="0" percent="0.00"/>
+              <methods count="18" tested="0" percent="0.00"/>
+              <functions count="0" tested="0" percent="0"/>
+              <classes count="1" tested="0" percent="0.00"/>
+              <traits count="0" tested="0" percent="0"/>
+            </totals>
+          </file>
+          <file name="ScraperPluginInterface.php" href="Services/Scraping/ScraperPluginInterface.php.xml">
+            <totals>
+              <lines total="42" comments="21" code="21" executable="0" executed="0" percent="0"/>
+              <methods count="0" tested="0" percent="0"/>
+              <functions count="0" tested="0" percent="0"/>
+              <classes count="0" tested="0" percent="0"/>
+              <traits count="0" tested="0" percent="0"/>
+            </totals>
+          </file>
+        </directory>
+        <file name="ComponentCommunication.php" href="Services/ComponentCommunication.php.xml">
+          <totals>
+            <lines total="504" comments="159" code="345" executable="187" executed="77" percent="41.18"/>
+            <methods count="24" tested="4" percent="16.67"/>
+            <functions count="0" tested="0" percent="0"/>
+            <classes count="1" tested="0" percent="0.00"/>
+            <traits count="0" tested="0" percent="0"/>
+          </totals>
+        </file>
+        <file name="ComponentLifecycleManager.php" href="Services/ComponentLifecycleManager.php.xml">
+          <totals>
+            <lines total="933" comments="304" code="629" executable="297" executed="36" percent="12.12"/>
+            <methods count="44" tested="4" percent="9.09"/>
+            <functions count="0" tested="0" percent="0"/>
+            <classes count="1" tested="0" percent="0.00"/>
+            <traits count="0" tested="0" percent="0"/>
+          </totals>
+        </file>
+        <file name="ComponentRegistry.php" href="Services/ComponentRegistry.php.xml">
+          <totals>
+            <lines total="560" comments="170" code="390" executable="190" executed="89" percent="46.84"/>
+            <methods count="26" tested="9" percent="34.62"/>
+            <functions count="0" tested="0" percent="0"/>
+            <classes count="1" tested="0" percent="0.00"/>
+            <traits count="0" tested="0" percent="0"/>
+          </totals>
+        </file>
+        <file name="PerformanceCacheService.php" href="Services/PerformanceCacheService.php.xml">
+          <totals>
+            <lines total="327" comments="90" code="237" executable="145" executed="0" percent="0.00"/>
+            <methods count="13" tested="0" percent="0.00"/>
+            <functions count="0" tested="0" percent="0"/>
+            <classes count="1" tested="0" percent="0.00"/>
+            <traits count="0" tested="0" percent="0"/>
+          </totals>
+        </file>
+        <file name="PerformanceOptimizationService.php" href="Services/PerformanceOptimizationService.php.xml">
+          <totals>
+            <lines total="452" comments="94" code="358" executable="209" executed="0" percent="0.00"/>
+            <methods count="14" tested="0" percent="0.00"/>
+            <functions count="0" tested="0" percent="0"/>
+            <classes count="1" tested="0" percent="0.00"/>
+            <traits count="0" tested="0" percent="0"/>
+          </totals>
+        </file>
+        <file name="ProxyRotationService.php" href="Services/ProxyRotationService.php.xml">
+          <totals>
+            <lines total="476" comments="120" code="356" executable="189" executed="0" percent="0.00"/>
+            <methods count="18" tested="0" percent="0.00"/>
+            <functions count="0" tested="0" percent="0"/>
+            <classes count="1" tested="0" percent="0.00"/>
+            <traits count="0" tested="0" percent="0"/>
+          </totals>
+        </file>
+      </directory>
+    </directory>
+  </project>
+</phpunit>

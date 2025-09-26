@@ -178,7 +178,7 @@ class PurchaseDecisionController extends Controller
      */
     public function cancelQueue(PurchaseQueue $purchaseQueue)
     {
-        if (!$purchaseQueue->isActive()) {
+        if (! $purchaseQueue->isActive()) {
             return redirect()->back()->with('error', 'Cannot cancel a queue item that is not active.');
         }
 
@@ -192,7 +192,7 @@ class PurchaseDecisionController extends Controller
      */
     public function processQueue(PurchaseQueue $purchaseQueue)
     {
-        if (!$purchaseQueue->status === PurchaseQueue::STATUS_QUEUED) {
+        if (! $purchaseQueue->status === PurchaseQueue::STATUS_QUEUED) {
             return redirect()->back()->with('error', 'Queue item is not ready for processing.');
         }
 

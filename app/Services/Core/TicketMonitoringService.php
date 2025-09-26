@@ -362,7 +362,7 @@ class TicketMonitoringService extends BaseService implements TicketMonitoringInt
             $monitoringKey = self::MONITORING_PREFIX . $ticketId;
             $data = Redis::hgetall($monitoringKey);
 
-            if (!empty($data)) {
+            if (! empty($data)) {
                 $this->monitoredTickets[$ticketId] = $data;
             }
         }
@@ -564,7 +564,7 @@ class TicketMonitoringService extends BaseService implements TicketMonitoringInt
 
         foreach ($ruleKeys as $ruleKey) {
             $ruleData = Redis::hgetall($ruleKey);
-            if (!empty($ruleData)) {
+            if (! empty($ruleData)) {
                 $condition = $ruleData['condition'] ?? '';
                 $rules[$condition] = $ruleData;
             }

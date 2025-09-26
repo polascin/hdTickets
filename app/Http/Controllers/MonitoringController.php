@@ -75,7 +75,7 @@ class MonitoringController extends Controller
         $user = Auth::user();
 
         // Validate subscription limits for customers
-        if ($user->role === 'customer' && !$user->hasActiveSubscription()) {
+        if ($user->role === 'customer' && ! $user->hasActiveSubscription()) {
             $alertsCount = $this->getUserAlertsCount($user->id);
             $freeLimit = config('monitoring.free_alerts_limit', 3);
 
@@ -155,7 +155,7 @@ class MonitoringController extends Controller
                 ->where('user_id', $user->id)
                 ->first();
 
-            if (!$alert) {
+            if (! $alert) {
                 return response()->json([
                     'success' => FALSE,
                     'message' => 'Alert not found.',
@@ -218,7 +218,7 @@ class MonitoringController extends Controller
                 ->where('user_id', $user->id)
                 ->first();
 
-            if (!$alert) {
+            if (! $alert) {
                 return response()->json([
                     'success' => FALSE,
                     'message' => 'Alert not found.',
@@ -266,7 +266,7 @@ class MonitoringController extends Controller
                 ->where('user_id', $user->id)
                 ->delete();
 
-            if (!$deleted) {
+            if (! $deleted) {
                 return response()->json([
                     'success' => FALSE,
                     'message' => 'Alert not found.',
@@ -339,7 +339,7 @@ class MonitoringController extends Controller
                 ->where('user_id', $user->id)
                 ->first();
 
-            if (!$alert) {
+            if (! $alert) {
                 return response()->json([
                     'success' => FALSE,
                     'message' => 'Alert not found.',
@@ -714,7 +714,7 @@ class MonitoringController extends Controller
      */
     private function calculateSavings($targetPrice, float $currentPrice): float
     {
-        if (!$targetPrice || !$currentPrice) {
+        if (! $targetPrice || ! $currentPrice) {
             return random_int(20, 100);
         }
 

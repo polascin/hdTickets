@@ -24,13 +24,13 @@ class RoleMiddleware
      */
     public function handle(Request $request, Closure $next, string ...$roles): Response
     {
-        if (!Auth::check()) {
+        if (! Auth::check()) {
             return redirect('login');
         }
 
         $user = Auth::user();
 
-        if (!in_array($user->role, $roles, TRUE)) {
+        if (! in_array($user->role, $roles, TRUE)) {
             abort(403, 'Access denied. You do not have permission to access this resource.');
         }
 

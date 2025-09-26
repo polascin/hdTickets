@@ -10,7 +10,7 @@ return new class() extends Migration {
      */
     public function up(): void
     {
-        Schema::create('dashboard_widgets', function (Blueprint $table) {
+        Schema::create('dashboard_widgets', function (Blueprint $table): void {
             $table->id();
             $table->foreignId('user_id')->constrained()->onDelete('cascade');
             $table->string('widget_type', 50); // 'stats', 'recommendations', 'recent_tickets', etc.

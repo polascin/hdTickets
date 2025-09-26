@@ -38,7 +38,7 @@ class PerformanceMonitoringService
      */
     public function startTimer(string $name): void
     {
-        if (!$this->enabled) {
+        if (! $this->enabled) {
             return;
         }
 
@@ -57,7 +57,7 @@ class PerformanceMonitoringService
      */
     public function endTimer(string $name): array
     {
-        if (!$this->enabled || !isset($this->metrics[$name])) {
+        if (! $this->enabled || ! isset($this->metrics[$name])) {
             return [];
         }
 
@@ -92,7 +92,7 @@ class PerformanceMonitoringService
      */
     public function increment(string $name, int $value = 1, array $tags = []): void
     {
-        if (!$this->enabled) {
+        if (! $this->enabled) {
             return;
         }
 
@@ -115,7 +115,7 @@ class PerformanceMonitoringService
      */
     public function gauge(string $name, float $value, array $tags = []): void
     {
-        if (!$this->enabled) {
+        if (! $this->enabled) {
             return;
         }
 
@@ -141,7 +141,7 @@ class PerformanceMonitoringService
      */
     public function monitorQuery(string $sql, array $bindings, float $time): void
     {
-        if (!$this->enabled) {
+        if (! $this->enabled) {
             return;
         }
 
@@ -175,7 +175,7 @@ class PerformanceMonitoringService
      */
     public function monitorRequest(string $method, string $uri, int $statusCode, float $duration): void
     {
-        if (!$this->enabled) {
+        if (! $this->enabled) {
             return;
         }
 
@@ -217,7 +217,7 @@ class PerformanceMonitoringService
      */
     public function getSystemMetrics(): array
     {
-        if (!$this->enabled) {
+        if (! $this->enabled) {
             return [];
         }
 
@@ -246,7 +246,7 @@ class PerformanceMonitoringService
      */
     public function getPerformanceReport(int $hours = 24): array
     {
-        if (!$this->enabled) {
+        if (! $this->enabled) {
             return [];
         }
 

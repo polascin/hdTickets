@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="en">
+ <head>
+  <meta charset="UTF-8">
+  <title>Dashboard for /var/www/hdtickets/app/Providers</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link href="../_css/bootstrap.min.css?v=11.0.11" rel="stylesheet" type="text/css">
+  <link href="../_css/nv.d3.min.css?v=11.0.11" rel="stylesheet" type="text/css">
+  <link href="../_css/style.css?v=11.0.11" rel="stylesheet" type="text/css">
+  <link href="../_css/custom.css" rel="stylesheet" type="text/css">
+ </head>
+ <body>
+  <header>
+   <div class="container-fluid">
+    <div class="row">
+     <div class="col-md-12">
+      <nav aria-label="breadcrumb">
+       <ol class="breadcrumb">
+         <li class="breadcrumb-item"><a href="../index.html">/var/www/hdtickets/app</a></li>
+         <li class="breadcrumb-item"><a href="index.html">Providers</a></li>
+         <li class="breadcrumb-item active">(Dashboard)</li>
+
+       </ol>
+      </nav>
+     </div>
+    </div>
+   </div>
+  </header>
+  <div class="container-fluid">
+   <div class="row">
+    <div class="col-md-12">
+     <h2>Classes</h2>
+    </div>
+   </div>
+   <div class="row">
+    <div class="col-md-6">
+     <h3>Coverage Distribution</h3>
+     <div id="classCoverageDistribution" style="height: 300px;">
+       <svg></svg>
+     </div>
+    </div>
+    <div class="col-md-6">
+     <h3>Complexity</h3>
+     <div id="classComplexity" style="height: 300px;">
+       <svg></svg>
+     </div>
+    </div>
+   </div>
+   <div class="row">
+    <div class="col-md-6">
+     <h3>Insufficient Coverage</h3>
+     <div class="scrollbox">
+      <table class="table">
+       <thead>
+        <tr>
+         <th>Class</th>
+         <th class="text-right">Coverage</th>
+        </tr>
+       </thead>
+       <tbody>
+       <tr><td><a href="CssTimestampServiceProvider.php.html#10">App\Providers\CssTimestampServiceProvider</a></td><td class="text-right">23%</td></tr>
+       <tr><td><a href="ActivityLoggerServiceProvider.php.html#9">App\Providers\ActivityLoggerServiceProvider</a></td><td class="text-right">42%</td></tr>
+       <tr><td><a href="DomainDrivenDesignServiceProvider.php.html#26">App\Providers\DomainDrivenDesignServiceProvider</a></td><td class="text-right">51%</td></tr>
+       <tr><td><a href="ComponentArchitectureServiceProvider.php.html#26">App\Providers\ComponentArchitectureServiceProvider</a></td><td class="text-right">57%</td></tr>
+       <tr><td><a href="AppServiceProvider.php.html#9">App\Providers\AppServiceProvider</a></td><td class="text-right">66%</td></tr>
+       <tr><td><a href="EventDrivenArchitectureServiceProvider.php.html#22">App\Providers\EventDrivenArchitectureServiceProvider</a></td><td class="text-right">71%</td></tr>
+
+       </tbody>
+      </table>
+     </div>
+    </div>
+    <div class="col-md-6">
+     <h3>Project Risks</h3>
+     <div class="scrollbox">
+      <table class="table">
+       <thead>
+        <tr>
+         <th>Class</th>
+         <th class="text-right"><abbr title="Change Risk Anti-Patterns (CRAP) Index">CRAP</abbr></th>
+        </tr>
+       </thead>
+       <tbody>
+       <tr><td><a href="ComponentArchitectureServiceProvider.php.html#26">App\Providers\ComponentArchitectureServiceProvider</a></td><td class="text-right">91</td></tr>
+       <tr><td><a href="CssTimestampServiceProvider.php.html#10">App\Providers\CssTimestampServiceProvider</a></td><td class="text-right">22</td></tr>
+       <tr><td><a href="AppServiceProvider.php.html#9">App\Providers\AppServiceProvider</a></td><td class="text-right">4</td></tr>
+
+       </tbody>
+      </table>
+     </div>
+    </div>
+   </div>
+   <div class="row">
+    <div class="col-md-12">
+     <h2>Methods</h2>
+    </div>
+   </div>
+   <div class="row">
+    <div class="col-md-6">
+     <h3>Coverage Distribution</h3>
+     <div id="methodCoverageDistribution" style="height: 300px;">
+       <svg></svg>
+     </div>
+    </div>
+    <div class="col-md-6">
+     <h3>Complexity</h3>
+     <div id="methodComplexity" style="height: 300px;">
+       <svg></svg>
+     </div>
+    </div>
+   </div>
+   <div class="row">
+    <div class="col-md-6">
+     <h3>Insufficient Coverage</h3>
+     <div class="scrollbox">
+      <table class="table">
+       <thead>
+        <tr>
+         <th>Method</th>
+         <th class="text-right">Coverage</th>
+        </tr>
+       </thead>
+       <tbody>
+       <tr><td><a href="ActivityLoggerServiceProvider.php.html#43"><abbr title="App\Providers\ActivityLoggerServiceProvider::provides">provides</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="ComponentArchitectureServiceProvider.php.html#80"><abbr title="App\Providers\ComponentArchitectureServiceProvider::provides">provides</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="DomainDrivenDesignServiceProvider.php.html#87"><abbr title="App\Providers\DomainDrivenDesignServiceProvider::registerBoundedContexts">registerBoundedContexts</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="DomainDrivenDesignServiceProvider.php.html#219"><abbr title="App\Providers\DomainDrivenDesignServiceProvider::registerUserManagementContext">registerUserManagementContext</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="DomainDrivenDesignServiceProvider.php.html#228"><abbr title="App\Providers\DomainDrivenDesignServiceProvider::registerPurchaseManagementContext">registerPurchaseManagementContext</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="DomainDrivenDesignServiceProvider.php.html#237"><abbr title="App\Providers\DomainDrivenDesignServiceProvider::registerNotificationContext">registerNotificationContext</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="DomainDrivenDesignServiceProvider.php.html#246"><abbr title="App\Providers\DomainDrivenDesignServiceProvider::registerAnalyticsContext">registerAnalyticsContext</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="DomainDrivenDesignServiceProvider.php.html#255"><abbr title="App\Providers\DomainDrivenDesignServiceProvider::registerPlatformIntegrationContext">registerPlatformIntegrationContext</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="EventDrivenArchitectureServiceProvider.php.html#81"><abbr title="App\Providers\EventDrivenArchitectureServiceProvider::provides">provides</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="CssTimestampServiceProvider.php.html#18"><abbr title="App\Providers\CssTimestampServiceProvider::register">register</abbr></a></td><td class="text-right">16%</td></tr>
+       <tr><td><a href="ComponentArchitectureServiceProvider.php.html#324"><abbr title="App\Providers\ComponentArchitectureServiceProvider::extractCategoryFromPath">extractCategoryFromPath</abbr></a></td><td class="text-right">18%</td></tr>
+       <tr><td><a href="ComponentArchitectureServiceProvider.php.html#218"><abbr title="App\Providers\ComponentArchitectureServiceProvider::registerViewComposers">registerViewComposers</abbr></a></td><td class="text-right">28%</td></tr>
+       <tr><td><a href="DomainDrivenDesignServiceProvider.php.html#146"><abbr title="App\Providers\DomainDrivenDesignServiceProvider::registerDomainEventListeners">registerDomainEventListeners</abbr></a></td><td class="text-right">38%</td></tr>
+       <tr><td><a href="AppServiceProvider.php.html#17"><abbr title="App\Providers\AppServiceProvider::register">register</abbr></a></td><td class="text-right">50%</td></tr>
+       <tr><td><a href="ComponentArchitectureServiceProvider.php.html#302"><abbr title="App\Providers\ComponentArchitectureServiceProvider::determineComponentType">determineComponentType</abbr></a></td><td class="text-right">60%</td></tr>
+       <tr><td><a href="EventDrivenArchitectureServiceProvider.php.html#30"><abbr title="App\Providers\EventDrivenArchitectureServiceProvider::register">register</abbr></a></td><td class="text-right">66%</td></tr>
+       <tr><td><a href="ComponentArchitectureServiceProvider.php.html#126"><abbr title="App\Providers\ComponentArchitectureServiceProvider::registerBladeDirectives">registerBladeDirectives</abbr></a></td><td class="text-right">73%</td></tr>
+       <tr><td><a href="EventDrivenArchitectureServiceProvider.php.html#113"><abbr title="App\Providers\EventDrivenArchitectureServiceProvider::setupEventSubscriptions">setupEventSubscriptions</abbr></a></td><td class="text-right">84%</td></tr>
+
+       </tbody>
+      </table>
+     </div>
+    </div>
+    <div class="col-md-6">
+     <h3>Project Risks</h3>
+     <div class="scrollbox">
+      <table class="table">
+       <thead>
+        <tr>
+         <th>Method</th>
+         <th class="text-right"><abbr title="Change Risk Anti-Patterns (CRAP) Index">CRAP</abbr></th>
+        </tr>
+       </thead>
+       <tbody>
+       <tr><td><a href="ComponentArchitectureServiceProvider.php.html#324"><abbr title="App\Providers\ComponentArchitectureServiceProvider::extractCategoryFromPath">extractCategoryFromPath</abbr></a></td><td class="text-right">42</td></tr>
+       <tr><td><a href="CssTimestampServiceProvider.php.html#18"><abbr title="App\Providers\CssTimestampServiceProvider::register">register</abbr></a></td><td class="text-right">19</td></tr>
+       <tr><td><a href="ComponentArchitectureServiceProvider.php.html#302"><abbr title="App\Providers\ComponentArchitectureServiceProvider::determineComponentType">determineComponentType</abbr></a></td><td class="text-right">6</td></tr>
+       <tr><td><a href="AppServiceProvider.php.html#17"><abbr title="App\Providers\AppServiceProvider::register">register</abbr></a></td><td class="text-right">4</td></tr>
+
+       </tbody>
+      </table>
+     </div>
+    </div>
+   </div>
+   <footer>
+    <hr/>
+    <p>
+     <small>Generated by <a href="https://github.com/sebastianbergmann/php-code-coverage" target="_top">php-code-coverage 11.0.11</a> using <a href="https://www.php.net/" target="_top">PHP 8.3.25</a> and <a href="https://phpunit.de/">PHPUnit 11.5.41</a> at Fri Sep 26 19:41:25 UTC 2025.</small>
+    </p>
+   </footer>
+  </div>
+  <script src="../_js/jquery.min.js?v=11.0.11" type="text/javascript"></script>
+  <script src="../_js/d3.min.js?v=11.0.11" type="text/javascript"></script>
+  <script src="../_js/nv.d3.min.js?v=11.0.11" type="text/javascript"></script>
+  <script type="text/javascript">
+$(document).ready(function() {
+  nv.addGraph(function() {
+    var chart = nv.models.multiBarChart();
+    chart.tooltips(false)
+      .showControls(false)
+      .showLegend(false)
+      .reduceXTicks(false)
+      .staggerLabels(true)
+      .yAxis.tickFormat(d3.format('d'));
+
+    d3.select('#classCoverageDistribution svg')
+      .datum(getCoverageDistributionData([0,0,0,1,0,1,2,1,1,0,2,4], "Class Coverage"))
+      .transition().duration(500).call(chart);
+
+    nv.utils.windowResize(chart.update);
+
+    return chart;
+  });
+
+  nv.addGraph(function() {
+    var chart = nv.models.multiBarChart();
+    chart.tooltips(false)
+      .showControls(false)
+      .showLegend(false)
+      .reduceXTicks(false)
+      .staggerLabels(true)
+      .yAxis.tickFormat(d3.format('d'));
+
+    d3.select('#methodCoverageDistribution svg')
+      .datum(getCoverageDistributionData([9,0,2,1,1,0,1,2,1,1,2,22], "Method Coverage"))
+      .transition().duration(500).call(chart);
+
+    nv.utils.windowResize(chart.update);
+
+    return chart;
+  });
+
+  function getCoverageDistributionData(data, label) {
+    var labels = [
+      '0%',
+      '0-10%',
+      '10-20%',
+      '20-30%',
+      '30-40%',
+      '40-50%',
+      '50-60%',
+      '60-70%',
+      '70-80%',
+      '80-90%',
+      '90-100%',
+      '100%'
+    ];
+    var values = [];
+    $.each(labels, function(key) {
+      values.push({x: labels[key], y: data[key]});
+    });
+
+    return [
+      {
+        key: label,
+        values: values,
+        color: "#4572A7"
+      }
+    ];
+  }
+  nv.addGraph(function() {
+    var chart = nv.models.scatterChart()
+      .showDistX(true)
+      .showDistY(true)
+      .showLegend(false)
+      .forceX([0, 100]);
+    chart.tooltipContent(function(graph) {
+      return '<p>' + graph.point.class + '</p>';
+    });
+
+    chart.xAxis.axisLabel('Code Coverage (in percent)');
+    chart.yAxis.axisLabel('Cyclomatic Complexity');
+
+    d3.select('#classComplexity svg')
+      .datum(getComplexityData([[42.857142857142854,3,"<a href=\"ActivityLoggerServiceProvider.php.html#9\">App\\Providers\\ActivityLoggerServiceProvider<\/a>"],[66.66666666666666,4,"<a href=\"AppServiceProvider.php.html#9\">App\\Providers\\AppServiceProvider<\/a>"],[92.5925925925926,7,"<a href=\"AuthServiceProvider.php.html#12\">App\\Providers\\AuthServiceProvider<\/a>"],[100,1,"<a href=\"BroadcastServiceProvider.php.html#8\">App\\Providers\\BroadcastServiceProvider<\/a>"],[57.89473684210527,29,"<a href=\"ComponentArchitectureServiceProvider.php.html#26\">App\\Providers\\ComponentArchitectureServiceProvider<\/a>"],[23.076923076923077,6,"<a href=\"CssTimestampServiceProvider.php.html#10\">App\\Providers\\CssTimestampServiceProvider<\/a>"],[51.724137931034484,11,"<a href=\"DomainDrivenDesignServiceProvider.php.html#26\">App\\Providers\\DomainDrivenDesignServiceProvider<\/a>"],[100,2,"<a href=\"EnvServiceProvider.php.html#8\">App\\Providers\\EnvServiceProvider<\/a>"],[71.69811320754717,5,"<a href=\"EventDrivenArchitectureServiceProvider.php.html#22\">App\\Providers\\EventDrivenArchitectureServiceProvider<\/a>"],[100,2,"<a href=\"EventServiceProvider.php.html#11\">App\\Providers\\EventServiceProvider<\/a>"],[100,2,"<a href=\"PurchaseServiceProvider.php.html#12\">App\\Providers\\PurchaseServiceProvider<\/a>"],[93.75,3,"<a href=\"RouteServiceProvider.php.html#12\">App\\Providers\\RouteServiceProvider<\/a>"]], 'Class Complexity'))
+      .transition()
+      .duration(500)
+      .call(chart);
+
+    nv.utils.windowResize(chart.update);
+
+    return chart;
+  });
+
+  nv.addGraph(function() {
+    var chart = nv.models.scatterChart()
+      .showDistX(true)
+      .showDistY(true)
+      .showLegend(false)
+      .forceX([0, 100]);
+    chart.tooltipContent(function(graph) {
+      return '<p>' + graph.point.class + '</p>';
+    });
+
+    chart.xAxis.axisLabel('Code Coverage (in percent)');
+    chart.yAxis.axisLabel('Method Complexity');
+
+    d3.select('#methodComplexity svg')
+      .datum(getComplexityData([[100,1,"<a href=\"ActivityLoggerServiceProvider.php.html#17\">App\\Providers\\ActivityLoggerServiceProvider::register<\/a>"],[100,1,"<a href=\"ActivityLoggerServiceProvider.php.html#33\">App\\Providers\\ActivityLoggerServiceProvider::boot<\/a>"],[0,1,"<a href=\"ActivityLoggerServiceProvider.php.html#43\">App\\Providers\\ActivityLoggerServiceProvider::provides<\/a>"],[50,3,"<a href=\"AppServiceProvider.php.html#17\">App\\Providers\\AppServiceProvider::register<\/a>"],[100,1,"<a href=\"AppServiceProvider.php.html#32\">App\\Providers\\AppServiceProvider::boot<\/a>"],[92.5925925925926,7,"<a href=\"AuthServiceProvider.php.html#29\">App\\Providers\\AuthServiceProvider::boot<\/a>"],[100,1,"<a href=\"BroadcastServiceProvider.php.html#16\">App\\Providers\\BroadcastServiceProvider::boot<\/a>"],[100,1,"<a href=\"ComponentArchitectureServiceProvider.php.html#34\">App\\Providers\\ComponentArchitectureServiceProvider::register<\/a>"],[100,1,"<a href=\"ComponentArchitectureServiceProvider.php.html#58\">App\\Providers\\ComponentArchitectureServiceProvider::boot<\/a>"],[0,1,"<a href=\"ComponentArchitectureServiceProvider.php.html#80\">App\\Providers\\ComponentArchitectureServiceProvider::provides<\/a>"],[100,1,"<a href=\"ComponentArchitectureServiceProvider.php.html#99\">App\\Providers\\ComponentArchitectureServiceProvider::registerBladeComponents<\/a>"],[73.68421052631578,1,"<a href=\"ComponentArchitectureServiceProvider.php.html#126\">App\\Providers\\ComponentArchitectureServiceProvider::registerBladeDirectives<\/a>"],[100,3,"<a href=\"ComponentArchitectureServiceProvider.php.html#183\">App\\Providers\\ComponentArchitectureServiceProvider::setupComponentDiscovery<\/a>"],[28.205128205128204,1,"<a href=\"ComponentArchitectureServiceProvider.php.html#218\">App\\Providers\\ComponentArchitectureServiceProvider::registerViewComposers<\/a>"],[100,7,"<a href=\"ComponentArchitectureServiceProvider.php.html#274\">App\\Providers\\ComponentArchitectureServiceProvider::setupComponentValidation<\/a>"],[60,5,"<a href=\"ComponentArchitectureServiceProvider.php.html#302\">App\\Providers\\ComponentArchitectureServiceProvider::determineComponentType<\/a>"],[18.75,8,"<a href=\"ComponentArchitectureServiceProvider.php.html#324\">App\\Providers\\ComponentArchitectureServiceProvider::extractCategoryFromPath<\/a>"],[16.666666666666664,5,"<a href=\"CssTimestampServiceProvider.php.html#18\">App\\Providers\\CssTimestampServiceProvider::register<\/a>"],[100,1,"<a href=\"CssTimestampServiceProvider.php.html#74\">App\\Providers\\CssTimestampServiceProvider::boot<\/a>"],[100,1,"<a href=\"DomainDrivenDesignServiceProvider.php.html#34\">App\\Providers\\DomainDrivenDesignServiceProvider::register<\/a>"],[100,1,"<a href=\"DomainDrivenDesignServiceProvider.php.html#75\">App\\Providers\\DomainDrivenDesignServiceProvider::boot<\/a>"],[0,1,"<a href=\"DomainDrivenDesignServiceProvider.php.html#87\">App\\Providers\\DomainDrivenDesignServiceProvider::registerBoundedContexts<\/a>"],[100,1,"<a href=\"DomainDrivenDesignServiceProvider.php.html#111\">App\\Providers\\DomainDrivenDesignServiceProvider::registerEventSourcing<\/a>"],[100,1,"<a href=\"DomainDrivenDesignServiceProvider.php.html#125\">App\\Providers\\DomainDrivenDesignServiceProvider::registerAnalyticsComponents<\/a>"],[38.46153846153847,1,"<a href=\"DomainDrivenDesignServiceProvider.php.html#146\">App\\Providers\\DomainDrivenDesignServiceProvider::registerDomainEventListeners<\/a>"],[0,1,"<a href=\"DomainDrivenDesignServiceProvider.php.html#219\">App\\Providers\\DomainDrivenDesignServiceProvider::registerUserManagementContext<\/a>"],[0,1,"<a href=\"DomainDrivenDesignServiceProvider.php.html#228\">App\\Providers\\DomainDrivenDesignServiceProvider::registerPurchaseManagementContext<\/a>"],[0,1,"<a href=\"DomainDrivenDesignServiceProvider.php.html#237\">App\\Providers\\DomainDrivenDesignServiceProvider::registerNotificationContext<\/a>"],[0,1,"<a href=\"DomainDrivenDesignServiceProvider.php.html#246\">App\\Providers\\DomainDrivenDesignServiceProvider::registerAnalyticsContext<\/a>"],[0,1,"<a href=\"DomainDrivenDesignServiceProvider.php.html#255\">App\\Providers\\DomainDrivenDesignServiceProvider::registerPlatformIntegrationContext<\/a>"],[100,1,"<a href=\"EnvServiceProvider.php.html#16\">App\\Providers\\EnvServiceProvider::register<\/a>"],[100,1,"<a href=\"EnvServiceProvider.php.html#38\">App\\Providers\\EnvServiceProvider::boot<\/a>"],[66.66666666666666,1,"<a href=\"EventDrivenArchitectureServiceProvider.php.html#30\">App\\Providers\\EventDrivenArchitectureServiceProvider::register<\/a>"],[100,1,"<a href=\"EventDrivenArchitectureServiceProvider.php.html#66\">App\\Providers\\EventDrivenArchitectureServiceProvider::boot<\/a>"],[0,1,"<a href=\"EventDrivenArchitectureServiceProvider.php.html#81\">App\\Providers\\EventDrivenArchitectureServiceProvider::provides<\/a>"],[100,1,"<a href=\"EventDrivenArchitectureServiceProvider.php.html#95\">App\\Providers\\EventDrivenArchitectureServiceProvider::registerEventListeners<\/a>"],[84,1,"<a href=\"EventDrivenArchitectureServiceProvider.php.html#113\">App\\Providers\\EventDrivenArchitectureServiceProvider::setupEventSubscriptions<\/a>"],[100,1,"<a href=\"EventServiceProvider.php.html#30\">App\\Providers\\EventServiceProvider::boot<\/a>"],[100,1,"<a href=\"EventServiceProvider.php.html#41\">App\\Providers\\EventServiceProvider::shouldDiscoverEvents<\/a>"],[100,1,"<a href=\"PurchaseServiceProvider.php.html#20\">App\\Providers\\PurchaseServiceProvider::register<\/a>"],[100,1,"<a href=\"PurchaseServiceProvider.php.html#41\">App\\Providers\\PurchaseServiceProvider::boot<\/a>"],[93.75,3,"<a href=\"RouteServiceProvider.php.html#29\">App\\Providers\\RouteServiceProvider::boot<\/a>"]], 'Method Complexity'))
+      .transition()
+      .duration(500)
+      .call(chart);
+
+    nv.utils.windowResize(chart.update);
+
+    return chart;
+  });
+
+  function getComplexityData(data, label) {
+    var values = [];
+    $.each(data, function(key) {
+      var value = Math.round(data[key][0]*100) / 100;
+      values.push({
+        x: value,
+        y: data[key][1],
+        class: data[key][2],
+        size: 0.05,
+        shape: 'diamond'
+      });
+    });
+
+    return [
+      {
+        key: label,
+        values: values,
+        color: "#4572A7"
+      }
+    ];
+  }
+});
+  </script>
+ </body>
+</html>

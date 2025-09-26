@@ -4,6 +4,9 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use InvalidArgumentException;
+
+use function in_array;
 
 /**
  * Email Template Model
@@ -24,6 +27,27 @@ use Illuminate\Database\Eloquent\Model;
 class EmailTemplate extends Model
 {
     use HasFactory;
+
+    /** Default template variables available across all templates */
+    public const DEFAULT_VARIABLES = [
+        'user_name'     => 'User\'s full name',
+        'user_email'    => 'User\'s email address',
+        'platform_name' => 'Platform name',
+        'platform_url'  => 'Platform URL',
+        'current_date'  => 'Current date',
+        'current_time'  => 'Current time',
+    ];
+
+    /** Common template types */
+    public const TYPE_WELCOME = 'welcome';
+
+    public const TYPE_PRICE_ALERT = 'price_alert';
+
+    public const TYPE_BOOKING_CONFIRMATION = 'booking_confirmation';
+
+    public const TYPE_PASSWORD_RESET = 'password_reset';
+
+    public const TYPE_EMAIL_VERIFICATION = 'email_verification';
 
     /**
      * The table associated with the model.
@@ -59,34 +83,10 @@ class EmailTemplate extends Model
     ];
 
     /**
-     * Default template variables available across all templates
-     */
-    public const DEFAULT_VARIABLES = [
-        'user_name'     => 'User\'s full name',
-        'user_email'    => 'User\'s email address',
-        'platform_name' => 'Platform name',
-        'platform_url'  => 'Platform URL',
-        'current_date'  => 'Current date',
-        'current_time'  => 'Current time',
-    ];
-
-    /**
-     * Common template types
-     */
-    public const TYPE_WELCOME = 'welcome';
-
-    public const TYPE_PRICE_ALERT = 'price_alert';
-
-    public const TYPE_BOOKING_CONFIRMATION = 'booking_confirmation';
-
-    public const TYPE_PASSWORD_RESET = 'password_reset';
-
-    public const TYPE_EMAIL_VERIFICATION = 'email_verification';
-
-    /**
      * Get only active templates
      *
-     * @param  \Illuminate\Database\Eloquent\Builder $query
+     * @param \Illuminate\Database\Eloquent\Builder $query
+     *
      * @return \Illuminate\Database\Eloquent\Builder
      */
     public function scopeActive($query)
@@ -97,8 +97,8 @@ class EmailTemplate extends Model
     /**
      * Get template by key
      *
-     * @param  \Illuminate\Database\Eloquent\Builder $query
-     * @param  string                                $key
+     * @param \Illuminate\Database\Eloquent\Builder $query
+     *
      * @return \Illuminate\Database\Eloquent\Builder
      */
     public function scopeByKey($query, string $key)
@@ -108,16 +108,13 @@ class EmailTemplate extends Model
 
     /**
      * Render template with provided variables
-     *
-     * @param  array $variables
-     * @return array
      */
     public function render(array $variables = []): array
     {
         // Merge default variables with provided variables
         $allVariables = array_merge(
             $this->getDefaultVariableValues(),
-            $variables
+            $variables,
         );
 
         $subject = $this->subject;
@@ -138,24 +135,7 @@ class EmailTemplate extends Model
     }
 
     /**
-     * Get default variable values
-     *
-     * @return array
-     */
-    protected function getDefaultVariableValues(): array
-    {
-        return [
-            'platform_name' => config('app.name', 'HD Tickets'),
-            'platform_url'  => config('app.url'),
-            'current_date'  => now()->format('F j, Y'),
-            'current_time'  => now()->format('g:i A'),
-        ];
-    }
-
-    /**
      * Get available variables for this template
-     *
-     * @return array
      */
     public function getAvailableVariables(): array
     {
@@ -166,8 +146,6 @@ class EmailTemplate extends Model
 
     /**
      * Extract variables from template content
-     *
-     * @return array
      */
     public function extractVariables(): array
     {
@@ -179,8 +157,6 @@ class EmailTemplate extends Model
 
     /**
      * Validate template syntax
-     *
-     * @return array
      */
     public function validateSyntax(): array
     {
@@ -196,9 +172,9 @@ class EmailTemplate extends Model
         $availableVars = array_merge($availableVars, $commonVars);
 
         // Check for undefined variables (skip validation during seeding)
-        if (!app()->runningInConsole()) {
+        if (! app()->runningInConsole()) {
             foreach ($extractedVars as $var) {
-                if (!in_array($var, $availableVars)) {
+                if (! in_array($var, $availableVars, TRUE)) {
                     $errors[] = "Undefined variable: {{$var}}";
                 }
             }
@@ -223,8 +199,6 @@ class EmailTemplate extends Model
     /**
      * Clone template with new key
      *
-     * @param  string      $newKey
-     * @param  string|null $newName
      * @return static
      */
     public function cloneTemplate(string $newKey, ?string $newName = NULL): self
@@ -240,8 +214,6 @@ class EmailTemplate extends Model
 
     /**
      * Get template preview with sample data
-     *
-     * @return array
      */
     public function getPreview(): array
     {
@@ -259,24 +231,35 @@ class EmailTemplate extends Model
 
     /**
      * Toggle active status
-     *
-     * @return bool
      */
     public function toggle(): bool
     {
-        return $this->update(['active' => !$this->active]);
+        return $this->update(['active' => ! $this->active]);
+    }
+
+    /**
+     * Get default variable values
+     */
+    protected function getDefaultVariableValues(): array
+    {
+        return [
+            'platform_name' => config('app.name', 'HD Tickets'),
+            'platform_url'  => config('app.url'),
+            'current_date'  => now()->format('F j, Y'),
+            'current_time'  => now()->format('g:i A'),
+        ];
     }
 
     /**
      * Boot the model
      */
-    protected static function boot()
+    protected static function boot(): void
     {
         parent::boot();
 
         // Set default values when creating
-        static::creating(function ($model) {
-            if (is_null($model->active)) {
+        static::creating(function ($model): void {
+            if (NULL === $model->active) {
                 $model->active = TRUE;
             }
 
@@ -286,10 +269,10 @@ class EmailTemplate extends Model
         });
 
         // Validate before saving
-        static::saving(function ($model) {
+        static::saving(function ($model): void {
             $errors = $model->validateSyntax();
-            if (!empty($errors)) {
-                throw new \InvalidArgumentException('Template validation failed: ' . implode(', ', $errors));
+            if (! empty($errors)) {
+                throw new InvalidArgumentException('Template validation failed: ' . implode(', ', $errors));
             }
         });
     }

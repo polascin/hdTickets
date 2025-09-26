@@ -11,6 +11,7 @@ use App\Models\SystemSetting;
 use App\Models\Ticket;
 use App\Models\User;
 use Carbon\Carbon;
+use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
@@ -21,6 +22,10 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Validator;
 use PDF;
+
+use function count;
+use function in_array;
+use function is_array;
 
 /**
  * Admin Controller
@@ -44,9 +49,6 @@ class AdminController extends Controller
 
     /**
      * Get paginated users with filtering and search
-     *
-     * @param  Request      $request
-     * @return JsonResponse
      */
     public function getUsers(Request $request): JsonResponse
     {
@@ -58,11 +60,11 @@ class AdminController extends Controller
                 ]);
 
             // Apply search filter
-            if ($request->has('search') && !empty($request->search)) {
+            if ($request->has('search') && ! empty($request->search)) {
                 $search = $request->search;
-                $query->where(function ($q) use ($search) {
+                $query->where(function ($q) use ($search): void {
                     $q->where('name', 'like', "%{$search}%")
-                      ->orWhere('email', 'like', "%{$search}%");
+                        ->orWhere('email', 'like', "%{$search}%");
                 });
             }
 
@@ -107,10 +109,11 @@ class AdminController extends Controller
                 $user->total_orders = $user->orders->count();
                 $user->total_spent = $user->orders->where('status', 'completed')->sum('total');
                 $user->total_tickets = $user->tickets->count();
-                $user->is_email_verified = !is_null($user->email_verified_at);
+                $user->is_email_verified = NULL !== $user->email_verified_at;
 
                 // Remove relations to reduce payload size
-                unset($user->orders, $user->tickets);
+                $user->orders = NULL;
+                $user->tickets = NULL;
 
                 return $user;
             });
@@ -119,7 +122,7 @@ class AdminController extends Controller
                 'success' => TRUE,
                 'data'    => $users,
             ]);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             Log::error('Admin: Failed to get users - ' . $e->getMessage());
 
             return response()->json([
@@ -132,9 +135,7 @@ class AdminController extends Controller
     /**
      * Perform user action (activate, suspend, delete, etc.)
      *
-     * @param  Request      $request
-     * @param  int          $id
-     * @return JsonResponse
+     * @param int $id
      */
     public function userAction(Request $request, $id): JsonResponse
     {
@@ -156,7 +157,7 @@ class AdminController extends Controller
             $action = $request->action;
 
             // Prevent self-actions
-            if ($user->id === auth()->id() && in_array($action, ['suspend', 'ban', 'delete'])) {
+            if ($user->id === auth()->id() && in_array($action, ['suspend', 'ban', 'delete'], TRUE)) {
                 return response()->json([
                     'success' => FALSE,
                     'error'   => 'Cannot perform this action on your own account',
@@ -194,7 +195,7 @@ class AdminController extends Controller
                     Mail::send('emails.password-reset', [
                         'user'     => $user,
                         'password' => $newPassword,
-                    ], function ($message) use ($user) {
+                    ], function ($message) use ($user): void {
                         $message->to($user->email)->subject('Password Reset');
                     });
 
@@ -229,7 +230,7 @@ class AdminController extends Controller
                 'success' => TRUE,
                 'message' => ucfirst($action) . ' action completed successfully',
             ]);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             Log::error('Admin: User action failed - ' . $e->getMessage());
 
             return response()->json([
@@ -241,9 +242,6 @@ class AdminController extends Controller
 
     /**
      * Bulk user actions
-     *
-     * @param  Request      $request
-     * @return JsonResponse
      */
     public function bulkUserAction(Request $request): JsonResponse
     {
@@ -266,7 +264,7 @@ class AdminController extends Controller
             $action = $request->action;
 
             // Prevent self-actions
-            if (in_array(auth()->id(), $userIds) && in_array($action, ['suspend', 'ban', 'delete'])) {
+            if (in_array(auth()->id(), $userIds, TRUE) && in_array($action, ['suspend', 'ban', 'delete'], TRUE)) {
                 return response()->json([
                     'success' => FALSE,
                     'error'   => 'Cannot perform bulk action on your own account',
@@ -311,7 +309,7 @@ class AdminController extends Controller
                 'success' => TRUE,
                 'message' => "Bulk {$action} completed successfully on {$affectedCount} users",
             ]);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             Log::error('Admin: Bulk user action failed - ' . $e->getMessage());
 
             return response()->json([
@@ -327,8 +325,6 @@ class AdminController extends Controller
 
     /**
      * Get system settings
-     *
-     * @return JsonResponse
      */
     public function getSettings(): JsonResponse
     {
@@ -421,7 +417,7 @@ class AdminController extends Controller
                 'success'  => TRUE,
                 'settings' => $settings,
             ]);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             Log::error('Admin: Failed to get settings - ' . $e->getMessage());
 
             return response()->json([
@@ -433,16 +429,13 @@ class AdminController extends Controller
 
     /**
      * Save system settings
-     *
-     * @param  Request      $request
-     * @return JsonResponse
      */
     public function saveSettings(Request $request): JsonResponse
     {
         try {
             $settings = $request->all();
 
-            DB::transaction(function () use ($settings) {
+            DB::transaction(function () use ($settings): void {
                 // Flatten settings and save to database
                 $this->saveSettingsRecursive($settings);
 
@@ -459,7 +452,7 @@ class AdminController extends Controller
                     foreach ($settings['email']['templates'] as $key => $template) {
                         EmailTemplate::updateOrCreate(
                             ['key' => $key],
-                            $template
+                            $template,
                         );
                     }
                 }
@@ -474,7 +467,7 @@ class AdminController extends Controller
                 'success' => TRUE,
                 'message' => 'Settings saved successfully',
             ]);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             Log::error('Admin: Failed to save settings - ' . $e->getMessage());
 
             return response()->json([
@@ -486,9 +479,6 @@ class AdminController extends Controller
 
     /**
      * Test scraping source connection
-     *
-     * @param  Request      $request
-     * @return JsonResponse
      */
     public function testScrapingSource(Request $request): JsonResponse
     {
@@ -523,7 +513,7 @@ class AdminController extends Controller
                 'success' => FALSE,
                 'error'   => "HTTP {$response->status()}: Connection failed",
             ]);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return response()->json([
                 'success' => FALSE,
                 'error'   => $e->getMessage(),
@@ -537,9 +527,6 @@ class AdminController extends Controller
 
     /**
      * Get analytics data
-     *
-     * @param  Request      $request
-     * @return JsonResponse
      */
     public function getAnalytics(Request $request): JsonResponse
     {
@@ -584,7 +571,7 @@ class AdminController extends Controller
                 'success' => TRUE,
                 'data'    => $analytics,
             ]);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             Log::error('Admin: Failed to get analytics - ' . $e->getMessage());
 
             return response()->json([
@@ -597,7 +584,6 @@ class AdminController extends Controller
     /**
      * Export analytics report
      *
-     * @param  Request                   $request
      * @return \Illuminate\Http\Response
      */
     public function exportReport(Request $request)
@@ -606,14 +592,14 @@ class AdminController extends Controller
             $period = $request->get('period', '30d');
             $analytics = Cache::get("analytics_{$period}");
 
-            if (!$analytics) {
+            if (! $analytics) {
                 // Generate fresh analytics data
                 $request->merge(['period' => $period]);
                 $response = $this->getAnalytics($request);
                 $analytics = $response->getData(TRUE)['data'];
             }
 
-            $theme = in_array($request->get('theme'), ['light', 'dark']) ? $request->get('theme') : 'light';
+            $theme = in_array($request->get('theme'), ['light', 'dark'], TRUE) ? $request->get('theme') : 'light';
 
             // Prepare logo data URI for reliable PDF embedding
             $logoDataUri = NULL;
@@ -633,7 +619,7 @@ class AdminController extends Controller
             $filename = "analytics-report-{$period}-" . now()->format('Y-m-d') . '.pdf';
 
             return $pdf->download($filename);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             Log::error('Admin: Failed to export report - ' . $e->getMessage());
 
             return response()->json([
@@ -649,21 +635,18 @@ class AdminController extends Controller
 
     /**
      * Save settings recursively to database
-     *
-     * @param array  $settings
-     * @param string $prefix
      */
     private function saveSettingsRecursive(array $settings, string $prefix = ''): void
     {
         foreach ($settings as $key => $value) {
             $fullKey = $prefix ? "{$prefix}.{$key}" : $key;
 
-            if (is_array($value) && !in_array($key, ['sources', 'templates'])) {
+            if (is_array($value) && ! in_array($key, ['sources', 'templates'], TRUE)) {
                 $this->saveSettingsRecursive($value, $fullKey);
             } else {
                 SystemSetting::updateOrCreate(
                     ['key' => $fullKey],
-                    ['value' => is_array($value) ? json_encode($value) : $value]
+                    ['value' => is_array($value) ? json_encode($value) : $value],
                 );
             }
         }
@@ -671,9 +654,6 @@ class AdminController extends Controller
 
     /**
      * Get date range based on period
-     *
-     * @param  string $period
-     * @return array
      */
     private function getDateRange(string $period): array
     {
@@ -693,9 +673,6 @@ class AdminController extends Controller
 
     /**
      * Get previous date range for comparison
-     *
-     * @param  string $period
-     * @return array
      */
     private function getPreviousDateRange(string $period): array
     {
@@ -715,10 +692,6 @@ class AdminController extends Controller
 
     /**
      * Calculate key metrics
-     *
-     * @param  array $dateRange
-     * @param  array $previousRange
-     * @return array
      */
     private function calculateMetrics(array $dateRange, array $previousRange): array
     {
@@ -775,16 +748,13 @@ class AdminController extends Controller
 
     /**
      * Get top performing events
-     *
-     * @param  array $dateRange
-     * @return array
      */
     private function getTopEvents(array $dateRange): array
     {
         return Event::withCount(['tickets as tickets_sold'])
-            ->with(['orders' => function ($query) use ($dateRange) {
+            ->with(['orders' => function ($query) use ($dateRange): void {
                 $query->whereBetween('created_at', $dateRange)
-                      ->where('status', 'completed');
+                    ->where('status', 'completed');
             }])
             ->get()
             ->map(function ($event) {
@@ -804,9 +774,6 @@ class AdminController extends Controller
 
     /**
      * Get category performance breakdown
-     *
-     * @param  array $dateRange
-     * @return array
      */
     private function getTopCategories(array $dateRange): array
     {
@@ -828,8 +795,6 @@ class AdminController extends Controller
 
     /**
      * Get traffic sources (simulated data)
-     *
-     * @return array
      */
     private function getTrafficSources(): array
     {
@@ -844,8 +809,6 @@ class AdminController extends Controller
 
     /**
      * Get recent activity
-     *
-     * @return array
      */
     private function getRecentActivity(): array
     {
@@ -878,8 +841,6 @@ class AdminController extends Controller
 
     /**
      * Get system health status
-     *
-     * @return array
      */
     private function getSystemHealth(): array
     {
@@ -919,9 +880,6 @@ class AdminController extends Controller
 
     /**
      * Get chart data for analytics
-     *
-     * @param  string $period
-     * @return array
      */
     private function getChartData(string $period): array
     {
@@ -930,7 +888,7 @@ class AdminController extends Controller
             '30d'   => 30,
             '90d'   => 90,
             '1y'    => 365,
-            default => 30
+            default => 30,
         };
 
         $labels = [];
@@ -956,7 +914,6 @@ class AdminController extends Controller
     /**
      * Export users to Excel/CSV
      *
-     * @param  array                                              $userIds
      * @return \Symfony\Component\HttpFoundation\StreamedResponse
      */
     private function exportUsers(array $userIds)
@@ -972,7 +929,7 @@ class AdminController extends Controller
             'Content-Disposition' => "attachment; filename=\"{$filename}\"",
         ];
 
-        return response()->stream(function () use ($users) {
+        return response()->stream(function () use ($users): void {
             $handle = fopen('php://output', 'w');
 
             // CSV headers

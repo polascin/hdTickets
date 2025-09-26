@@ -60,7 +60,7 @@ class LoginRequest extends FormRequest
         $user = User::where('email', $this->string('email'))->first();
 
         // Check if user exists and credentials are correct
-        if (!$user || !Hash::check($this->string('password'), $user->password)) {
+        if (! $user || ! Hash::check($this->string('password'), $user->password)) {
             RateLimiter::hit($this->throttleKey());
 
             // Track analytics for failed login
@@ -142,7 +142,7 @@ class LoginRequest extends FormRequest
         }
 
         // Check if account is active
-        if (!$user->is_active) {
+        if (! $user->is_active) {
             $suggestions = [
                 'Contact your system administrator',
                 'Email support at support@hdtickets.com',
@@ -158,7 +158,7 @@ class LoginRequest extends FormRequest
         }
 
         // Check if user can access the system (scrapers cannot)
-        if (!$user->canAccessSystem()) {
+        if (! $user->canAccessSystem()) {
             $suggestions = [
                 'Use the API endpoints for scraper accounts',
                 'Contact your administrator about account type',
@@ -245,7 +245,7 @@ class LoginRequest extends FormRequest
      */
     public function ensureIsNotRateLimited(): void
     {
-        if (!RateLimiter::tooManyAttempts($this->throttleKey(), 5)) {
+        if (! RateLimiter::tooManyAttempts($this->throttleKey(), 5)) {
             return;
         }
 

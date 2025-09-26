@@ -90,7 +90,7 @@ class DashboardController extends Controller
     {
         try {
             $user = Auth::user();
-            if (!$user) {
+            if (! $user) {
                 return response()->json(['success' => FALSE, 'error' => 'User not authenticated'], 401);
             }
 
@@ -111,7 +111,7 @@ class DashboardController extends Controller
                     ->where('scraped_at', '>=', now()->subHours(12));
 
                 // Apply user preferences
-                if (!empty($favoriteTeams)) {
+                if (! empty($favoriteTeams)) {
                     $query->where(function ($q) use ($favoriteTeams): void {
                         foreach ($favoriteTeams as $team) {
                             $q->orWhere('title', 'like', "%{$team}%")
@@ -120,7 +120,7 @@ class DashboardController extends Controller
                     });
                 }
 
-                if (!empty($preferredSports)) {
+                if (! empty($preferredSports)) {
                     $query->whereIn('sport', $preferredSports);
                 }
 
@@ -281,7 +281,7 @@ class DashboardController extends Controller
     {
         try {
             $user = Auth::user();
-            if (!$user) {
+            if (! $user) {
                 return response()->json(['success' => FALSE, 'error' => 'User not authenticated'], 401);
             }
 

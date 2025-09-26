@@ -425,12 +425,12 @@ class HighDemandTicketScraperService
         $params = [];
 
         // Add high-demand specific parameters
-        if (!empty($criteria['keyword'])) {
+        if (! empty($criteria['keyword'])) {
             $params['q'] = $criteria['keyword'];
             $params['search'] = $criteria['keyword'];
         }
 
-        if (!empty($criteria['date_from'])) {
+        if (! empty($criteria['date_from'])) {
             $params['from'] = $criteria['date_from'];
         }
 
@@ -526,7 +526,7 @@ class HighDemandTicketScraperService
             $availabilityStatus = $this->normalizeAvailabilityStatus($availability);
 
             // Skip sold out tickets unless specifically monitoring
-            if ($availabilityStatus === 'sold_out' && !$this->isMonitoringMode()) {
+            if ($availabilityStatus === 'sold_out' && ! $this->isMonitoringMode()) {
                 return NULL;
             }
 
@@ -703,7 +703,7 @@ class HighDemandTicketScraperService
 
         foreach ($allTickets as $ticket) {
             $key = $ticket['title'] . '|' . $ticket['date'];
-            if (!isset($seen[$key])) {
+            if (! isset($seen[$key])) {
                 $uniqueTickets[] = $ticket;
                 $seen[$key] = TRUE;
             }

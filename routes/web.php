@@ -138,10 +138,10 @@ Route::get('/csp-debug', function () {
     }
 
     return response()->json([
-      'config'         => $csp,
-      'built_policies' => $policies,
-      'final_csp'      => implode('; ', $policies),
-      'empty_check'    => $policies === [],
+        'config'         => $csp,
+        'built_policies' => $policies,
+        'final_csp'      => implode('; ', $policies),
+        'empty_check'    => $policies === [],
     ]);
 })->name('csp.debug');
 
@@ -180,8 +180,8 @@ Route::get('/csp-debug', function () {
 // Main Dashboard Dispatcher Route
 // Entry point for all authenticated users - automatically detects role and redirects
 Route::get('/dashboard', [HomeController::class, 'index'])
-  ->middleware(['auth', 'verified']) // Requires authentication and email verification
-  ->name('dashboard'); // Named route for easy reference
+    ->middleware(['auth', 'verified']) // Requires authentication and email verification
+    ->name('dashboard'); // Named route for easy reference
 
 // Role-Specific Dashboard Routes
 // Grouped under /dashboard prefix for consistent URL structure
@@ -193,7 +193,7 @@ Route::middleware(['auth', 'verified'])->prefix('dashboard')->name('dashboard.')
          * Features: Limited functionality with basic sports events monitoring
          */
     Route::get('/basic', [DashboardController::class, 'index'])
-      ->name('basic'); // Route: dashboard.basic
+        ->name('basic'); // Route: dashboard.basic
 
     /*
          * Customer Dashboard
@@ -204,7 +204,7 @@ Route::middleware(['auth', 'verified'])->prefix('dashboard')->name('dashboard.')
          * View: resources/views/dashboard/customer-enhanced.blade.php
          */
     Route::middleware([CustomerMiddleware::class])->get('/customer', [EnhancedDashboardController::class, 'index'])
-      ->name('customer'); // Route: dashboard.customer
+        ->name('customer'); // Route: dashboard.customer
 
     /*
          * Legacy Customer Dashboard
@@ -215,7 +215,7 @@ Route::middleware(['auth', 'verified'])->prefix('dashboard')->name('dashboard.')
          * View: resources/views/dashboard/customer.blade.php
          */
     Route::middleware([CustomerMiddleware::class])->get('/customer/legacy', [DashboardController::class, 'index'])
-      ->name('customer.legacy'); // Route: dashboard.customer.legacy
+        ->name('customer.legacy'); // Route: dashboard.customer.legacy
 
     /*
          * Agent Dashboard
@@ -226,7 +226,7 @@ Route::middleware(['auth', 'verified'])->prefix('dashboard')->name('dashboard.')
          * View: resources/views/dashboard/agent.blade.php
          */
     Route::middleware([AgentMiddleware::class])->get('/agent', [AgentDashboardController::class, 'index'])
-      ->name('agent'); // Route: dashboard.agent
+        ->name('agent'); // Route: dashboard.agent
 
     /*
          * Scraper Dashboard
@@ -238,7 +238,7 @@ Route::middleware(['auth', 'verified'])->prefix('dashboard')->name('dashboard.')
          * Note: Scraper users typically don't access web interface (API-only)
          */
     Route::middleware([ScraperMiddleware::class])->get('/scraper', [ScraperDashboardController::class, 'index'])
-      ->name('scraper'); // Route: dashboard.scraper
+        ->name('scraper'); // Route: dashboard.scraper
 
     /*
          * Responsive Design System Example Dashboard
@@ -295,7 +295,7 @@ Route::middleware(['auth', 'verified'])->prefix('dashboard')->name('dashboard.')
         // Download route for exports
         Route::get('/download/{file}', function (string $file) {
             $path = storage_path('app/analytics/exports/' . $file);
-            if (!file_exists($path)) {
+            if (! file_exists($path)) {
                 abort(404);
             }
 
@@ -379,65 +379,65 @@ Route::middleware(['auth', 'verified', 'throttle:60,1'])->prefix('ajax')->name('
 
     // Dashboard dynamic content endpoints
     Route::get('dashboard/live-tickets', [App\Http\Controllers\Ajax\DashboardController::class, 'liveTickets'])
-      ->middleware('throttle:30,1')
-      ->name('dashboard.live-tickets');
+        ->middleware('throttle:30,1')
+        ->name('dashboard.live-tickets');
 
     Route::get('dashboard/user-recommendations', [App\Http\Controllers\Ajax\DashboardController::class, 'userRecommendations'])
-      ->middleware('throttle:10,1')
-      ->name('dashboard.user-recommendations');
+        ->middleware('throttle:10,1')
+        ->name('dashboard.user-recommendations');
 
     Route::get('dashboard/platform-health', [App\Http\Controllers\Ajax\DashboardController::class, 'platformHealth'])
-      ->middleware('throttle:20,1')
-      ->name('dashboard.platform-health');
+        ->middleware('throttle:20,1')
+        ->name('dashboard.platform-health');
 
     Route::get('dashboard/price-alerts', [App\Http\Controllers\Ajax\DashboardController::class, 'priceAlerts'])
-      ->middleware('throttle:30,1')
-      ->name('dashboard.price-alerts');
+        ->middleware('throttle:30,1')
+        ->name('dashboard.price-alerts');
 
     // Simple dashboard AJAX endpoints
     Route::get('dashboard/stats', [DashboardController::class, 'getDashboardStats'])
-      ->middleware('throttle:60,1')
-      ->name('dashboard.stats');
+        ->middleware('throttle:60,1')
+        ->name('dashboard.stats');
 
     Route::get('dashboard/recent-tickets', [DashboardController::class, 'getRecentTicketsHtml'])
-      ->middleware('throttle:60,1')
-      ->name('dashboard.recent-tickets');
+        ->middleware('throttle:60,1')
+        ->name('dashboard.recent-tickets');
 });
 
 // Main tickets route with enhanced frontend interface
 Route::get('/tickets', function () {
     // Get filter data for the initial page load from scraped_tickets table
     $sportTypes = DB::table('scraped_tickets')
-      ->select('sport as value', DB::raw('COUNT(*) as count'))
-      ->where('status', 'active')
-      ->whereNotNull('sport')
-      ->where('sport', '!=', '')
-      ->groupBy('sport')
-      ->orderBy('count', 'desc')
-      ->get();
+        ->select('sport as value', DB::raw('COUNT(*) as count'))
+        ->where('status', 'active')
+        ->whereNotNull('sport')
+        ->where('sport', '!=', '')
+        ->groupBy('sport')
+        ->orderBy('count', 'desc')
+        ->get();
 
     $cities = DB::table('scraped_tickets')
-      ->select('location as city', DB::raw('COUNT(*) as count'))
-      ->where('status', 'active')
-      ->whereNotNull('location')
-      ->where('location', '!=', '')
-      ->groupBy('location')
-      ->orderBy('count', 'desc')
-      ->limit(20)
-      ->get();
+        ->select('location as city', DB::raw('COUNT(*) as count'))
+        ->where('status', 'active')
+        ->whereNotNull('location')
+        ->where('location', '!=', '')
+        ->groupBy('location')
+        ->orderBy('count', 'desc')
+        ->limit(20)
+        ->get();
 
     $platforms = DB::table('scraped_tickets')
-      ->select('platform as name', DB::raw('COUNT(*) as count'))
-      ->where('status', 'active')
-      ->whereNotNull('platform')
-      ->where('platform', '!=', '')
-      ->groupBy('platform')
-      ->orderBy('count', 'desc')
-      ->get();
+        ->select('platform as name', DB::raw('COUNT(*) as count'))
+        ->where('status', 'active')
+        ->whereNotNull('platform')
+        ->where('platform', '!=', '')
+        ->groupBy('platform')
+        ->orderBy('count', 'desc')
+        ->get();
 
     $totalTickets = DB::table('scraped_tickets')
-      ->where('status', 'active')
-      ->count();
+        ->where('status', 'active')
+        ->count();
 
     $platformsCount = $platforms->count();
     $citiesCount = $cities->count();
@@ -616,20 +616,20 @@ Route::middleware(['auth', 'verified'])->prefix('monitoring')->name('monitoring.
 
     // AJAX endpoints for real-time updates
     Route::get('/ajax/dashboard-stats', [MonitoringController::class, 'getDashboardStats'])
-      ->middleware('throttle:30,1')
-      ->name('ajax.dashboard-stats');
+        ->middleware('throttle:30,1')
+        ->name('ajax.dashboard-stats');
 
     Route::get('/ajax/alerts', [MonitoringController::class, 'getAlerts'])
-      ->middleware('throttle:60,1')
-      ->name('ajax.alerts');
+        ->middleware('throttle:60,1')
+        ->name('ajax.alerts');
 
     Route::post('/ajax/refresh', [MonitoringController::class, 'refreshMonitoring'])
-      ->middleware('throttle:10,1')
-      ->name('ajax.refresh');
+        ->middleware('throttle:10,1')
+        ->name('ajax.refresh');
 
     Route::get('/ajax/price-updates', [MonitoringController::class, 'getPriceUpdates'])
-      ->middleware('throttle:120,1')
-      ->name('ajax.price-updates');
+        ->middleware('throttle:120,1')
+        ->name('ajax.price-updates');
 });
 
 // Ticket Scraping Routes
@@ -665,32 +665,32 @@ Route::middleware(['auth', 'verified'])->prefix('tickets')->name('tickets.')->gr
 Route::middleware(['auth', 'verified'])->prefix('tickets')->name('tickets.purchase.')->group(function (): void {
     // Purchase workflow routes
     Route::get('{ticket}/purchase', [TicketPurchaseController::class, 'showPurchaseForm'])
-      ->name('purchase');
+        ->name('purchase');
 
     Route::post('{ticket}/purchase', [TicketPurchaseController::class, 'processPurchase'])
-      ->middleware('ticket.purchase.validation')
-      ->name('purchase.process');
+        ->middleware('ticket.purchase.validation')
+        ->name('purchase.process');
 
     // Purchase result pages
     Route::get('purchase-success/{purchase}', [TicketPurchaseController::class, 'showSuccess'])
-      ->name('purchase-success');
+        ->name('purchase-success');
 
     Route::get('purchase-failed', [TicketPurchaseController::class, 'showFailed'])
-      ->name('purchase-failed');
+        ->name('purchase-failed');
 
     // Purchase history and management
     Route::get('purchase-history', [TicketPurchaseController::class, 'purchaseHistory'])
-      ->name('purchase-history');
+        ->name('purchase-history');
 
     Route::get('purchase-history/export', [TicketPurchaseController::class, 'exportPurchaseHistory'])
-      ->name('purchase-history.export');
+        ->name('purchase-history.export');
 
     // Purchase management
     Route::patch('purchases/{purchase}/cancel', [TicketPurchaseController::class, 'cancelPurchase'])
-      ->name('purchase.cancel');
+        ->name('purchase.cancel');
 
     Route::get('purchases/{purchase}/details', [TicketPurchaseController::class, 'purchaseDetails'])
-      ->name('purchase.details');
+        ->name('purchase.details');
 });
 
 // Purchase Decision System
@@ -713,9 +713,9 @@ Route::get('health/redis', [HealthController::class, 'redis'])->name('health.red
 
 // Production Health Check Routes (Comprehensive Monitoring)
 Route::get('health/production', [ProductionHealthController::class, 'comprehensive'])
-  ->name('health.production');
+    ->name('health.production');
 Route::get('health/comprehensive', [ProductionHealthController::class, 'comprehensive'])
-  ->name('health.comprehensive');
+    ->name('health.comprehensive');
 
 // Public Account Deletion Routes (no authentication required)
 Route::prefix('account/deletion')->name('account.deletion.')->group(function (): void {
@@ -730,29 +730,29 @@ Route::prefix('account/deletion')->name('account.deletion.')->group(function ():
 // Enhanced AJAX endpoints for ticket scraping (web-authenticated)
 Route::middleware(['auth', 'verified'])->group(function (): void {
     Route::get('/ajax/ticket-details/{id}', [ScrapingController::class, 'getTicketDetails'])
-      ->where('id', '[0-9]+')
-      ->name('ajax.ticket-details');
+        ->where('id', '[0-9]+')
+        ->name('ajax.ticket-details');
 
     // Enhanced ticket scraping AJAX endpoints
     Route::post('/tickets/scraping/ajax-filter', [TicketScrapingController::class, 'ajaxFilter'])
-      ->name('tickets.scraping.ajax-filter');
+        ->name('tickets.scraping.ajax-filter');
 
     Route::get('/tickets/scraping/search-suggestions', [TicketScrapingController::class, 'searchSuggestions'])
-      ->name('tickets.scraping.suggestions');
+        ->name('tickets.scraping.suggestions');
 
     Route::post('/tickets/scraping/{ticket}/bookmark', [TicketScrapingController::class, 'toggleBookmark'])
-      ->where('ticket', '[0-9]+')
-      ->name('tickets.scraping.bookmark');
+        ->where('ticket', '[0-9]+')
+        ->name('tickets.scraping.bookmark');
 
     Route::post('/tickets/scraping/export', [TicketScrapingController::class, 'export'])
-      ->name('tickets.scraping.export');
+        ->name('tickets.scraping.export');
 
     Route::get('/tickets/scraping/{ticket}/api', [TicketScrapingController::class, 'apiShow'])
-      ->where('ticket', '[0-9]+')
-      ->name('tickets.scraping.api-show');
+        ->where('ticket', '[0-9]+')
+        ->name('tickets.scraping.api-show');
 
     Route::get('/tickets/scraping/bookmarked', [TicketScrapingController::class, 'bookmarked'])
-      ->name('tickets.scraping.bookmarked');
+        ->name('tickets.scraping.bookmarked');
 });
 
 require __DIR__ . '/auth.php';
@@ -760,7 +760,7 @@ require __DIR__ . '/admin.php';
 
 Route::get('/dashboard-test', function () {
     $user = User::where('role', 'admin')->first();
-    if (!$user) {
+    if (! $user) {
         return response()->json(['error' => 'Admin user not found']);
     }
 
@@ -775,15 +775,15 @@ Route::get('/dashboard-test', function () {
         return $controller->index();
     } catch (Exception $e) {
         return response()->json([
-          'error' => $e->getMessage(),
-          'trace' => $e->getTraceAsString(),
+            'error' => $e->getMessage(),
+            'trace' => $e->getTraceAsString(),
         ]);
     }
 })->name('dashboard.test');
 
 Route::get('/customer-test', function () {
     $user = User::where('role', 'customer')->first();
-    if (!$user) {
+    if (! $user) {
         return response()->json(['error' => 'Customer user not found']);
     }
 
@@ -853,7 +853,7 @@ Route::middleware(['auth', 'verified'])->group(function (): void {
 |
 */
 
-Route::prefix('api/admin')->middleware(['auth', 'role:admin'])->name('api.admin.')->group(function () {
+Route::prefix('api/admin')->middleware(['auth', 'role:admin'])->name('api.admin.')->group(function (): void {
     // User Management API
     Route::get('/users', [App\Http\Controllers\Admin\AdminController::class, 'getUsers'])->name('users.index');
     Route::post('/users/{id}/action', [App\Http\Controllers\Admin\AdminController::class, 'userAction'])->name('users.action');

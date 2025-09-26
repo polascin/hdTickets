@@ -115,11 +115,11 @@ Route::prefix('v1')->middleware([ApiRateLimit::class . ':auth,10,1'])->group(fun
        * Used by: Load balancers, monitoring systems, integration partners
        */
     Route::get('/status', fn () => response()->json([
-      'status'      => 'active',
-      'service'     => 'HD Tickets Sports Events Monitoring',
-      'version'     => '2025.07.v4.0',
-      'timestamp'   => now()->toISOString(),
-      'environment' => 'Ubuntu 24.04 LTS, Apache2, PHP8.4, MySQL/MariaDB 10.4',
+        'status'      => 'active',
+        'service'     => 'HD Tickets Sports Events Monitoring',
+        'version'     => '2025.07.v4.0',
+        'timestamp'   => now()->toISOString(),
+        'environment' => 'Ubuntu 24.04 LTS, Apache2, PHP8.4, MySQL/MariaDB 10.4',
     ]));
 
     /*
@@ -160,24 +160,24 @@ Route::prefix('v1')->middleware([ApiRateLimit::class . ':auth,10,1'])->group(fun
 Route::prefix('v1/tickets')->middleware([ApiRateLimit::class . ':api,120,1'])->name('api.tickets.')->group(function (): void {
     // Public ticket endpoints (no authentication required)
     Route::get('/filter', [TicketApiController::class, 'filter'])
-      ->name('filter');
+        ->name('filter');
 
     Route::get('/suggestions', [TicketApiController::class, 'suggestions'])
-      ->name('suggestions');
+        ->name('suggestions');
 
     Route::get('/{ticket}/details', [TicketApiController::class, 'getTicketDetails'])
-      ->name('details');
+        ->name('details');
 
     // Development endpoints (non-production only)
     Route::middleware('throttle:10,1')->group(function (): void {
         Route::post('/{ticket}/test-price-change', [TicketApiController::class, 'testPriceChange'])
-          ->name('test-price-change');
+            ->name('test-price-change');
     });
 
     // Authenticated ticket endpoints
     Route::middleware('auth:sanctum')->group(function (): void {
         Route::post('/{ticket}/bookmark', [TicketApiController::class, 'toggleBookmark'])
-          ->name('bookmark');
+            ->name('bookmark');
     });
 });
 
@@ -198,7 +198,7 @@ Route::prefix('v1/dashboard')->middleware(['auth', ApiRateLimit::class . ':api,1
        * Used by: Enhanced dashboard for real-time updates
        */
     Route::get('/realtime', [EnhancedDashboardController::class, 'getRealtimeData'])
-      ->name('realtime');
+        ->name('realtime');
 
     /*
        * Analytics Data Endpoint
@@ -207,7 +207,7 @@ Route::prefix('v1/dashboard')->middleware(['auth', ApiRateLimit::class . ':api,1
        * Used by: Enhanced dashboard analytics widgets
        */
     Route::get('/analytics-data', [EnhancedDashboardController::class, 'getAnalytics'])
-      ->name('analytics.data');
+        ->name('analytics.data');
 
     /*
        * Personalized Recommendations Endpoint
@@ -216,7 +216,7 @@ Route::prefix('v1/dashboard')->middleware(['auth', ApiRateLimit::class . ':api,1
        * Used by: Enhanced dashboard recommendations widget
        */
     Route::get('/recommendations', [EnhancedDashboardController::class, 'getPersonalizedRecommendations'])
-      ->name('recommendations');
+        ->name('recommendations');
 
     /*
        * Dashboard Stats Endpoint
@@ -230,15 +230,15 @@ Route::prefix('v1/dashboard')->middleware(['auth', ApiRateLimit::class . ':api,1
         $data = $controller->getRealtimeData($request)->getData();
 
         return response()->json([
-          'success' => TRUE,
-          'stats'   => [
-            'available_tickets' => $data->data->statistics->available_tickets->current ?? 0,
-            'new_today'         => $data->data->statistics->available_tickets->change_24h ?? 0,
-            'monitored_events'  => $data->data->statistics->high_demand->current ?? 0,
-            'active_alerts'     => $data->data->statistics->active_alerts->current ?? 0,
-            'price_alerts'      => $data->data->statistics->active_alerts->current ?? 0,
-            'triggered_today'   => $data->data->statistics->active_alerts->triggered_today ?? 0,
-          ],
+            'success' => TRUE,
+            'stats'   => [
+                'available_tickets' => $data->data->statistics->available_tickets->current ?? 0,
+                'new_today'         => $data->data->statistics->available_tickets->change_24h ?? 0,
+                'monitored_events'  => $data->data->statistics->high_demand->current ?? 0,
+                'active_alerts'     => $data->data->statistics->active_alerts->current ?? 0,
+                'price_alerts'      => $data->data->statistics->active_alerts->current ?? 0,
+                'triggered_today'   => $data->data->statistics->active_alerts->triggered_today ?? 0,
+            ],
         ]);
     })->name('stats');
 
@@ -254,8 +254,8 @@ Route::prefix('v1/dashboard')->middleware(['auth', ApiRateLimit::class . ':api,1
         $data = $controller->getRealtimeData($request)->getData();
 
         return response()->json([
-          'success' => TRUE,
-          'tickets' => $data->data->recent_tickets ?? [],
+            'success' => TRUE,
+            'tickets' => $data->data->recent_tickets ?? [],
         ]);
     })->name('tickets');
 
@@ -266,7 +266,7 @@ Route::prefix('v1/dashboard')->middleware(['auth', ApiRateLimit::class . ':api,1
        * Used by: Enhanced dashboard upcoming events widget
        */
     Route::get('/events', [EnhancedDashboardController::class, 'getUpcomingEvents'])
-      ->name('events');
+        ->name('events');
 
     /*
        * Notifications Endpoint
@@ -275,9 +275,9 @@ Route::prefix('v1/dashboard')->middleware(['auth', ApiRateLimit::class . ':api,1
        * Methods: GET (fetch), POST (mark as read)
        */
     Route::get('/notifications', [EnhancedDashboardController::class, 'getNotifications'])
-      ->name('notifications.index');
+        ->name('notifications.index');
     Route::post('/notifications', [EnhancedDashboardController::class, 'markNotificationsRead'])
-      ->name('notifications.read');
+        ->name('notifications.read');
 
     /*
        * User Settings Endpoint
@@ -286,9 +286,9 @@ Route::prefix('v1/dashboard')->middleware(['auth', ApiRateLimit::class . ':api,1
        * Methods: GET (fetch), POST (save)
        */
     Route::get('/settings', [EnhancedDashboardController::class, 'getUserSettings'])
-      ->name('settings.index');
+        ->name('settings.index');
     Route::post('/settings', [EnhancedDashboardController::class, 'saveUserSettings'])
-      ->name('settings.save');
+        ->name('settings.save');
 
     /*
        * Performance Metrics Endpoint
@@ -297,7 +297,7 @@ Route::prefix('v1/dashboard')->middleware(['auth', ApiRateLimit::class . ':api,1
        * Used by: Enhanced dashboard for performance monitoring
        */
     Route::get('/metrics', [EnhancedDashboardController::class, 'getPerformanceMetrics'])
-      ->name('metrics');
+        ->name('metrics');
 
     /*
        * User Activity Analytics Endpoint
@@ -306,7 +306,7 @@ Route::prefix('v1/dashboard')->middleware(['auth', ApiRateLimit::class . ':api,1
        * Used by: Enhanced dashboard for usage analytics
        */
     Route::post('/analytics', [EnhancedDashboardController::class, 'receiveAnalytics'])
-      ->name('analytics.receive');
+        ->name('analytics.receive');
 });
 
 // Scraping routes
@@ -383,10 +383,10 @@ Route::prefix('v1')->middleware(['auth:sanctum', ApiRateLimit::class . ':api,120
     // Session Management Routes for Professional Auth Features
     Route::post('/session/extend', function (Request $request) {
         try {
-            if (!Auth::check()) {
+            if (! Auth::check()) {
                 return response()->json([
-                  'success' => FALSE,
-                  'message' => 'User not authenticated',
+                    'success' => FALSE,
+                    'message' => 'User not authenticated',
                 ], 401);
             }
 
@@ -394,38 +394,38 @@ Route::prefix('v1')->middleware(['auth:sanctum', ApiRateLimit::class . ':api,120
             $request->session()->put('last_activity', time());
 
             Log::info('Session extended for user', [
-              'user_id'    => Auth::id(),
-              'email'      => Auth::user()->email,
-              'ip'         => $request->ip(),
-              'user_agent' => $request->userAgent(),
-              'timestamp'  => now()->toDateTimeString(),
+                'user_id'    => Auth::id(),
+                'email'      => Auth::user()->email,
+                'ip'         => $request->ip(),
+                'user_agent' => $request->userAgent(),
+                'timestamp'  => now()->toDateTimeString(),
             ]);
 
             return response()->json([
-              'success'    => TRUE,
-              'message'    => 'Session extended successfully',
-              'expires_at' => now()->addMinutes(config('session.lifetime'))->toISOString(),
+                'success'    => TRUE,
+                'message'    => 'Session extended successfully',
+                'expires_at' => now()->addMinutes(config('session.lifetime'))->toISOString(),
             ]);
         } catch (Exception $e) {
             Log::error('Session extension failed', [
-              'user_id'   => Auth::id() ?? 'unknown',
-              'error'     => $e->getMessage(),
-              'ip'        => $request->ip(),
-              'timestamp' => now()->toDateTimeString(),
+                'user_id'   => Auth::id() ?? 'unknown',
+                'error'     => $e->getMessage(),
+                'ip'        => $request->ip(),
+                'timestamp' => now()->toDateTimeString(),
             ]);
 
             return response()->json([
-              'success' => FALSE,
-              'message' => 'Session extension failed',
+                'success' => FALSE,
+                'message' => 'Session extension failed',
             ], 500);
         }
     });
 
     Route::get('/session/status', function (Request $request) {
-        if (!Auth::check()) {
+        if (! Auth::check()) {
             return response()->json([
-              'success'       => FALSE,
-              'authenticated' => FALSE,
+                'success'       => FALSE,
+                'authenticated' => FALSE,
             ], 401);
         }
 
@@ -434,11 +434,11 @@ Route::prefix('v1')->middleware(['auth:sanctum', ApiRateLimit::class . ':api,120
         $timeRemaining = $sessionLifetime - (time() - $lastActivity);
 
         return response()->json([
-          'success'          => TRUE,
-          'authenticated'    => TRUE,
-          'session_lifetime' => $sessionLifetime,
-          'time_remaining'   => max(0, $timeRemaining),
-          'expires_at'       => now()->addSeconds(max(0, $timeRemaining))->toISOString(),
+            'success'          => TRUE,
+            'authenticated'    => TRUE,
+            'session_lifetime' => $sessionLifetime,
+            'time_remaining'   => max(0, $timeRemaining),
+            'expires_at'       => now()->addSeconds(max(0, $timeRemaining))->toISOString(),
         ]);
     });
 
@@ -447,7 +447,7 @@ Route::prefix('v1')->middleware(['auth:sanctum', ApiRateLimit::class . ':api,120
 
     // Ticket routes
     Route::apiResource('tickets', TicketController::class)->parameters([
-      'tickets' => 'ticket:uuid',
+        'tickets' => 'ticket:uuid',
     ]);
 
     // New route for ticket availability updates
@@ -533,9 +533,9 @@ Route::prefix('v1')->middleware(['auth:sanctum', ApiRateLimit::class . ':api,120
         // Export Endpoints
         Route::post('/export', [EnhancedAnalyticsController::class, 'exportData']);
         Route::get('/export/formats', fn () => response()->json([
-          'success' => TRUE,
-          'formats' => ['csv', 'xlsx', 'pdf', 'json'],
-          'types'   => ['ticket_trends', 'price_analysis', 'platform_performance', 'user_engagement', 'comprehensive_analytics'],
+            'success' => TRUE,
+            'formats' => ['csv', 'xlsx', 'pdf', 'json'],
+            'types'   => ['ticket_trends', 'price_analysis', 'platform_performance', 'user_engagement', 'comprehensive_analytics'],
         ]));
 
         // Insights Endpoints
@@ -549,31 +549,31 @@ Route::prefix('v1')->middleware(['auth:sanctum', ApiRateLimit::class . ':api,120
         Route::get('/dashboard/config', [EnhancedAnalyticsController::class, 'getDashboardConfig']);
         Route::post('/dashboard/custom', fn (Request $request) => // Custom dashboard configuration endpoint
         response()->json([
-          'success' => TRUE,
-          'message' => 'Custom dashboard configuration saved',
-          'config'  => $request->all(),
+            'success' => TRUE,
+            'message' => 'Custom dashboard configuration saved',
+            'config'  => $request->all(),
         ]));
 
         // Real-time Data Endpoints
         Route::get('/realtime/metrics', fn () => response()->json([
-          'success' => TRUE,
-          'data'    => [
-            'active_scrapers'   => random_int(8, 12),
-            'tickets_processed' => random_int(1000, 5000),
-            'alerts_sent'       => random_int(50, 200),
-            'system_load'       => random_int(30, 80),
-            'last_updated'      => now()->toISOString(),
-          ],
+            'success' => TRUE,
+            'data'    => [
+                'active_scrapers'   => random_int(8, 12),
+                'tickets_processed' => random_int(1000, 5000),
+                'alerts_sent'       => random_int(50, 200),
+                'system_load'       => random_int(30, 80),
+                'last_updated'      => now()->toISOString(),
+            ],
         ]));
 
         Route::get('/realtime/alerts', fn () => response()->json([
-          'success' => TRUE,
-          'data'    => [
-            'active_alerts'   => random_int(20, 100),
-            'triggered_today' => random_int(5, 25),
-            'success_rate'    => random_int(75, 95),
-            'last_updated'    => now()->toISOString(),
-          ],
+            'success' => TRUE,
+            'data'    => [
+                'active_alerts'   => random_int(20, 100),
+                'triggered_today' => random_int(5, 25),
+                'success_rate'    => random_int(75, 95),
+                'last_updated'    => now()->toISOString(),
+            ],
         ]));
     });
 
@@ -704,53 +704,53 @@ Route::prefix('v1')->middleware(['auth:sanctum', ApiRateLimit::class . ':api,120
     Route::prefix('bi')->middleware([CheckApiRole::class . ':admin,agent'])->name('api.bi.')->group(function (): void {
         // API Health and Documentation
         Route::get('/health', [BusinessIntelligenceApiController::class, 'health'])
-          ->name('health');
+            ->name('health');
 
         // Core Analytics Endpoints
         Route::get('/analytics/overview', [BusinessIntelligenceApiController::class, 'getAnalyticsOverview'])
-          ->middleware('throttle:bi-api,100')
-          ->name('analytics.overview');
+            ->middleware('throttle:bi-api,100')
+            ->name('analytics.overview');
 
         Route::get('/tickets/metrics', [BusinessIntelligenceApiController::class, 'getTicketMetrics'])
-          ->middleware('throttle:bi-api,100')
-          ->name('tickets.metrics');
+            ->middleware('throttle:bi-api,100')
+            ->name('tickets.metrics');
 
         Route::get('/platforms/performance', [BusinessIntelligenceApiController::class, 'getPlatformData'])
-          ->middleware('throttle:bi-api,100')
-          ->name('platforms.performance');
+            ->middleware('throttle:bi-api,100')
+            ->name('platforms.performance');
 
         // Advanced Analytics Endpoints (More Restrictive Rate Limits)
         Route::get('/competitive/intelligence', [BusinessIntelligenceApiController::class, 'getCompetitiveIntelligence'])
-          ->middleware('throttle:bi-api-heavy,20')
-          ->name('competitive.intelligence');
+            ->middleware('throttle:bi-api-heavy,20')
+            ->name('competitive.intelligence');
 
         Route::get('/predictive/insights', [BusinessIntelligenceApiController::class, 'getPredictiveInsights'])
-          ->middleware('throttle:bi-api-heavy,20')
-          ->name('predictive.insights');
+            ->middleware('throttle:bi-api-heavy,20')
+            ->name('predictive.insights');
 
         Route::get('/anomalies/current', [BusinessIntelligenceApiController::class, 'getCurrentAnomalies'])
-          ->middleware('throttle:bi-api,100')
-          ->name('anomalies.current');
+            ->middleware('throttle:bi-api,100')
+            ->name('anomalies.current');
 
         // Data Export Endpoints (Very Restrictive Rate Limits)
         Route::post('/export/dataset', [BusinessIntelligenceApiController::class, 'exportDataSet'])
-          ->middleware('throttle:bi-export,5')
-          ->name('export.dataset');
+            ->middleware('throttle:bi-export,5')
+            ->name('export.dataset');
 
         // User Analytics (Admin Only)
         Route::middleware([CheckApiRole::class . ':admin'])->group(function (): void {
             Route::get('/users/analytics', [BusinessIntelligenceApiController::class, 'getUserAnalytics'])
-              ->middleware('throttle:bi-api,100')
-              ->name('users.analytics');
+                ->middleware('throttle:bi-api,100')
+                ->name('users.analytics');
         });
 
         // Download route for API exports
         Route::get('/download/{file}', function (string $file) {
             $path = storage_path('app/analytics/exports/api/' . $file);
-            if (!file_exists($path)) {
+            if (! file_exists($path)) {
                 return response()->json([
-                  'success' => FALSE,
-                  'message' => 'Export file not found or has expired',
+                    'success' => FALSE,
+                    'message' => 'Export file not found or has expired',
                 ], 404);
             }
 

@@ -35,7 +35,7 @@ class ChartDataService
 
             // Daily ticket counts with status breakdown
             $dailyTrends = ScrapedTicket::whereBetween('created_at', [$startDate, $endDate])
-                ->when(!empty($platforms), function ($query) use ($platforms): void {
+                ->when(! empty($platforms), function ($query) use ($platforms): void {
                     $query->whereIn('platform', $platforms);
                 })
                 ->select([

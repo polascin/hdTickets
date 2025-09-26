@@ -53,15 +53,15 @@ class TicketStatusChanged extends Notification implements ShouldQueue
         $statusTo = ucwords(str_replace('_', ' ', $this->ticket->status));
 
         return (new MailMessage())
-          ->subject('Ticket Status Updated: ' . $this->ticket->title)
-          ->greeting('Hello ' . $notifiable->username . '!')
-          ->line('The status of ticket #' . $this->ticket->id . ' has been updated:')
-          ->line('**Ticket:** ' . $this->ticket->title)
-          ->line('**Status changed from:** ' . $statusFrom)
-          ->line('**Status changed to:** ' . $statusTo)
-          ->line('**Updated by:** ' . (Auth::user()->username ?? 'System'))
-          ->action('View Ticket', route('tickets.show', $this->ticket))
-          ->line('Thank you for using our ticketing system!');
+            ->subject('Ticket Status Updated: ' . $this->ticket->title)
+            ->greeting('Hello ' . $notifiable->username . '!')
+            ->line('The status of ticket #' . $this->ticket->id . ' has been updated:')
+            ->line('**Ticket:** ' . $this->ticket->title)
+            ->line('**Status changed from:** ' . $statusFrom)
+            ->line('**Status changed to:** ' . $statusTo)
+            ->line('**Updated by:** ' . (Auth::user()->username ?? 'System'))
+            ->action('View Ticket', route('tickets.show', $this->ticket))
+            ->line('Thank you for using our ticketing system!');
     }
 
     /**
@@ -77,14 +77,14 @@ class TicketStatusChanged extends Notification implements ShouldQueue
     public function toArray($notifiable): array
     {
         return [
-          'type'         => 'ticket_status_changed',
-          'ticket_id'    => $this->ticket->id,
-          'ticket_uuid'  => $this->ticket->uuid,
-          'ticket_title' => $this->ticket->title,
-          'old_status'   => $this->oldStatus,
-          'new_status'   => $this->ticket->status,
-          'updated_by'   => Auth::user()->username ?? 'System',
-          'message'      => 'Ticket status changed from ' . ucwords(str_replace('_', ' ', $this->oldStatus)) . ' to ' . ucwords(str_replace('_', ' ', $this->ticket->status)),
+            'type'         => 'ticket_status_changed',
+            'ticket_id'    => $this->ticket->id,
+            'ticket_uuid'  => $this->ticket->uuid,
+            'ticket_title' => $this->ticket->title,
+            'old_status'   => $this->oldStatus,
+            'new_status'   => $this->ticket->status,
+            'updated_by'   => Auth::user()->username ?? 'System',
+            'message'      => 'Ticket status changed from ' . ucwords(str_replace('_', ' ', $this->oldStatus)) . ' to ' . ucwords(str_replace('_', ' ', $this->ticket->status)),
         ];
     }
 }

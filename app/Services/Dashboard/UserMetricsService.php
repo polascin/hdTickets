@@ -7,6 +7,7 @@ namespace App\Services\Dashboard;
 use App\Models\TicketAlert;
 use App\Models\User;
 use Carbon\Carbon;
+use Exception;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
 
@@ -71,7 +72,7 @@ class UserMetricsService
                     'activity_trend'      => $this->getActivityTrend($user),
                 ];
             });
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             Log::warning('Failed to get user activity metrics', [
                 'user_id' => $user->id,
                 'error'   => $e->getMessage(),
@@ -115,7 +116,7 @@ class UserMetricsService
                 'alert_categories'      => $this->getAlertCategories($alerts),
                 'performance_trend'     => $this->getAlertPerformanceTrend($user),
             ];
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             Log::warning('Failed to get alert performance metrics', [
                 'user_id' => $user->id,
                 'error'   => $e->getMessage(),
@@ -141,7 +142,7 @@ class UserMetricsService
                 'savings_trend'          => $this->getSavingsTrend($user),
                 'price_drop_alerts'      => $this->getPriceDropAlerts($user),
             ];
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             Log::warning('Failed to get savings analytics', [
                 'user_id' => $user->id,
                 'error'   => $e->getMessage(),
@@ -189,7 +190,7 @@ class UserMetricsService
                 'factors'         => $factors,
                 'recommendations' => $this->getEngagementRecommendations($score, $factors),
             ];
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             Log::warning('Failed to calculate engagement score', [
                 'user_id' => $user->id,
                 'error'   => $e->getMessage(),
@@ -215,7 +216,7 @@ class UserMetricsService
                 'usage_history'           => $this->getUsageHistory($user),
                 'efficiency_score'        => $this->calculateUsageEfficiency($user),
             ];
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             Log::warning('Failed to get subscription usage', [
                 'user_id' => $user->id,
                 'error'   => $e->getMessage(),
@@ -242,13 +243,41 @@ class UserMetricsService
                 'activity_patterns'     => $this->getActivityPatterns($user),
                 'personalization_score' => $this->calculatePersonalizationScore($preferences),
             ];
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             Log::warning('Failed to get personalization data', [
                 'user_id' => $user->id,
                 'error'   => $e->getMessage(),
             ]);
 
             return [];
+        }
+    }
+
+    /**
+     * Clear user-specific caches
+     */
+    public function clearUserCache(User $user): bool
+    {
+        try {
+            $cacheKeys = [
+                "user_metrics_dashboard:{$user->id}",
+                "user_activity_metrics:{$user->id}",
+            ];
+
+            foreach ($cacheKeys as $key) {
+                Cache::forget($key);
+            }
+
+            Log::info('UserMetricsService cache cleared for user', ['user_id' => $user->id]);
+
+            return TRUE;
+        } catch (Exception $e) {
+            Log::error('Failed to clear UserMetricsService cache', [
+                'user_id' => $user->id,
+                'error'   => $e->getMessage(),
+            ]);
+
+            return FALSE;
         }
     }
 
@@ -326,7 +355,7 @@ class UserMetricsService
     {
         $mostActive = $alerts->sortByDesc('matches_count')->first();
 
-        if (!$mostActive) {
+        if (! $mostActive) {
             return NULL;
         }
 
@@ -399,7 +428,7 @@ class UserMetricsService
     // Helper methods for engagement scoring
     protected function getLastActivityScore(User $user): int
     {
-        if (!$user->updated_at) {
+        if (! $user->updated_at) {
             return 0;
         }
 
@@ -434,7 +463,7 @@ class UserMetricsService
         if ($user->email) {
             $score += 5;
         }
-        if ($user->preferences && !empty($user->preferences)) {
+        if ($user->preferences && ! empty($user->preferences)) {
             $score += 10;
         }
 
@@ -555,50 +584,22 @@ class UserMetricsService
     {
         $score = 0;
 
-        if (!empty($preferences['favorite_sports'])) {
+        if (! empty($preferences['favorite_sports'])) {
             $score += 25;
         }
-        if (!empty($preferences['favorite_teams'])) {
+        if (! empty($preferences['favorite_teams'])) {
             $score += 25;
         }
-        if (!empty($preferences['preferred_venues'])) {
+        if (! empty($preferences['preferred_venues'])) {
             $score += 20;
         }
         if (isset($preferences['price_range'])) {
             $score += 20;
         }
-        if (!empty($preferences['notification_preferences'])) {
+        if (! empty($preferences['notification_preferences'])) {
             $score += 10;
         }
 
         return min(100, $score);
-    }
-
-    /**
-     * Clear user-specific caches
-     */
-    public function clearUserCache(User $user): bool
-    {
-        try {
-            $cacheKeys = [
-                "user_metrics_dashboard:{$user->id}",
-                "user_activity_metrics:{$user->id}",
-            ];
-
-            foreach ($cacheKeys as $key) {
-                Cache::forget($key);
-            }
-
-            Log::info('UserMetricsService cache cleared for user', ['user_id' => $user->id]);
-
-            return TRUE;
-        } catch (\Exception $e) {
-            Log::error('Failed to clear UserMetricsService cache', [
-                'user_id' => $user->id,
-                'error'   => $e->getMessage(),
-            ]);
-
-            return FALSE;
-        }
     }
 }

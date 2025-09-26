@@ -92,7 +92,7 @@ class SystemController extends Controller
         // Update environment variables if needed
         if ($request->has('maintenance_mode') && $request->maintenance_mode) {
             Artisan::call('down', ['--secret' => 'hdtickets-admin']);
-        } elseif ($request->has('maintenance_mode') && !$request->maintenance_mode) {
+        } elseif ($request->has('maintenance_mode') && ! $request->maintenance_mode) {
             Artisan::call('up');
         }
 

@@ -145,7 +145,7 @@ class AutomatedReportingService
                 ]),
             );
 
-            if (!$exportResult['success']) {
+            if (! $exportResult['success']) {
                 throw new Exception('Failed to generate report file: ' . $exportResult['error']);
             }
 
@@ -161,7 +161,7 @@ class AutomatedReportingService
             ];
 
             // Deliver report if requested
-            if ($deliver && !empty($config['recipients'])) {
+            if ($deliver && ! empty($config['recipients'])) {
                 $deliveryResult = $this->deliverReport($result, $config['recipients'], $config);
                 $result['delivery'] = $deliveryResult;
             }
@@ -341,7 +341,7 @@ class AutomatedReportingService
                 ]),
             );
 
-            if (!$exportResult['success']) {
+            if (! $exportResult['success']) {
                 throw new Exception('Export failed: ' . $exportResult['error']);
             }
 

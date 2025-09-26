@@ -8,9 +8,14 @@ use App\Models\ScrapedTicket;
 use App\Models\TicketAlert;
 use App\Models\User;
 use Carbon\Carbon;
+use Exception;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
+use InvalidArgumentException;
+
+use function array_slice;
+use function count;
 
 /**
  * AlertService - Ticket Alert Management and Matching
@@ -60,7 +65,7 @@ class AlertService
                     'optimization_suggestions' => $this->getOptimizationSuggestions($alerts),
                     'generated_at'             => now()->toISOString(),
                 ];
-            } catch (\Exception $e) {
+            } catch (Exception $e) {
                 Log::error('Failed to get user alert stats', [
                     'user_id' => $user->id,
                     'error'   => $e->getMessage(),
@@ -80,7 +85,7 @@ class AlertService
             // Validate user alert limit
             $alertCount = TicketAlert::where('user_id', $user->id)->count();
             if ($alertCount >= self::MAX_ALERTS_PER_USER) {
-                throw new \Exception("Maximum number of alerts ({$alertCount}) reached");
+                throw new Exception("Maximum number of alerts ({$alertCount}) reached");
             }
 
             // Validate alert data
@@ -108,7 +113,7 @@ class AlertService
             ]);
 
             return $alert;
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             Log::error('Failed to create alert', [
                 'user_id'    => $user->id,
                 'alert_data' => $alertData,
@@ -148,7 +153,7 @@ class AlertService
             ]);
 
             return $alert;
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             Log::error('Failed to update alert', [
                 'user_id'  => $user->id,
                 'alert_id' => $alertId,
@@ -178,7 +183,7 @@ class AlertService
             ]);
 
             return TRUE;
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             Log::error('Failed to delete alert', [
                 'user_id'  => $user->id,
                 'alert_id' => $alertId,
@@ -221,7 +226,7 @@ class AlertService
             ]);
 
             return $matchedAlerts;
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             Log::error('Failed to process alerts', [
                 'ticket_count' => $tickets->count(),
                 'error'        => $e->getMessage(),
@@ -242,9 +247,9 @@ class AlertService
             $suggestions = [];
 
             // Suggest sport-based alerts
-            if (!empty($preferences['favorite_sports'])) {
+            if (! empty($preferences['favorite_sports'])) {
                 foreach ($preferences['favorite_sports'] as $sport) {
-                    if (!$this->hasAlertForSport($existingAlerts, $sport)) {
+                    if (! $this->hasAlertForSport($existingAlerts, $sport)) {
                         $suggestions[] = [
                             'type'        => 'sport',
                             'name'        => "New {$sport} Events",
@@ -257,9 +262,9 @@ class AlertService
             }
 
             // Suggest team-based alerts
-            if (!empty($preferences['favorite_teams'])) {
+            if (! empty($preferences['favorite_teams'])) {
                 foreach ($preferences['favorite_teams'] as $team) {
-                    if (!$this->hasAlertForTeam($existingAlerts, $team)) {
+                    if (! $this->hasAlertForTeam($existingAlerts, $team)) {
                         $suggestions[] = [
                             'type'        => 'team',
                             'name'        => "{$team} Games",
@@ -272,7 +277,7 @@ class AlertService
             }
 
             // Suggest price drop alerts
-            if (!empty($preferences['price_range']['max'])) {
+            if (! empty($preferences['price_range']['max'])) {
                 $maxPrice = $preferences['price_range']['max'];
                 $suggestions[] = [
                     'type'        => 'price_drop',
@@ -284,7 +289,7 @@ class AlertService
             }
 
             return array_slice($suggestions, 0, 5); // Limit to 5 suggestions
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             Log::warning('Failed to get suggested alerts', [
                 'user_id' => $user->id,
                 'error'   => $e->getMessage(),
@@ -440,11 +445,11 @@ class AlertService
     protected function validateAlertData(array $data): void
     {
         if (empty($data['criteria'])) {
-            throw new \InvalidArgumentException('Alert criteria cannot be empty');
+            throw new InvalidArgumentException('Alert criteria cannot be empty');
         }
 
         if (isset($data['criteria']['max_price']) && $data['criteria']['max_price'] <= 0) {
-            throw new \InvalidArgumentException('Maximum price must be greater than 0');
+            throw new InvalidArgumentException('Maximum price must be greater than 0');
         }
     }
 
@@ -465,7 +470,7 @@ class AlertService
             $parts[] = 'under $' . $criteria['max_price'];
         }
 
-        return !empty($parts) ? implode(' ', $parts) : 'Custom Alert';
+        return ! empty($parts) ? implode(' ', $parts) : 'Custom Alert';
     }
 
     protected function buildAlertCriteria(array $data): array
@@ -547,8 +552,8 @@ class AlertService
         // Team matching
         if (isset($criteria['team'])) {
             $team = strtolower($criteria['team']);
-            if (stripos($ticket->home_team, $team) !== FALSE ||
-                stripos($ticket->away_team, $team) !== FALSE) {
+            if (stripos($ticket->home_team, $team) !== FALSE
+                || stripos($ticket->away_team, $team) !== FALSE) {
                 $matchScore++;
             } else {
                 return FALSE; // Team matching is strict
@@ -630,7 +635,7 @@ class AlertService
                 'ticket_id' => $ticket->id,
                 'user_id'   => $alert->user_id,
             ]);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             Log::warning('Failed to record alert match', [
                 'alert_id'  => $alert->id,
                 'ticket_id' => $ticket->id,

@@ -129,7 +129,7 @@ class PushSubscriptionController extends Controller
                 ->where('endpoint', $endpoint)
                 ->first();
 
-            if (!$subscription) {
+            if (! $subscription) {
                 return response()->json([
                     'success' => FALSE,
                     'message' => 'Subscription not found',
@@ -300,7 +300,7 @@ class PushSubscriptionController extends Controller
                 ->where('id', $id)
                 ->first();
 
-            if (!$subscription) {
+            if (! $subscription) {
                 return response()->json([
                     'success' => FALSE,
                     'message' => 'Subscription not found',
@@ -352,7 +352,7 @@ class PushSubscriptionController extends Controller
                 ->where('id', $id)
                 ->first();
 
-            if (!$subscription) {
+            if (! $subscription) {
                 return response()->json([
                     'success' => FALSE,
                     'message' => 'Subscription not found',

@@ -47,7 +47,7 @@ class MonitorDomainEvents extends Command
             $this->fixVersionGaps();
         }
 
-        if (!$this->option('check-integrity') && !$this->option('check-performance') && !$this->option('fix-gaps')) {
+        if (! $this->option('check-integrity') && ! $this->option('check-performance') && ! $this->option('fix-gaps')) {
             $this->runFullHealthCheck();
         }
 
@@ -167,7 +167,7 @@ class MonitorDomainEvents extends Command
             LIMIT 10
         ');
 
-        if (!empty($heavyAggregates)) {
+        if (! empty($heavyAggregates)) {
             $this->warn('⚠️  Aggregates with high event counts (potential performance impact):');
             foreach ($heavyAggregates as $heavy) {
                 $this->line("   - {$heavy->aggregate_type}-{$heavy->aggregate_id}: {$heavy->event_count} events (version {$heavy->max_version})");
@@ -190,7 +190,7 @@ class MonitorDomainEvents extends Command
 
     private function fixVersionGaps(): void
     {
-        if (!$this->confirm('This will attempt to fix version gaps by renumbering events. Continue?')) {
+        if (! $this->confirm('This will attempt to fix version gaps by renumbering events. Continue?')) {
             return;
         }
 

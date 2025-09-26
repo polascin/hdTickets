@@ -612,7 +612,7 @@ class PerformanceMetricsController extends Controller
                 $item = json_decode((string) $item, TRUE);
                 $url = $item['url'];
 
-                if (!isset($endpoints[$url])) {
+                if (! isset($endpoints[$url])) {
                     $endpoints[$url] = [
                         'requests'       => 0,
                         'total_duration' => 0,

@@ -72,9 +72,9 @@ class TicketmasterScraper
             foreach ($searchResults as $eventData) {
                 try {
                     // Get detailed event information
-                    if (!empty($eventData['url'])) {
+                    if (! empty($eventData['url'])) {
                         $detailedEvent = $this->ticketmasterClient->scrapeEventDetails($eventData['url']);
-                        if (!empty($detailedEvent)) {
+                        if (! empty($detailedEvent)) {
                             $eventData = array_merge($eventData, $detailedEvent);
                         }
                     }
@@ -293,28 +293,28 @@ class TicketmasterScraper
     {
         $parts = [];
 
-        if (!empty($eventData['description'])) {
+        if (! empty($eventData['description'])) {
             $parts[] = $eventData['description'];
         }
 
-        if (!empty($eventData['venue'])) {
+        if (! empty($eventData['venue'])) {
             $parts[] = 'Venue: ' . $eventData['venue'];
         }
 
-        if (!empty($eventData['address'])) {
+        if (! empty($eventData['address'])) {
             $parts[] = 'Address: ' . $eventData['address'];
         }
 
-        if (!empty($eventData['date_time']) || !empty($eventData['date'])) {
+        if (! empty($eventData['date_time']) || ! empty($eventData['date'])) {
             $dateTime = $eventData['date_time'] ?? $eventData['date'];
             $parts[] = 'Event Date: ' . $dateTime;
         }
 
-        if (!empty($eventData['price_range'])) {
+        if (! empty($eventData['price_range'])) {
             $parts[] = 'Price Range: ' . $eventData['price_range'];
         }
 
-        if (!empty($eventData['url'])) {
+        if (! empty($eventData['url'])) {
             $parts[] = 'Ticketmaster URL: ' . $eventData['url'];
         }
 
@@ -389,7 +389,7 @@ class TicketmasterScraper
         }
 
         // Add venue as tag if available
-        if (!empty($eventData['venue'])) {
+        if (! empty($eventData['venue'])) {
             $venueTag = Str::slug($eventData['venue']);
             if (strlen($venueTag) <= 30) {
                 $tags[] = $venueTag;
@@ -409,7 +409,7 @@ class TicketmasterScraper
     {
         $user = User::where('email', 'ticketmaster.scraper@hdtickets.local')->first();
 
-        if (!$user) {
+        if (! $user) {
             $user = User::create([
                 'name'              => 'Ticketmaster Scraper',
                 'email'             => 'ticketmaster.scraper@hdtickets.local',
@@ -432,7 +432,7 @@ class TicketmasterScraper
     {
         $category = Category::where('name', 'Ticketmaster Events')->first();
 
-        if (!$category) {
+        if (! $category) {
             $category = Category::create([
                 'name'        => 'Ticketmaster Events',
                 'description' => 'Events imported from Ticketmaster scraping',

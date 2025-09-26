@@ -10,7 +10,7 @@ return new class() extends Migration {
      */
     public function up(): void
     {
-        Schema::create('user_activity_tracking', function (Blueprint $table) {
+        Schema::create('user_activity_tracking', function (Blueprint $table): void {
             $table->id();
             $table->foreignId('user_id')->constrained()->onDelete('cascade');
             $table->string('activity_type', 50); // 'login', 'dashboard_view', 'search', 'ticket_view', etc.

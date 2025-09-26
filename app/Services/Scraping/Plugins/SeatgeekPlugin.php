@@ -19,7 +19,7 @@ class SeatgeekPlugin extends BaseScraperPlugin
     #[Override]
     public function scrape(array $criteria): array
     {
-        if (!$this->enabled) {
+        if (! $this->enabled) {
             throw new Exception("{$this->pluginName} plugin is disabled");
         }
 
@@ -150,19 +150,19 @@ class SeatgeekPlugin extends BaseScraperPlugin
     {
         $params = [];
 
-        if (!empty($criteria['keyword'])) {
+        if (! empty($criteria['keyword'])) {
             $params['q'] = urlencode((string) $criteria['keyword']);
         }
 
-        if (!empty($criteria['city'])) {
+        if (! empty($criteria['city'])) {
             $params['metro'] = urlencode((string) $criteria['city']);
         }
 
-        if (!empty($criteria['category'])) {
+        if (! empty($criteria['category'])) {
             $params['taxonomies.name'] = urlencode((string) $criteria['category']);
         }
 
-        if (!empty($criteria['date_range'])) {
+        if (! empty($criteria['date_range'])) {
             if (isset($criteria['date_range']['start'])) {
                 $params['datetime_local.gte'] = $criteria['date_range']['start'];
             }

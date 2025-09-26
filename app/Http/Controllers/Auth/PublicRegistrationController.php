@@ -61,16 +61,16 @@ class PublicRegistrationController extends Controller
 
             // Create the user
             $user = User::create([
-              'name'                => $request->validated()['name'],
-              'surname'             => $request->validated()['surname'] ?? NULL,
-              'email'               => $request->validated()['email'],
-              'phone'               => $request->validated()['phone'] ?? NULL,
-              'password'            => Hash::make($request->validated()['password']),
-              'role'                => User::ROLE_CUSTOMER,
-              'is_active'           => TRUE,
-              'registration_source' => 'public_web',
-              'password_changed_at' => now(),
-              'require_2fa'         => $request->boolean('enable_2fa', FALSE),
+                'name'                => $request->validated()['name'],
+                'surname'             => $request->validated()['surname'] ?? NULL,
+                'email'               => $request->validated()['email'],
+                'phone'               => $request->validated()['phone'] ?? NULL,
+                'password'            => Hash::make($request->validated()['password']),
+                'role'                => User::ROLE_CUSTOMER,
+                'is_active'           => TRUE,
+                'registration_source' => 'public_web',
+                'password_changed_at' => now(),
+                'require_2fa'         => $request->boolean('enable_2fa', FALSE),
             ]);
 
             // Record legal document acceptances
@@ -96,13 +96,13 @@ class PublicRegistrationController extends Controller
 
             // Redirect to email verification notice
             return redirect()->route('verification.notice')
-              ->with('success', 'Registration successful! Please check your email to verify your account.');
+                ->with('success', 'Registration successful! Please check your email to verify your account.');
         } catch (Exception $e) {
             DB::rollBack();
 
             return back()
-              ->withErrors(['error' => 'Registration failed: ' . $e->getMessage()])
-              ->withInput();
+                ->withErrors(['error' => 'Registration failed: ' . $e->getMessage()])
+                ->withInput();
         }
     }
 
@@ -113,7 +113,7 @@ class PublicRegistrationController extends Controller
     {
         $user = Auth::user();
 
-        if (!$user || !$user->phone) {
+        if (! $user || ! $user->phone) {
             return redirect()->route('dashboard');
         }
 
@@ -126,12 +126,12 @@ class PublicRegistrationController extends Controller
     public function verifyPhone(Request $request): RedirectResponse
     {
         $request->validate([
-          'verification_code' => ['required', 'string', 'size:6'],
+            'verification_code' => ['required', 'string', 'size:6'],
         ]);
 
         $user = Auth::user();
 
-        if (!$user || !$user->phone) {
+        if (! $user || ! $user->phone) {
             return redirect()->route('dashboard');
         }
 
@@ -139,11 +139,11 @@ class PublicRegistrationController extends Controller
             $user->update(['phone_verified_at' => now()]);
 
             return redirect()->route('dashboard')
-              ->with('success', 'Phone number verified successfully!');
+                ->with('success', 'Phone number verified successfully!');
         }
 
         return back()
-          ->withErrors(['verification_code' => 'Invalid verification code.']);
+            ->withErrors(['verification_code' => 'Invalid verification code.']);
     }
 
     /**
@@ -153,7 +153,7 @@ class PublicRegistrationController extends Controller
     {
         $user = Auth::user();
 
-        if (!$user || !$user->phone) {
+        if (! $user || ! $user->phone) {
             return redirect()->route('dashboard');
         }
 
@@ -161,10 +161,10 @@ class PublicRegistrationController extends Controller
             $this->phoneService->sendVerificationCode($user);
 
             return back()
-              ->with('success', 'Verification code sent!');
+                ->with('success', 'Verification code sent!');
         } catch (Exception) {
             return back()
-              ->withErrors(['error' => 'Failed to send verification code.']);
+                ->withErrors(['error' => 'Failed to send verification code.']);
         }
     }
 
@@ -175,7 +175,7 @@ class PublicRegistrationController extends Controller
     {
         $user = Auth::user();
 
-        if (!$user || !$user->two_factor_secret || $user->two_factor_enabled) {
+        if (! $user || ! $user->two_factor_secret || $user->two_factor_enabled) {
             return redirect()->route('dashboard');
         }
 
@@ -190,27 +190,27 @@ class PublicRegistrationController extends Controller
     public function confirmTwoFactor(Request $request): RedirectResponse
     {
         $request->validate([
-          'code' => ['required', 'string', 'size:6'],
+            'code' => ['required', 'string', 'size:6'],
         ]);
 
         $user = Auth::user();
 
-        if (!$user || !$user->two_factor_secret || $user->two_factor_enabled) {
+        if (! $user || ! $user->two_factor_secret || $user->two_factor_enabled) {
             return redirect()->route('dashboard');
         }
 
         if ($this->twoFactorService->verifyCode($user, $request->code)) {
             $user->update([
-              'two_factor_enabled'      => TRUE,
-              'two_factor_confirmed_at' => now(),
+                'two_factor_enabled'      => TRUE,
+                'two_factor_confirmed_at' => now(),
             ]);
 
             return redirect()->route('dashboard')
-              ->with('success', 'Two-factor authentication enabled successfully!');
+                ->with('success', 'Two-factor authentication enabled successfully!');
         }
 
         return back()
-          ->withErrors(['code' => 'Invalid authentication code.']);
+            ->withErrors(['code' => 'Invalid authentication code.']);
     }
 
     /**
@@ -222,7 +222,7 @@ class PublicRegistrationController extends Controller
         $legalDocuments = LegalDocument::getActiveRequiredDocuments();
 
         foreach ($requiredTypes as $type) {
-            if (!$request->boolean("accept_{$type}")) {
+            if (! $request->boolean("accept_{$type}")) {
                 throw new Exception("You must accept the {$legalDocuments[$type]->type_name} to register.");
             }
         }
@@ -256,8 +256,8 @@ class PublicRegistrationController extends Controller
         $secretKey = $google2fa->generateSecretKey();
 
         $user->update([
-          'two_factor_secret'  => $secretKey,
-          'two_factor_enabled' => FALSE, // Will be enabled after confirmation
+            'two_factor_secret'  => $secretKey,
+            'two_factor_enabled' => FALSE, // Will be enabled after confirmation
         ]);
     }
 }

@@ -175,12 +175,12 @@ class TicketPriceHistory extends Model
      */
     protected function priceChange(): Attribute
     {
-        return Attribute::make(get: function (): NULL|int|float {
+        return Attribute::make(get: function (): null|int|float {
             $previousRecord = static::where('ticket_id', $this->ticket_id)
                 ->where('recorded_at', '<', $this->recorded_at)
                 ->orderBy('recorded_at', 'desc')
                 ->first();
-            if (!$previousRecord || $previousRecord->price === 0) {
+            if (! $previousRecord || $previousRecord->price === 0) {
                 return NULL;
             }
 
@@ -193,12 +193,12 @@ class TicketPriceHistory extends Model
      */
     protected function quantityChange(): Attribute
     {
-        return Attribute::make(get: function (): NULL|int|float {
+        return Attribute::make(get: function (): null|int|float {
             $previousRecord = static::where('ticket_id', $this->ticket_id)
                 ->where('recorded_at', '<', $this->recorded_at)
                 ->orderBy('recorded_at', 'desc')
                 ->first();
-            if (!$previousRecord) {
+            if (! $previousRecord) {
                 return NULL;
             }
 

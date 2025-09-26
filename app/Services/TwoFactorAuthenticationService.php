@@ -99,7 +99,7 @@ class TwoFactorAuthenticationService
             throw new Exception('2FA is already confirmed and enabled');
         }
 
-        if (!$user->two_factor_secret) {
+        if (! $user->two_factor_secret) {
             throw new Exception('2FA setup has not been initiated');
         }
 
@@ -146,7 +146,7 @@ class TwoFactorAuthenticationService
      */
     public function verify2FA(User $user, string $code): bool
     {
-        if (!$user->two_factor_enabled || !$user->two_factor_secret) {
+        if (! $user->two_factor_enabled || ! $user->two_factor_secret) {
             return FALSE;
         }
 
@@ -200,11 +200,11 @@ class TwoFactorAuthenticationService
      */
     public function disable2FA(User $user, string $password): bool
     {
-        if (!Hash::check($password, $user->password)) {
+        if (! Hash::check($password, $user->password)) {
             throw new Exception('Invalid password');
         }
 
-        if (!$user->two_factor_enabled) {
+        if (! $user->two_factor_enabled) {
             throw new Exception('2FA is not enabled for this user');
         }
 
@@ -327,7 +327,7 @@ class TwoFactorAuthenticationService
             ->where('expires_at', '>', now())
             ->first();
 
-        if (!$recovery) {
+        if (! $recovery) {
             return FALSE;
         }
 
@@ -392,7 +392,7 @@ class TwoFactorAuthenticationService
      */
     public function getLockoutTimeRemaining(User $user, string $action): ?int
     {
-        if (!$this->isRateLimited($user, $action)) {
+        if (! $this->isRateLimited($user, $action)) {
             return NULL;
         }
 
@@ -408,7 +408,7 @@ class TwoFactorAuthenticationService
     public function canEnable2FA(User $user): bool
     {
         return $user->email_verified_at !== NULL
-            && !$user->two_factor_enabled
+            && ! $user->two_factor_enabled
             && $user->isActive();
     }
 
@@ -440,7 +440,7 @@ class TwoFactorAuthenticationService
         );
 
         // If BaconQrCode library isn't installed, return otpauth URL for client-side generation
-        if (!class_exists(Writer::class) || !class_exists(ImageRenderer::class)) {
+        if (! class_exists(Writer::class) || ! class_exists(ImageRenderer::class)) {
             return $qrCodeUrl; // Fallback: raw provisioning URI
         }
 

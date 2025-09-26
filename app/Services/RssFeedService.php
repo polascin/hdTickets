@@ -31,7 +31,7 @@ class RssFeedService
         try {
             $response = Http::timeout(30)->get($feedUrl);
 
-            if (!$response->successful()) {
+            if (! $response->successful()) {
                 throw new Exception('Failed to fetch RSS feed: ' . $response->status());
             }
 

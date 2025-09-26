@@ -6,6 +6,7 @@ namespace App\Services\Dashboard;
 
 use App\Models\ScrapedTicket;
 use Carbon\Carbon;
+use Exception;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
 
@@ -74,7 +75,7 @@ class TicketStatsService
         try {
             return ScrapedTicket::available()
                 ->count();
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             Log::warning('Failed to get available tickets count', [
                 'error' => $e->getMessage(),
             ]);
@@ -91,7 +92,7 @@ class TicketStatsService
         try {
             return ScrapedTicket::whereDate('scraped_at', Carbon::today())
                 ->count();
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             Log::warning('Failed to get new tickets today', [
                 'error' => $e->getMessage(),
             ]);
@@ -107,12 +108,12 @@ class TicketStatsService
     {
         try {
             return ScrapedTicket::available()
-                ->where(function ($query) {
+                ->where(function ($query): void {
                     $query->where('is_high_demand', TRUE)
-                          ->orWhere('popularity_score', '>', 80);
+                        ->orWhere('popularity_score', '>', 80);
                 })
                 ->count();
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             Log::warning('Failed to get high demand tickets count', [
                 'error' => $e->getMessage(),
             ]);
@@ -130,7 +131,7 @@ class TicketStatsService
             return ScrapedTicket::available()
                 ->selectRaw('COUNT(DISTINCT CONCAT(COALESCE(title, ""), COALESCE(venue, ""), COALESCE(event_date, ""))) as unique_events')
                 ->value('unique_events') ?: 0;
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             Log::warning('Failed to get unique events count', [
                 'error' => $e->getMessage(),
             ]);
@@ -174,7 +175,7 @@ class TicketStatsService
                     })
                     ->toArray();
             });
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             Log::warning('Failed to get platform breakdown', [
                 'error' => $e->getMessage(),
             ]);
@@ -210,7 +211,7 @@ class TicketStatsService
                     'premium_tickets' => (int) ($stats->premium_tickets ?? 0),
                 ];
             });
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             Log::warning('Failed to get price statistics', [
                 'error' => $e->getMessage(),
             ]);
@@ -237,7 +238,7 @@ class TicketStatsService
                     'popularity_trend' => $this->calculatePopularityTrend(),
                 ];
             });
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             Log::warning('Failed to get trend indicators', [
                 'error' => $e->getMessage(),
             ]);
@@ -254,7 +255,7 @@ class TicketStatsService
         try {
             return ScrapedTicket::where('scraped_at', '>=', Carbon::now()->subHour())
                 ->count();
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             Log::warning('Failed to get tickets scraped last hour', [
                 'error' => $e->getMessage(),
             ]);
@@ -272,7 +273,7 @@ class TicketStatsService
             // This would require a price_changes table or similar tracking
             // For now, return a placeholder
             return rand(15, 45); // Simulated price changes
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             Log::warning('Failed to get price changes today', [
                 'error' => $e->getMessage(),
             ]);
@@ -290,133 +291,12 @@ class TicketStatsService
             return ScrapedTicket::whereDate('scraped_at', Carbon::today())
                 ->distinct('platform')
                 ->count('platform');
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             Log::warning('Failed to get new platforms today', [
                 'error' => $e->getMessage(),
             ]);
 
             return 0;
-        }
-    }
-
-    /**
-     * Calculate daily change percentage
-     */
-    protected function calculateDailyChange(Carbon $today, Carbon $yesterday): array
-    {
-        try {
-            $todayCount = ScrapedTicket::whereDate('scraped_at', $today)->count();
-            $yesterdayCount = ScrapedTicket::whereDate('scraped_at', $yesterday)->count();
-
-            $change = $yesterdayCount > 0
-                ? (($todayCount - $yesterdayCount) / $yesterdayCount) * 100
-                : ($todayCount > 0 ? 100 : 0);
-
-            return [
-                'value'           => round($change, 1),
-                'direction'       => $change > 0 ? 'up' : ($change < 0 ? 'down' : 'stable'),
-                'today_count'     => $todayCount,
-                'yesterday_count' => $yesterdayCount,
-            ];
-        } catch (\Exception $e) {
-            Log::warning('Failed to calculate daily change', [
-                'error' => $e->getMessage(),
-            ]);
-
-            return ['value' => 0, 'direction' => 'stable'];
-        }
-    }
-
-    /**
-     * Calculate weekly change percentage
-     */
-    protected function calculateWeeklyChange(Carbon $today, Carbon $weekAgo): array
-    {
-        try {
-            $thisWeekCount = ScrapedTicket::whereBetween('scraped_at', [
-                Carbon::now()->startOfWeek(),
-                Carbon::now()->endOfWeek(),
-            ])->count();
-
-            $lastWeekCount = ScrapedTicket::whereBetween('scraped_at', [
-                Carbon::now()->subWeek()->startOfWeek(),
-                Carbon::now()->subWeek()->endOfWeek(),
-            ])->count();
-
-            $change = $lastWeekCount > 0
-                ? (($thisWeekCount - $lastWeekCount) / $lastWeekCount) * 100
-                : ($thisWeekCount > 0 ? 100 : 0);
-
-            return [
-                'value'           => round($change, 1),
-                'direction'       => $change > 0 ? 'up' : ($change < 0 ? 'down' : 'stable'),
-                'this_week_count' => $thisWeekCount,
-                'last_week_count' => $lastWeekCount,
-            ];
-        } catch (\Exception $e) {
-            Log::warning('Failed to calculate weekly change', [
-                'error' => $e->getMessage(),
-            ]);
-
-            return ['value' => 0, 'direction' => 'stable'];
-        }
-    }
-
-    /**
-     * Calculate price trend over time
-     */
-    protected function calculatePriceTrend(): array
-    {
-        try {
-            // Compare average prices from this week vs last week
-            $thisWeekAvg = ScrapedTicket::whereBetween('scraped_at', [
-                Carbon::now()->startOfWeek(),
-                Carbon::now()->endOfWeek(),
-            ])->avg('min_price') ?: 0;
-
-            $lastWeekAvg = ScrapedTicket::whereBetween('scraped_at', [
-                Carbon::now()->subWeek()->startOfWeek(),
-                Carbon::now()->subWeek()->endOfWeek(),
-            ])->avg('min_price') ?: 0;
-
-            $change = $lastWeekAvg > 0
-                ? (($thisWeekAvg - $lastWeekAvg) / $lastWeekAvg) * 100
-                : 0;
-
-            return [
-                'change_percentage' => round($change, 1),
-                'direction'         => $change > 0 ? 'up' : ($change < 0 ? 'down' : 'stable'),
-                'current_avg'       => round($thisWeekAvg, 2),
-                'previous_avg'      => round($lastWeekAvg, 2),
-            ];
-        } catch (\Exception $e) {
-            Log::warning('Failed to calculate price trend', [
-                'error' => $e->getMessage(),
-            ]);
-
-            return ['change_percentage' => 0, 'direction' => 'stable'];
-        }
-    }
-
-    /**
-     * Calculate popularity trend
-     */
-    protected function calculatePopularityTrend(): array
-    {
-        try {
-            $avgPopularity = ScrapedTicket::available()
-                ->avg('popularity_score') ?: 0;
-
-            return [
-                'average_score' => round($avgPopularity, 1),
-                'level'         => $avgPopularity >= 80 ? 'high' : ($avgPopularity >= 50 ? 'medium' : 'low'),
-            ];
-        } catch (\Exception $e) {
-            Log::warning('Failed to calculate popularity trend', [
-                'error' => $e->getMessage(),
-            ]);
-
-            return ['average_score' => 0, 'level' => 'low'];
         }
     }
 
@@ -452,7 +332,7 @@ class TicketStatsService
                     })
                     ->toArray();
             });
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             Log::warning('Failed to get sports breakdown', [
                 'error' => $e->getMessage(),
             ]);
@@ -483,12 +363,133 @@ class TicketStatsService
             Log::info('TicketStatsService cache cleared successfully');
 
             return TRUE;
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             Log::error('Failed to clear TicketStatsService cache', [
                 'error' => $e->getMessage(),
             ]);
 
             return FALSE;
+        }
+    }
+
+    /**
+     * Calculate daily change percentage
+     */
+    protected function calculateDailyChange(Carbon $today, Carbon $yesterday): array
+    {
+        try {
+            $todayCount = ScrapedTicket::whereDate('scraped_at', $today)->count();
+            $yesterdayCount = ScrapedTicket::whereDate('scraped_at', $yesterday)->count();
+
+            $change = $yesterdayCount > 0
+                ? (($todayCount - $yesterdayCount) / $yesterdayCount) * 100
+                : ($todayCount > 0 ? 100 : 0);
+
+            return [
+                'value'           => round($change, 1),
+                'direction'       => $change > 0 ? 'up' : ($change < 0 ? 'down' : 'stable'),
+                'today_count'     => $todayCount,
+                'yesterday_count' => $yesterdayCount,
+            ];
+        } catch (Exception $e) {
+            Log::warning('Failed to calculate daily change', [
+                'error' => $e->getMessage(),
+            ]);
+
+            return ['value' => 0, 'direction' => 'stable'];
+        }
+    }
+
+    /**
+     * Calculate weekly change percentage
+     */
+    protected function calculateWeeklyChange(Carbon $today, Carbon $weekAgo): array
+    {
+        try {
+            $thisWeekCount = ScrapedTicket::whereBetween('scraped_at', [
+                Carbon::now()->startOfWeek(),
+                Carbon::now()->endOfWeek(),
+            ])->count();
+
+            $lastWeekCount = ScrapedTicket::whereBetween('scraped_at', [
+                Carbon::now()->subWeek()->startOfWeek(),
+                Carbon::now()->subWeek()->endOfWeek(),
+            ])->count();
+
+            $change = $lastWeekCount > 0
+                ? (($thisWeekCount - $lastWeekCount) / $lastWeekCount) * 100
+                : ($thisWeekCount > 0 ? 100 : 0);
+
+            return [
+                'value'           => round($change, 1),
+                'direction'       => $change > 0 ? 'up' : ($change < 0 ? 'down' : 'stable'),
+                'this_week_count' => $thisWeekCount,
+                'last_week_count' => $lastWeekCount,
+            ];
+        } catch (Exception $e) {
+            Log::warning('Failed to calculate weekly change', [
+                'error' => $e->getMessage(),
+            ]);
+
+            return ['value' => 0, 'direction' => 'stable'];
+        }
+    }
+
+    /**
+     * Calculate price trend over time
+     */
+    protected function calculatePriceTrend(): array
+    {
+        try {
+            // Compare average prices from this week vs last week
+            $thisWeekAvg = ScrapedTicket::whereBetween('scraped_at', [
+                Carbon::now()->startOfWeek(),
+                Carbon::now()->endOfWeek(),
+            ])->avg('min_price') ?: 0;
+
+            $lastWeekAvg = ScrapedTicket::whereBetween('scraped_at', [
+                Carbon::now()->subWeek()->startOfWeek(),
+                Carbon::now()->subWeek()->endOfWeek(),
+            ])->avg('min_price') ?: 0;
+
+            $change = $lastWeekAvg > 0
+                ? (($thisWeekAvg - $lastWeekAvg) / $lastWeekAvg) * 100
+                : 0;
+
+            return [
+                'change_percentage' => round($change, 1),
+                'direction'         => $change > 0 ? 'up' : ($change < 0 ? 'down' : 'stable'),
+                'current_avg'       => round($thisWeekAvg, 2),
+                'previous_avg'      => round($lastWeekAvg, 2),
+            ];
+        } catch (Exception $e) {
+            Log::warning('Failed to calculate price trend', [
+                'error' => $e->getMessage(),
+            ]);
+
+            return ['change_percentage' => 0, 'direction' => 'stable'];
+        }
+    }
+
+    /**
+     * Calculate popularity trend
+     */
+    protected function calculatePopularityTrend(): array
+    {
+        try {
+            $avgPopularity = ScrapedTicket::available()
+                ->avg('popularity_score') ?: 0;
+
+            return [
+                'average_score' => round($avgPopularity, 1),
+                'level'         => $avgPopularity >= 80 ? 'high' : ($avgPopularity >= 50 ? 'medium' : 'low'),
+            ];
+        } catch (Exception $e) {
+            Log::warning('Failed to calculate popularity trend', [
+                'error' => $e->getMessage(),
+            ]);
+
+            return ['average_score' => 0, 'level' => 'low'];
         }
     }
 }

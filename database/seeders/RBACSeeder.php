@@ -39,7 +39,7 @@ class RBACSeeder extends Seeder
         foreach ($systemRoles as $roleName) {
             $existingRole = Role::where('name', $roleName)->first();
 
-            if (!$existingRole) {
+            if (! $existingRole) {
                 Role::create([
                     'name'           => $roleName,
                     'display_name'   => ucfirst($roleName),
@@ -64,7 +64,7 @@ class RBACSeeder extends Seeder
         foreach ($systemPermissions as $permissionName => $config) {
             $existingPermission = Permission::where('name', $permissionName)->first();
 
-            if (!$existingPermission) {
+            if (! $existingPermission) {
                 Permission::create([
                     'name'         => $permissionName,
                     'display_name' => $config['display_name'] ?? ucwords(str_replace(['.', '_'], ' ', $permissionName)),
@@ -89,7 +89,7 @@ class RBACSeeder extends Seeder
         foreach ($defaultRolePermissions as $roleName => $permissions) {
             $role = Role::where('name', $roleName)->first();
 
-            if (!$role) {
+            if (! $role) {
                 Log::warning("Role not found: {$roleName}");
 
                 continue;
@@ -103,7 +103,7 @@ class RBACSeeder extends Seeder
 
                 if ($permission) {
                     // Check if the role already has this permission
-                    if (!$role->permissions()->where('permission_id', $permission->id)->exists()) {
+                    if (! $role->permissions()->where('permission_id', $permission->id)->exists()) {
                         $role->permissions()->attach($permission->id, [
                             'granted_at' => now(),
                             'granted_by' => 1, // System user

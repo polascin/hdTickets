@@ -25,14 +25,14 @@ class ApiAuthenticationMiddleware
     public function handle(Request $request, Closure $next, ...$roles): Response
     {
         // Check if user is authenticated
-        if (!Auth::check()) {
+        if (! Auth::check()) {
             return $this->errorResponse('Authentication required.', 401);
         }
 
         $user = Auth::user();
 
         // Check if user account is active
-        if (!$user->is_active) {
+        if (! $user->is_active) {
             Log::warning('Inactive user attempted API access', [
                 'user_id' => $user->id,
                 'email'   => $user->email,
@@ -43,7 +43,7 @@ class ApiAuthenticationMiddleware
         }
 
         // Check if user is verified (email verification)
-        if (!$user->hasVerifiedEmail()) {
+        if (! $user->hasVerifiedEmail()) {
             return $this->errorResponse(
                 'Email verification required.',
                 403,
@@ -52,7 +52,7 @@ class ApiAuthenticationMiddleware
         }
 
         // Role-based access control
-        if ($roles !== [] && !$this->hasRequiredRole($user, $roles)) {
+        if ($roles !== [] && ! $this->hasRequiredRole($user, $roles)) {
             Log::warning('Insufficient permissions for API access', [
                 'user_id'        => $user->id,
                 'user_role'      => $user->role,
@@ -99,7 +99,7 @@ class ApiAuthenticationMiddleware
         RateLimiter::hit($rateLimitKey, $decayMinutes * 60);
 
         // Block scrapers from accessing non-scraping APIs
-        if ($user->isScraper() && !$this->isScraperAllowedEndpoint($request)) {
+        if ($user->isScraper() && ! $this->isScraperAllowedEndpoint($request)) {
             Log::warning('Scraper attempted to access restricted API', [
                 'user_id'  => $user->id,
                 'endpoint' => $request->path(),

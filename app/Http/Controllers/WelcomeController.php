@@ -43,11 +43,11 @@ class WelcomeController extends Controller
 
             // Load dynamic data for the welcome page
             $data = $service->getWelcomePageData([
-              'include_stats'      => TRUE,
-              'include_pricing'    => TRUE,
-              'include_features'   => TRUE,
-              'include_legal_docs' => TRUE,
-              'ab_variant'         => $abVariant,
+                'include_stats'      => TRUE,
+                'include_pricing'    => TRUE,
+                'include_features'   => TRUE,
+                'include_legal_docs' => TRUE,
+                'ab_variant'         => $abVariant,
             ]);
 
             // Add user context if authenticated
@@ -67,24 +67,24 @@ class WelcomeController extends Controller
             $cachedData = Cache::remember($cacheKey, 300, fn () => $data);
 
             return view('welcome', array_merge($cachedData, [
-              'user'              => $data['user'] ?? NULL,
-              'user_subscription' => $data['user_subscription'] ?? NULL,
+                'user'              => $data['user'] ?? NULL,
+                'user_subscription' => $data['user_subscription'] ?? NULL,
             ]));
         } catch (Exception $e) {
             Log::error('Welcome page error: ' . $e->getMessage(), [
-              'user_id'    => Auth::id(),
-              'ip'         => $request->ip(),
-              'user_agent' => $request->userAgent(),
-              'trace'      => $e->getTraceAsString(),
+                'user_id'    => Auth::id(),
+                'ip'         => $request->ip(),
+                'user_agent' => $request->userAgent(),
+                'trace'      => $e->getTraceAsString(),
             ]);
 
             // Fallback to simple welcome view without dynamic data
             return view('welcome', [
-              'stats'      => $this->getFallbackStats(),
-              'features'   => $this->getFallbackFeatures(),
-              'pricing'    => $this->getFallbackPricing(),
-              'legal_docs' => $this->getFallbackLegalDocs(),
-              'ab_variant' => 'default',
+                'stats'      => $this->getFallbackStats(),
+                'features'   => $this->getFallbackFeatures(),
+                'pricing'    => $this->getFallbackPricing(),
+                'legal_docs' => $this->getFallbackLegalDocs(),
+                'ab_variant' => 'default',
             ]);
         }
     }
@@ -108,6 +108,49 @@ class WelcomeController extends Controller
     }
 
     /**
+     * Display the comprehensive welcome page
+     *
+     * @return View
+     */
+    public function newWelcome(Request $request)
+    {
+        try {
+            // Resolve service via container to avoid constructor DI issues
+            $service = app(WelcomePageService::class);
+
+            // Load dynamic data for the welcome page
+            $data = $service->getWelcomePageData([
+                'include_stats'      => TRUE,
+                'include_pricing'    => TRUE,
+                'include_features'   => TRUE,
+                'include_legal_docs' => TRUE,
+                'ab_variant'         => 'comprehensive',
+            ]);
+
+            return view('welcome', $data);
+        } catch (Exception $e) {
+            Log::error('Error loading comprehensive welcome page', [
+                'error'      => $e->getMessage(),
+                'user_agent' => $request->userAgent(),
+                'ip'         => $request->ip(),
+            ]);
+
+            // Fallback to basic welcome view
+            return view('welcome', [
+                'total_tickets'         => 0,
+                'active_events'         => 0,
+                'satisfied_customers'   => 0,
+                'avg_savings'           => 0,
+                'avg_purchase_time'     => 0,
+                'subscription_plans'    => [],
+                'key_features'          => [],
+                'platform_integrations' => [],
+                'legal_documents'       => [],
+            ]);
+        }
+    }
+
+    /**
      * Handle A/B testing variant assignment
      *
      * @return string|null
@@ -115,7 +158,7 @@ class WelcomeController extends Controller
     protected function getABTestVariant(Request $request)
     {
         // Check if A/B testing is enabled
-        if (!config('app.ab_testing_enabled', FALSE)) {
+        if (! config('app.ab_testing_enabled', FALSE)) {
             return;
         }
 
@@ -171,13 +214,13 @@ class WelcomeController extends Controller
 
             // Track page view with user context
             $service->trackPageView([
-              'user_id'    => Auth::id(),
-              'ip'         => $request->ip(),
-              'user_agent' => $request->userAgent(),
-              'referrer'   => $request->header('referer'),
-              'ab_variant' => $abVariant,
-              'timestamp'  => now(),
-              'session_id' => $request->session()->getId(),
+                'user_id'    => Auth::id(),
+                'ip'         => $request->ip(),
+                'user_agent' => $request->userAgent(),
+                'referrer'   => $request->header('referer'),
+                'ab_variant' => $abVariant,
+                'timestamp'  => now(),
+                'session_id' => $request->session()->getId(),
             ]);
         } catch (Exception $e) {
             // Silently log analytics errors, don't break the page
@@ -191,11 +234,11 @@ class WelcomeController extends Controller
     protected function getFallbackStats(): array
     {
         return [
-          'platforms'        => '50+',
-          'monitoring'       => '24/7',
-          'users'            => '15K+',
-          'events_monitored' => '1M+',
-          'tickets_tracked'  => '5M+',
+            'platforms'        => '50+',
+            'monitoring'       => '24/7',
+            'users'            => '15K+',
+            'events_monitored' => '1M+',
+            'tickets_tracked'  => '5M+',
         ];
     }
 
@@ -205,26 +248,26 @@ class WelcomeController extends Controller
     protected function getFallbackFeatures(): array
     {
         return [
-          'role_based_access' => [
-            'title'       => 'Role-Based Access',
-            'description' => 'Customer, Agent, Admin & Scraper roles with tailored permissions',
-            'icon'        => '👥',
-          ],
-          'subscription_system' => [
-            'title'       => 'Subscription System',
-            'description' => 'Monthly plans with configurable limits and 7-day free trial',
-            'icon'        => '💳',
-          ],
-          'legal_compliance' => [
-            'title'       => 'Legal Compliance',
-            'description' => 'GDPR compliant with mandatory legal document acceptance',
-            'icon'        => '⚖️',
-          ],
-          'enhanced_security' => [
-            'title'       => 'Enhanced Security',
-            'description' => '2FA, device fingerprinting, and secure payment processing',
-            'icon'        => '🔒',
-          ],
+            'role_based_access' => [
+                'title'       => 'Role-Based Access',
+                'description' => 'Customer, Agent, Admin & Scraper roles with tailored permissions',
+                'icon'        => '👥',
+            ],
+            'subscription_system' => [
+                'title'       => 'Subscription System',
+                'description' => 'Monthly plans with configurable limits and 7-day free trial',
+                'icon'        => '💳',
+            ],
+            'legal_compliance' => [
+                'title'       => 'Legal Compliance',
+                'description' => 'GDPR compliant with mandatory legal document acceptance',
+                'icon'        => '⚖️',
+            ],
+            'enhanced_security' => [
+                'title'       => 'Enhanced Security',
+                'description' => '2FA, device fingerprinting, and secure payment processing',
+                'icon'        => '🔒',
+            ],
         ];
     }
 
@@ -234,11 +277,11 @@ class WelcomeController extends Controller
     protected function getFallbackPricing(): array
     {
         return [
-          'monthly_price'        => 29.99,
-          'yearly_price'         => 299.99,
-          'free_trial_days'      => 7,
-          'default_ticket_limit' => 100,
-          'currency'             => 'USD',
+            'monthly_price'        => 29.99,
+            'yearly_price'         => 299.99,
+            'free_trial_days'      => 7,
+            'default_ticket_limit' => 100,
+            'currency'             => 'USD',
         ];
     }
 
@@ -248,56 +291,12 @@ class WelcomeController extends Controller
     protected function getFallbackLegalDocs(): array
     {
         return [
-          'terms_of_service'          => '/legal/terms-of-service',
-          'service_disclaimer'        => '/legal/service-disclaimer',
-          'privacy_policy'            => '/legal/privacy-policy',
-          'data_processing_agreement' => '/legal/data-processing-agreement',
-          'cookie_policy'             => '/legal/cookie-policy',
-          'acceptable_use_policy'     => '/legal/acceptable-use-policy',
+            'terms_of_service'          => '/legal/terms-of-service',
+            'service_disclaimer'        => '/legal/service-disclaimer',
+            'privacy_policy'            => '/legal/privacy-policy',
+            'data_processing_agreement' => '/legal/data-processing-agreement',
+            'cookie_policy'             => '/legal/cookie-policy',
+            'acceptable_use_policy'     => '/legal/acceptable-use-policy',
         ];
-    }
-
-    /**
-     * Display the comprehensive welcome page
-     *
-     * @return View
-     */
-    public function newWelcome(Request $request)
-    {
-        try {
-            // Resolve service via container to avoid constructor DI issues
-            $service = app(WelcomePageService::class);
-
-            // Load dynamic data for the welcome page
-            $data = $service->getWelcomePageData([
-              'include_stats'      => true,
-              'include_pricing'    => true,
-              'include_features'   => true,
-              'include_legal_docs' => true,
-              'ab_variant'         => 'comprehensive',
-            ]);
-
-            return view('welcome', $data);
-
-        } catch (Exception $e) {
-            Log::error('Error loading comprehensive welcome page', [
-                'error' => $e->getMessage(),
-                'user_agent' => $request->userAgent(),
-                'ip' => $request->ip(),
-            ]);
-
-            // Fallback to basic welcome view
-            return view('welcome', [
-                'total_tickets' => 0,
-                'active_events' => 0,
-                'satisfied_customers' => 0,
-                'avg_savings' => 0,
-                'avg_purchase_time' => 0,
-                'subscription_plans' => [],
-                'key_features' => [],
-                'platform_integrations' => [],
-                'legal_documents' => [],
-            ]);
-        }
     }
 }

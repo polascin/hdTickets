@@ -69,7 +69,7 @@ class SportsTicketSystemTest extends TestCase
         }
 
         // Test scraping with test criteria
-        if (!empty($plugins)) {
+        if (! empty($plugins)) {
             $testPlugin = array_key_first($plugins);
             $testResult = $scraperManager->testPlugin($testPlugin);
 

@@ -7,6 +7,8 @@ use App\Models\ScrapingSource;
 use App\Models\SystemSetting;
 use Illuminate\Database\Seeder;
 
+use function is_bool;
+
 class AdminPanelSeeder extends Seeder
 {
     /**
@@ -67,13 +69,13 @@ class AdminPanelSeeder extends Seeder
             // Handle different value types
             if (is_bool($value)) {
                 $processedValue = json_encode($value);
-            } elseif (is_null($value) || $value === '') {
+            } elseif (NULL === $value || $value === '') {
                 $processedValue = '';
             }
 
             SystemSetting::updateOrCreate(
                 ['key' => $key],
-                ['value' => $processedValue]
+                ['value' => $processedValue],
             );
         }
 
@@ -156,7 +158,7 @@ class AdminPanelSeeder extends Seeder
         foreach ($sources as $sourceData) {
             ScrapingSource::updateOrCreate(
                 ['name' => $sourceData['name']],
-                $sourceData
+                $sourceData,
             );
         }
 
@@ -264,7 +266,7 @@ class AdminPanelSeeder extends Seeder
         foreach ($templates as $templateData) {
             EmailTemplate::updateOrCreate(
                 ['key' => $templateData['key']],
-                $templateData
+                $templateData,
             );
         }
 

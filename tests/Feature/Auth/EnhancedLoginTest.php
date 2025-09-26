@@ -323,7 +323,7 @@ class EnhancedLoginTest extends TestCase
     #[Test]
     public function it_can_send_sms_backup_codes(): void
     {
-        if (!config('services.twilio.sid')) {
+        if (! config('services.twilio.sid')) {
             $this->markTestSkipped('Twilio not configured');
         }
 

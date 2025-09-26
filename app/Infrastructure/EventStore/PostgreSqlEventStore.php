@@ -156,7 +156,7 @@ class PostgreSqlEventStore implements EventStoreInterface
             ->orderBy('aggregate_version', 'desc')
             ->first();
 
-        if (!$snapshot) {
+        if (! $snapshot) {
             return NULL;
         }
 
@@ -313,11 +313,11 @@ class PostgreSqlEventStore implements EventStoreInterface
     {
         $eventClass = $this->eventMap[$row->event_type] ?? NULL;
 
-        if (!$eventClass) {
+        if (! $eventClass) {
             throw new EventStoreException("Unknown event type: {$row->event_type}");
         }
 
-        if (!class_exists($eventClass)) {
+        if (! class_exists($eventClass)) {
             throw new EventStoreException("Event class does not exist: {$eventClass}");
         }
 

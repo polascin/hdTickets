@@ -27,6 +27,22 @@ class ScrapingSource extends Model
 {
     use HasFactory;
 
+    /** Priority levels */
+    public const PRIORITY_HIGH = 'high';
+
+    public const PRIORITY_MEDIUM = 'medium';
+
+    public const PRIORITY_LOW = 'low';
+
+    /** Status types */
+    public const STATUS_ONLINE = 'online';
+
+    public const STATUS_OFFLINE = 'offline';
+
+    public const STATUS_TESTING = 'testing';
+
+    public const STATUS_ERROR = 'error';
+
     /**
      * The table associated with the model.
      *
@@ -74,27 +90,9 @@ class ScrapingSource extends Model
     ];
 
     /**
-     * Priority levels
-     */
-    public const PRIORITY_HIGH = 'high';
-
-    public const PRIORITY_MEDIUM = 'medium';
-
-    public const PRIORITY_LOW = 'low';
-
-    /**
-     * Status types
-     */
-    public const STATUS_ONLINE = 'online';
-
-    public const STATUS_OFFLINE = 'offline';
-
-    public const STATUS_TESTING = 'testing';
-
-    public const STATUS_ERROR = 'error';
-
-    /**
      * Get only enabled sources
+     *
+     * @param mixed $query
      *
      * @return \Illuminate\Database\Eloquent\Builder
      */
@@ -106,8 +104,8 @@ class ScrapingSource extends Model
     /**
      * Get sources by priority
      *
-     * @param  \Illuminate\Database\Eloquent\Builder $query
-     * @param  string                                $priority
+     * @param \Illuminate\Database\Eloquent\Builder $query
+     *
      * @return \Illuminate\Database\Eloquent\Builder
      */
     public function scopeByPriority($query, string $priority)
@@ -118,8 +116,8 @@ class ScrapingSource extends Model
     /**
      * Get sources by status
      *
-     * @param  \Illuminate\Database\Eloquent\Builder $query
-     * @param  string                                $status
+     * @param \Illuminate\Database\Eloquent\Builder $query
+     *
      * @return \Illuminate\Database\Eloquent\Builder
      */
     public function scopeByStatus($query, string $status)
@@ -129,6 +127,8 @@ class ScrapingSource extends Model
 
     /**
      * Get high priority sources
+     *
+     * @param mixed $query
      *
      * @return \Illuminate\Database\Eloquent\Builder
      */
@@ -140,6 +140,8 @@ class ScrapingSource extends Model
     /**
      * Get online sources
      *
+     * @param mixed $query
+     *
      * @return \Illuminate\Database\Eloquent\Builder
      */
     public function scopeOnline($query)
@@ -149,8 +151,6 @@ class ScrapingSource extends Model
 
     /**
      * Check if source is healthy (enabled and online)
-     *
-     * @return bool
      */
     public function isHealthy(): bool
     {
@@ -159,8 +159,6 @@ class ScrapingSource extends Model
 
     /**
      * Get priority badge color for UI
-     *
-     * @return string
      */
     public function getPriorityColorAttribute(): string
     {
@@ -168,14 +166,12 @@ class ScrapingSource extends Model
             self::PRIORITY_HIGH   => 'red',
             self::PRIORITY_MEDIUM => 'yellow',
             self::PRIORITY_LOW    => 'green',
-            default               => 'gray'
+            default               => 'gray',
         };
     }
 
     /**
      * Get status badge color for UI
-     *
-     * @return string
      */
     public function getStatusColorAttribute(): string
     {
@@ -184,14 +180,12 @@ class ScrapingSource extends Model
             self::STATUS_TESTING => 'yellow',
             self::STATUS_OFFLINE => 'red',
             self::STATUS_ERROR   => 'red',
-            default              => 'gray'
+            default              => 'gray',
         };
     }
 
     /**
      * Get formatted rate limit for display
-     *
-     * @return string
      */
     public function getFormattedRateLimitAttribute(): string
     {
@@ -200,9 +194,6 @@ class ScrapingSource extends Model
 
     /**
      * Update source status
-     *
-     * @param  string $status
-     * @return bool
      */
     public function updateStatus(string $status): bool
     {
@@ -211,19 +202,17 @@ class ScrapingSource extends Model
 
     /**
      * Toggle enabled status
-     *
-     * @return bool
      */
     public function toggle(): bool
     {
-        return $this->update(['enabled' => !$this->enabled]);
+        return $this->update(['enabled' => ! $this->enabled]);
     }
 
     /**
      * Get configuration value by key
      *
-     * @param  string $key
-     * @param  mixed  $default
+     * @param mixed $default
+     *
      * @return mixed
      */
     public function getConfig(string $key, $default = NULL)
@@ -234,9 +223,7 @@ class ScrapingSource extends Model
     /**
      * Set configuration value by key
      *
-     * @param  string $key
-     * @param  mixed  $value
-     * @return bool
+     * @param mixed $value
      */
     public function setConfig(string $key, $value): bool
     {
@@ -249,12 +236,12 @@ class ScrapingSource extends Model
     /**
      * Boot the model
      */
-    protected static function boot()
+    protected static function boot(): void
     {
         parent::boot();
 
         // Set default values when creating
-        static::creating(function ($model) {
+        static::creating(function ($model): void {
             if (empty($model->status)) {
                 $model->status = self::STATUS_OFFLINE;
             }
@@ -263,7 +250,7 @@ class ScrapingSource extends Model
                 $model->priority = self::PRIORITY_MEDIUM;
             }
 
-            if (is_null($model->enabled)) {
+            if (NULL === $model->enabled) {
                 $model->enabled = TRUE;
             }
 

@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-if (!function_exists('css_with_timestamp')) {
+if (! function_exists('css_with_timestamp')) {
     /**
      * Generate a timestamped CSS URL
      */
@@ -10,7 +10,7 @@ if (!function_exists('css_with_timestamp')) {
     }
 }
 
-if (!function_exists('css_timestamp')) {
+if (! function_exists('css_timestamp')) {
     /**
      * Generate a timestamped CSS URL for use in PHP code outside of Blade templates
      * This function provides the same functionality as the @cssWithTimestamp Blade directive

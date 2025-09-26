@@ -28,7 +28,7 @@ class AccountDeletionController extends Controller
     {
         $user = $request->user();
 
-        if (!$user) {
+        if (! $user) {
             abort(401, 'User must be authenticated');
         }
 
@@ -63,7 +63,7 @@ class AccountDeletionController extends Controller
 
         $user = $request->user();
 
-        if (!$user) {
+        if (! $user) {
             abort(401, 'User must be authenticated');
         }
 
@@ -114,7 +114,7 @@ class AccountDeletionController extends Controller
             ->active()
             ->first();
 
-        if (!$deletionRequest) {
+        if (! $deletionRequest) {
             return view('account.deletion.error', [
                 'error' => 'Invalid or expired cancellation token.',
             ]);
@@ -142,7 +142,7 @@ class AccountDeletionController extends Controller
             ->active()
             ->first();
 
-        if (!$deletionRequest) {
+        if (! $deletionRequest) {
             return redirect()->route('login')->withErrors([
                 'error' => 'Invalid or expired cancellation token.',
             ]);
@@ -176,7 +176,7 @@ class AccountDeletionController extends Controller
 
         $user = $request->user();
 
-        if (!$user) {
+        if (! $user) {
             abort(401, 'User must be authenticated');
         }
 
@@ -205,7 +205,7 @@ class AccountDeletionController extends Controller
     {
         $user = $request->user();
 
-        if (!$user) {
+        if (! $user) {
             abort(401, 'User must be authenticated');
         }
 
@@ -213,7 +213,7 @@ class AccountDeletionController extends Controller
             abort(403, 'Unauthorized access to export.');
         }
 
-        if (!$exportRequest->isAvailableForDownload()) {
+        if (! $exportRequest->isAvailableForDownload()) {
             return back()->withErrors([
                 'error' => 'Export is not available for download or has expired.',
             ]);
@@ -254,7 +254,7 @@ class AccountDeletionController extends Controller
             ->recoverable()
             ->first();
 
-        if (!$deletedUser || $deletedUser->user_data['email'] !== $email) {
+        if (! $deletedUser || $deletedUser->user_data['email'] !== $email) {
             return back()->withErrors([
                 'error' => 'Account not found or recovery period has expired.',
             ]);
@@ -284,7 +284,7 @@ class AccountDeletionController extends Controller
     {
         $user = $request->user();
 
-        if (!$user) {
+        if (! $user) {
             abort(401, 'User must be authenticated');
         }
 

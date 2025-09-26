@@ -25,7 +25,7 @@ class HoneypotRule implements ValidationRule
     public function validate(string $attribute, mixed $value, Closure $fail): void
     {
         // Honeypot field should always be empty
-        if (!empty($value)) {
+        if (! empty($value)) {
             // Log potential bot activity
             Log::channel('security')->warning('Potential bot detected: Honeypot field filled', [
                 'honeypot_field'  => $this->fieldName,

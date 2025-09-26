@@ -10,9 +10,11 @@ use Illuminate\Support\Facades\View;
 use Illuminate\Support\Str;
 use Symfony\Component\HttpFoundation\Response;
 
+use function in_array;
+
 /**
  * Enhanced Security Headers Middleware
- * 
+ *
  * Provides advanced security headers including nonce-based CSP,
  * improved HTTPS enforcement, and comprehensive security monitoring.
  */
@@ -27,7 +29,7 @@ class EnhancedSecurityHeadersMiddleware
     {
         // Generate unique nonce for this request
         $nonce = base64_encode(Str::random(32));
-        
+
         // Store nonce for view usage
         View::share('csp_nonce', $nonce);
         $request->attributes->set('csp_nonce', $nonce);
@@ -73,19 +75,19 @@ class EnhancedSecurityHeadersMiddleware
             "object-src 'none'",
             "base-uri 'self'",
             "form-action 'self'",
-            "upgrade-insecure-requests",
+            'upgrade-insecure-requests',
         ];
 
         return [
             // Content Security Policy with nonce
             'Content-Security-Policy' => implode('; ', $cspDirectives),
-            
+
             // Standard security headers
             'X-Content-Type-Options' => 'nosniff',
-            'X-Frame-Options' => 'DENY',
-            'X-XSS-Protection' => '1; mode=block',
-            'Referrer-Policy' => 'strict-origin-when-cross-origin',
-            
+            'X-Frame-Options'        => 'DENY',
+            'X-XSS-Protection'       => '1; mode=block',
+            'Referrer-Policy'        => 'strict-origin-when-cross-origin',
+
             // Enhanced permissions policy
             'Permissions-Policy' => implode(', ', [
                 'geolocation=()',
@@ -100,16 +102,16 @@ class EnhancedSecurityHeadersMiddleware
                 'gyroscope=()',
                 'magnetometer=()',
             ]),
-            
+
             // HTTPS enforcement
             'Strict-Transport-Security' => 'max-age=31536000; includeSubDomains; preload',
-            
+
             // Additional security headers
-            'Expect-CT' => 'max-age=86400, enforce',
+            'Expect-CT'                         => 'max-age=86400, enforce',
             'X-Permitted-Cross-Domain-Policies' => 'none',
-            'Cross-Origin-Opener-Policy' => 'same-origin',
-            'Cross-Origin-Resource-Policy' => 'same-origin',
-            'Cross-Origin-Embedder-Policy' => 'require-corp',
+            'Cross-Origin-Opener-Policy'        => 'same-origin',
+            'Cross-Origin-Resource-Policy'      => 'same-origin',
+            'Cross-Origin-Embedder-Policy'      => 'require-corp',
         ];
     }
 
@@ -124,15 +126,15 @@ class EnhancedSecurityHeadersMiddleware
         foreach ($cookies as $cookie) {
             // Ensure secure flag is set in production
             if (app()->environment('production')) {
-                $cookie->setSecureOnly(true);
+                $cookie->setSecureOnly(TRUE);
             }
-            
+
             // Set SameSite attribute
             $cookie->setSameSite('Lax');
-            
+
             // Ensure HttpOnly for non-essential cookies
-            if (!in_array($cookie->getName(), ['XSRF-TOKEN', 'remember_token'])) {
-                $cookie->setHttpOnly(true);
+            if (! in_array($cookie->getName(), ['XSRF-TOKEN', 'remember_token'], TRUE)) {
+                $cookie->setHttpOnly(TRUE);
             }
         }
     }

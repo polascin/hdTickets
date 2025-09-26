@@ -5,6 +5,9 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
+use function is_array;
+use function is_object;
+
 /**
  * System Setting Model
  *
@@ -50,15 +53,15 @@ class SystemSetting extends Model
     /**
      * Get a setting value by key
      *
-     * @param  string $key
-     * @param  mixed  $default
+     * @param mixed $default
+     *
      * @return mixed
      */
     public static function get(string $key, $default = NULL)
     {
         $setting = static::where('key', $key)->first();
 
-        if (!$setting) {
+        if (! $setting) {
             return $default;
         }
 
@@ -71,9 +74,7 @@ class SystemSetting extends Model
     /**
      * Set a setting value by key
      *
-     * @param  string $key
-     * @param  mixed  $value
-     * @return bool
+     * @param mixed $value
      */
     public static function set(string $key, $value): bool
     {
@@ -83,14 +84,13 @@ class SystemSetting extends Model
 
         return static::updateOrCreate(
             ['key' => $key],
-            ['value' => $encodedValue]
+            ['value' => $encodedValue],
         ) !== NULL;
     }
 
     /**
      * Get multiple settings by prefix
      *
-     * @param  string                         $prefix
      * @return \Illuminate\Support\Collection
      */
     public static function getByPrefix(string $prefix)
@@ -107,9 +107,6 @@ class SystemSetting extends Model
 
     /**
      * Delete settings by prefix
-     *
-     * @param  string $prefix
-     * @return int
      */
     public static function deleteByPrefix(string $prefix): int
     {

@@ -2,11 +2,18 @@
 
 namespace App\Support;
 
+use Exception;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Str;
+
+use function count;
+use function in_array;
+use function is_array;
+use function is_object;
+use function is_string;
 
 class Navigation
 {
@@ -23,11 +30,11 @@ class Navigation
     /**
      * Get navigation items for the current user's role
      */
-    public function getMenuForRole(string $role = NULL): Collection
+    public function getMenuForRole(?string $role = NULL): Collection
     {
-        $role = $role ?? $this->getCurrentUserRole();
+        $role ??= $this->getCurrentUserRole();
 
-        if (!isset($this->config['menus'][$role])) {
+        if (! isset($this->config['menus'][$role])) {
             return collect();
         }
 
@@ -54,6 +61,8 @@ class Navigation
 
     /**
      * Get quick actions for the current user
+     *
+     * @param mixed|null $user
      */
     public function getQuickActions($user = NULL): Collection
     {
@@ -67,6 +76,8 @@ class Navigation
 
     /**
      * Get user menu items for the header dropdown
+     *
+     * @param mixed|null $user
      */
     public function getUserMenuItems($user = NULL): Collection
     {
@@ -78,7 +89,7 @@ class Navigation
      */
     public function getCurrentUserRole(): string
     {
-        if (!$this->user) {
+        if (! $this->user) {
             return 'guest';
         }
 
@@ -111,13 +122,13 @@ class Navigation
      */
     public function canSeeItem(array $item): bool
     {
-        if (!isset($item['permissions'])) {
+        if (! isset($item['permissions'])) {
             return TRUE;
         }
 
         $userRole = $this->getCurrentUserRole();
 
-        return in_array($userRole, $item['permissions']);
+        return in_array($userRole, $item['permissions'], TRUE);
     }
 
     /**
@@ -125,7 +136,7 @@ class Navigation
      */
     public function isActive(array $item): bool
     {
-        if (!isset($item['active_patterns'])) {
+        if (! isset($item['active_patterns'])) {
             // Fall back to checking current route name
             if (isset($item['route']) && Route::currentRouteName() === $item['route']) {
                 return TRUE;
@@ -150,14 +161,14 @@ class Navigation
      */
     public function getBadge(string $badgeKey): ?array
     {
-        if (!$badgeKey || !isset($this->config['badges'][$badgeKey])) {
+        if (! $badgeKey || ! isset($this->config['badges'][$badgeKey])) {
             return NULL;
         }
 
         $badgeConfig = $this->config['badges'][$badgeKey];
 
         // Ensure badge config has required fields
-        if (!isset($badgeConfig['source']) || !isset($badgeConfig['type'])) {
+        if (! isset($badgeConfig['source']) || ! isset($badgeConfig['type'])) {
             return NULL;
         }
 
@@ -171,7 +182,7 @@ class Navigation
 
         // Ensure we always have a valid variant
         $validVariants = ['default', 'primary', 'secondary', 'success', 'warning', 'error', 'info'];
-        if (!in_array($variant, $validVariants)) {
+        if (! in_array($variant, $validVariants, TRUE)) {
             $variant = 'default';
         }
 
@@ -218,6 +229,51 @@ class Navigation
     }
 
     /**
+     * Get breadcrumbs for the current route
+     */
+    public function getBreadcrumbs(): Collection
+    {
+        $currentRoute = Route::currentRouteName();
+        $breadcrumbs = collect();
+
+        // Find the current menu item across all roles
+        foreach ($this->config['menus'] as $roleMenu) {
+            $found = $this->findMenuItemByRoute($roleMenu['items'], $currentRoute);
+            if ($found) {
+                $breadcrumbs = $this->buildBreadcrumbTrail($found['path']);
+
+                break;
+            }
+        }
+
+        return $breadcrumbs;
+    }
+
+    /**
+     * Check if navigation should show icons
+     */
+    public function shouldShowIcons(): bool
+    {
+        return $this->config['defaults']['show_icons'] ?? TRUE;
+    }
+
+    /**
+     * Check if navigation should show badges
+     */
+    public function shouldShowBadges(): bool
+    {
+        return $this->config['defaults']['show_badges'] ?? TRUE;
+    }
+
+    /**
+     * Check if navigation should animate transitions
+     */
+    public function shouldAnimateTransitions(): bool
+    {
+        return $this->config['defaults']['animate_transitions'] ?? TRUE;
+    }
+
+    /**
      * Process a menu item and add computed properties
      */
     protected function processMenuItem(array $item): array
@@ -241,7 +297,7 @@ class Navigation
         if (isset($item['route'])) {
             try {
                 $processedItem['url'] = route($item['route']);
-            } catch (\Exception $e) {
+            } catch (Exception $e) {
                 $processedItem['url'] = '#';
             }
         }
@@ -267,7 +323,7 @@ class Navigation
      */
     protected function getBadgeValue(string $source): mixed
     {
-        if (!$this->user) {
+        if (! $this->user) {
             return NULL;
         }
 
@@ -350,7 +406,7 @@ class Navigation
         if (isset($item['route'])) {
             try {
                 $processedItem['url'] = route($item['route']);
-            } catch (\Exception $e) {
+            } catch (Exception $e) {
                 $processedItem['url'] = '#';
             }
         }
@@ -364,27 +420,6 @@ class Navigation
         }
 
         return $processedItem;
-    }
-
-    /**
-     * Get breadcrumbs for the current route
-     */
-    public function getBreadcrumbs(): Collection
-    {
-        $currentRoute = Route::currentRouteName();
-        $breadcrumbs = collect();
-
-        // Find the current menu item across all roles
-        foreach ($this->config['menus'] as $roleMenu) {
-            $found = $this->findMenuItemByRoute($roleMenu['items'], $currentRoute);
-            if ($found) {
-                $breadcrumbs = $this->buildBreadcrumbTrail($found['path']);
-
-                break;
-            }
-        }
-
-        return $breadcrumbs;
     }
 
     /**
@@ -421,29 +456,5 @@ class Navigation
 
             return $processedItem;
         });
-    }
-
-    /**
-     * Check if navigation should show icons
-     */
-    public function shouldShowIcons(): bool
-    {
-        return $this->config['defaults']['show_icons'] ?? TRUE;
-    }
-
-    /**
-     * Check if navigation should show badges
-     */
-    public function shouldShowBadges(): bool
-    {
-        return $this->config['defaults']['show_badges'] ?? TRUE;
-    }
-
-    /**
-     * Check if navigation should animate transitions
-     */
-    public function shouldAnimateTransitions(): bool
-    {
-        return $this->config['defaults']['animate_transitions'] ?? TRUE;
     }
 }

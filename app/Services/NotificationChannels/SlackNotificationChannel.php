@@ -37,7 +37,7 @@ class SlackNotificationChannel
         try {
             $slackSettings = $this->getUserSlackSettings($user);
 
-            if (!$slackSettings || !$slackSettings->is_enabled) {
+            if (! $slackSettings || ! $slackSettings->is_enabled) {
                 Log::info('Slack notifications disabled for user', ['user_id' => $user->id]);
 
                 return FALSE;
@@ -128,7 +128,7 @@ class SlackNotificationChannel
         try {
             $slackSettings = $this->getUserSlackSettings($user);
 
-            if (!$this->botToken || !$slackSettings) {
+            if (! $this->botToken || ! $slackSettings) {
                 return FALSE;
             }
 
@@ -207,14 +207,14 @@ class SlackNotificationChannel
         ];
 
         // Add venue and date if available
-        if (!empty($ticket['venue'])) {
+        if (! empty($ticket['venue'])) {
             $blocks[1]['fields'][] = [
                 'type' => 'mrkdwn',
                 'text' => "*Venue:*\n{$ticket['venue']}",
             ];
         }
 
-        if (!empty($ticket['event_date'])) {
+        if (! empty($ticket['event_date'])) {
             $blocks[1]['fields'][] = [
                 'type' => 'mrkdwn',
                 'text' => "*Date:*\n" . date('M j, Y g:i A', strtotime((string) $ticket['event_date'])),
@@ -290,7 +290,7 @@ class SlackNotificationChannel
         ];
 
         // Add snooze button for non-urgent alerts
-        if (!$isUrgent) {
+        if (! $isUrgent) {
             $blocks[count($blocks) - 1]['elements'][] = [
                 'type' => 'button',
                 'text' => ['type' => 'plain_text', 'text' => 'Snooze'],
@@ -352,7 +352,7 @@ class SlackNotificationChannel
     {
         $webhookUrl = $slackSettings->webhook_url ?? $this->webhookUrl;
 
-        if (!$webhookUrl) {
+        if (! $webhookUrl) {
             Log::warning('No Slack webhook URL configured');
 
             return FALSE;
@@ -385,7 +385,7 @@ class SlackNotificationChannel
      */
     protected function sendViaBotAPI(array $message, $slackSettings): bool
     {
-        if (!$this->botToken) {
+        if (! $this->botToken) {
             Log::warning('No Slack bot token configured');
 
             return FALSE;
@@ -443,6 +443,6 @@ class SlackNotificationChannel
     protected function shouldUseWebhook($slackSettings): bool
     {
         // Use webhook if user has custom webhook or no bot token available
-        return !empty($slackSettings->webhook_url) || empty($this->botToken);
+        return ! empty($slackSettings->webhook_url) || empty($this->botToken);
     }
 }

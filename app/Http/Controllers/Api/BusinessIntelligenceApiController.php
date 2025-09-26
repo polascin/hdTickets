@@ -221,7 +221,7 @@ class BusinessIntelligenceApiController extends Controller
 
         $platformsQuery = TicketSource::query();
 
-        if (!empty($filters['platform_id'])) {
+        if (! empty($filters['platform_id'])) {
             $platformsQuery->where('id', $filters['platform_id']);
         }
 
@@ -398,11 +398,11 @@ class BusinessIntelligenceApiController extends Controller
         $anomalies = $this->anomalyService->detectRealTimeAnomalies($filters);
 
         // Filter and limit results
-        if (!empty($filters['severity'])) {
+        if (! empty($filters['severity'])) {
             $anomalies = array_filter($anomalies, fn (array $a): bool => $a['severity'] === $filters['severity']);
         }
 
-        if (!empty($filters['category'])) {
+        if (! empty($filters['category'])) {
             $anomalies = array_filter($anomalies, fn (array $a): bool => $a['category'] === $filters['category']);
         }
 
@@ -490,7 +490,7 @@ class BusinessIntelligenceApiController extends Controller
 
         $usersQuery = User::query()->where('created_at', '>=', $dateRange);
 
-        if (!empty($filters['segment'])) {
+        if (! empty($filters['segment'])) {
             $usersQuery->where('role', $filters['segment']);
         }
 
@@ -526,23 +526,23 @@ class BusinessIntelligenceApiController extends Controller
 
     private function applyFilters($query, array $filters): void
     {
-        if (!empty($filters['date_from'])) {
+        if (! empty($filters['date_from'])) {
             $query->where('scraped_tickets.created_at', '>=', $filters['date_from']);
         }
 
-        if (!empty($filters['date_to'])) {
+        if (! empty($filters['date_to'])) {
             $query->where('scraped_tickets.created_at', '<=', $filters['date_to']);
         }
 
-        if (!empty($filters['sport'])) {
+        if (! empty($filters['sport'])) {
             $query->where('scraped_tickets.sport', $filters['sport']);
         }
 
-        if (!empty($filters['price_min'])) {
+        if (! empty($filters['price_min'])) {
             $query->where('scraped_tickets.price', '>=', $filters['price_min']);
         }
 
-        if (!empty($filters['price_max'])) {
+        if (! empty($filters['price_max'])) {
             $query->where('scraped_tickets.price', '<=', $filters['price_max']);
         }
     }
@@ -563,12 +563,12 @@ class BusinessIntelligenceApiController extends Controller
         // Compare current period with previous period
         $currentPeriod = ScrapedTicket::query()
             ->where('created_at', '>=', Carbon::now()->subDays(30))
-            ->when(!empty($filters['sport']), fn ($q) => $q->where('sport', $filters['sport']))
+            ->when(! empty($filters['sport']), fn ($q) => $q->where('sport', $filters['sport']))
             ->get();
 
         $previousPeriod = ScrapedTicket::query()
             ->whereBetween('created_at', [Carbon::now()->subDays(60), Carbon::now()->subDays(30)])
-            ->when(!empty($filters['sport']), fn ($q) => $q->where('sport', $filters['sport']))
+            ->when(! empty($filters['sport']), fn ($q) => $q->where('sport', $filters['sport']))
             ->get();
 
         return [
@@ -633,22 +633,22 @@ class BusinessIntelligenceApiController extends Controller
         foreach ($tickets as $ticket) {
             $totalFields += 6; // Assuming 6 key fields per ticket
 
-            if (!empty($ticket->event_name)) {
+            if (! empty($ticket->event_name)) {
                 $validFields++;
             }
-            if (!empty($ticket->sport)) {
+            if (! empty($ticket->sport)) {
                 $validFields++;
             }
             if ($ticket->price > 0) {
                 $validFields++;
             }
-            if (!empty($ticket->event_date)) {
+            if (! empty($ticket->event_date)) {
                 $validFields++;
             }
-            if (!empty($ticket->venue)) {
+            if (! empty($ticket->venue)) {
                 $validFields++;
             }
-            if (!empty($ticket->url)) {
+            if (! empty($ticket->url)) {
                 $validFields++;
             }
         }

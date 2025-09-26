@@ -10,7 +10,7 @@ return new class() extends Migration {
      */
     public function up(): void
     {
-        Schema::create('scraping_sources', function (Blueprint $table) {
+        Schema::create('scraping_sources', function (Blueprint $table): void {
             $table->id();
             $table->string('name');
             $table->string('base_url');

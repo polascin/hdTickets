@@ -88,7 +88,7 @@ class TicketPurchaseController extends Controller
             // Final eligibility check
             $eligibility = $this->purchaseService->checkPurchaseEligibility($user, $ticket, $data['quantity']);
 
-            if (!$eligibility['can_purchase']) {
+            if (! $eligibility['can_purchase']) {
                 return response()->json([
                     'success'   => FALSE,
                     'message'   => 'Purchase not allowed.',
@@ -293,7 +293,7 @@ class TicketPurchaseController extends Controller
                 ->firstOrFail();
 
             // Check if purchase can be cancelled
-            if (!$this->canCancelPurchase($purchase)) {
+            if (! $this->canCancelPurchase($purchase)) {
                 return response()->json([
                     'success' => FALSE,
                     'message' => 'This purchase cannot be cancelled.',
@@ -411,7 +411,7 @@ class TicketPurchaseController extends Controller
             $user = Auth::user();
             $format = $request->get('format', 'csv'); // csv, pdf
 
-            if (!in_array($format, ['csv', 'pdf'], TRUE)) {
+            if (! in_array($format, ['csv', 'pdf'], TRUE)) {
                 return response()->json([
                     'success' => FALSE,
                     'message' => 'Invalid export format. Use csv or pdf.',

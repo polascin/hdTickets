@@ -320,7 +320,7 @@ class UserPreferencePreset extends Model
             ? json_decode($this->preference_data, TRUE)
             : $this->preference_data;
 
-        if (!is_array($presetData)) {
+        if (! is_array($presetData)) {
             $errors[] = 'Preference data must be a valid JSON object';
 
             return $errors;
@@ -328,7 +328,7 @@ class UserPreferencePreset extends Model
 
         // Validate structure
         foreach ($presetData as $category => $preferences) {
-            if (!is_array($preferences)) {
+            if (! is_array($preferences)) {
                 $errors[] = "Category '{$category}' must contain an array of preferences";
 
                 continue;
@@ -337,12 +337,12 @@ class UserPreferencePreset extends Model
             foreach ($preferences as $key => $prefData) {
                 // Allow both simple values and structured data
                 if (is_array($prefData)) {
-                    if (!isset($prefData['value'])) {
+                    if (! isset($prefData['value'])) {
                         $errors[] = "Preference '{$category}.{$key}' must have a 'value' field";
                     }
 
                     $dataType = $prefData['data_type'] ?? 'string';
-                    if (!in_array($dataType, ['string', 'boolean', 'integer', 'array', 'json'], TRUE)) {
+                    if (! in_array($dataType, ['string', 'boolean', 'integer', 'array', 'json'], TRUE)) {
                         $errors[] = "Invalid data type '{$dataType}' for preference '{$category}.{$key}'";
                     }
                 }

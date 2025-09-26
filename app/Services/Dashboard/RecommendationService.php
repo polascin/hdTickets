@@ -8,9 +8,13 @@ use App\Models\ScrapedTicket;
 use App\Models\TicketAlert;
 use App\Models\User;
 use Carbon\Carbon;
+use Exception;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+
+use function array_slice;
+use function in_array;
 
 /**
  * RecommendationService - Personalized Ticket Recommendations
@@ -42,7 +46,7 @@ class RecommendationService
 
     public function __construct(
         UserMetricsService $userMetricsService,
-        TicketStatsService $ticketStatsService
+        TicketStatsService $ticketStatsService,
     ) {
         $this->userMetricsService = $userMetricsService;
         $this->ticketStatsService = $ticketStatsService;
@@ -67,7 +71,7 @@ class RecommendationService
                     'recommendation_reasons' => $this->getDashboardRecommendationReasons($user),
                     'generated_at'           => now()->toISOString(),
                 ];
-            } catch (\Exception $e) {
+            } catch (Exception $e) {
                 Log::error('Failed to get dashboard recommendations', [
                     'user_id' => $user->id,
                     'error'   => $e->getMessage(),
@@ -95,17 +99,17 @@ class RecommendationService
                 ->whereBetween('price', [$priceRange['min'], $priceRange['max']]);
 
             // Filter by favorite sports
-            if (!empty($favoriteSports)) {
+            if (! empty($favoriteSports)) {
                 $query->whereIn('sport', $favoriteSports);
             }
 
             // Filter by favorite teams
-            if (!empty($favoriteTeams)) {
-                $query->where(function ($q) use ($favoriteTeams) {
+            if (! empty($favoriteTeams)) {
+                $query->where(function ($q) use ($favoriteTeams): void {
                     foreach ($favoriteTeams as $team) {
                         $q->orWhere('home_team', 'LIKE', "%{$team}%")
-                          ->orWhere('away_team', 'LIKE', "%{$team}%")
-                          ->orWhere('event_name', 'LIKE', "%{$team}%");
+                            ->orWhere('away_team', 'LIKE', "%{$team}%")
+                            ->orWhere('event_name', 'LIKE', "%{$team}%");
                     }
                 });
             }
@@ -119,7 +123,7 @@ class RecommendationService
                 ->toArray();
 
             return $recommendations;
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             Log::warning('Failed to get featured event recommendations', [
                 'user_id' => $user->id,
                 'error'   => $e->getMessage(),
@@ -152,7 +156,7 @@ class RecommendationService
                 ->having('max_price', '>', DB::raw('min_price * 1.2')) // Price variation exists
                 ->whereNotIn('event_name', $existingAlerts);
 
-            if (!empty($favoriteSports)) {
+            if (! empty($favoriteSports)) {
                 $query->whereIn('sport', $favoriteSports);
             }
 
@@ -176,7 +180,7 @@ class RecommendationService
                 ->toArray();
 
             return $recommendations;
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             Log::warning('Failed to get price alert recommendations', [
                 'user_id' => $user->id,
                 'error'   => $e->getMessage(),
@@ -205,7 +209,7 @@ class RecommendationService
                 ->groupBy('event_name', 'sport', 'home_team', 'away_team', 'event_date')
                 ->having('listing_count', '>=', 3);
 
-            if (!empty($favoriteSports)) {
+            if (! empty($favoriteSports)) {
                 $query->whereIn('sport', $favoriteSports);
             }
 
@@ -229,7 +233,7 @@ class RecommendationService
                 ->toArray();
 
             return $recommendations;
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             Log::warning('Failed to get trending recommendations', [
                 'user_id' => $user->id,
                 'error'   => $e->getMessage(),
@@ -267,7 +271,7 @@ class RecommendationService
                 ->toArray();
 
             return $recommendations;
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             Log::warning('Failed to get similar user recommendations', [
                 'user_id' => $user->id,
                 'error'   => $e->getMessage(),
@@ -293,15 +297,15 @@ class RecommendationService
                 ->orderBy('event_date', 'asc');
 
             // Prioritize favorite sports and teams
-            if (!empty($favoriteSports)) {
+            if (! empty($favoriteSports)) {
                 $query->whereIn('sport', $favoriteSports);
             }
 
-            if (!empty($favoriteTeams)) {
-                $query->where(function ($q) use ($favoriteTeams) {
+            if (! empty($favoriteTeams)) {
+                $query->where(function ($q) use ($favoriteTeams): void {
                     foreach ($favoriteTeams as $team) {
                         $q->orWhere('home_team', 'LIKE', "%{$team}%")
-                          ->orWhere('away_team', 'LIKE', "%{$team}%");
+                            ->orWhere('away_team', 'LIKE', "%{$team}%");
                     }
                 });
             }
@@ -314,13 +318,40 @@ class RecommendationService
                 ->toArray();
 
             return $recommendations;
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             Log::warning('Failed to get upcoming event recommendations', [
                 'user_id' => $user->id,
                 'error'   => $e->getMessage(),
             ]);
 
             return [];
+        }
+    }
+
+    /**
+     * Clear recommendation caches
+     */
+    public function clearRecommendationCache(User $user): bool
+    {
+        try {
+            $cacheKeys = [
+                "recommendations_dashboard:{$user->id}",
+            ];
+
+            foreach ($cacheKeys as $key) {
+                Cache::forget($key);
+            }
+
+            Log::info('RecommendationService cache cleared for user', ['user_id' => $user->id]);
+
+            return TRUE;
+        } catch (Exception $e) {
+            Log::error('Failed to clear RecommendationService cache', [
+                'user_id' => $user->id,
+                'error'   => $e->getMessage(),
+            ]);
+
+            return FALSE;
         }
     }
 
@@ -367,16 +398,16 @@ class RecommendationService
 
         // Sport preference (30% weight)
         $favoriteSports = $preferences['favorite_sports'] ?? [];
-        if (!empty($favoriteSports) && in_array($ticket->sport, $favoriteSports)) {
+        if (! empty($favoriteSports) && in_array($ticket->sport, $favoriteSports, TRUE)) {
             $score += 0.3;
         }
 
         // Team preference (25% weight)
         $favoriteTeams = $preferences['favorite_teams'] ?? [];
-        if (!empty($favoriteTeams)) {
+        if (! empty($favoriteTeams)) {
             foreach ($favoriteTeams as $team) {
-                if (stripos($ticket->home_team, $team) !== FALSE ||
-                    stripos($ticket->away_team, $team) !== FALSE) {
+                if (stripos($ticket->home_team, $team) !== FALSE
+                    || stripos($ticket->away_team, $team) !== FALSE) {
                     $score += 0.25;
 
                     break;
@@ -396,13 +427,13 @@ class RecommendationService
 
         // Venue preference (15% weight)
         $preferredVenues = $preferences['preferred_venues'] ?? [];
-        if (!empty($preferredVenues) && in_array($ticket->venue, $preferredVenues)) {
+        if (! empty($preferredVenues) && in_array($ticket->venue, $preferredVenues, TRUE)) {
             $score += 0.15;
         }
 
         // Platform preference (10% weight)
         $preferredPlatforms = $preferences['preferred_platforms'] ?? [];
-        if (!empty($preferredPlatforms) && in_array($ticket->platform, $preferredPlatforms)) {
+        if (! empty($preferredPlatforms) && in_array($ticket->platform, $preferredPlatforms, TRUE)) {
             $score += 0.1;
         }
 
@@ -432,7 +463,7 @@ class RecommendationService
         $reasons = [];
 
         $favoriteSports = $preferences['favorite_sports'] ?? [];
-        if (in_array($ticket->sport, $favoriteSports)) {
+        if (in_array($ticket->sport, $favoriteSports, TRUE)) {
             $reasons[] = "Matches your favorite sport: {$ticket->sport}";
         }
 
@@ -507,12 +538,14 @@ class RecommendationService
         return match ($trend) {
             'rising'  => 'Price may increase - consider buying soon',
             'falling' => 'Price may drop - consider waiting',
-            default   => 'Price appears stable'
+            default   => 'Price appears stable',
         };
     }
 
     /**
      * Calculate confidence for price alert recommendations
+     *
+     * @param mixed $event
      */
     protected function calculatePriceAlertConfidence($event): float
     {
@@ -548,16 +581,16 @@ class RecommendationService
 
         // Preferences completeness (40%)
         $preferenceScore = 0;
-        if (!empty($preferences['favorite_sports'])) {
+        if (! empty($preferences['favorite_sports'])) {
             $preferenceScore += 10;
         }
-        if (!empty($preferences['favorite_teams'])) {
+        if (! empty($preferences['favorite_teams'])) {
             $preferenceScore += 10;
         }
-        if (!empty($preferences['preferred_venues'])) {
+        if (! empty($preferences['preferred_venues'])) {
             $preferenceScore += 10;
         }
-        if (!empty($preferences['price_range'])) {
+        if (! empty($preferences['price_range'])) {
             $preferenceScore += 10;
         }
 
@@ -605,11 +638,11 @@ class RecommendationService
         $preferences = $user->preferences ?? [];
         $reasons = [];
 
-        if (!empty($preferences['favorite_sports'])) {
+        if (! empty($preferences['favorite_sports'])) {
             $reasons[] = 'Based on your favorite sports: ' . implode(', ', $preferences['favorite_sports']);
         }
 
-        if (!empty($preferences['favorite_teams'])) {
+        if (! empty($preferences['favorite_teams'])) {
             $reasons[] = 'Featuring your favorite teams: ' . implode(', ', array_slice($preferences['favorite_teams'], 0, 3));
         }
 
@@ -640,32 +673,5 @@ class RecommendationService
             'recommendation_reasons' => ['System temporarily unavailable'],
             'generated_at'           => now()->toISOString(),
         ];
-    }
-
-    /**
-     * Clear recommendation caches
-     */
-    public function clearRecommendationCache(User $user): bool
-    {
-        try {
-            $cacheKeys = [
-                "recommendations_dashboard:{$user->id}",
-            ];
-
-            foreach ($cacheKeys as $key) {
-                Cache::forget($key);
-            }
-
-            Log::info('RecommendationService cache cleared for user', ['user_id' => $user->id]);
-
-            return TRUE;
-        } catch (\Exception $e) {
-            Log::error('Failed to clear RecommendationService cache', [
-                'user_id' => $user->id,
-                'error'   => $e->getMessage(),
-            ]);
-
-            return FALSE;
-        }
     }
 }

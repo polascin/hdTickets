@@ -87,19 +87,19 @@ class Manchester_cityPlugin extends BaseScraperPlugin
 
         $params = [];
 
-        if (!empty($criteria['keyword'])) {
+        if (! empty($criteria['keyword'])) {
             $params['search'] = $criteria['keyword'];
         }
 
-        if (!empty($criteria['competition'])) {
+        if (! empty($criteria['competition'])) {
             $params['competition'] = $this->mapCompetition($criteria['competition']);
         }
 
-        if (!empty($criteria['date_from'])) {
+        if (! empty($criteria['date_from'])) {
             $params['date_from'] = $criteria['date_from'];
         }
 
-        if (!empty($criteria['date_to'])) {
+        if (! empty($criteria['date_to'])) {
             $params['date_to'] = $criteria['date_to'];
         }
 

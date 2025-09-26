@@ -222,7 +222,7 @@ class AdvancedApiAggregator
             }
 
             // Take the best available URL
-            if (empty($mergedEvent['url']) && !empty($event['url'])) {
+            if (empty($mergedEvent['url']) && ! empty($event['url'])) {
                 $mergedEvent['url'] = $event['url'];
             }
         }
@@ -260,24 +260,24 @@ class AdvancedApiAggregator
         $score = 0;
 
         // Base score for having essential fields
-        if (!empty($event['name'])) {
+        if (! empty($event['name'])) {
             $score += 20;
         }
-        if (!empty($event['date'])) {
+        if (! empty($event['date'])) {
             $score += 20;
         }
-        if (!empty($event['venue'])) {
+        if (! empty($event['venue'])) {
             $score += 15;
         }
 
         // Additional points for extra data
-        if (!empty($event['url'])) {
+        if (! empty($event['url'])) {
             $score += 10;
         }
-        if (!empty($event['price_min'])) {
+        if (! empty($event['price_min'])) {
             $score += 10;
         }
-        if (!empty($event['description'])) {
+        if (! empty($event['description'])) {
             $score += 5;
         }
 
