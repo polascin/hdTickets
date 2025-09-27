@@ -895,6 +895,15 @@ class User extends Authenticatable implements MustVerifyEmail, OAuthenticatable
     }
 
     /**
+     * Get the user's subscription (alias for current subscription)
+     * This is used by the dashboard to access subscription information
+     */
+    public function subscription()
+    {
+        return $this->currentSubscription();
+    }
+
+    /**
      * Relationship: Login history records for this user
      */
     /**
@@ -1299,6 +1308,15 @@ class User extends Authenticatable implements MustVerifyEmail, OAuthenticatable
     public function userPreferences(): HasMany
     {
         return $this->hasMany(UserPreference::class);
+    }
+
+    /**
+     * User preferences (alias for userPreferences)
+     * This is used by the dashboard to access user preferences
+     */
+    public function preferences(): HasMany
+    {
+        return $this->userPreferences();
     }
 
     /**

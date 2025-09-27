@@ -41,6 +41,7 @@ use App\Http\Controllers\AnalyticsDashboardController;
 use App\Http\Controllers\Api\ScrapingController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\EnhancedDashboardController;
+use App\Http\Controllers\ModernCustomerDashboardController;
 use App\Http\Controllers\Examples\DatabaseOptimizationDemoController;
 use App\Http\Controllers\Examples\PerformanceDemoController;
 use App\Http\Controllers\HealthController;
@@ -198,14 +199,14 @@ Route::middleware(['auth', 'verified'])->prefix('dashboard')->name('dashboard.')
         ->name('basic'); // Route: dashboard.basic
 
     /*
-         * Customer Dashboard
-         * Purpose: Enhanced sports events ticket monitoring for end users
+         * Modern Customer Dashboard
+         * Purpose: State-of-the-art sports events ticket monitoring for end users
          * Access: Users with 'customer' role + admin inheritance
          * Features: Real-time data, analytics, personalized recommendations, modern UX
-         * Controller: EnhancedDashboardController@index
-         * View: resources/views/dashboard/customer-enhanced.blade.php
+         * Controller: ModernCustomerDashboardController@index
+         * View: resources/views/dashboard/customer-modern.blade.php
          */
-    Route::middleware([CustomerMiddleware::class])->get('/customer', [EnhancedDashboardController::class, 'index'])
+    Route::middleware([CustomerMiddleware::class])->get('/customer', [ModernCustomerDashboardController::class, 'index'])
         ->name('customer'); // Route: dashboard.customer
 
     /*
@@ -377,6 +378,16 @@ Route::middleware(['auth', 'verified', 'throttle:60,1'])->prefix('ajax')->name('
     Route::get('tickets/load', [TicketLazyLoadController::class, 'loadTickets'])->name('tickets.load');
     Route::get('tickets/search', [TicketLazyLoadController::class, 'searchTickets'])->name('tickets.search');
     Route::get('tickets/load-more', [TicketLazyLoadController::class, 'loadMore'])->name('tickets.load-more');
+
+    // Modern Customer Dashboard AJAX endpoints
+    Route::middleware([CustomerMiddleware::class])->prefix('customer-dashboard')->group(function (): void {
+        Route::get('/stats', [ModernCustomerDashboardController::class, 'getStats'])->name('customer-dashboard.stats');
+        Route::get('/tickets', [ModernCustomerDashboardController::class, 'getTickets'])->name('customer-dashboard.tickets');
+        Route::get('/alerts', [ModernCustomerDashboardController::class, 'getAlerts'])->name('customer-dashboard.alerts');
+        Route::get('/recommendations', [ModernCustomerDashboardController::class, 'getRecommendations'])->name('customer-dashboard.recommendations');
+        Route::get('/market-insights', [ModernCustomerDashboardController::class, 'getMarketInsights'])->name('customer-dashboard.market-insights');
+    });
+
     Route::get('dashboard/stats', [TicketLazyLoadController::class, 'loadDashboardStats'])->name('dashboard.stats');
 
     // Dashboard dynamic content endpoints

@@ -12,9 +12,11 @@ export default defineConfig({
         'resources/css/app.css',
         'resources/css/app-v3.css',
         'resources/css/dashboard-enhanced.css',
+        'resources/css/dashboard-modern.css',
         'resources/js/app.js',
         // Dashboard dedicated entry (code-split customer dashboard)
         'resources/js/dashboard/index.js',
+        'resources/js/dashboard/modern-customer-dashboard.js',
 
         // Ticket system assets
         'resources/js/tickets/index.js',

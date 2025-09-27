@@ -241,4 +241,4 @@
   // Add smooth scrolling
   document.documentElement.style.scrollBehavior = 'smooth';
 </script>
-</x-app-layout>
+@endsection

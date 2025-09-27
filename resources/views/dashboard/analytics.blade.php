@@ -125,7 +125,7 @@
 @endpush
 
 @section('content')
-  <div class="analytics-dashboard py-6" x-data="{ 
+  <div class="analytics-dashboard py-6" x-data="{
       timeRange: '30d',
       isLoading: false,
       analytics: {
@@ -521,22 +521,22 @@
       </div>
     </div>
   </div>
-</div>
+  </div>
 @endsection
 
 @push('scripts')
-<script>
-// Analytics dashboard specific functionality
-document.addEventListener('alpine:init', () => {
-    console.log('Analytics dashboard scripts loaded');
-    
-    // Initialize charts if Chart.js is available
-    if (typeof Chart !== 'undefined') {
+  <script>
+    // Analytics dashboard specific functionality
+    document.addEventListener('alpine:init', () => {
+      console.log('Analytics dashboard scripts loaded');
+
+      // Initialize charts if Chart.js is available
+      if (typeof Chart !== 'undefined') {
         // Initialize analytics charts here
         console.log('Initializing analytics charts');
-    }
-});
-</script>
+      }
+    });
+  </script>
 @endpush
 
 @push('scripts')
@@ -848,3 +848,4 @@ document.addEventListener('alpine:init', () => {
     }
   </script>
 @endpush
+@endsection
