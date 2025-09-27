@@ -96,7 +96,9 @@ Route::get('/', function () {
 
 // Welcome page - Public landing page for sports events ticket monitoring
 Route::get('/home', [WelcomeController::class, 'index'])->name('home');
-Route::get('/welcome', [WelcomeController::class, 'newWelcome'])->name('welcome');
+Route::get('/welcome', [WelcomeController::class, 'enhancedWelcome'])->name('welcome');
+Route::get('/welcome/enhanced', [WelcomeController::class, 'enhancedWelcome'])->name('welcome.enhanced');
+Route::get('/welcome/legacy', [WelcomeController::class, 'newWelcome'])->name('welcome.legacy');
 
 // API endpoint for welcome page stats
 Route::get('/api/welcome-stats', [WelcomeController::class, 'stats'])->name('api.welcome.stats');

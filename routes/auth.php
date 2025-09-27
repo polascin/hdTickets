@@ -20,6 +20,11 @@ Route::middleware(['guest', EnhancedLoginSecurity::class])->group(function (): v
     Route::get('login', [AuthenticatedSessionController::class, 'create'])
         ->name('login');
 
+    // Comprehensive login page route
+    Route::get('login/comprehensive', function () {
+        return view('auth.login-comprehensive');
+    })->name('login.comprehensive');
+
     Route::post('login', [AuthenticatedSessionController::class, 'store']);
 
     // Login enhancement endpoints

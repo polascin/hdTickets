@@ -146,4 +146,8 @@ return [
         'password_strength_meter' => env('AUTH_PASSWORD_STRENGTH_METER', TRUE),
         'session_warnings'        => env('AUTH_SESSION_WARNINGS', TRUE),
     ],
+
+    // Comprehensive Login Configuration
+    'comprehensive_login' => env('AUTH_COMPREHENSIVE_LOGIN', TRUE),
+    'enhanced_login' => env('AUTH_ENHANCED_LOGIN', TRUE),
 ];

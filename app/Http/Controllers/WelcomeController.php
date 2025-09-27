@@ -127,7 +127,7 @@ class WelcomeController extends Controller
                 'ab_variant'         => 'comprehensive',
             ]);
 
-            return view('welcome', $data);
+            return view('welcome-enhanced', $data);
         } catch (Exception $e) {
             Log::error('Error loading comprehensive welcome page', [
                 'error'      => $e->getMessage(),
@@ -136,7 +136,7 @@ class WelcomeController extends Controller
             ]);
 
             // Fallback to basic welcome view
-            return view('welcome', [
+            return view('welcome-enhanced', [
                 'total_tickets'         => 0,
                 'active_events'         => 0,
                 'satisfied_customers'   => 0,
@@ -148,6 +148,211 @@ class WelcomeController extends Controller
                 'legal_documents'       => [],
             ]);
         }
+    }
+
+    /**
+     * Display the enhanced backend features welcome page
+     *
+     * @return View
+     */
+    public function enhancedWelcome(Request $request)
+    {
+        try {
+            // Resolve service via container to avoid constructor DI issues
+            $service = app(WelcomePageService::class);
+
+            // Load dynamic data for the enhanced welcome page
+            $data = $service->getWelcomePageData([
+                'include_stats'      => TRUE,
+                'include_pricing'    => TRUE,
+                'include_features'   => TRUE,
+                'include_legal_docs' => TRUE,
+                'include_security'   => TRUE,
+                'include_platforms'  => TRUE,
+                'ab_variant'         => 'enhanced_backend',
+            ]);
+
+            // Add backend-specific data
+            $data['backend_features'] = $this->getBackendFeatures();
+            $data['technology_stack'] = $this->getTechnologyStack();
+            $data['security_features'] = $this->getSecurityFeatures();
+            $data['platform_integrations'] = $this->getPlatformIntegrations();
+
+            return view('welcome-enhanced', $data);
+        } catch (Exception $e) {
+            Log::error('Error loading enhanced welcome page', [
+                'error'      => $e->getMessage(),
+                'user_agent' => $request->userAgent(),
+                'ip'         => $request->ip(),
+                'trace'      => $e->getTraceAsString(),
+            ]);
+
+            // Fallback to basic enhanced view with static data
+            return view('welcome-enhanced', $this->getFallbackEnhancedData());
+        }
+    }
+
+    /**
+     * Get backend features data
+     *
+     * @return array
+     */
+    private function getBackendFeatures(): array
+    {
+        return [
+            'ticket_monitoring' => [
+                'title' => 'Real-Time Ticket Monitoring',
+                'description' => 'Advanced web scraping and API integration across 15+ major ticketing platforms',
+                'features' => [
+                    'Multi-platform scraping service with rotation',
+                    'Real-time availability notifications',
+                    'Historical price analysis and trends',
+                    'Custom monitoring criteria and filters',
+                    'Anti-detection and CAPTCHA handling'
+                ]
+            ],
+            'purchase_automation' => [
+                'title' => 'AI-Powered Purchase Automation',
+                'description' => 'Intelligent purchase decision engine with machine learning algorithms',
+                'features' => [
+                    'Smart purchase decision algorithms',
+                    'Automated checkout with payment processing',
+                    'Purchase queue management system',
+                    'Risk assessment and validation',
+                    'Success rate optimization'
+                ]
+            ],
+            'security_system' => [
+                'title' => 'Enterprise Security',
+                'description' => 'Multi-layered security architecture with advanced authentication',
+                'features' => [
+                    'Two-factor authentication (2FA)',
+                    'Trusted device management',
+                    'End-to-end encryption',
+                    'Security incident monitoring',
+                    'Comprehensive audit trails'
+                ]
+            ],
+            'analytics_engine' => [
+                'title' => 'Advanced Analytics Engine',
+                'description' => 'Comprehensive business intelligence with predictive analytics',
+                'features' => [
+                    'Real-time analytics dashboard',
+                    'User behavior tracking and insights',
+                    'Market trend analysis',
+                    'Performance metrics and KPIs',
+                    'Automated reporting system'
+                ]
+            ]
+        ];
+    }
+
+    /**
+     * Get technology stack data
+     *
+     * @return array
+     */
+    private function getTechnologyStack(): array
+    {
+        return [
+            'backend' => [
+                'Laravel 10',
+                'PHP 8.4',
+                'MySQL/MariaDB',
+                'Redis Cache'
+            ],
+            'infrastructure' => [
+                'Apache2',
+                'Ubuntu 24.04',
+                'Queue Jobs',
+                'WebSockets'
+            ],
+            'architecture' => [
+                'Domain-Driven Design',
+                'Event-Driven Architecture',
+                'CQRS Pattern',
+                'Microservices Ready'
+            ]
+        ];
+    }
+
+    /**
+     * Get security features data
+     *
+     * @return array
+     */
+    private function getSecurityFeatures(): array
+    {
+        return [
+            'authentication' => [
+                'title' => 'Advanced Authentication',
+                'description' => 'Two-factor authentication, trusted devices, and biometric support'
+            ],
+            'encryption' => [
+                'title' => 'Data Encryption',
+                'description' => 'End-to-end encryption with industry-standard AES-256 protocols'
+            ],
+            'monitoring' => [
+                'title' => 'Security Monitoring',
+                'description' => 'Real-time threat detection with automated incident response'
+            ],
+            'anti_fraud' => [
+                'title' => 'Anti-Fraud Protection',
+                'description' => 'Advanced fraud detection with machine learning-based risk assessment'
+            ]
+        ];
+    }
+
+    /**
+     * Get platform integrations data
+     *
+     * @return array
+     */
+    private function getPlatformIntegrations(): array
+    {
+        return [
+            'ticketmaster' => [
+                'name' => 'Ticketmaster',
+                'description' => 'Official API integration with real-time inventory access',
+                'status' => 'active'
+            ],
+            'stubhub' => [
+                'name' => 'StubHub',
+                'description' => 'Secondary market monitoring with price comparison',
+                'status' => 'active'
+            ],
+            'seatgeek' => [
+                'name' => 'SeatGeek',
+                'description' => 'Marketplace integration with deal scoring',
+                'status' => 'active'
+            ],
+            'football_clubs' => [
+                'name' => 'Football Club Stores',
+                'description' => 'Direct integration with official team stores',
+                'status' => 'active'
+            ]
+        ];
+    }
+
+    /**
+     * Get fallback enhanced data
+     *
+     * @return array
+     */
+    private function getFallbackEnhancedData(): array
+    {
+        return [
+            'stats' => [
+                'platforms' => '15+',
+                'monitoring' => '24/7',
+                'users' => '10K+',
+                'success_rate' => '99.9%'
+            ],
+            'backend_features' => $this->getBackendFeatures(),
+            'technology_stack' => $this->getTechnologyStack(),
+            'security_features' => $this->getSecurityFeatures(),
+            'platform_integrations' => $this->getPlatformIntegrations()
+        ];
     }
 
     /**
