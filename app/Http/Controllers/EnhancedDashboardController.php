@@ -77,7 +77,7 @@ class EnhancedDashboardController extends Controller
             'timestamp' => now()->toISOString(),
         ]);
 
-        return view('dashboard.new-dashboard', $dashboardData);
+        return view('dashboard.customer-unified', $dashboardData);
     }
 
     /**

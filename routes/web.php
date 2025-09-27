@@ -783,6 +783,11 @@ Route::get('/dashboard-test', function () {
     }
 })->name('dashboard.test');
 
+// Customer Dashboard Test Route
+Route::get('/dashboard/customer-test', [App\Http\Controllers\CustomerDashboardTestController::class, 'index'])
+    ->middleware(['auth', 'verified'])
+    ->name('dashboard.customer.test');
+
 Route::get('/customer-test', function () {
     $user = User::where('role', 'customer')->first();
     if (! $user) {
