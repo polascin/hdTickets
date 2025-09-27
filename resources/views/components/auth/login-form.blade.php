@@ -139,7 +139,7 @@
                            type="checkbox" 
                            x-model="form.remember"
                            class="h-5 w-5 text-stadium-600 focus:ring-stadium-500 border-gray-300 rounded touch-manipulation">
-                    <label for="remember" class="ml-3 block text-sm text-gray-700 select-none cursor-pointer py-2 min-h-[44px] flex items-center">
+                    <label for="remember" class="ml-3 text-sm text-gray-700 select-none cursor-pointer py-2 min-h-[44px] flex items-center">
                         Remember me
                     </label>
                 </div>

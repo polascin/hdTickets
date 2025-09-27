@@ -111,7 +111,7 @@ class UserMetricsService
                 'success_rate'    => $alerts->count() > 0
                     ? round(($successfulAlerts->count() / $alerts->count()) * 100, 1)
                     : 0,
-                'avg_matches_per_alert' => round($alerts->avg('matches_count') ?? 0, 1),
+                'avg_matches_per_alert' => round((float) ($alerts->avg('matches_count') ?? 0), 1),
                 'most_active_alert'     => $this->getMostActiveAlert($alerts),
                 'alert_categories'      => $this->getAlertCategories($alerts),
                 'performance_trend'     => $this->getAlertPerformanceTrend($user),

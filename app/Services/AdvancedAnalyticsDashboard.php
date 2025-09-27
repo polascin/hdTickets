@@ -228,7 +228,7 @@ class AdvancedAnalyticsDashboard
             'average_price'            => round($avgPrice, 2),
             'median_price'             => round($medianPrice, 2),
             'price_volatility'         => round($priceStdDev / $avgPrice * 100, 2),
-            'average_price_change'     => round($priceChanges->avg(), 2),
+            'average_price_change'     => round((float) $priceChanges->avg(), 2),
             'price_increase_frequency' => round($priceChanges->filter(fn ($change): bool => $change > 0)->count() / $priceChanges->count() * 100, 2),
             'significant_drops'        => $priceChanges->filter(fn ($change): bool => $change < -20)->count(),
             'significant_increases'    => $priceChanges->filter(fn ($change): bool => $change > 20)->count(),
@@ -242,7 +242,7 @@ class AdvancedAnalyticsDashboard
 
             return [
                 'date'         => $date,
-                'avg_price'    => round($prices->avg(), 2),
+                'avg_price'    => round((float) $prices->avg(), 2),
                 'min_price'    => $prices->min(),
                 'max_price'    => $prices->max(),
                 'price_range'  => $prices->max() - $prices->min(),
@@ -260,10 +260,10 @@ class AdvancedAnalyticsDashboard
 
             return [
                 'platform'          => $platform,
-                'avg_price'         => round($prices->avg(), 2),
+                'avg_price'         => round((float) $prices->avg(), 2),
                 'median_price'      => round($prices->median(), 2),
                 'price_range'       => $prices->max() - $prices->min(),
-                'avg_price_change'  => round($priceChanges->avg(), 2),
+                'avg_price_change'  => round((float) $priceChanges->avg(), 2),
                 'reliability_score' => $this->calculatePlatformReliabilityScore($platformData),
                 'update_frequency'  => $this->calculateUpdateFrequency($platformData),
             ];

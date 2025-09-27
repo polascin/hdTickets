@@ -810,7 +810,7 @@ class AnalyticsExportService
             'platform_url'   => $platform->url,
             'is_active'      => $platform->is_active,
             'total_tickets'  => $platform->scrapedTickets->count(),
-            'avg_price'      => round($platform->scrapedTickets->avg('price') ?: 0, 2),
+            'avg_price'      => round((float) ($platform->scrapedTickets->avg('price') ?: 0), 2),
             'min_price'      => round($platform->scrapedTickets->min('price') ?: 0, 2),
             'max_price'      => round($platform->scrapedTickets->max('price') ?: 0, 2),
             'sports_covered' => $platform->scrapedTickets->pluck('sport')->unique()->count(),

@@ -17,7 +17,12 @@ use Illuminate\Support\Facades\Log;
  * Provides cached, optimized queries for real-time dashboard updates.
  *
  * Features:
- * - Available tickets count with platform breakdown
+ * - Available            return [
+                'change_percentage' => round((float) $change, 1),
+                'direction'         => $change > 0 ? 'up' : ($change < 0 ? 'down' : 'stable'),
+                'current_avg'       => round((float) $thisWeekAvg, 2),
+                'previous_avg'      => round((float) $lastWeekAvg, 2),
+            ];ts count with platform breakdown
  * - Daily, weekly, and monthly trends
  * - Price analytics and trends
  * - Platform performance metrics
@@ -386,7 +391,7 @@ class TicketStatsService
                 : ($todayCount > 0 ? 100 : 0);
 
             return [
-                'value'           => round($change, 1),
+                'value'           => round((float) $change, 1),
                 'direction'       => $change > 0 ? 'up' : ($change < 0 ? 'down' : 'stable'),
                 'today_count'     => $todayCount,
                 'yesterday_count' => $yesterdayCount,
@@ -421,7 +426,7 @@ class TicketStatsService
                 : ($thisWeekCount > 0 ? 100 : 0);
 
             return [
-                'value'           => round($change, 1),
+                'value'           => round((float) $change, 1),
                 'direction'       => $change > 0 ? 'up' : ($change < 0 ? 'down' : 'stable'),
                 'this_week_count' => $thisWeekCount,
                 'last_week_count' => $lastWeekCount,
@@ -442,15 +447,15 @@ class TicketStatsService
     {
         try {
             // Compare average prices from this week vs last week
-            $thisWeekAvg = ScrapedTicket::whereBetween('scraped_at', [
+            $thisWeekAvg = (float) (ScrapedTicket::whereBetween('scraped_at', [
                 Carbon::now()->startOfWeek(),
                 Carbon::now()->endOfWeek(),
-            ])->avg('min_price') ?: 0;
+            ])->avg('min_price') ?: 0);
 
-            $lastWeekAvg = ScrapedTicket::whereBetween('scraped_at', [
+            $lastWeekAvg = (float) (ScrapedTicket::whereBetween('scraped_at', [
                 Carbon::now()->subWeek()->startOfWeek(),
                 Carbon::now()->subWeek()->endOfWeek(),
-            ])->avg('min_price') ?: 0;
+            ])->avg('min_price') ?: 0);
 
             $change = $lastWeekAvg > 0
                 ? (($thisWeekAvg - $lastWeekAvg) / $lastWeekAvg) * 100
@@ -459,8 +464,8 @@ class TicketStatsService
             return [
                 'change_percentage' => round($change, 1),
                 'direction'         => $change > 0 ? 'up' : ($change < 0 ? 'down' : 'stable'),
-                'current_avg'       => round($thisWeekAvg, 2),
-                'previous_avg'      => round($lastWeekAvg, 2),
+                'current_avg'       => round((float) $thisWeekAvg, 2),
+                'previous_avg'      => round((float) $lastWeekAvg, 2),
             ];
         } catch (Exception $e) {
             Log::warning('Failed to calculate price trend', [
@@ -477,8 +482,8 @@ class TicketStatsService
     protected function calculatePopularityTrend(): array
     {
         try {
-            $avgPopularity = ScrapedTicket::available()
-                ->avg('popularity_score') ?: 0;
+            $avgPopularity = (float) (ScrapedTicket::available()
+                ->avg('popularity_score') ?: 0);
 
             return [
                 'average_score' => round($avgPopularity, 1),

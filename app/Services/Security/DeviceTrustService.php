@@ -674,7 +674,7 @@ class DeviceTrustService
     {
         return [
             'total_usage'     => $devices->sum('usage_count'),
-            'average_usage'   => round($devices->avg('usage_count'), 2),
+            'average_usage'   => round((float) $devices->avg('usage_count'), 2),
             'most_used'       => $devices->sortByDesc('usage_count')->first()?->device_name,
             'recent_activity' => $devices->where('last_used_at', '>=', now()->subDays(7))->count(),
         ];
