@@ -198,7 +198,7 @@ class PaymentPlan extends Model
             }
             $currency = '$';
             // You can make this configurable
-            $price = number_format($this->price, 2);
+            $price = number_format((float) $this->price, 2);
 
             return match ($this->billing_cycle) {
                 'monthly'  => "{$currency}{$price}/month",

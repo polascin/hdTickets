@@ -156,7 +156,7 @@ class TicketAlert extends Model
      */
     protected function formattedMaxPrice(): Attribute
     {
-        return Attribute::make(get: fn () => $this->max_price ? $this->currency . ' ' . number_format($this->max_price, 2) : NULL);
+        return Attribute::make(get: fn () => $this->max_price ? $this->currency . ' ' . number_format((float) $this->max_price, 2) : NULL);
     }
 
     /**

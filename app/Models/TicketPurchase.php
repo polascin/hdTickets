@@ -84,8 +84,6 @@ class TicketPurchase extends Model
         'external_error_code',
     ];
 
-    protected $casts = ['deleted_at' => 'datetime'];
-
     /**
      * Get the route key for the model
      */
@@ -308,7 +306,7 @@ class TicketPurchase extends Model
      */
     public function getFormattedTotalAmount(): string
     {
-        return number_format($this->total_amount, 2) . ' ' . strtoupper($this->currency);
+        return number_format((float) $this->total_amount, 2) . ' ' . strtoupper($this->currency);
     }
 
     /**

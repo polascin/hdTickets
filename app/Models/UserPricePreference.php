@@ -317,8 +317,8 @@ class UserPricePreference extends Model
      */
     public function getFormattedPriceRange(): string
     {
-        $min = $this->min_price ? '$' . number_format($this->min_price, 2) : 'Any';
-        $max = '$' . number_format($this->max_price, 2);
+        $min = $this->min_price ? '$' . number_format((float) $this->min_price, 2) : 'Any';
+        $max = '$' . number_format((float) $this->max_price, 2);
 
         return $this->min_price ? "{$min} - {$max}" : "Up to {$max}";
     }

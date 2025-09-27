@@ -88,8 +88,6 @@ class ScrapedTicket extends Model
         'popularity_score',
     ];
 
-    protected $casts = ['event_date' => 'datetime', 'scraped_at' => 'datetime'];
-
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
