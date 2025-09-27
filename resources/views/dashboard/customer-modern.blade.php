@@ -501,7 +501,7 @@
                 <div class="bg-red-50 p-4 rounded-lg">
                   <h3 class="font-semibold text-red-900">Triggered Today</h3>
                   <p class="text-2xl font-bold text-red-600" x-text="stats.price_alerts_triggered">
-                    {{ $statistics['price_alerts_triggered'] }}</p>
+                    {{ $statistics['price_alerts_triggered'] ?? 0 }}</p>
                   <p class="text-sm text-red-700">Price targets reached</p>
                 </div>
               </div>

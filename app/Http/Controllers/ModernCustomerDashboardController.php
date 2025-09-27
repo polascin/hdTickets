@@ -5,7 +5,6 @@ namespace App\Http\Controllers;
 use App\Models\ScrapedTicket;
 use App\Models\TicketAlert;
 use App\Models\User;
-use App\Models\UserPreference;
 use App\Services\AnalyticsService;
 use App\Services\RecommendationService;
 use Carbon\Carbon;
@@ -21,7 +20,7 @@ use Illuminate\Support\Facades\Log;
 
 /**
  * Modern Customer Dashboard Controller
- * 
+ *
  * Provides a comprehensive, state-of-the-art customer dashboard experience
  * with real-time data, modern UI components, and optimized performance.
  */
@@ -57,7 +56,7 @@ class ModernCustomerDashboardController extends Controller
     public function getStats(Request $request): JsonResponse
     {
         $user = Auth::user();
-        
+
         if (!$user || !$this->isAuthorizedUser($user)) {
             return response()->json(['error' => 'Unauthorized'], 403);
         }
@@ -65,8 +64,8 @@ class ModernCustomerDashboardController extends Controller
         $stats = $this->getRealtimeStats($user);
 
         return response()->json([
-            'success' => true,
-            'data' => $stats,
+            'success'   => TRUE,
+            'data'      => $stats,
             'timestamp' => now()->toISOString(),
         ]);
     }
@@ -77,7 +76,7 @@ class ModernCustomerDashboardController extends Controller
     public function getTickets(Request $request): JsonResponse
     {
         $user = Auth::user();
-        
+
         if (!$user || !$this->isAuthorizedUser($user)) {
             return response()->json(['error' => 'Unauthorized'], 403);
         }
@@ -90,14 +89,14 @@ class ModernCustomerDashboardController extends Controller
         $totalCount = $this->getTotalTicketsCount();
 
         return response()->json([
-            'success' => true,
-            'data' => [
-                'tickets' => $tickets,
+            'success' => TRUE,
+            'data'    => [
+                'tickets'    => $tickets,
                 'pagination' => [
                     'current_page' => $page,
-                    'per_page' => $limit,
-                    'total' => $totalCount,
-                    'last_page' => ceil($totalCount / $limit),
+                    'per_page'     => $limit,
+                    'total'        => $totalCount,
+                    'last_page'    => ceil($totalCount / $limit),
                 ],
             ],
         ]);
@@ -109,7 +108,7 @@ class ModernCustomerDashboardController extends Controller
     public function getAlerts(Request $request): JsonResponse
     {
         $user = Auth::user();
-        
+
         if (!$user || !$this->isAuthorizedUser($user)) {
             return response()->json(['error' => 'Unauthorized'], 403);
         }
@@ -117,8 +116,8 @@ class ModernCustomerDashboardController extends Controller
         $alerts = $this->getUserAlerts($user);
 
         return response()->json([
-            'success' => true,
-            'data' => $alerts,
+            'success' => TRUE,
+            'data'    => $alerts,
         ]);
     }
 
@@ -128,7 +127,7 @@ class ModernCustomerDashboardController extends Controller
     public function getRecommendations(Request $request): JsonResponse
     {
         $user = Auth::user();
-        
+
         if (!$user || !$this->isAuthorizedUser($user)) {
             return response()->json(['error' => 'Unauthorized'], 403);
         }
@@ -137,16 +136,16 @@ class ModernCustomerDashboardController extends Controller
             $recommendations = $this->recommendationService->getPersonalizedRecommendations($user);
 
             return response()->json([
-                'success' => true,
-                'data' => $recommendations,
+                'success' => TRUE,
+                'data'    => $recommendations,
             ]);
         } catch (Exception $e) {
             Log::error('Failed to get recommendations: ' . $e->getMessage());
-            
+
             return response()->json([
-                'success' => false,
-                'error' => 'Failed to load recommendations',
-                'data' => $this->getFallbackRecommendations(),
+                'success' => FALSE,
+                'error'   => 'Failed to load recommendations',
+                'data'    => $this->getFallbackRecommendations(),
             ]);
         }
     }
@@ -157,7 +156,7 @@ class ModernCustomerDashboardController extends Controller
     public function getMarketInsights(Request $request): JsonResponse
     {
         $user = Auth::user();
-        
+
         if (!$user || !$this->isAuthorizedUser($user)) {
             return response()->json(['error' => 'Unauthorized'], 403);
         }
@@ -166,16 +165,16 @@ class ModernCustomerDashboardController extends Controller
             $insights = $this->analyticsService->getMarketInsights($user);
 
             return response()->json([
-                'success' => true,
-                'data' => $insights,
+                'success' => TRUE,
+                'data'    => $insights,
             ]);
         } catch (Exception $e) {
             Log::error('Failed to get market insights: ' . $e->getMessage());
-            
+
             return response()->json([
-                'success' => false,
-                'error' => 'Failed to load market insights',
-                'data' => [],
+                'success' => FALSE,
+                'error'   => 'Failed to load market insights',
+                'data'    => [],
             ]);
         }
     }
@@ -194,16 +193,16 @@ class ModernCustomerDashboardController extends Controller
     private function getDashboardData(User $user): array
     {
         $cacheKey = "customer_dashboard_{$user->id}";
-        
+
         return Cache::remember($cacheKey, 300, function () use ($user) {
             return [
-                'user' => $user->load(['subscription', 'preferences']),
-                'statistics' => $this->getDashboardStatistics($user),
-                'recent_tickets' => $this->getRecentTickets($user, 10),
-                'active_alerts' => $this->getUserAlerts($user),
-                'recommendations' => $this->getBasicRecommendations($user),
-                'market_insights' => $this->getBasicMarketInsights($user),
-                'quick_actions' => $this->getQuickActions($user),
+                'user'                => $user->load(['subscription', 'preferences']),
+                'statistics'          => $this->getDashboardStatistics($user),
+                'recent_tickets'      => $this->getRecentTickets($user, 10),
+                'active_alerts'       => $this->getUserAlerts($user),
+                'recommendations'     => $this->getBasicRecommendations($user),
+                'market_insights'     => $this->getBasicMarketInsights($user),
+                'quick_actions'       => $this->getQuickActions($user),
                 'subscription_status' => $this->getSubscriptionStatus($user),
             ];
         });
@@ -216,18 +215,19 @@ class ModernCustomerDashboardController extends Controller
     {
         try {
             return [
-                'available_tickets' => ScrapedTicket::where('is_available', true)
+                'available_tickets' => ScrapedTicket::where('is_available', TRUE)
                     ->where('status', 'active')->count(),
                 'new_today' => ScrapedTicket::whereDate('created_at', today())
-                    ->where('is_available', true)->where('status', 'active')->count(),
+                    ->where('is_available', TRUE)->where('status', 'active')->count(),
                 'monitored_events' => $this->getMonitoredEventsCount($user),
-                'active_alerts' => TicketAlert::where('user_id', $user->id)
+                'active_alerts'    => TicketAlert::where('user_id', $user->id)
                     ->where('status', 'active')->count(),
-                'total_savings' => $this->calculateTotalSavings($user),
+                'total_savings'          => $this->calculateTotalSavings($user),
                 'price_alerts_triggered' => $this->getPriceAlertsTriggeredToday($user),
             ];
         } catch (Exception $e) {
             Log::error('Failed to get realtime stats: ' . $e->getMessage());
+
             return $this->getFallbackStats();
         }
     }
@@ -239,22 +239,24 @@ class ModernCustomerDashboardController extends Controller
     {
         try {
             return [
-                'available_tickets' => ScrapedTicket::where('is_available', true)
+                'available_tickets' => ScrapedTicket::where('is_available', TRUE)
                     ->where('status', 'active')->count(),
                 'new_today' => ScrapedTicket::whereDate('created_at', today())
-                    ->where('is_available', true)->where('status', 'active')->count(),
-                'unique_events' => ScrapedTicket::where('is_available', true)
+                    ->where('is_available', TRUE)->where('status', 'active')->count(),
+                'unique_events' => ScrapedTicket::where('is_available', TRUE)
                     ->where('status', 'active')->distinct('title')->count(),
                 'monitored_events' => $this->getMonitoredEventsCount($user),
-                'active_alerts' => TicketAlert::where('user_id', $user->id)
+                'active_alerts'    => TicketAlert::where('user_id', $user->id)
                     ->where('status', 'active')->count(),
                 'total_savings' => $this->calculateTotalSavings($user),
-                'average_price' => ScrapedTicket::where('is_available', true)
+                'average_price' => ScrapedTicket::where('is_available', TRUE)
                     ->where('status', 'active')->avg('min_price') ?? 0,
-                'price_trend' => $this->calculatePriceTrend(),
+                'price_trend'            => $this->calculatePriceTrend(),
+                'price_alerts_triggered' => $this->getPriceAlertsTriggeredToday($user),
             ];
         } catch (Exception $e) {
             Log::error('Failed to get dashboard statistics: ' . $e->getMessage());
+
             return $this->getFallbackStats();
         }
     }
@@ -266,11 +268,11 @@ class ModernCustomerDashboardController extends Controller
     {
         try {
             return ScrapedTicket::select([
-                'id', 'title', 'venue', 'event_date', 'min_price', 
+                'id', 'title', 'venue', 'event_date', 'min_price',
                 'max_price', 'platform', 'event_type', 'created_at',
-                'external_id', 'ticket_url'
+                'external_id', 'ticket_url',
             ])
-            ->where('is_available', true)
+            ->where('is_available', TRUE)
             ->where('status', 'active')
             ->when($user->preferences, function ($query) use ($user) {
                 // Apply user preferences for personalization
@@ -286,23 +288,24 @@ class ModernCustomerDashboardController extends Controller
             ->get()
             ->map(function ($ticket) {
                 return [
-                    'id' => $ticket->id,
-                    'event_name' => $ticket->title,
-                    'venue_name' => $ticket->venue ?: 'TBD',
-                    'event_date' => $ticket->event_date ? Carbon::parse($ticket->event_date)->format('M j, Y g:i A') : 'TBD',
-                    'price' => number_format((float) $ticket->min_price, 2),
-                    'original_price' => $ticket->max_price ? number_format((float) $ticket->max_price, 2) : null,
-                    'discount' => $ticket->max_price && $ticket->min_price < $ticket->max_price ? 
-                        round((($ticket->max_price - $ticket->min_price) / $ticket->max_price) * 100) : null,
-                    'platform' => ucfirst($ticket->platform),
-                    'category' => ucfirst($ticket->event_type),
-                    'image_url' => null, // Not available in current schema
+                    'id'             => $ticket->id,
+                    'event_name'     => $ticket->title,
+                    'venue_name'     => $ticket->venue ?: 'TBD',
+                    'event_date'     => $ticket->event_date ? Carbon::parse($ticket->event_date)->format('M j, Y g:i A') : 'TBD',
+                    'price'          => number_format((float) $ticket->min_price, 2),
+                    'original_price' => $ticket->max_price ? number_format((float) $ticket->max_price, 2) : NULL,
+                    'discount'       => $ticket->max_price && $ticket->min_price < $ticket->max_price ?
+                        round((($ticket->max_price - $ticket->min_price) / $ticket->max_price) * 100) : NULL,
+                    'platform'     => ucfirst($ticket->platform),
+                    'category'     => ucfirst($ticket->event_type),
+                    'image_url'    => NULL, // Not available in current schema
                     'external_url' => $ticket->ticket_url,
-                    'time_ago' => $ticket->created_at->diffForHumans(),
+                    'time_ago'     => $ticket->created_at->diffForHumans(),
                 ];
             });
         } catch (Exception $e) {
             Log::error('Failed to get recent tickets: ' . $e->getMessage());
+
             return collect([]);
         }
     }
@@ -320,16 +323,17 @@ class ModernCustomerDashboardController extends Controller
                 ->get()
                 ->map(function ($alert) {
                     return [
-                        'id' => $alert->id,
-                        'title' => $alert->event_name ?? $alert->keyword,
-                        'criteria' => $alert->criteria,
-                        'status' => $alert->is_triggered ? 'triggered' : 'active',
-                        'created_at' => $alert->created_at->diffForHumans(),
+                        'id'           => $alert->id,
+                        'title'        => $alert->event_name ?? $alert->keyword,
+                        'criteria'     => $alert->criteria,
+                        'status'       => $alert->is_triggered ? 'triggered' : 'active',
+                        'created_at'   => $alert->created_at->diffForHumans(),
                         'last_checked' => $alert->updated_at->diffForHumans(),
                     ];
                 });
         } catch (Exception $e) {
             Log::error('Failed to get user alerts: ' . $e->getMessage());
+
             return collect([]);
         }
     }
@@ -342,7 +346,7 @@ class ModernCustomerDashboardController extends Controller
         try {
             // Get popular events based on user's activity
             $popular = ScrapedTicket::select('title', 'venue', 'event_type', DB::raw('COUNT(*) as popularity'))
-                ->where('is_available', true)
+                ->where('is_available', TRUE)
                 ->where('status', 'active')
                 ->groupBy(['title', 'venue', 'event_type'])
                 ->orderBy('popularity', 'desc')
@@ -354,13 +358,14 @@ class ModernCustomerDashboardController extends Controller
                     return [
                         'event_name' => $event->title,
                         'venue_name' => $event->venue ?: 'TBD',
-                        'category' => ucfirst($event->event_type),
+                        'category'   => ucfirst($event->event_type),
                         'popularity' => $event->popularity,
                     ];
                 })->toArray(),
             ];
         } catch (Exception $e) {
             Log::error('Failed to get basic recommendations: ' . $e->getMessage());
+
             return ['popular_events' => []];
         }
     }
@@ -373,15 +378,16 @@ class ModernCustomerDashboardController extends Controller
         try {
             return [
                 'trending_categories' => $this->getTrendingCategories(),
-                'price_alerts' => $this->getActivePriceAlerts($user),
-                'market_activity' => $this->getMarketActivity(),
+                'price_alerts'        => $this->getActivePriceAlerts($user),
+                'market_activity'     => $this->getMarketActivity(),
             ];
         } catch (Exception $e) {
             Log::error('Failed to get basic market insights: ' . $e->getMessage());
+
             return [
                 'trending_categories' => [],
-                'price_alerts' => [],
-                'market_activity' => [],
+                'price_alerts'        => [],
+                'market_activity'     => [],
             ];
         }
     }
@@ -393,32 +399,32 @@ class ModernCustomerDashboardController extends Controller
     {
         return [
             [
-                'title' => 'Browse Tickets',
+                'title'       => 'Browse Tickets',
                 'description' => 'Discover new events and tickets',
-                'icon' => 'search',
-                'url' => route('tickets.main'),
-                'color' => 'blue',
+                'icon'        => 'search',
+                'url'         => route('tickets.main'),
+                'color'       => 'blue',
             ],
             [
-                'title' => 'Create Alert',
+                'title'       => 'Create Alert',
                 'description' => 'Set up price monitoring',
-                'icon' => 'bell',
-                'url' => route('tickets.alerts.create'),
-                'color' => 'amber',
+                'icon'        => 'bell',
+                'url'         => route('tickets.alerts.create'),
+                'color'       => 'amber',
             ],
             [
-                'title' => 'My Alerts',
+                'title'       => 'My Alerts',
                 'description' => 'Manage your alerts',
-                'icon' => 'list',
-                'url' => route('tickets.alerts.index'),
-                'color' => 'green',
+                'icon'        => 'list',
+                'url'         => route('tickets.alerts.index'),
+                'color'       => 'green',
             ],
             [
-                'title' => 'Account Settings',
+                'title'       => 'Account Settings',
                 'description' => 'Manage your profile',
-                'icon' => 'settings',
-                'url' => route('profile.show'),
-                'color' => 'purple',
+                'icon'        => 'settings',
+                'url'         => route('profile.show'),
+                'color'       => 'purple',
             ],
         ];
     }
@@ -430,23 +436,24 @@ class ModernCustomerDashboardController extends Controller
     {
         try {
             $subscription = $user->subscription;
-            
+
             return [
-                'is_active' => $user->hasActiveSubscription(),
-                'plan_name' => $subscription?->plan_name ?? 'Free Trial',
-                'next_billing' => $subscription?->next_billing_date?->format('M j, Y'),
-                'days_remaining' => $user->hasActiveSubscription() ? 
-                    null : $user->getFreeTrialDaysRemaining(),
+                'is_active'      => $user->hasActiveSubscription(),
+                'plan_name'      => $subscription?->plan_name ?? 'Free Trial',
+                'next_billing'   => $subscription?->next_billing_date?->format('M j, Y'),
+                'days_remaining' => $user->hasActiveSubscription() ?
+                    NULL : $user->getFreeTrialDaysRemaining(),
                 'usage_stats' => [
-                    'alerts_used' => TicketAlert::where('user_id', $user->id)->count(),
+                    'alerts_used'  => TicketAlert::where('user_id', $user->id)->count(),
                     'alerts_limit' => $user->hasActiveSubscription() ? 'unlimited' : 5,
                 ],
             ];
         } catch (Exception $e) {
             Log::error('Failed to get subscription status: ' . $e->getMessage());
+
             return [
-                'is_active' => false,
-                'plan_name' => 'Unknown',
+                'is_active'   => FALSE,
+                'plan_name'   => 'Unknown',
                 'usage_stats' => ['alerts_used' => 0, 'alerts_limit' => 5],
             ];
         }
@@ -470,12 +477,12 @@ class ModernCustomerDashboardController extends Controller
     private function calculatePriceTrend(): array
     {
         try {
-            $currentAvg = ScrapedTicket::where('is_available', true)
+            $currentAvg = ScrapedTicket::where('is_available', TRUE)
                 ->where('status', 'active')
                 ->whereDate('created_at', '>=', today()->subDays(7))
                 ->avg('min_price') ?? 0;
-                
-            $previousAvg = ScrapedTicket::where('is_available', true)
+
+            $previousAvg = ScrapedTicket::where('is_available', TRUE)
                 ->where('status', 'active')
                 ->whereDate('created_at', '<', today()->subDays(7))
                 ->whereDate('created_at', '>=', today()->subDays(14))
@@ -484,7 +491,7 @@ class ModernCustomerDashboardController extends Controller
             $trend = $previousAvg > 0 ? (($currentAvg - $previousAvg) / $previousAvg) * 100 : 0;
 
             return [
-                'direction' => $trend > 0 ? 'up' : ($trend < 0 ? 'down' : 'stable'),
+                'direction'  => $trend > 0 ? 'up' : ($trend < 0 ? 'down' : 'stable'),
                 'percentage' => abs(round($trend, 1)),
             ];
         } catch (Exception $e) {
@@ -502,7 +509,7 @@ class ModernCustomerDashboardController extends Controller
 
     private function getTotalTicketsCount(): int
     {
-        return ScrapedTicket::where('is_available', true)
+        return ScrapedTicket::where('is_available', TRUE)
             ->where('status', 'active')->count();
     }
 
@@ -510,7 +517,7 @@ class ModernCustomerDashboardController extends Controller
     {
         try {
             return ScrapedTicket::select('event_type', DB::raw('COUNT(*) as count'))
-                ->where('is_available', true)
+                ->where('is_available', TRUE)
                 ->where('status', 'active')
                 ->whereDate('created_at', '>=', today()->subDays(7))
                 ->groupBy('event_type')
@@ -520,7 +527,7 @@ class ModernCustomerDashboardController extends Controller
                 ->map(function ($item) {
                     return [
                         'category' => ucfirst($item->event_type),
-                        'count' => $item->count,
+                        'count'    => $item->count,
                     ];
                 })
                 ->toArray();
@@ -537,9 +544,9 @@ class ModernCustomerDashboardController extends Controller
             ->get()
             ->map(function ($alert) {
                 return [
-                    'event_name' => $alert->alert_name,
+                    'event_name'   => $alert->alert_name,
                     'target_price' => $alert->max_price ?? $alert->min_price,
-                    'status' => $alert->status === 'triggered' ? 'triggered' : 'monitoring',
+                    'status'       => $alert->status === 'triggered' ? 'triggered' : 'monitoring',
                 ];
             })
             ->toArray();
@@ -550,10 +557,10 @@ class ModernCustomerDashboardController extends Controller
         try {
             return [
                 'tickets_added_today' => ScrapedTicket::whereDate('created_at', today())->count(),
-                'active_platforms' => ScrapedTicket::where('is_available', true)
+                'active_platforms'    => ScrapedTicket::where('is_available', TRUE)
                     ->where('status', 'active')
                     ->distinct('platform')->count(),
-                'average_discount' => ScrapedTicket::where('is_available', true)
+                'average_discount' => ScrapedTicket::where('is_available', TRUE)
                     ->where('status', 'active')
                     ->whereNotNull('max_price')
                     ->where('min_price', '<', 'max_price')
@@ -563,8 +570,8 @@ class ModernCustomerDashboardController extends Controller
         } catch (Exception $e) {
             return [
                 'tickets_added_today' => 0,
-                'active_platforms' => 0,
-                'average_discount' => 0,
+                'active_platforms'    => 0,
+                'average_discount'    => 0,
             ];
         }
     }
@@ -572,23 +579,24 @@ class ModernCustomerDashboardController extends Controller
     private function getFallbackStats(): array
     {
         return [
-            'available_tickets' => 0,
-            'new_today' => 0,
-            'unique_events' => 0,
-            'monitored_events' => 0,
-            'active_alerts' => 0,
-            'total_savings' => 0.0,
-            'average_price' => 0.0,
-            'price_trend' => ['direction' => 'stable', 'percentage' => 0],
+            'available_tickets'      => 0,
+            'new_today'              => 0,
+            'unique_events'          => 0,
+            'monitored_events'       => 0,
+            'active_alerts'          => 0,
+            'total_savings'          => 0.0,
+            'average_price'          => 0.0,
+            'price_trend'            => ['direction' => 'stable', 'percentage' => 0],
+            'price_alerts_triggered' => 0,
         ];
     }
 
     private function getFallbackRecommendations(): array
     {
         return [
-            'popular_events' => [],
+            'popular_events'         => [],
             'recommended_categories' => [],
-            'trending_venues' => [],
+            'trending_venues'        => [],
         ];
     }
 }
