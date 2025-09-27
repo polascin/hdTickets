@@ -418,113 +418,107 @@
     </div>
   </div>
 @endsection
-</div>
-</div>
-</div>
-
-</div>
-@endsection
 
 @push('scripts')
-<script>
-  function enhancedCustomerDashboard() {
-    return {
-      loading: false,
-      showNotifications: false,
-      errorMessage: '',
+  <script>
+    function enhancedCustomerDashboard() {
+      return {
+        loading: false,
+        showNotifications: false,
+        errorMessage: '',
 
-      // Data properties
-      statistics: @json($statistics ?? []),
-      recent_tickets: @json($recent_tickets ?? []),
-      recommendations: @json($recommendations ?? []),
-      alerts_data: @json($alerts_data ?? []),
-      system_status: @json($system_status ?? []),
-      notifications: @json($notifications ?? []),
+        // Data properties
+        statistics: @json($statistics ?? []),
+        recent_tickets: @json($recent_tickets ?? []),
+        recommendations: @json($recommendations ?? []),
+        alerts_data: @json($alerts_data ?? []),
+        system_status: @json($system_status ?? []),
+        notifications: @json($notifications ?? []),
 
-      init() {
-        console.log('Enhanced Customer Dashboard initialized');
-        this.setupAutoRefresh();
-      },
+        init() {
+          console.log('Enhanced Customer Dashboard initialized');
+          this.setupAutoRefresh();
+        },
 
-      setupAutoRefresh() {
-        setInterval(() => {
-          if (!this.loading) {
-            this.refreshDashboard();
+        setupAutoRefresh() {
+          setInterval(() => {
+            if (!this.loading) {
+              this.refreshDashboard();
+            }
+          }, 120000); // 2 minutes
+        },
+
+        async refreshDashboard() {
+          this.loading = true;
+          this.errorMessage = '';
+
+          try {
+            const response = await fetch('/api/v1/dashboard/realtime', {
+              method: 'GET',
+              headers: {
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                'Accept': 'application/json',
+              },
+              credentials: 'same-origin'
+            });
+
+            if (!response.ok) {
+              throw new Error(`HTTP error! status: ${response.status}`);
+            }
+
+            const data = await response.json();
+
+            if (data.success) {
+              // Update dashboard data
+              Object.assign(this, data.data);
+              console.log('Dashboard refreshed successfully');
+            } else {
+              this.errorMessage = data.message || 'Failed to refresh dashboard';
+            }
+          } catch (error) {
+            console.error('Dashboard refresh failed:', error);
+            this.errorMessage = 'Unable to refresh dashboard. Please try again.';
+          } finally {
+            this.loading = false;
           }
-        }, 120000); // 2 minutes
-      },
+        },
 
-      async refreshDashboard() {
-        this.loading = true;
-        this.errorMessage = '';
+        formatNumber(number) {
+          if (typeof number !== 'number') return '0';
+          return new Intl.NumberFormat().format(number);
+        },
 
-        try {
-          const response = await fetch('/api/v1/dashboard/realtime', {
-            method: 'GET',
-            headers: {
-              'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
-              'Accept': 'application/json',
-            },
-            credentials: 'same-origin'
+        formatPrice(price) {
+          if (typeof price !== 'number') return '$0';
+          return new Intl.NumberFormat('en-US', {
+            style: 'currency',
+            currency: 'USD'
+          }).format(price);
+        },
+
+        formatDate(dateString) {
+          if (!dateString) return '';
+          const date = new Date(dateString);
+          return date.toLocaleDateString('en-US', {
+            month: 'short',
+            day: 'numeric',
+            year: date.getFullYear() !== new Date().getFullYear() ? 'numeric' : undefined
           });
+        },
 
-          if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
-          }
+        formatTime(dateString) {
+          if (!dateString) return '';
+          const date = new Date(dateString);
+          const now = new Date();
+          const diffMs = now - date;
+          const diffMins = Math.floor(diffMs / 60000);
 
-          const data = await response.json();
-
-          if (data.success) {
-            // Update dashboard data
-            Object.assign(this, data.data);
-            console.log('Dashboard refreshed successfully');
-          } else {
-            this.errorMessage = data.message || 'Failed to refresh dashboard';
-          }
-        } catch (error) {
-          console.error('Dashboard refresh failed:', error);
-          this.errorMessage = 'Unable to refresh dashboard. Please try again.';
-        } finally {
-          this.loading = false;
+          if (diffMins < 1) return 'Just now';
+          if (diffMins < 60) return `${diffMins}m ago`;
+          if (diffMins < 1440) return `${Math.floor(diffMins / 60)}h ago`;
+          return date.toLocaleDateString();
         }
-      },
-
-      formatNumber(number) {
-        if (typeof number !== 'number') return '0';
-        return new Intl.NumberFormat().format(number);
-      },
-
-      formatPrice(price) {
-        if (typeof price !== 'number') return '$0';
-        return new Intl.NumberFormat('en-US', {
-          style: 'currency',
-          currency: 'USD'
-        }).format(price);
-      },
-
-      formatDate(dateString) {
-        if (!dateString) return '';
-        const date = new Date(dateString);
-        return date.toLocaleDateString('en-US', {
-          month: 'short',
-          day: 'numeric',
-          year: date.getFullYear() !== new Date().getFullYear() ? 'numeric' : undefined
-        });
-      },
-
-      formatTime(dateString) {
-        if (!dateString) return '';
-        const date = new Date(dateString);
-        const now = new Date();
-        const diffMs = now - date;
-        const diffMins = Math.floor(diffMs / 60000);
-
-        if (diffMins < 1) return 'Just now';
-        if (diffMins < 60) return `${diffMins}m ago`;
-        if (diffMins < 1440) return `${Math.floor(diffMins / 60)}h ago`;
-        return date.toLocaleDateString();
-      }
-    };
-  }
-</script>
+      };
+    }
+  </script>
 @endpush
