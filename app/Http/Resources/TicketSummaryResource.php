@@ -34,7 +34,7 @@ class TicketSummaryResource extends JsonResource
             'popularity_score' => $t->popularity_score ?? 0,
             // Derived placeholders (controller helper analogues could migrate here later)
             'price_trend'  => 'stable',
-            'demand_level' => $this->getDemandLevel($t->popularity_score ?? 0),
+            'demand_level' => $this->getDemandLevel((int) ($t->popularity_score ?? 0)),
         ];
     }
 
