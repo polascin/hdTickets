@@ -11,6 +11,7 @@ use App\Http\Controllers\Auth\PasswordResetLinkController;
 use App\Http\Controllers\Auth\PublicRegistrationController;
 use App\Http\Controllers\Auth\PublicRegistrationValidationController;
 use App\Http\Controllers\Auth\RegisteredUserController;
+use App\Http\Controllers\Auth\ComprehensiveRegistrationController;
 use App\Http\Controllers\Auth\TwoFactorController;
 use App\Http\Controllers\Auth\VerifyEmailController;
 use App\Http\Middleware\EnhancedLoginSecurity;
@@ -49,6 +50,29 @@ Route::middleware(['guest', EnhancedLoginSecurity::class])->group(function (): v
         ->name('register');
 
     Route::post('register', [RegisteredUserController::class, 'store']);
+
+    // Comprehensive registration routes (recommended)
+    Route::get('register/comprehensive', [ComprehensiveRegistrationController::class, 'create'])
+        ->name('register.comprehensive');
+
+    Route::post('register/comprehensive', [ComprehensiveRegistrationController::class, 'store']);
+
+    // Comprehensive registration AJAX endpoints
+    Route::post('register/comprehensive/check-email', [ComprehensiveRegistrationController::class, 'checkEmailAvailability'])
+        ->name('register.comprehensive.check-email')
+        ->middleware('throttle:30,1');
+
+    Route::post('register/comprehensive/check-username', [ComprehensiveRegistrationController::class, 'checkUsernameAvailability'])
+        ->name('register.comprehensive.check-username')
+        ->middleware('throttle:30,1');
+
+    Route::post('register/comprehensive/validate-password', [ComprehensiveRegistrationController::class, 'validatePasswordStrength'])
+        ->name('register.comprehensive.validate-password')
+        ->middleware('throttle:60,1');
+
+    Route::post('register/comprehensive/validate-step', [ComprehensiveRegistrationController::class, 'validateStep'])
+        ->name('register.comprehensive.validate-step')
+        ->middleware('throttle:60,1');
 
     // Public registration routes (alternative path)
     Route::get('register/public', [PublicRegistrationController::class, 'create'])

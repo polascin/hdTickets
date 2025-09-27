@@ -124,6 +124,12 @@ class SettingsExportController extends Controller
         try {
             $file = $request->file('import_file');
             $content = file_get_contents($file->getRealPath());
+            if ($content === false) {
+                return response()->json([
+                    'success' => FALSE,
+                    'message' => 'Could not read the uploaded file.',
+                ], 422);
+            }
             $importData = json_decode($content, TRUE);
 
             if (json_last_error() !== JSON_ERROR_NONE) {
@@ -198,6 +204,12 @@ class SettingsExportController extends Controller
         try {
             $file = $request->file('import_file');
             $content = file_get_contents($file->getRealPath());
+            if ($content === false) {
+                return response()->json([
+                    'success' => FALSE,
+                    'message' => 'Could not read the uploaded file.',
+                ], 422);
+            }
             $importData = json_decode($content, TRUE);
 
             if (json_last_error() !== JSON_ERROR_NONE) {

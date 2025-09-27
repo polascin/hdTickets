@@ -65,7 +65,15 @@ class EnhancedLoginSecurity
 
         // Decode and validate fingerprint
         try {
-            $decoded = json_decode(base64_decode((string) $fingerprint, TRUE), TRUE);
+            $decodedBase64 = base64_decode((string) $fingerprint, TRUE);
+            if ($decodedBase64 === false) {
+                Log::warning('Invalid base64 fingerprint detected', [
+                    'ip'         => $request->ip(),
+                    'user_agent' => $request->userAgent(),
+                ]);
+                throw new InvalidArgumentException('Invalid base64 fingerprint');
+            }
+            $decoded = json_decode($decodedBase64, TRUE);
 
             // Validate fingerprint structure
             $requiredFields = ['userAgent', 'language', 'platform', 'timezone', 'screen', 'canvas'];

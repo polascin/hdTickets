@@ -204,6 +204,9 @@ class WelcomePageMiddleware
             // Example: Use a free GeoIP service
             try {
                 $response = file_get_contents("http://ip-api.com/json/{$ip}?fields=countryCode");
+                if ($response === false) {
+                    return null;
+                }
                 $data = json_decode($response, TRUE);
 
                 return $data['countryCode'] ?? NULL;
