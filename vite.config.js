@@ -14,9 +14,6 @@ export default defineConfig({
         'resources/css/tailwind.css',
         // Core application assets
         'resources/css/app.css',
-        'resources/css/app-v3.css',
-        'resources/css/dashboard-enhanced.css',
-        'resources/css/dashboard-modern.css',
         'resources/js/app.js',
         // Dashboard dedicated entry (code-split customer dashboard)
         'resources/js/dashboard/index.js',
@@ -27,6 +24,9 @@ export default defineConfig({
         'resources/js/frameworks/vue/index.ts',
         'resources/js/frameworks/angular/index.ts',
         'resources/js/frameworks/shared/index.ts',
+
+        // New React Application (Main Entry)
+        'resources/js/react-app/index.tsx',
 
         // Ticket system assets
         'resources/js/tickets/index.js',
