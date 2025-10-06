@@ -15,6 +15,10 @@ class DatabaseSeeder extends Seeder
             LegalDocumentSeeder::class,
             UserSeeder::class,
             SportsEventsSeeder::class,
+            PaymentPlansSeeder::class,
+            DashboardTestSeeder::class,
+            AdminPanelSeeder::class,
+            RBACSeeder::class,
         ]);
     }
 }

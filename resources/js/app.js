@@ -173,6 +173,24 @@ function setupEventHandlers(
 // Make Alpine available globally
 window.Alpine = Alpine;
 
+// Framework initialization (conditional loading)
+if (document.querySelector('[data-react-component]')) {
+  import('./frameworks/react/index.tsx');
+}
+
+if (document.querySelector('[data-vue-component]')) {
+  import('./frameworks/vue/index.ts');
+}
+
+if (document.querySelector('[data-angular-component]')) {
+  import('./frameworks/angular/index.ts');
+}
+
+// Initialize shared utilities for all frameworks
+import('./frameworks/shared/index.ts').then(({ initSharedUtils }) => {
+  initSharedUtils();
+});
+
 // Alpine components
 import './components/charts';
 import './components/navigation';

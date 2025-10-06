@@ -17,6 +17,7 @@
     "isolatedModules": true,
     "useDefineForClassFields": true,
     "baseUrl": ".",
+    "jsx": "react-jsx",
     "paths": {
       "@/*": [
         "./resources/js/*"
@@ -32,12 +33,32 @@
       ],
       "@images/*": [
         "./resources/images/*"
+      ],
+      "@shared/*": [
+        "./resources/js/frameworks/shared/*"
+      ],
+      "@shared": [
+        "./resources/js/frameworks/shared/index"
+      ],
+      "@frameworks/*": [
+        "./resources/js/frameworks/*"
+      ],
+      "@react/*": [
+        "./resources/js/frameworks/react/*"
+      ],
+      "@vue/*": [
+        "./resources/js/frameworks/vue/*"
+      ],
+      "@angular/*": [
+        "./resources/js/frameworks/angular/*"
       ]
     }
   },
   "include": [
     "resources/js/**/*.ts",
+    "resources/js/**/*.tsx",
     "resources/js/**/*.js",
+    "resources/js/**/*.jsx",
     "resources/js/**/*.vue"
   ],
   "exclude": [

@@ -1,9 +1,13 @@
 import laravel from 'laravel-vite-plugin';
+import react from '@vitejs/plugin-react';
+import vue from '@vitejs/plugin-vue';
 import { resolve } from 'path';
 import { defineConfig } from 'vite';
 
 export default defineConfig({
   plugins: [
+    react(),
+    vue(),
     laravel({
       input: [
         // Tailwind CSS - Main utility-first CSS framework
@@ -17,6 +21,12 @@ export default defineConfig({
         // Dashboard dedicated entry (code-split customer dashboard)
         'resources/js/dashboard/index.js',
         'resources/js/dashboard/modern-customer-dashboard.js',
+
+        // Framework entry points
+        'resources/js/frameworks/react/index.tsx',
+        'resources/js/frameworks/vue/index.ts',
+        'resources/js/frameworks/angular/index.ts',
+        'resources/js/frameworks/shared/index.ts',
 
         // Ticket system assets
         'resources/js/tickets/index.js',
@@ -47,6 +57,11 @@ export default defineConfig({
       '@utils': resolve(__dirname, 'resources/js/utils'),
       '@styles': resolve(__dirname, 'resources/css'),
       '@tickets': resolve(__dirname, 'resources/js/tickets'),
+      '@frameworks': resolve(__dirname, 'resources/js/frameworks'),
+      '@react': resolve(__dirname, 'resources/js/frameworks/react'),
+      '@vue': resolve(__dirname, 'resources/js/frameworks/vue'),
+      '@angular': resolve(__dirname, 'resources/js/frameworks/angular'),
+      '@shared': resolve(__dirname, 'resources/js/frameworks/shared'),
     },
   },
 
@@ -65,6 +80,15 @@ export default defineConfig({
           if (id.includes('node_modules')) {
             if (id.includes('alpinejs')) {
               return 'alpine';
+            }
+            if (id.includes('react') || id.includes('react-dom')) {
+              return 'react-framework';
+            }
+            if (id.includes('vue') || id.includes('@vue')) {
+              return 'vue-framework';
+            }
+            if (id.includes('@angular') || id.includes('rxjs') || id.includes('zone.js')) {
+              return 'angular-framework';
             }
             if (id.includes('axios')) {
               return 'http';
@@ -91,6 +115,18 @@ export default defineConfig({
           }
           if (id.includes('/resources/js/tickets/')) {
             return 'tickets';
+          }
+          if (id.includes('/resources/js/frameworks/react/')) {
+            return 'react-components';
+          }
+          if (id.includes('/resources/js/frameworks/vue/')) {
+            return 'vue-components';
+          }
+          if (id.includes('/resources/js/frameworks/angular/')) {
+            return 'angular-components';
+          }
+          if (id.includes('/resources/js/frameworks/shared/')) {
+            return 'shared-components';
           }
           if (id.includes('/resources/css/components/')) {
             return 'component-styles';
@@ -195,6 +231,17 @@ export default defineConfig({
       'chart.js',
       'laravel-echo',
       'pusher-js',
+      'react',
+      'react-dom',
+      'react-router-dom',
+      'vue',
+      '@vue/runtime-dom',
+      'vue-router',
+      'pinia',
+      '@angular/core',
+      '@angular/common',
+      '@angular/platform-browser',
+      'rxjs',
     ],
     // Exclude from optimization
     exclude: [
