@@ -149,5 +149,4 @@ return [
 
     // Comprehensive Login Configuration
     'comprehensive_login' => env('AUTH_COMPREHENSIVE_LOGIN', TRUE),
-    'enhanced_login' => env('AUTH_ENHANCED_LOGIN', TRUE),
 ];

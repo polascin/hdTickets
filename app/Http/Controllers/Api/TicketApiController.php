@@ -378,11 +378,11 @@ class TicketApiController extends Controller
             // Broadcast price change event
             event(new TicketPriceChanged(
                 ticketId: $ticketId,
+                eventName: $ticket->event_name,
                 platform: $ticket->platform_name,
                 oldPrice: $oldPrice,
                 newPrice: $newPrice,
-                currency: $ticket->currency ?? 'USD',
-                eventTitle: $ticket->event_name,
+                url: $ticket->external_url,
             ));
 
             return response()->json([

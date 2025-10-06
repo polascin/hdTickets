@@ -112,8 +112,7 @@ class AdminController extends Controller
                 $user->is_email_verified = NULL !== $user->email_verified_at;
 
                 // Remove relations to reduce payload size
-                $user->orders = NULL;
-                $user->tickets = NULL;
+                unset($user->orders, $user->tickets);
 
                 return $user;
             });
