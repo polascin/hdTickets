@@ -32,12 +32,17 @@ use function count;
  * User Model for Sports Ticket System
  *
  * @property int                                      $id
+ * @property string|null                              $google_id
  * @property string                                   $name
  * @property string|null                              $surname
  * @property string|null                              $username
  * @property string                                   $email
  * @property string|null                              $phone
- * @property string                                   $password
+ * @property string|null                              $password
+ * @property string|null                              $avatar
+ * @property string|null                              $provider
+ * @property string|null                              $provider_id
+ * @property Carbon|null                              $provider_verified_at
  * @property bool|null                                $two_factor_enabled
  * @property string|null                              $two_factor_secret
  * @property Carbon|null                              $two_factor_confirmed_at
@@ -122,6 +127,11 @@ class User extends Authenticatable implements MustVerifyEmail, OAuthenticatable
         'email',
         'phone',
         'password',
+        'google_id',
+        'avatar',
+        'provider',
+        'provider_id',
+        'provider_verified_at',
         'two_factor_enabled',
         'two_factor_secret',
         'two_factor_confirmed_at',
@@ -1446,6 +1456,7 @@ class User extends Authenticatable implements MustVerifyEmail, OAuthenticatable
             'last_activity_at'          => 'datetime',
             'locked_until'              => 'datetime',
             'password_changed_at'       => 'datetime',
+            'provider_verified_at'      => 'datetime',
             'custom_permissions'        => 'array',
             'trusted_devices'           => 'array',
             'two_factor_enabled'        => 'boolean',

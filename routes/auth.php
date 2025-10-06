@@ -14,6 +14,7 @@ use App\Http\Controllers\Auth\RegisteredUserController;
 use App\Http\Controllers\Auth\ComprehensiveRegistrationController;
 use App\Http\Controllers\Auth\TwoFactorController;
 use App\Http\Controllers\Auth\VerifyEmailController;
+use App\Http\Controllers\Auth\OAuthController;
 use App\Http\Middleware\EnhancedLoginSecurity;
 use Illuminate\Support\Facades\Route;
 
@@ -96,6 +97,47 @@ Route::middleware(['guest', EnhancedLoginSecurity::class])->group(function (): v
     // Two-Factor Authentication routes (guest access)
     Route::get('2fa/challenge', [TwoFactorController::class, 'challenge'])->name('2fa.challenge');
     Route::post('2fa/verify', [TwoFactorController::class, 'verify'])->name('2fa.verify');
+});
+
+/*
+|--------------------------------------------------------------------------
+| OAuth Authentication Routes
+|--------------------------------------------------------------------------
+|
+| These routes handle OAuth authentication with third-party providers
+| like Google, Facebook, etc. for the HD Tickets sports events system.
+|
+*/
+
+Route::prefix('auth')->name('oauth.')->group(function (): void {
+    // OAuth redirect routes (guest access)
+    Route::middleware('guest')->group(function (): void {
+        Route::get('{provider}', [OAuthController::class, 'redirect'])
+            ->where('provider', 'google|facebook|twitter')
+            ->name('redirect');
+        
+        Route::get('{provider}/callback', [OAuthController::class, 'callback'])
+            ->where('provider', 'google|facebook|twitter')
+            ->name('callback');
+    });
+    
+    // OAuth account linking routes (authenticated access)
+    Route::middleware('auth')->group(function (): void {
+        Route::get('link', [OAuthController::class, 'linkAccount'])
+            ->name('link');
+        
+        Route::get('{provider}/link', [OAuthController::class, 'redirect'])
+            ->where('provider', 'google|facebook|twitter')
+            ->name('link.redirect');
+        
+        Route::get('{provider}/link/callback', [OAuthController::class, 'linkCallback'])
+            ->where('provider', 'google|facebook|twitter')
+            ->name('link.callback');
+        
+        Route::delete('{provider}/unlink', [OAuthController::class, 'unlinkAccount'])
+            ->where('provider', 'google|facebook|twitter')
+            ->name('unlink');
+    });
 });
 
 Route::middleware('auth')->group(function (): void {

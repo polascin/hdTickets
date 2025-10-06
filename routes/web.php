@@ -91,13 +91,14 @@ Route::get('/', function () {
         return redirect()->route('dashboard');
     }
 
-    // If not logged in, redirect to welcome page
-    return redirect()->route('welcome');
+    // If not logged in, show modern welcome page directly
+    return app(WelcomeController::class)->modernWelcome(request());
 })->name('root');
 
 // Welcome page - Public landing page for sports events ticket monitoring
 Route::get('/home', [WelcomeController::class, 'index'])->name('home');
-Route::get('/welcome', [WelcomeController::class, 'enhancedWelcome'])->name('welcome');
+Route::get('/welcome', [WelcomeController::class, 'modernWelcome'])->name('welcome');
+Route::get('/welcome/modern', [WelcomeController::class, 'modernWelcome'])->name('welcome.modern');
 Route::get('/welcome/enhanced', [WelcomeController::class, 'enhancedWelcome'])->name('welcome.enhanced');
 Route::get('/welcome/legacy', [WelcomeController::class, 'newWelcome'])->name('welcome.legacy');
 
@@ -305,6 +306,14 @@ Route::middleware(['auth', 'verified'])->prefix('dashboard')->name('dashboard.')
             return response()->download($path);
         })->name('download');
     });
+
+    /*
+         * React Features Dashboard
+         * Purpose: Advanced React-based features showcase and management
+         * Access: All authenticated users (customers, agents, admins)
+         * Features: Smart monitoring, advanced search, following, comparison, calendar, notifications, history, social proof
+         */
+    Route::get('/react-features', fn () => view('dashboard.react-features'))->name('react-features');
 
     /*
          * Personal Analytics Dashboard

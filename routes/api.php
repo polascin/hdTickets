@@ -59,6 +59,14 @@ use App\Http\Controllers\Api\TicketmasterController;
 use App\Http\Controllers\Api\TickPickController;
 use App\Http\Controllers\Api\ViagogoController;
 use App\Http\Controllers\Api\WelcomeStatsController;
+
+// Import React Feature API Controllers
+use App\Http\Controllers\Api\TicketMonitoringController;
+use App\Http\Controllers\Api\AdvancedSearchController;
+use App\Http\Controllers\Api\FollowingController;
+use App\Http\Controllers\Api\TicketComparisonController;
+use App\Http\Controllers\Api\SocialProofController;
+
 use App\Http\Controllers\Auth\LoginEnhancementController;
 use App\Http\Controllers\AutomatedPurchaseController;
 use App\Http\Controllers\EnhancedDashboardController;
@@ -779,6 +787,61 @@ Route::prefix('v1')->middleware(['auth:sanctum', ApiRateLimit::class . ':api,120
         Route::get('/history', [RecommendationController::class, 'getRecommendationHistory'])->name('history');
         Route::delete('/cache', [RecommendationController::class, 'clearUserCache'])->name('cache.clear');
         Route::get('/metrics', [RecommendationController::class, 'getPerformanceMetrics'])->name('metrics');
+    });
+
+    /*
+      |--------------------------------------------------------------------------
+      | React Features API Routes
+      |--------------------------------------------------------------------------
+      |
+      | API endpoints for React-based advanced features including smart monitoring,
+      | advanced search, following system, comparison engine, and social proof.
+      |
+      */
+    
+    // Smart Ticket Monitoring Dashboard Routes
+    Route::prefix('monitoring')->name('api.monitoring.')->group(function (): void {
+        Route::get('/dashboard', [TicketMonitoringController::class, 'dashboard'])->name('dashboard');
+        Route::post('/tickets/{ticketId}/toggle', [TicketMonitoringController::class, 'toggleMonitoring'])->name('toggle');
+        Route::post('/settings', [TicketMonitoringController::class, 'updateSettings'])->name('settings');
+        Route::get('/tickets/{ticketId}', [TicketMonitoringController::class, 'show'])->name('show');
+    });
+    
+    // Advanced Search & Filtering Routes
+    Route::prefix('search')->name('api.search.')->group(function (): void {
+        Route::get('/advanced', [AdvancedSearchController::class, 'search'])->name('advanced');
+        Route::get('/suggestions', [AdvancedSearchController::class, 'suggestions'])->name('suggestions');
+        Route::get('/popular', [AdvancedSearchController::class, 'popularSearches'])->name('popular');
+    });
+    
+    // Team & Venue Following System Routes
+    Route::prefix('following')->name('api.following.')->group(function (): void {
+        Route::get('/dashboard', [FollowingController::class, 'dashboard'])->name('dashboard');
+        Route::get('/', [FollowingController::class, 'getFollowing'])->name('index');
+        Route::get('/discover', [FollowingController::class, 'discover'])->name('discover');
+        Route::post('/follow', [FollowingController::class, 'follow'])->name('follow');
+        Route::post('/unfollow', [FollowingController::class, 'unfollow'])->name('unfollow');
+        Route::post('/notifications/toggle', [FollowingController::class, 'toggleNotifications'])->name('notifications.toggle');
+        Route::get('/stats', [FollowingController::class, 'stats'])->name('stats');
+    });
+    
+    // Ticket Comparison Engine Routes
+    Route::prefix('comparison')->name('api.comparison.')->group(function (): void {
+        Route::get('/compare', [TicketComparisonController::class, 'compare'])->name('compare');
+        Route::post('/detailed', [TicketComparisonController::class, 'detailed'])->name('detailed');
+        Route::get('/platforms', [TicketComparisonController::class, 'platforms'])->name('platforms');
+        Route::get('/value-analysis', [TicketComparisonController::class, 'valueAnalysis'])->name('value_analysis');
+    });
+    
+    // Social Proof Features Routes
+    Route::prefix('social')->name('api.social.')->group(function (): void {
+        Route::get('/dashboard', [SocialProofController::class, 'dashboard'])->name('dashboard');
+        Route::get('/events/proof', [SocialProofController::class, 'eventProof'])->name('event_proof');
+        Route::get('/trending', [SocialProofController::class, 'trending'])->name('trending');
+        Route::get('/demand-indicators', [SocialProofController::class, 'demandIndicators'])->name('demand_indicators');
+        Route::get('/activity-feed', [SocialProofController::class, 'activityFeed'])->name('activity_feed');
+        Route::get('/user-behaviour', [SocialProofController::class, 'userBehaviour'])->name('user_behaviour');
+        Route::get('/tickets/{ticketId}/proof', [SocialProofController::class, 'ticketProof'])->name('ticket_proof');
     });
 
     // Agent and Admin routes

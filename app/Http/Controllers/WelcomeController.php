@@ -151,6 +151,46 @@ class WelcomeController extends Controller
     }
 
     /**
+     * Display the modern welcome landing page
+     *
+     * @return View
+     */
+    public function modernWelcome(Request $request)
+    {
+        try {
+            // Resolve service via container
+            $service = app(WelcomePageService::class);
+
+            // Load comprehensive data for the modern welcome page
+            $data = $service->getWelcomePageData([
+                'include_stats' => true,
+                'include_pricing' => true,
+                'include_features' => true,
+                'include_testimonials' => true,
+                'include_featured_tickets' => true,
+                'ab_variant' => 'modern_landing',
+            ]);
+
+            // Add modern landing page specific data
+            $data['featured_tickets'] = $this->getFeaturedTickets();
+            $data['platform_integrations'] = $this->getPlatformIntegrations();
+            $data['user_testimonials'] = $this->getUserTestimonials();
+
+            return view('welcome-modern', $data);
+        } catch (Exception $e) {
+            Log::error('Error loading modern welcome page', [
+                'error' => $e->getMessage(),
+                'user_agent' => $request->userAgent(),
+                'ip' => $request->ip(),
+                'trace' => $e->getTraceAsString(),
+            ]);
+
+            // Fallback with static data
+            return view('welcome-modern', $this->getFallbackModernData());
+        }
+    }
+
+    /**
      * Display the enhanced backend features welcome page
      *
      * @return View
@@ -502,6 +542,90 @@ class WelcomeController extends Controller
             'data_processing_agreement' => '/legal/data-processing-agreement',
             'cookie_policy'             => '/legal/cookie-policy',
             'acceptable_use_policy'     => '/legal/acceptable-use-policy',
+        ];
+    }
+
+    /**
+     * Get featured tickets for the modern welcome page
+     */
+    protected function getFeaturedTickets(): array
+    {
+        return [
+            [
+                'event_name' => 'Liverpool vs Manchester City',
+                'venue' => 'Anfield Stadium',
+                'section' => 'Kop End',
+                'current_price' => 150,
+                'original_price' => 200,
+                'discount' => 25,
+                'platform' => 'StubHub',
+            ],
+            [
+                'event_name' => 'Arsenal vs Chelsea',
+                'venue' => 'Emirates Stadium',
+                'section' => 'North Bank',
+                'current_price' => 95,
+                'original_price' => 130,
+                'discount' => 27,
+                'platform' => 'Viagogo',
+            ],
+            [
+                'event_name' => 'Manchester United vs Tottenham',
+                'venue' => 'Old Trafford',
+                'section' => 'Stretford End',
+                'current_price' => 120,
+                'original_price' => 180,
+                'discount' => 33,
+                'platform' => 'Ticketmaster',
+            ],
+        ];
+    }
+
+    /**
+     * Get user testimonials for the modern welcome page
+     */
+    protected function getUserTestimonials(): array
+    {
+        return [
+            [
+                'name' => 'James Davidson',
+                'role' => 'Manchester United Fan',
+                'avatar' => 'JD',
+                'rating' => 5,
+                'comment' => 'HD Tickets saved me over £300 on Champions League final tickets. The alerts are instant and the platform is so easy to use.',
+            ],
+            [
+                'name' => 'Sarah Thompson', 
+                'role' => 'Arsenal Season Ticket Holder',
+                'avatar' => 'ST',
+                'rating' => 5,
+                'comment' => 'As a season ticket holder for Arsenal, I use HD Tickets to find away game tickets. It\'s found me deals I never would have seen.',
+            ],
+            [
+                'name' => 'Mike Roberts',
+                'role' => 'Tennis Enthusiast',
+                'avatar' => 'MR',
+                'rating' => 5,
+                'comment' => 'The automated purchasing feature is a game-changer. I got Wimbledon final tickets while I was sleeping!',
+            ],
+        ];
+    }
+
+    /**
+     * Get fallback data for modern welcome page
+     */
+    protected function getFallbackModernData(): array
+    {
+        return [
+            'stats' => [
+                'total_tickets' => 50000,
+                'active_events' => 2500,
+                'satisfied_customers' => 10000,
+                'avg_savings' => 35,
+            ],
+            'featured_tickets' => $this->getFeaturedTickets(),
+            'user_testimonials' => $this->getUserTestimonials(),
+            'platform_integrations' => $this->getPlatformIntegrations(),
         ];
     }
 }
