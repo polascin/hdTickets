@@ -7,13 +7,14 @@ Important
 
 Stack and versions (source of truth)
 - Backend: PHP 8.3.x (composer.json ^8.3), Laravel 11.x (composer.json ^11.0)
-- Frontend: Alpine.js, Tailwind CSS, Vite, TypeScript (Node >= 18)
+- Frontend: Alpine.js, Tailwind CSS v4.1+, Vite, TypeScript (Node >= 18)
 - Data/Infra: MySQL/MariaDB, Redis (cache, queues), Horizon
 - Auth: Sanctum + Passport (OAuth2)
 - Real-time: Laravel Echo + Pusher
 - Scraping: Roach PHP, Symfony DOMCrawler
 - Static analysis: PHPStan (current config level 5 via phpstan.neon), Larastan
 - Formatters: Laravel Pint, PHP-CS-Fixer, Prettier, ESLint
+- Testing: PHPUnit 11.x, Playwright (E2E), Vitest (frontend)
 
 Commands (day-to-day)
 Setup
@@ -59,8 +60,11 @@ make test-coverage
 
 Testing (frontend)
 ```bash
-npm run test
-npm run test:coverage
+npm run test                # Vitest unit tests
+npm run test:coverage       # Vitest with coverage
+npm run test:e2e           # Playwright E2E tests
+npm run e2e:install        # Install Playwright browsers
+npm run e2e                # Full E2E with server start
 ```
 
 Code quality (PHP)
@@ -75,10 +79,13 @@ vendor/bin/phpstan analyse --configuration=phpstan.neon
 
 Code quality (JS/TS)
 ```bash
-npm run lint
-npm run lint:fix
-npm run format
-npm run type-check
+npm run lint               # ESLint check
+npm run lint:fix          # ESLint auto-fix
+npm run format            # Prettier format
+npm run format:check      # Prettier check (dry-run)
+npm run type-check        # TypeScript type checking
+npm run analyze           # Vite bundle analysis
+npm run clean             # Clean build artifacts
 ```
 
 Routes & tooling (useful shortcuts)
@@ -101,6 +108,8 @@ Testing environment (phpunit.xml)
   - DB_USERNAME=hdtickets
   - DB_PASSWORD=hdtickets
 - Ensure a local test database is available with these credentials, or override via environment.
+- PHPUnit 11.x: Strict testing with fail-fast options enabled
+- Coverage reports: HTML (storage/quality/coverage/html/), XML, Clover, Cobertura formats
 
 Architecture overview (big picture)
 - Domain-Driven Design + CQRS
