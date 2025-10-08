@@ -19,15 +19,6 @@ export default defineConfig({
         'resources/js/dashboard/index.js',
         'resources/js/dashboard/modern-customer-dashboard.js',
 
-        // Framework entry points
-        'resources/js/frameworks/react/index.tsx',
-        'resources/js/frameworks/vue/index.ts',
-        'resources/js/frameworks/angular/index.ts',
-        'resources/js/frameworks/shared/index.ts',
-
-        // New React Application (Main Entry)
-        'resources/js/react-app/index.tsx',
-
         // Ticket system assets
         'resources/js/tickets/index.js',
         'resources/js/tickets/TicketFilters.js',

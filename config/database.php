@@ -197,11 +197,20 @@ return [
 
         'rate_limiting' => [
             'url'      => env('REDIS_URL'),
-            'host'     => env('REDIS_HOST', '127.0.0.1'),
+            'host'     => env('REDIS_HOST', '*********'),
             'username' => env('REDIS_USERNAME'),
             'password' => env('REDIS_PASSWORD'),
             'port'     => env('REDIS_PORT', '6379'),
             'database' => env('REDIS_RATELIMIT_DB', '4'),
+        ],
+
+        'horizon' => [
+            'url'      => env('REDIS_URL'),
+            'host'     => env('REDIS_HORIZON_HOST', env('REDIS_HOST', '*********')),
+            'username' => env('REDIS_USERNAME'),
+            'password' => env('REDIS_PASSWORD'),
+            'port'     => env('REDIS_HORIZON_PORT', env('REDIS_PORT', '6379')),
+            'database' => env('REDIS_HORIZON_DB', '5'),
         ],
     ],
 ];
