@@ -100,9 +100,23 @@ return [
     ],
 
     'paypal' => [
-        'client_id'   => env('PAYPAL_CLIENT_ID'),
-        'secret'      => env('PAYPAL_SECRET'),
-        'environment' => env('PAYPAL_ENVIRONMENT', 'sandbox'), // 'sandbox' or 'production'
+        'mode' => env('PAYPAL_MODE', 'sandbox'),
+        'sandbox' => [
+            'client_id'     => env('PAYPAL_SANDBOX_CLIENT_ID'),
+            'client_secret' => env('PAYPAL_SANDBOX_CLIENT_SECRET'),
+        ],
+        'live' => [
+            'client_id'     => env('PAYPAL_LIVE_CLIENT_ID'),
+            'client_secret' => env('PAYPAL_LIVE_CLIENT_SECRET'),
+        ],
+        'webhook_id'      => env('PAYPAL_WEBHOOK_ID'),
+        'receiver_email'  => env('PAYPAL_RECEIVER_EMAIL', 'walter.csoelle@gmail.com'),
+        'monthly_plan_id' => env('PAYPAL_MONTHLY_PLAN_ID'),
+        'annual_plan_id'  => env('PAYPAL_ANNUAL_PLAN_ID'),
+        // Legacy config for backwards compatibility
+        'client_id'       => env('PAYPAL_CLIENT_ID', env('PAYPAL_SANDBOX_CLIENT_ID')),
+        'secret'          => env('PAYPAL_SECRET', env('PAYPAL_SANDBOX_CLIENT_SECRET')),
+        'environment'     => env('PAYPAL_ENVIRONMENT', env('PAYPAL_MODE', 'sandbox')),
     ],
 
     /*

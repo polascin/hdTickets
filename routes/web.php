@@ -62,6 +62,7 @@ use App\Http\Controllers\TicketScrapingController;
 use App\Http\Controllers\TicketSourceController;
 use App\Http\Controllers\UserActivityController;
 use App\Http\Controllers\UserPreferencesController;
+use App\Http\Controllers\PayPalWebhookController;
 use App\Http\Controllers\WelcomeController;
 use App\Http\Middleware\AgentMiddleware;
 use App\Http\Middleware\CustomerMiddleware;
@@ -148,6 +149,46 @@ Route::get('/csp-debug', function () {
         'empty_check'    => $policies === [],
     ]);
 })->name('csp.debug');
+
+/*
+|--------------------------------------------------------------------------
+| Payment Webhooks - External Payment Provider Callbacks
+|--------------------------------------------------------------------------
+|
+| These routes handle webhook callbacks from external payment providers.
+| They bypass CSRF protection as they come from external services.
+|
+*/
+
+// PayPal webhook endpoint
+Route::post('/webhooks/paypal', [\App\Http\Controllers\PayPalWebhookController::class, 'handle'])
+    ->name('webhooks.paypal')
+    ->withoutMiddleware(['web'])
+    ->middleware(['verify.paypal.webhook']);
+
+// Stripe webhook endpoint (existing compatibility)
+Route::post('/webhooks/stripe', function (Request $request) {
+    // This would be handled by your existing SubscriptionController webhook method
+    return app(\App\Http\Controllers\SubscriptionController::class)->webhook($request);
+})->name('webhooks.stripe')->withoutMiddleware(['web']);
+
+// PayPal subscription return/cancel endpoints
+Route::get('/subscription/paypal/return', [\App\Http\Controllers\SubscriptionController::class, 'paypalReturn'])
+    ->name('subscription.paypal.return')
+    ->middleware(['auth']);
+    
+Route::get('/subscription/paypal/cancel', [\App\Http\Controllers\SubscriptionController::class, 'paypalCancel'])
+    ->name('subscription.paypal.cancel')
+    ->middleware(['auth']);
+
+// PayPal ticket purchase return/cancel endpoints
+Route::get('/tickets/paypal/return', [\App\Http\Controllers\TicketPurchaseController::class, 'paypalReturn'])
+    ->name('tickets.paypal.return')
+    ->middleware(['auth']);
+    
+Route::get('/tickets/paypal/cancel', [\App\Http\Controllers\TicketPurchaseController::class, 'paypalCancel'])
+    ->name('tickets.paypal.cancel')
+    ->middleware(['auth']);
 
 /*
 |--------------------------------------------------------------------------

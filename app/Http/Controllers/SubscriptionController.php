@@ -66,29 +66,26 @@ class SubscriptionController extends Controller
         try {
             DB::beginTransaction();
 
-            // Create or update Stripe customer
-            $stripeCustomer = $this->paymentService->createOrUpdateCustomer($user);
-
             // Create subscription based on payment method
             $subscription = match ($request->payment_method) {
-                'stripe' => $this->paymentService->createStripeSubscription(
-                    $user,
-                    $plan,
-                    $stripeCustomer->id,
-                ),
-                'paypal' => $this->paymentService->createPayPalSubscription(
-                    $user,
-                    $plan,
-                ),
+                'stripe' => $this->handleStripeSubscription($user, $plan),
+                'paypal' => $this->handlePayPalSubscription($user, $plan),
                 default => throw new Exception('Invalid payment method'),
             };
 
             DB::commit();
 
-            return redirect()->route('subscription.success')
-                ->with('success', 'Subscription activated successfully!');
+            // Handle different redirect flows based on payment method
+            return $this->handleSubscriptionRedirect($subscription, $request->payment_method);
         } catch (Exception $e) {
             DB::rollBack();
+
+            Log::error('Subscription creation failed', [
+                'user_id' => $user->id,
+                'plan_id' => $plan->id,
+                'payment_method' => $request->payment_method,
+                'error' => $e->getMessage(),
+            ]);
 
             return back()
                 ->withErrors(['error' => 'Payment failed: ' . $e->getMessage()])
@@ -145,9 +142,17 @@ class SubscriptionController extends Controller
         }
 
         try {
-            // Cancel subscription with payment provider
+            // Cancel subscription with appropriate payment provider
+            $cancelled = false;
+            
             if ($subscription->stripe_subscription_id) {
-                $this->paymentService->cancelStripeSubscription($subscription->stripe_subscription_id);
+                $cancelled = $this->paymentService->cancelStripeSubscription($subscription->stripe_subscription_id);
+            } elseif ($subscription->paypal_subscription_id) {
+                $cancelled = $this->paymentService->cancelPayPalSubscription($subscription);
+            }
+
+            if (!$cancelled && ($subscription->stripe_subscription_id || $subscription->paypal_subscription_id)) {
+                throw new Exception('Failed to cancel subscription with payment provider.');
             }
 
             // Update local subscription status
@@ -156,9 +161,21 @@ class SubscriptionController extends Controller
                 'ends_at' => now()->endOfMonth(), // Allow access until end of current billing period
             ]);
 
+            Log::info('Subscription cancelled successfully', [
+                'subscription_id' => $subscription->id,
+                'user_id' => $subscription->user_id,
+                'payment_method' => $subscription->payment_method,
+            ]);
+
             return redirect()->route('subscription.manage')
                 ->with('success', 'Subscription cancelled. You will have access until the end of your billing period.');
         } catch (Exception $e) {
+            Log::error('Subscription cancellation failed', [
+                'subscription_id' => $subscription->id,
+                'user_id' => $subscription->user_id,
+                'error' => $e->getMessage(),
+            ]);
+            
             return redirect()->route('subscription.manage')
                 ->withErrors(['error' => 'Failed to cancel subscription: ' . $e->getMessage()]);
         }
@@ -263,6 +280,121 @@ class SubscriptionController extends Controller
                 'amount'                 => $invoice->amount_due / 100,
             ]);
         }
+    }
+
+    /**
+     * Handle Stripe subscription creation
+     */
+    private function handleStripeSubscription(User $user, PaymentPlan $plan): UserSubscription
+    {
+        $stripeCustomer = $this->paymentService->createOrUpdateCustomer($user);
+        return $this->paymentService->createStripeSubscription($user, $plan, $stripeCustomer->id);
+    }
+
+    /**
+     * Handle PayPal subscription creation
+     */
+    private function handlePayPalSubscription(User $user, PaymentPlan $plan): UserSubscription
+    {
+        return $this->paymentService->createPayPalSubscription($user, $plan);
+    }
+
+    /**
+     * Handle subscription redirect based on payment method
+     */
+    private function handleSubscriptionRedirect(UserSubscription $subscription, string $paymentMethod): RedirectResponse
+    {
+        if ($paymentMethod === 'paypal') {
+            // For PayPal, we need to redirect to PayPal for approval
+            $approveUrl = $subscription->metadata['paypal_approve_link'] ?? null;
+            
+            if ($approveUrl) {
+                Log::info('Redirecting to PayPal for subscription approval', [
+                    'subscription_id' => $subscription->id,
+                    'approve_url' => $approveUrl,
+                ]);
+                
+                return redirect($approveUrl);
+            }
+        }
+
+        // For Stripe or if no approval URL is needed
+        return redirect()->route('subscription.success')
+            ->with('success', 'Subscription created successfully!');
+    }
+
+    /**
+     * Handle PayPal subscription approval return
+     */
+    public function paypalReturn(Request $request): RedirectResponse
+    {
+        $subscriptionId = $request->get('subscription_id');
+        $token = $request->get('token');
+        
+        if (!$subscriptionId || !$token) {
+            return redirect()->route('subscription.payment')
+                ->withErrors(['error' => 'Invalid PayPal response.']);
+        }
+
+        try {
+            $subscription = UserSubscription::where('paypal_subscription_id', $subscriptionId)->first();
+            
+            if (!$subscription) {
+                throw new Exception('Subscription not found.');
+            }
+
+            // Activate the subscription
+            $activatedSubscription = app(\App\Services\PayPal\PayPalSubscriptionService::class)
+                ->activateSubscription($subscriptionId);
+
+            if ($activatedSubscription) {
+                Log::info('PayPal subscription approved and activated', [
+                    'subscription_id' => $subscription->id,
+                    'paypal_subscription_id' => $subscriptionId,
+                ]);
+                
+                return redirect()->route('subscription.success')
+                    ->with('success', 'Subscription activated successfully!');
+            }
+            
+            throw new Exception('Failed to activate subscription.');
+        } catch (Exception $e) {
+            Log::error('PayPal subscription approval failed', [
+                'subscription_id' => $subscriptionId,
+                'error' => $e->getMessage(),
+            ]);
+            
+            return redirect()->route('subscription.payment')
+                ->withErrors(['error' => 'Failed to activate subscription: ' . $e->getMessage()]);
+        }
+    }
+
+    /**
+     * Handle PayPal subscription approval cancellation
+     */
+    public function paypalCancel(Request $request): RedirectResponse
+    {
+        $subscriptionId = $request->get('subscription_id');
+        
+        if ($subscriptionId) {
+            // Clean up the cancelled subscription
+            $subscription = UserSubscription::where('paypal_subscription_id', $subscriptionId)->first();
+            if ($subscription) {
+                $subscription->update([
+                    'status' => 'cancelled',
+                    'metadata' => array_merge($subscription->metadata ?? [], [
+                        'cancelled_at_approval' => now()->toISOString(),
+                    ]),
+                ]);
+            }
+        }
+        
+        Log::info('PayPal subscription approval cancelled', [
+            'subscription_id' => $subscriptionId,
+        ]);
+        
+        return redirect()->route('subscription.payment')
+            ->with('message', 'Subscription setup was cancelled.');
     }
 
     /**

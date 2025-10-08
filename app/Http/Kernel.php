@@ -23,6 +23,7 @@ use App\Http\Middleware\TrimStrings;
 use App\Http\Middleware\TrustProxies;
 use App\Http\Middleware\ValidateSignature;
 use App\Http\Middleware\VerifyCsrfToken;
+use App\Http\Middleware\VerifyPayPalWebhook;
 use App\Http\Middleware\WelcomePageMiddleware;
 use Illuminate\Auth\Middleware\AuthenticateWithBasicAuth;
 use Illuminate\Auth\Middleware\Authorize;
@@ -163,6 +164,7 @@ class Kernel extends HttpKernel
         'api.security'            => ApiSecurityMiddleware::class,
         'security.headers'        => SecurityHeadersMiddleware::class,
         'enhanced.login.security' => EnhancedLoginSecurity::class,
+        'verify.paypal.webhook'   => VerifyPayPalWebhook::class,
         'welcome.page'            => WelcomePageMiddleware::class,
     ];
 }
