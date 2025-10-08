@@ -380,7 +380,7 @@
             <p class="text-blue-800 text-sm mb-3">To exercise any of these rights, you can:</p>
             <ul class="text-sm text-blue-800 space-y-1">
               <li>• Visit your account settings page</li>
-              <li>• Email us at privacy@hdtickets.com</li>
+              <li>• Email us at privacy@hd-tickets.com</li>
               <li>• Use our <a href="{{ route('legal.data-request') }}" class="underline">data request form</a></li>
               <li>• Contact our support team</li>
             </ul>
@@ -564,7 +564,7 @@
             <div class="bg-gray-50 rounded-lg p-4">
               <h3 class="font-semibold mb-2">General Privacy Inquiries</h3>
               <ul class="text-sm space-y-1">
-                <li><strong>Email:</strong> privacy@hdtickets.com</li>
+                <li><strong>Email:</strong> privacy@hd-tickets.com</li>
                 <li><strong>Response Time:</strong> Within 5 business days</li>
                 <li><strong>Data Requests:</strong> <a href="{{ route('legal.data-request') }}" class="text-blue-600 hover:text-blue-700">Submit online form</a></li>
               </ul>
@@ -573,7 +573,7 @@
             <div class="bg-gray-50 rounded-lg p-4">
               <h3 class="font-semibold mb-2">Data Protection Officer</h3>
               <ul class="text-sm space-y-1">
-                <li><strong>Email:</strong> dpo@hdtickets.com</li>
+                <li><strong>Email:</strong> dpo@hd-tickets.com</li>
                 <li><strong>Address:</strong> [DPO Address]</li>
                 <li><strong>EU Representative:</strong> [EU Rep Contact]</li>
               </ul>

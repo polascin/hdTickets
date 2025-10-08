@@ -398,6 +398,214 @@ class SubscriptionController extends Controller
     }
 
     /**
+     * API: Handle PayPal subscription approval
+     */
+    public function paypalApprove(Request $request)
+    {
+        $request->validate([
+            'subscription_id' => ['required', 'string'],
+            'plan_type'      => ['required', 'in:monthly,annual'],
+            'billing_info'   => ['required', 'array'],
+        ]);
+
+        $user = Auth::user();
+        $subscriptionId = $request->input('subscription_id');
+
+        try {
+            // Find the corresponding plan
+            $planType = $request->input('plan_type');
+            $plan = PaymentPlan::where('interval', $planType)
+                ->where('is_active', true)
+                ->first();
+
+            if (!$plan) {
+                throw new Exception('Invalid plan type.');
+            }
+
+            // Create or update subscription record
+            $subscription = UserSubscription::updateOrCreate(
+                [
+                    'user_id' => $user->id,
+                    'paypal_subscription_id' => $subscriptionId,
+                ],
+                [
+                    'payment_plan_id' => $plan->id,
+                    'status' => 'pending',
+                    'payment_method' => 'paypal',
+                    'amount_paid' => $plan->price,
+                    'starts_at' => now(),
+                    'ends_at' => now()->addDays($plan->interval_days ?? 30),
+                    'metadata' => [
+                        'billing_info' => $request->input('billing_info'),
+                        'approved_at' => now()->toISOString(),
+                    ],
+                ]
+            );
+
+            // Activate the subscription through PayPal service
+            $paypalService = app(\App\Services\PayPal\PayPalSubscriptionService::class);
+            $activatedSubscription = $paypalService->activateSubscription($subscriptionId);
+
+            if (!$activatedSubscription) {
+                throw new Exception('Failed to activate PayPal subscription.');
+            }
+
+            Log::info('PayPal subscription approved via API', [
+                'user_id' => $user->id,
+                'subscription_id' => $subscription->id,
+                'paypal_subscription_id' => $subscriptionId,
+            ]);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Subscription approved successfully.',
+                'subscription' => [
+                    'id' => $subscription->id,
+                    'status' => $subscription->status,
+                    'plan_name' => $plan->name,
+                    'amount' => $plan->price,
+                    'interval' => $plan->interval,
+                ],
+                'redirect_url' => route('subscriptions.success'),
+            ]);
+        } catch (Exception $e) {
+            Log::error('PayPal subscription approval failed via API', [
+                'user_id' => $user->id,
+                'subscription_id' => $subscriptionId,
+                'error' => $e->getMessage(),
+            ]);
+
+            return response()->json([
+                'success' => false,
+                'message' => $e->getMessage(),
+            ], 400);
+        }
+    }
+
+    /**
+     * API: Activate PayPal subscription after approval
+     */
+    public function paypalActivate(Request $request)
+    {
+        $request->validate([
+            'subscription_id' => ['required', 'string'],
+            'billing_info'   => ['required', 'array'],
+        ]);
+
+        $user = Auth::user();
+        $subscriptionId = $request->input('subscription_id');
+
+        try {
+            // Find the subscription
+            $subscription = UserSubscription::where('user_id', $user->id)
+                ->where('paypal_subscription_id', $subscriptionId)
+                ->first();
+
+            if (!$subscription) {
+                throw new Exception('Subscription not found.');
+            }
+
+            // Update subscription to active
+            $subscription->update([
+                'status' => 'active',
+                'metadata' => array_merge($subscription->metadata ?? [], [
+                    'activated_at' => now()->toISOString(),
+                    'billing_info' => $request->input('billing_info'),
+                ]),
+            ]);
+
+            Log::info('PayPal subscription activated via API', [
+                'user_id' => $user->id,
+                'subscription_id' => $subscription->id,
+                'paypal_subscription_id' => $subscriptionId,
+            ]);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Subscription activated successfully.',
+                'subscription' => [
+                    'id' => $subscription->id,
+                    'status' => $subscription->status,
+                    'starts_at' => $subscription->starts_at,
+                    'ends_at' => $subscription->ends_at,
+                ],
+                'redirect_url' => route('subscriptions.success'),
+            ]);
+        } catch (Exception $e) {
+            Log::error('PayPal subscription activation failed via API', [
+                'user_id' => $user->id,
+                'subscription_id' => $subscriptionId,
+                'error' => $e->getMessage(),
+            ]);
+
+            return response()->json([
+                'success' => false,
+                'message' => $e->getMessage(),
+            ], 400);
+        }
+    }
+
+    /**
+     * API: Get current subscription
+     */
+    public function getCurrent(Request $request)
+    {
+        $user = Auth::user();
+        $subscription = $user->activeSubscription();
+
+        if (!$subscription) {
+            return response()->json([
+                'success' => true,
+                'subscription' => null,
+                'message' => 'No active subscription found.',
+            ]);
+        }
+
+        return response()->json([
+            'success' => true,
+            'subscription' => [
+                'id' => $subscription->id,
+                'status' => $subscription->status,
+                'payment_method' => $subscription->payment_method,
+                'plan_name' => $subscription->paymentPlan->name,
+                'amount' => $subscription->amount_paid,
+                'starts_at' => $subscription->starts_at,
+                'ends_at' => $subscription->ends_at,
+                'next_billing_date' => $subscription->ends_at,
+            ],
+        ]);
+    }
+
+    /**
+     * API: Get subscription history
+     */
+    public function getHistory(Request $request)
+    {
+        $user = Auth::user();
+        $subscriptions = $user->subscriptions()
+            ->with('paymentPlan')
+            ->orderBy('created_at', 'desc')
+            ->limit(10)
+            ->get();
+
+        return response()->json([
+            'success' => true,
+            'subscriptions' => $subscriptions->map(function ($subscription) {
+                return [
+                    'id' => $subscription->id,
+                    'status' => $subscription->status,
+                    'payment_method' => $subscription->payment_method,
+                    'plan_name' => $subscription->paymentPlan->name,
+                    'amount' => $subscription->amount_paid,
+                    'starts_at' => $subscription->starts_at,
+                    'ends_at' => $subscription->ends_at,
+                    'created_at' => $subscription->created_at,
+                ];
+            }),
+        ]);
+    }
+
+    /**
      * Get ticket usage for a user in a given period
      */
     private function getTicketUsage(User $user, Carbon $period): array

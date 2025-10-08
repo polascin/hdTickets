@@ -793,7 +793,7 @@
           <a href="/legal/privacy">Privacy Policy</a>
           <a href="/legal/gdpr">GDPR</a>
           <a href="/health">System Status</a>
-          <a href="mailto:support@hdtickets.com">Support</a>
+          <a href="mailto:support@hd-tickets.com">Support</a>
         </div>
         <p class="footer-text">
           © {{ date('Y') }} HD Tickets. Professional Sports Ticket Monitoring Platform.

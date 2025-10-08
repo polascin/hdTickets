@@ -137,7 +137,7 @@
             <span>&bull;</span>
             <a href="{{ route('legal.disclaimer') }}" class="hover:text-gray-600 transition-colors">Disclaimer</a>
             <span>&bull;</span>
-            <a href="mailto:support@hdtickets.com" class="hover:text-gray-600 transition-colors">Support</a>
+            <a href="mailto:support@hd-tickets.com" class="hover:text-gray-600 transition-colors">Support</a>
           </div>
         </div>
       </div>

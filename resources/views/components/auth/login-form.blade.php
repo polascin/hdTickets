@@ -300,7 +300,7 @@
                 <h4 class="text-sm font-medium text-gray-700 mb-3">Need Different Access?</h4>
                 <div class="flex flex-col sm:flex-row gap-2 justify-center text-sm">
                     <!-- Professional Account -->
-                    <a href="mailto:support@hdtickets.com?subject=Professional Account Request&body=I'm interested in a professional account with unlimited access to HD Tickets." 
+                    <a href="mailto:support@hd-tickets.com?subject=Professional Account Request&body=I'm interested in a professional account with unlimited access to HD Tickets." 
                        class="inline-flex items-center text-purple-600 hover:text-purple-500 font-medium transition-colors">
                         <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2-2v2m8 0V6a2 2 0 00-2 2H6a2 2 0 00-2-2V4m8 0H8m0 0v2H6m2 0v6.5c0 .83.67 1.5 1.5 1.5h1c.83 0 1.5-.67 1.5-1.5V6H8z"></path>
@@ -311,7 +311,7 @@
                     <span class="text-gray-400 hidden sm:inline">•</span>
                     
                     <!-- Enterprise/Admin -->
-                    <a href="mailto:admin@hdtickets.com?subject=Enterprise Account Request&body=I'm interested in enterprise-level access to HD Tickets for my organization." 
+                    <a href="mailto:admin@hd-tickets.com?subject=Enterprise Account Request&body=I'm interested in enterprise-level access to HD Tickets for my organization." 
                        class="inline-flex items-center text-red-600 hover:text-red-500 font-medium transition-colors">
                         <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path>
@@ -322,7 +322,7 @@
                     <span class="text-gray-400 hidden sm:inline">•</span>
                     
                     <!-- General Support -->
-                    <a href="mailto:support@hdtickets.com?subject=Account Help&body=I need help with account access for HD Tickets." 
+                    <a href="mailto:support@hd-tickets.com?subject=Account Help&body=I need help with account access for HD Tickets." 
                        class="inline-flex items-center text-stadium-600 hover:text-stadium-500 font-medium transition-colors">
                         <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 5.636l-3.536 3.536m0 5.656l3.536 3.536M9.172 9.172L5.636 5.636m3.536 9.192L5.636 18.364M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-5 0a4 4 0 11-8 0 4 4 0 018 0z"></path>
@@ -366,7 +366,7 @@
                         </a>
                     @endif
                     
-                    <a href="mailto:support@hdtickets.com" 
+                    <a href="mailto:support@hd-tickets.com" 
                        class="inline-flex items-center justify-center px-4 py-2 bg-white hover:bg-gray-50 text-stadium-700 font-medium border border-stadium-300 rounded-lg transition-all duration-200">
                         <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 5.636l-3.536 3.536m0 5.656l3.536 3.536M9.172 9.172L5.636 5.636m3.536 9.192L5.636 18.364M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-5 0a4 4 0 11-8 0 4 4 0 018 0z"></path>

@@ -374,7 +374,7 @@
           </p>
           <div class="bg-gray-50 rounded-lg p-4">
             <ul class="space-y-2">
-              <li><strong>Email:</strong> legal@hdtickets.com</li>
+              <li><strong>Email:</strong> legal@hd-tickets.com</li>
               <li><strong>Address:</strong> [Company Address]</li>
               <li><strong>Phone:</strong> [Support Phone Number]</li>
             </ul>

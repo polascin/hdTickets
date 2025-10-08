@@ -104,7 +104,7 @@
                                 type="url" 
                                 x-model="settings.general.platform_url"
                                 class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
-                                placeholder="https://hdtickets.com"
+                                placeholder="https://hd-tickets.com"
                             >
                         </div>
 
@@ -114,7 +114,7 @@
                                 type="email" 
                                 x-model="settings.general.support_email"
                                 class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
-                                placeholder="support@hdtickets.com"
+                                placeholder="support@hd-tickets.com"
                             >
                         </div>
 
@@ -656,7 +656,7 @@
                                 x-model="settings.security.cors_origins"
                                 rows="3"
                                 class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
-                                placeholder="https://app.hdtickets.com&#10;https://mobile.hdtickets.com"
+                                placeholder="https://app.hd-tickets.com&#10;https://mobile.hd-tickets.com"
                             ></textarea>
                         </div>
 
@@ -730,8 +730,8 @@ function adminSystemConfig() {
         settings: {
             general: {
                 platform_name: 'HD Tickets',
-                platform_url: 'https://hdtickets.com',
-                support_email: 'support@hdtickets.com',
+                platform_url: 'https://hd-tickets.com',
+                support_email: 'support@hd-tickets.com',
                 default_currency: 'USD',
                 timezone: 'America/New_York',
                 maintenance_mode: false,

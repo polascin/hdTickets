@@ -1,0 +1,78 @@
+{
+    "debug": false,
+    "port": 6001,
+    "host": "0.0.0.0",
+    "metrics": {
+        "enabled": true,
+        "host": "127.0.0.1",
+        "port": 9090
+    },
+    "cache": {
+        "driver": "redis",
+        "redis": {
+            "host": "*********",
+            "port": 6379,
+            "db": 2,
+            "username": null,
+            "password": null
+        }
+    },
+    "queue": {
+        "driver": "redis",
+        "redis": {
+            "host": "*********",
+            "port": 6379,
+            "db": 3,
+            "username": null,
+            "password": null
+        }
+    },
+    "rateLimiter": {
+        "driver": "redis",
+        "redis": {
+            "host": "*********",
+            "port": 6379,
+            "db": 4,
+            "username": null,
+            "password": null
+        }
+    },
+    "httpApi": {
+        "requestLimitPerMinute": 6000,
+        "acceptTraffic": {
+            "memoryThreshold": 85
+        }
+    },
+    "websockets": {
+        "maxConnections": 1000,
+        "maxBackpressure": 1024,
+        "maxCompression": "1KB",
+        "maxIdleTime": 240,
+        "maxPayloadLength": "100KB",
+        "maxLifetime": 7200
+    },
+    "appManager": {
+        "driver": "array",
+        "array": {
+            "apps": [
+                {
+                    "id": "hd-tickets-app",
+                    "key": "hd-tickets-key",
+                    "secret": "hd-tickets-secret",
+                    "maxConnections": 100,
+                    "enableClientMessages": true,
+                    "enabled": true,
+                    "maxBackendEventsPerSecond": 30,
+                    "maxClientEventsPerSecond": 30,
+                    "maxReadRequestsPerSecond": 20
+                }
+            ]
+        }
+    },
+    "cors": {
+        "credentials": true,
+        "origin": ["https://hd-tickets.com", "http://hd-tickets.com", "https://www.hd-tickets.com"],
+        "methods": ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+        "allowedHeaders": ["Origin", "Content-Type", "X-Auth-Token", "X-Requested-With", "Accept", "Authorization", "X-CSRF-TOKEN", "XSRF-TOKEN"]
+    }
+}

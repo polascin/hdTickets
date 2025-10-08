@@ -362,6 +362,38 @@ Route::prefix('v1/purchases')->middleware(['auth:sanctum', ApiRateLimit::class .
     Route::put('/configuration', [PurchaseController::class, 'updateConfiguration']);
 });
 
+// Subscription routes
+Route::prefix('v1/subscriptions')->middleware(['auth:sanctum', ApiRateLimit::class . ':api,60,1'])->group(function (): void {
+    /*
+       * Subscription Creation and Management
+       * Purpose: Handle subscription lifecycle for sports events ticket monitoring
+       * Access: Authenticated users
+       * Payment Methods: Stripe and PayPal supported
+       */
+    Route::post('/create', [\App\Http\Controllers\SubscriptionController::class, 'processPayment'])
+        ->name('api.subscriptions.create');
+        
+    Route::get('/current', [\App\Http\Controllers\SubscriptionController::class, 'getCurrent'])
+        ->name('api.subscriptions.current');
+        
+    Route::post('/cancel', [\App\Http\Controllers\SubscriptionController::class, 'cancel'])
+        ->name('api.subscriptions.cancel');
+        
+    Route::get('/history', [\App\Http\Controllers\SubscriptionController::class, 'getHistory'])
+        ->name('api.subscriptions.history');
+    
+    /*
+       * PayPal-specific subscription endpoints
+       * Purpose: Handle PayPal subscription approval and activation flows
+       * Access: Authenticated users
+       */
+    Route::post('/paypal/approve', [\App\Http\Controllers\SubscriptionController::class, 'paypalApprove'])
+        ->name('api.subscriptions.paypal.approve');
+        
+    Route::post('/paypal/activate', [\App\Http\Controllers\SubscriptionController::class, 'paypalActivate'])
+        ->name('api.subscriptions.paypal.activate');
+});
+
 // Category routes
 Route::prefix('v1/categories')->middleware(['auth:sanctum', ApiRateLimit::class . ':api,60,1'])->group(function (): void {
     Route::get('/', [CategoryController::class, 'index']);

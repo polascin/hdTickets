@@ -74,5 +74,14 @@
         <server name="QUEUE_CONNECTION" value="sync"/>
         <server name="SESSION_DRIVER" value="array"/>
         <server name="TELESCOPE_ENABLED" value="false"/>
+        
+        <!-- PayPal Test Configuration -->
+        <server name="PAYPAL_MODE" value="sandbox"/>
+        <server name="PAYPAL_SANDBOX_CLIENT_ID" value="test_paypal_client_id"/>
+        <server name="PAYPAL_SANDBOX_CLIENT_SECRET" value="test_paypal_client_secret"/>
+        <server name="PAYPAL_WEBHOOK_ID" value="test_webhook_id"/>
+        <server name="PAYPAL_RECEIVER_EMAIL" value="test@hdtickets.com"/>
+        <server name="PAYPAL_MONTHLY_PLAN_ID" value="P-test-monthly-plan"/>
+        <server name="PAYPAL_ANNUAL_PLAN_ID" value="P-test-annual-plan"/>
     </php>
 </phpunit>
