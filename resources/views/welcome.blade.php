@@ -1,618 +1,570 @@
-@php
-  $user = auth()->user();
-@endphp
-
 <!DOCTYPE html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}" class="scroll-smooth">
-
+<html lang="en">
 <head>
-    <meta charset="utf-8">
+    <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="csrf-token" content="{{ csrf_token() }}">
-
-    <!-- SEO Meta Tags -->
-    <title>hdTickets - Professional Sports Event Ticket Monitoring Platform</title>
-    <meta name="description" content="Advanced sports event ticket monitoring with automated purchasing and real-time analytics across multiple platforms. Never miss your favorite events again.">
-    <meta name="keywords"
-      content="sports tickets, ticket monitoring, event tickets, sports events, automated purchasing, ticket alerts, NFL tickets, NBA tickets, MLB tickets, NHL tickets">
-    <meta name="author" content="HD Tickets">
-
-    <!-- Open Graph / Social Media -->
-    <meta property="og:type" content="website">
-    <meta property="og:site_name" content="HD Tickets">
-    <meta property="og:title" content="hdTickets - Professional Sports Event Ticket Monitoring Platform">
-    <meta property="og:description" content="Advanced sports event ticket monitoring with automated purchasing and real-time analytics across multiple platforms. Never miss your favorite events again.">
-    <meta property="og:image" content="{{ asset('assets/images/og-image.jpg') }}">
-    <meta property="og:url" content="{{ url()->current() }}">
-
-    <!-- Twitter Card -->
-    <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="hdTickets - Professional Sports Event Ticket Monitoring Platform">
-    <meta name="twitter:description" content="Advanced sports event ticket monitoring with automated purchasing and real-time analytics across multiple platforms. Never miss your favorite events again.">
-    <meta name="twitter:image" content="{{ asset('assets/images/og-image.jpg') }}">
-
-    <!-- Theme and PWA -->
-    <meta name="theme-color" content="#1e40af">
-    <meta name="color-scheme" content="light dark">
-    <meta name="mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="default">
-
-    <!-- Performance hints -->
-    <link rel="preconnect" href="https://fonts.bunny.net" crossorigin>
-    <link rel="dns-prefetch" href="//fonts.bunny.net">
-
-    <!-- Fonts with font-display for better loading -->
-    <link rel="preload" href="https://fonts.bunny.net/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
-      as="style" onload="this.onload=null;this.rel='stylesheet'">
-    <noscript>
-      <link rel="stylesheet" href="https://fonts.bunny.net/css2?family=Inter:wght@300;400;500;600;700;800&display=swap">
-    </noscript>
-
-    <!-- Icons with proper sizes -->
-    <link rel="icon" type="image/png" sizes="32x32" href="{{ asset('favicon-32x32.png') }}">
-    <link rel="icon" type="image/png" sizes="16x16" href="{{ asset('favicon-16x16.png') }}">
-    <link rel="apple-touch-icon" sizes="180x180" href="{{ asset('apple-touch-icon.png') }}">
-    <link rel="manifest" href="{{ asset('site.webmanifest') }}">
-
-    <!-- Styles -->
-    @vite(['resources/css/app-v3.css', 'resources/js/app.js'])
-
-    <!-- Performance and analytics (structured data) -->
-    <script type="application/ld+json">
-    {
-      "@context": "https://schema.org",
-      "@type": "SoftwareApplication",
-      "name": "HD Tickets",
-      "description": "Professional sports event ticket monitoring platform",
-      "applicationCategory": "BusinessApplication",
-      "operatingSystem": "Web",
-      "offers": {
-        "@type": "Offer",
-        "price": "29",
-        "priceCurrency": "USD"
-      }
-    }
-    </script>
-
-    <!-- Welcome Page Specific Styles -->
-    <style>
-    /* Prevent horizontal overflow and ensure usability */
-    body {
-      overflow-x: hidden;
-    }
+    <meta name="description" content="HD Tickets - Professional Sports Event Ticket Monitoring & Automation Platform">
+    <title>HD Tickets - Smart Sports Ticket Monitoring</title>
     
-    .max-w-7xl {
-      max-width: min(80rem, calc(100vw - 2rem));
-    }
-
-    /* Enhanced card styles */
-    .feature-card {
-      @apply bg-white dark:bg-gray-800 rounded-xl shadow-md hover:shadow-lg transition-all duration-300 p-6 sm:p-8 border border-gray-200 dark:border-gray-700;
-      min-height: 320px;
-      /* Increased for better content distribution */
-      display: flex;
-      flex-direction: column;
-    }
-
-    .feature-card:hover {
-      @apply transform -translate-y-1;
-    }
-
-    .feature-icon {
-      @apply mx-auto flex items-center justify-center rounded-xl mb-4 sm:mb-6 transition-colors duration-300;
-      width: 3rem !important;
-      height: 3rem !important;
-      flex-shrink: 0;
-    }
-
-    /* Fix potential SVG sizing issues */
-    .feature-icon svg,
-    .feature-card svg {
-      flex-shrink: 0 !important;
-      max-width: none !important;
-    }
-
-    .feature-icon svg {
-      width: 1.5rem !important;
-      height: 1.5rem !important;
-    }
-
-    /* Ensure consistent icon sizing */
-    .w-4 {
-      width: 1rem !important;
-    }
-
-    .h-4 {
-      height: 1rem !important;
-    }
-
-    .w-5 {
-      width: 1.25rem !important;
-    }
-
-    .h-5 {
-      height: 1.25rem !important;
-    }
-
-    .w-6 {
-      width: 1.5rem !important;
-    }
-
-    .h-6 {
-      height: 1.5rem !important;
-    }
-
-    /* Pricing card styles */
-    .pricing-card {
-      @apply bg-white dark:bg-gray-800 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 p-6 sm:p-8 border border-gray-200 dark:border-gray-700 relative;
-      min-height: 450px;
-      /* Ensure consistent pricing card heights */
-      display: flex;
-      flex-direction: column;
-    }
-
-    .pricing-card:hover {
-      @apply transform -translate-y-2;
-    }
-
-    .pricing-card-featured {
-      @apply ring-2 ring-blue-500 dark:ring-blue-400;
-      transform: scale(1.02);
-      /* Reduced from 1.05 to prevent layout issues */
-    }
-
-    .pricing-badge {
-      @apply absolute -top-4 left-1/2 transform -translate-x-1/2 z-10;
-    }
-
-    .pricing-header {
-      @apply text-center flex-shrink-0;
-    }
-
-    .pricing-amount {
-      @apply flex items-baseline justify-center mb-4;
-    }
-
-    .pricing-features {
-      @apply space-y-3 mb-8 flex-1;
-      min-height: 160px;
-      /* Ensure consistent feature list height */
-    }
-
-    .pricing-footer {
-      @apply mt-auto flex-shrink-0;
-    }
-
-    .feature-item {
-      @apply flex items-start;
-    }
-
-    .pricing-cta {
-      @apply block w-full text-center font-semibold py-4 px-6 rounded-xl transition-all duration-200 focus:outline-none focus:ring-4;
-    }
-
-    .pricing-cta-primary {
-      @apply bg-blue-600 hover:bg-blue-700 focus:bg-blue-700 text-white focus:ring-blue-300;
-    }
-
-    .pricing-cta-secondary {
-      @apply bg-gray-100 hover:bg-gray-200 focus:bg-gray-200 text-gray-900 focus:ring-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 dark:text-white dark:focus:ring-gray-500;
-    }
-
-    /* Animation utilities */
-    .fade-in {
-      opacity: 0;
-      transform: translateY(20px);
-      transition: opacity 0.6s ease-out, transform 0.6s ease-out;
-    }
-
-    .fade-in.visible {
-      opacity: 1;
-      transform: translateY(0);
-    }
-
-    /* Loading states for stats */
-    [data-stat].loading::after {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: -100%;
-      height: 100%;
-      width: 100%;
-      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
-      animation: loading 1.5s infinite;
-    }
-
-    @keyframes loading {
-      0% {
-        left: -100%;
-      }
-
-      100% {
-        left: 100%;
-      }
-    }
-
-    /* Responsive adjustments */
-    @media (max-width: 640px) {
-      .hero-section {
-        min-height: 85vh;
-      }
-
-      .feature-card {
-        min-height: auto;
-      }
-
-      .pricing-card {
-        min-height: auto;
-      }
-    }
-
-    /* SVG containment */
-    </style>
-</head>
-
-<body
-    class="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 antialiased flex flex-col">
-    <!-- Skip to main content for accessibility -->
-    <a href="#main-content"
-      class="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 bg-blue-600 text-white px-4 py-2 rounded-md z-50 transition-all duration-200 hover:bg-blue-700">
-      Skip to main content
-    </a>
-
-    <!-- Enhanced Navigation -->
-    <nav
-      class="bg-white/90 dark:bg-gray-900/90 backdrop-blur-md border-b border-gray-200/30 dark:border-gray-700/30 sticky top-0 z-40 shadow-sm">
-      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="flex justify-between items-center h-16">
-          <div class="flex items-center">
-            <a href="{{ route('home') }}" class="flex items-center space-x-3 group">
-              <img src="{{ asset('assets/images/hdTicketsLogo.png') }}" alt="HD Tickets Logo"
-                class="w-8 h-8 transition-transform duration-200 group-hover:scale-110">
-              <span
-                class="font-bold text-xl text-gray-900 dark:text-white group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors duration-200">HD
-                Tickets</span>
-            </a>
-          </div>
-
-          <div class="flex items-center space-x-4">
-            @if ($user)
-              <div class="flex items-center space-x-4">
-                <span class="text-sm text-gray-700 dark:text-gray-300 hidden sm:inline-block">
-                  Welcome, <span class="font-medium">{{ $user->name }}</span>
-                </span>
-                <a href="/dashboard"
-                  class="text-sm text-gray-700 hover:text-blue-600 dark:text-gray-300 dark:hover:text-blue-400 transition-colors duration-200">
-                  Dashboard
-                </a>
-                <form method="POST" action="{{ route('logout') }}" class="inline">
-                  @csrf
-                  <button type="submit"
-                    class="text-sm text-gray-700 hover:text-red-600 dark:text-gray-300 dark:hover:text-red-400 transition-colors duration-200">
-                    Sign Out
-                  </button>
-                </form>
-              </div>
-            @else
-              <a href="{{ route('login') }}"
-                class="text-sm font-medium text-gray-700 hover:text-blue-600 dark:text-gray-300 dark:hover:text-blue-400 transition-colors duration-200">
-                Sign In
-              </a>
-              <a href="{{ route('register') }}"
-                class="inline-flex items-center px-4 py-2 bg-blue-600 hover:bg-blue-700 focus:bg-blue-700 text-white text-sm font-medium rounded-lg transition-all duration-200 focus:outline-none focus:ring-4 focus:ring-blue-300 shadow-sm hover:shadow-md">
-                Get Started
-              </a>
-            @endif
-          </div>
-        </div>
-      </div>
-    </nav>
-
-    <!-- Main Content -->
-    <main id="main-content" class="flex-1">
-    </style>
-</head>
-        "ratingValue": "4.8",
-        "reviewCount": "1250"
-      }
-    }
-    </script>
-
-    <title>HD Tickets - Professional Sports Ticket Monitoring Platform | Role-Based Access & GDPR Compliance</title>
-
     <!-- Fonts -->
-    <link rel="preconnect" href="https://fonts.bunny.net">
-    <link href="https://fonts.bunny.net/css?family=inter:400,500,600,700" rel="stylesheet" />
-
-    <!-- Vite assets -->
-    @vite(['resources/css/welcome.css', 'resources/js/welcome.js'])
-
-    <!-- Route-specific preloads -->
-    @include('layouts.partials.preloads-welcome')
-
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    
     <style>
-      /* Critical CSS for immediate rendering */
-      * {
-        margin: 0;
-        padding: 0;
-        box-sizing: border-box;
-      }
-
-      html,
-      body {
-        width: 100%;
-        overflow-x: hidden;
-        margin: 0;
-        padding: 0;
-      }
-
-      /* Prevent flash of unstyled content */
-      .welcome-layout {
-        opacity: 0;
-        animation: fadeIn 0.5s ease-out forwards;
-      }
-
-      @keyframes fadeIn {
-        to {
-          opacity: 1;
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
         }
-      }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            line-height: 1.6;
+            color: #1f2937;
+            background-color: #ffffff;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 1.5rem;
+        }
+
+        /* Header */
+        .header {
+            background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%);
+            color: white;
+            padding: 1rem 0;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            font-weight: 800;
+            font-size: 1.5rem;
+            text-decoration: none;
+            color: white;
+        }
+
+        .logo-icon {
+            width: 40px;
+            height: 40px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+            align-items: center;
+        }
+
+        .nav-link {
+            color: rgba(255,255,255,0.9);
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.3s ease;
+        }
+
+        .nav-link:hover {
+            color: white;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 0.875rem;
+            transition: all 0.3s ease;
+            border: none;
+            cursor: pointer;
+        }
+
+        .btn-primary {
+            background-color: #10b981;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: #059669;
+            transform: translateY(-1px);
+        }
+
+        .btn-secondary {
+            background-color: transparent;
+            color: white;
+            border: 2px solid rgba(255,255,255,0.3);
+        }
+
+        .btn-secondary:hover {
+            background-color: rgba(255,255,255,0.1);
+            border-color: rgba(255,255,255,0.5);
+        }
+
+        /* Hero Section */
+        .hero {
+            background: linear-gradient(135deg, #1e40af 0%, #3b82f6 50%, #8b5cf6 100%);
+            color: white;
+            padding: 5rem 0;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 20"><defs><radialGradient id="a" cx="50%" cy="50%"><stop offset="0%" style="stop-color:rgba(255,255,255,0.1);stop-opacity:1" /><stop offset="100%" style="stop-color:rgba(255,255,255,0);stop-opacity:0" /></radialGradient></defs><ellipse cx="50" cy="10" rx="50" ry="10" fill="url(%23a)" /></svg>') repeat-x;
+            opacity: 0.3;
+        }
+
+        .hero-content {
+            position: relative;
+            z-index: 1;
+        }
+
+        .hero h1 {
+            font-size: 3.5rem;
+            font-weight: 800;
+            margin-bottom: 1.5rem;
+            line-height: 1.1;
+        }
+
+        .hero p {
+            font-size: 1.25rem;
+            margin-bottom: 2.5rem;
+            opacity: 0.95;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .hero-buttons {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .hero .btn {
+            padding: 1rem 2rem;
+            font-size: 1rem;
+        }
+
+        /* Features Section */
+        .features {
+            padding: 5rem 0;
+            background-color: #f9fafb;
+        }
+
+        .section-header {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+
+        .section-header h2 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: #1f2937;
+            margin-bottom: 1rem;
+        }
+
+        .section-header p {
+            font-size: 1.125rem;
+            color: #6b7280;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+        }
+
+        .feature-card {
+            background: white;
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+        }
+
+        .feature-icon {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, #3b82f6, #10b981);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .feature-card h3 {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: #1f2937;
+            margin-bottom: 1rem;
+        }
+
+        .feature-card p {
+            color: #6b7280;
+            line-height: 1.6;
+        }
+
+        /* Stats Section */
+        .stats {
+            padding: 4rem 0;
+            background: white;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 2rem;
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 3rem;
+            font-weight: 800;
+            color: #3b82f6;
+            line-height: 1;
+        }
+
+        .stat-label {
+            color: #6b7280;
+            font-weight: 500;
+            margin-top: 0.5rem;
+        }
+
+        /* CTA Section */
+        .cta {
+            padding: 5rem 0;
+            background: linear-gradient(135deg, #1f2937 0%, #111827 100%);
+            color: white;
+            text-align: center;
+        }
+
+        .cta h2 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+        }
+
+        .cta p {
+            font-size: 1.125rem;
+            opacity: 0.9;
+            margin-bottom: 2rem;
+            max-width: 500px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        /* Footer */
+        .footer {
+            background: #111827;
+            color: #9ca3af;
+            padding: 3rem 0 2rem;
+            text-align: center;
+        }
+
+        .footer-content {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .footer-link {
+            color: #9ca3af;
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+
+        .footer-link:hover {
+            color: white;
+        }
+
+        .footer-bottom {
+            border-top: 1px solid #374151;
+            padding-top: 2rem;
+            font-size: 0.875rem;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .nav-links {
+                gap: 1rem;
+            }
+
+            .hero h1 {
+                font-size: 2.5rem;
+            }
+
+            .hero p {
+                font-size: 1.125rem;
+            }
+
+            .hero-buttons {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .section-header h2 {
+                font-size: 2rem;
+            }
+
+            .features-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .footer-content {
+                flex-direction: column;
+                gap: 1rem;
+            }
+        }
     </style>
-  </head>
-
-  <body class="stadium-bg field-pattern welcome-layout">
+</head>
+<body>
     <!-- Header -->
-    <header class="welcome-header">
-      <nav class="welcome-nav">
-        <a href="{{ url('/') }}" class="welcome-logo">
-          <div class="welcome-logo-icon">🎫</div>
-          HD Tickets
-        </a>
-
-        <div class="welcome-nav-links">
-          @if (Route::has('login'))
-            @auth
-              <a href="{{ url('/dashboard') }}" class="welcome-btn welcome-btn-primary">Dashboard</a>
-              <form method="POST" action="{{ route('logout') }}" style="display: inline;">
-                @csrf
-                <button type="submit" class="welcome-btn welcome-btn-secondary">Logout</button>
-              </form>
-            @else
-              <a href="{{ route('login') }}" class="welcome-btn welcome-btn-secondary">Sign In</a>
-              <a href="{{ route('register.public') }}" class="welcome-btn welcome-btn-primary">Register</a>
-            @endauth
-          @endif
+    <header class="header">
+        <div class="container">
+            <nav class="nav">
+                <a href="{{ url('/') }}" class="logo">
+                    <div class="logo-icon">
+                        <i class="fas fa-ticket-alt"></i>
+                    </div>
+                    HD Tickets
+                </a>
+                
+                <div class="nav-links">
+                    @auth
+                        <a href="{{ route('dashboard') }}" class="btn btn-primary">
+                            <i class="fas fa-tachometer-alt"></i>
+                            Dashboard
+                        </a>
+                    @else
+                        <a href="{{ route('login') }}" class="nav-link">Sign In</a>
+                        <a href="{{ route('register') }}" class="btn btn-primary">Get Started</a>
+                    @endauth
+                </div>
+            </nav>
         </div>
-      </nav>
     </header>
 
-    <!-- Main Content -->
-    <main class="welcome-main" role="main">
-      <!-- Hero Section -->
-      <section class="welcome-hero">
-        <h1 class="welcome-hero-title hero-title-enhanced">
-          Never Miss Your Team Again
-        </h1>
-        <h2 class="welcome-hero-subtitle">
-          Professional Sports Ticket Monitoring Platform
-        </h2>
-        <p class="welcome-hero-description">
-          Monitor 50+ ticket platforms, get instant alerts for your favorite teams,
-          and never pay full price again. Role-based access, enterprise security,
-          and GDPR compliance included.
-        </p>
-        <div class="welcome-hero-cta">
-          <a href="{{ route('register.public') }}" class="welcome-btn welcome-btn-primary stadium-lights">
-            Start Free Trial
-          </a>
-          <a href="#features" class="welcome-btn welcome-btn-secondary">
-            Learn More
-          </a>
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="container">
+            <div class="hero-content">
+                <h1>Never Miss the Perfect Ticket</h1>
+                <p>
+                    Smart monitoring, instant alerts, and automated purchasing for sports events. 
+                    Save up to 60% on your favourite teams and venues.
+                </p>
+                
+                <div class="hero-buttons">
+                    @auth
+                        <a href="{{ route('dashboard') }}" class="btn btn-primary">
+                            <i class="fas fa-rocket"></i>
+                            Go to Dashboard
+                        </a>
+                    @else
+                        <a href="{{ route('register') }}" class="btn btn-primary">
+                            <i class="fas fa-rocket"></i>
+                            Start Free Trial
+                        </a>
+                        <a href="#features" class="btn btn-secondary">
+                            <i class="fas fa-info-circle"></i>
+                            Learn More
+                        </a>
+                    @endauth
+                </div>
+            </div>
         </div>
-      </section>
+    </section>
 
-      <!-- Live Stats Section -->
-      <section class="welcome-stats" x-data="welcomeStats()">
-        <div class="welcome-stat-card scoreboard-stat" x-data="{ count: 0 }" x-intersect="count = 15000">
-          <div class="welcome-stat-icon">🎯</div>
-          <span class="welcome-stat-number" x-text="count.toLocaleString() + '+'" x-transition></span>
-          <span class="welcome-stat-label">Active Alerts</span>
-          <span class="welcome-stat-description">Currently monitoring</span>
+    <!-- Stats Section -->
+    <section class="stats">
+        <div class="container">
+            <div class="stats-grid">
+                <div>
+                    <div class="stat-number">50K+</div>
+                    <div class="stat-label">Tickets Monitored</div>
+                </div>
+                <div>
+                    <div class="stat-number">2.5K+</div>
+                    <div class="stat-label">Active Events</div>
+                </div>
+                <div>
+                    <div class="stat-number">10K+</div>
+                    <div class="stat-label">Happy Customers</div>
+                </div>
+                <div>
+                    <div class="stat-number">35%</div>
+                    <div class="stat-label">Average Savings</div>
+                </div>
+            </div>
         </div>
+    </section>
 
-        <div class="welcome-stat-card scoreboard-stat" x-data="{ count: 0 }" x-intersect="count = 50">
-          <div class="welcome-stat-icon">🏟️</div>
-          <span class="welcome-stat-number" x-text="count + '+'" x-transition></span>
-          <span class="welcome-stat-label">Platforms</span>
-          <span class="welcome-stat-description">Monitored daily</span>
+    <!-- Features Section -->
+    <section id="features" class="features">
+        <div class="container">
+            <div class="section-header">
+                <h2>Everything You Need to Score Great Deals</h2>
+                <p>
+                    Our advanced platform monitors thousands of tickets across all major platforms, 
+                    so you never miss out on the best prices.
+                </p>
+            </div>
+            
+            <div class="features-grid">
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-search"></i>
+                    </div>
+                    <h3>Smart Monitoring</h3>
+                    <p>
+                        Advanced algorithms monitor ticket prices across 20+ platforms in real-time, 
+                        ensuring you never miss a price drop.
+                    </p>
+                </div>
+                
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-bell"></i>
+                    </div>
+                    <h3>Instant Alerts</h3>
+                    <p>
+                        Get notified immediately when tickets drop to your target price. 
+                        SMS, email, and push notifications available.
+                    </p>
+                </div>
+                
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-robot"></i>
+                    </div>
+                    <h3>Auto Purchase</h3>
+                    <p>
+                        Set it and forget it. Our system can automatically purchase tickets 
+                        when they meet your criteria.
+                    </p>
+                </div>
+                
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-chart-line"></i>
+                    </div>
+                    <h3>Price Analytics</h3>
+                    <p>
+                        Historical price data and trends help you make informed decisions 
+                        about when to buy.
+                    </p>
+                </div>
+                
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-shield-alt"></i>
+                    </div>
+                    <h3>Secure & Safe</h3>
+                    <p>
+                        Bank-level encryption and secure payment processing. 
+                        Your data and payments are always protected.
+                    </p>
+                </div>
+                
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-users"></i>
+                    </div>
+                    <h3>Team Management</h3>
+                    <p>
+                        Follow your favourite teams and venues. Get personalised alerts 
+                        for events you care about.
+                    </p>
+                </div>
+            </div>
         </div>
+    </section>
 
-        <div class="welcome-stat-card scoreboard-stat" x-data="{ count: 0 }" x-intersect="count = 25000">
-          <div class="welcome-stat-icon">👥</div>
-          <span class="welcome-stat-number" x-text="count.toLocaleString() + '+'" x-transition></span>
-          <span class="welcome-stat-label">Happy Users</span>
-          <span class="welcome-stat-description">Sports fans like you</span>
+    <!-- CTA Section -->
+    <section class="cta">
+        <div class="container">
+            <h2>Ready to Save on Your Next Event?</h2>
+            <p>
+                Join thousands of fans who never overpay for tickets again. 
+                Start your free trial today.
+            </p>
+            
+            @auth
+                <a href="{{ route('dashboard') }}" class="btn btn-primary">
+                    <i class="fas fa-rocket"></i>
+                    Go to Dashboard
+                </a>
+            @else
+                <a href="{{ route('register') }}" class="btn btn-primary">
+                    <i class="fas fa-rocket"></i>
+                    Start Free Trial
+                </a>
+            @endauth
+            
+            <p style="margin-top: 1rem; font-size: 0.875rem; opacity: 0.8;">
+                No credit card required • 14-day free trial • Cancel anytime
+            </p>
         </div>
-
-        <div class="welcome-stat-card scoreboard-stat" x-data="{ count: 0 }" x-intersect="count = 2">
-          <div class="welcome-stat-icon">💰</div>
-          <span class="welcome-stat-number" x-text="'$' + count + 'M+'" x-transition></span>
-          <span class="welcome-stat-label">Saved on Tickets</span>
-          <span class="welcome-stat-description">By our community</span>
-        </div>
-      </section>
-
-      <!-- Features Section -->
-      <section id="features" class="welcome-features">
-        <div class="welcome-feature-card feature-card-enhanced ticket-stub">
-          <div class="welcome-feature-icon">⚡</div>
-          <h3 class="welcome-feature-title">Real-Time Monitoring</h3>
-          <p class="welcome-feature-description">
-            Get instant notifications when tickets become available for your favorite teams and events.
-          </p>
-        </div>
-
-        <div class="welcome-feature-card feature-card-enhanced ticket-stub">
-          <div class="welcome-feature-icon">🔒</div>
-          <h3 class="welcome-feature-title">Enterprise Security</h3>
-          <p class="welcome-feature-description">
-            2FA authentication, role-based access control, and GDPR compliance for peace of mind.
-          </p>
-        </div>
-
-        <div class="welcome-feature-card feature-card-enhanced ticket-stub">
-          <div class="welcome-feature-icon">📊</div>
-          <h3 class="welcome-feature-title">Price Analytics</h3>
-          <p class="welcome-feature-description">
-            Advanced analytics to help you find the best deals and track pricing trends.
-          </p>
-        </div>
-
-        <div class="welcome-feature-card feature-card-enhanced ticket-stub">
-          <div class="welcome-feature-icon">📱</div>
-          <h3 class="welcome-feature-title">Multi-Platform</h3>
-          <p class="welcome-feature-description">
-            Monitor StubHub, Ticketmaster, SeatGeek, and 50+ other platforms from one dashboard.
-          </p>
-        </div>
-
-        <div class="welcome-feature-card feature-card-enhanced ticket-stub">
-          <div class="welcome-feature-icon">⚙️</div>
-          <h3 class="welcome-feature-title">Smart Automation</h3>
-          <p class="welcome-feature-description">
-            Set custom filters, price alerts, and automated purchasing rules to never miss a deal.
-          </p>
-        </div>
-
-        <div class="welcome-feature-card feature-card-enhanced ticket-stub">
-          <div class="welcome-feature-icon">🎯</div>
-          <h3 class="welcome-feature-title">Team-Specific Alerts</h3>
-          <p class="welcome-feature-description">
-            Follow your favorite teams across all sports and get notified about home and away games.
-          </p>
-        </div>
-      </section>
-
-      <!-- Call to Action Section -->
-      <section class="welcome-cta-section celebration-particles">
-        <h2 class="welcome-cta-title">Ready to Join the Game?</h2>
-        <p class="welcome-cta-description">
-          Start your 7-day free trial today and never miss another game.
-          No credit card required, cancel anytime.
-        </p>
-        <div class="welcome-cta-buttons">
-          <a href="{{ route('register.public') }}" class="welcome-btn welcome-btn-primary">
-            Start Free Trial
-          </a>
-          <a href="{{ route('login') }}" class="welcome-btn welcome-btn-secondary">
-            Sign In
-          </a>
-        </div>
-      </section>
-    </main>
+    </section>
 
     <!-- Footer -->
-    <footer class="welcome-footer">
-      <div class="welcome-footer-content">
-        <div class="welcome-footer-links">
-          <a href="{{ route('legal.privacy-policy') }}" class="welcome-footer-link">Privacy Policy</a>
-          <a href="{{ route('legal.terms-of-service') }}" class="welcome-footer-link">Terms of Service</a>
-          <a href="{{ route('legal.disclaimer') }}" class="welcome-footer-link">Disclaimer</a>
-          <a href="mailto:support@hdtickets.com" class="welcome-footer-link">Support</a>
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <a href="{{ route('legal.privacy-policy') }}" class="footer-link">Privacy Policy</a>
+                <a href="{{ route('legal.terms-of-service') }}" class="footer-link">Terms of Service</a>
+                <a href="#" class="footer-link">Contact Us</a>
+                <a href="#" class="footer-link">Help Center</a>
+            </div>
+            
+            <div class="footer-bottom">
+                <p>&copy; {{ date('Y') }} HD Tickets. All rights reserved.</p>
+            </div>
         </div>
-        <p>&copy; {{ date('Y') }} HD Tickets. All rights reserved.</p>
-      </div>
     </footer>
-
-    <!-- Alpine.js for interactivity -->
-    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
-
-    <script>
-      // Welcome page stats animation
-      function welcomeStats() {
-        return {
-          init() {
-            // Initialize any additional stats functionality
-          }
-        }
-      }
-
-      // Smooth scrolling for anchor links
-      document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-        anchor.addEventListener('click', function(e) {
-          e.preventDefault();
-          const target = document.querySelector(this.getAttribute('href'));
-          if (target) {
-            target.scrollIntoView({
-              behavior: 'smooth',
-              block: 'start'
-            });
-          }
-        });
-      });
-
-      // Add intersection observer for animations
-      const observerOptions = {
-        threshold: 0.1,
-        rootMargin: '0px 0px -50px 0px'
-      };
-
-      const observer = new IntersectionObserver((entries) => {
-        entries.forEach(entry => {
-          if (entry.isIntersecting) {
-            entry.target.style.animationPlayState = 'running';
-          }
-        });
-      }, observerOptions);
-
-      // Observe elements for animation
-      document.querySelectorAll('.welcome-feature-card, .welcome-stat-card').forEach(el => {
-        observer.observe(el);
-      });
-
-      // Add ripple effect to buttons
-      document.querySelectorAll('.welcome-btn').forEach(button => {
-        button.addEventListener('click', function(e) {
-          const ripple = document.createElement('span');
-          const rect = this.getBoundingClientRect();
-          const size = Math.max(rect.width, rect.height);
-          const x = e.clientX - rect.left - size / 2;
-          const y = e.clientY - rect.top - size / 2;
-
-          ripple.style.cssText = `
-                    position: absolute;
-                    width: ${size}px;
-                    height: ${size}px;
-                    left: ${x}px;
-                    top: ${y}px;
-                    background: rgba(255, 255, 255, 0.3);
-                    border-radius: 50%;
-                    transform: scale(0);
-                    animation: ripple 0.6s linear;
-                    pointer-events: none;
-                `;
-
-          this.style.position = 'relative';
-          this.style.overflow = 'hidden';
-          this.appendChild(ripple);
-
-          setTimeout(() => ripple.remove(), 600);
-        });
-      });
-
-      // Add ripple animation
-      const style = document.createElement('style');
-      style.textContent = `
-            @keyframes ripple {
-                to {
-                    transform: scale(4);
-                    opacity: 0;
-                }
-            }
-        `;
-      document.head.appendChild(style);
-    </script>
-  </body>
-
+</body>
 </html>
