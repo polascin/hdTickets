@@ -206,7 +206,7 @@ class TicketSource extends Model
      */
     public function scopeActive($query): Builder
     {
-        return $query->where('is_active', TRUE);
+        return $query->where('is_active', true);
     }
 
     public function scopeAvailable($query)
@@ -239,12 +239,12 @@ class TicketSource extends Model
         return $query->where('currency', $currency);
     }
 
-    public function scopeInPriceRange($query, $minPrice = NULL, $maxPrice = NULL)
+    public function scopeInPriceRange($query, $minPrice = null, $maxPrice = null)
     {
-        if ($minPrice !== NULL) {
+        if ($minPrice !== null) {
             $query->where('price_min', '>=', $minPrice);
         }
-        if ($maxPrice !== NULL) {
+        if ($maxPrice !== null) {
             $query->where('price_max', '<=', $maxPrice);
         }
 
@@ -296,7 +296,7 @@ class TicketSource extends Model
             self::PLATFORM_CELTIC,
         ];
 
-        return in_array($this->platform, $clubs, TRUE);
+        return in_array($this->platform, $clubs, true);
     }
 
     /**
@@ -313,7 +313,7 @@ class TicketSource extends Model
             self::PLATFORM_SILVERSTONE_F1,
         ];
 
-        return in_array($this->platform, $venues, TRUE);
+        return in_array($this->platform, $venues, true);
     }
 
     public static function getCurrencies(): array
@@ -402,7 +402,7 @@ class TicketSource extends Model
                 return;
             }
 
-            return Carbon::now()->diffForHumans($this->event_date, TRUE);
+            return Carbon::now()->diffForHumans($this->event_date, true);
         });
     }
 

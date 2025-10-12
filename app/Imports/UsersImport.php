@@ -266,7 +266,7 @@ class UsersImport implements ToCollection, WithHeadingRow, WithValidation, Skips
 
         if ($validator->fails()) {
             return [
-                'valid'  => FALSE,
+                'valid'  => false,
                 'errors' => $validator->errors()->toArray(),
             ];
         }
@@ -275,7 +275,7 @@ class UsersImport implements ToCollection, WithHeadingRow, WithValidation, Skips
         $existingUser = User::where('email', $row['email'])->first();
         if ($existingUser) {
             return [
-                'valid'  => FALSE,
+                'valid'  => false,
                 'errors' => ['email' => ['Email already exists in database']],
             ];
         }
@@ -287,7 +287,7 @@ class UsersImport implements ToCollection, WithHeadingRow, WithValidation, Skips
         }
 
         return [
-            'valid' => TRUE,
+            'valid' => true,
             'data'  => $validator->validated(),
         ];
     }
@@ -328,7 +328,7 @@ class UsersImport implements ToCollection, WithHeadingRow, WithValidation, Skips
         }
 
         // Validate timezone if provided
-        if (! empty($row['timezone']) && ! in_array($row['timezone'], timezone_identifiers_list(), TRUE)) {
+        if (! empty($row['timezone']) && ! in_array($row['timezone'], timezone_identifiers_list(), true)) {
             $errors['timezone'] = ['Invalid timezone identifier'];
         }
 
@@ -355,14 +355,14 @@ class UsersImport implements ToCollection, WithHeadingRow, WithValidation, Skips
             'surname'             => $data['surname'],
             'username'            => $username,
             'email'               => $data['email'],
-            'phone'               => $data['phone'] ?? NULL,
+            'phone'               => $data['phone'] ?? null,
             'role'                => $data['role'],
             'password'            => empty($data['password']) ? Hash::make('password123') : Hash::make($data['password']),
-            'is_active'           => $data['is_active'] ?? TRUE,
-            'email_verified_at'   => isset($data['email_verified']) && $data['email_verified'] ? now() : NULL,
+            'is_active'           => $data['is_active'] ?? true,
+            'email_verified_at'   => isset($data['email_verified']) && $data['email_verified'] ? now() : null,
             'timezone'            => $data['timezone'] ?? 'UTC',
             'language'            => $data['language'] ?? 'en',
-            'bio'                 => $data['bio'] ?? NULL,
+            'bio'                 => $data['bio'] ?? null,
             'registration_source' => 'import',
             'created_by_type'     => 'admin',
             'created_by_id'       => auth()->id(),

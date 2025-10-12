@@ -137,7 +137,7 @@ class AccountDeletionRequest extends Model
     public function getRemainingGraceTime(): ?Carbon
     {
         if (! $this->isInGracePeriod()) {
-            return NULL;
+            return null;
         }
 
         return $this->grace_period_expires_at;
@@ -149,10 +149,10 @@ class AccountDeletionRequest extends Model
     /**
      * Check if can cel
      */
-    public function cancel(?string $reason = NULL): bool
+    public function cancel(?string $reason = null): bool
     {
         if (! $this->isPending() && ! $this->isConfirmed()) {
-            return FALSE;
+            return false;
         }
 
         $this->update([
@@ -165,7 +165,7 @@ class AccountDeletionRequest extends Model
             ]),
         ]);
 
-        return TRUE;
+        return true;
     }
 
     /**
@@ -177,7 +177,7 @@ class AccountDeletionRequest extends Model
     public function confirm(): bool
     {
         if (! $this->isPending()) {
-            return FALSE;
+            return false;
         }
 
         $gracePeriodEnd = now()->addHours(24); // 24-hour grace period
@@ -192,7 +192,7 @@ class AccountDeletionRequest extends Model
             ]),
         ]);
 
-        return TRUE;
+        return true;
     }
 
     /**
@@ -204,7 +204,7 @@ class AccountDeletionRequest extends Model
     public function markCompleted(): bool
     {
         if (! $this->isConfirmed()) {
-            return FALSE;
+            return false;
         }
 
         $this->update([
@@ -212,7 +212,7 @@ class AccountDeletionRequest extends Model
             'deleted_at' => now(),
         ]);
 
-        return TRUE;
+        return true;
     }
 
     /**
@@ -227,7 +227,7 @@ class AccountDeletionRequest extends Model
             'status' => self::STATUS_EXPIRED,
         ]);
 
-        return TRUE;
+        return true;
     }
 
     /**

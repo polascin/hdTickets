@@ -12,7 +12,7 @@ class UserSession extends Model
 {
     use HasFactory;
 
-    public $incrementing = FALSE;
+    public $incrementing = false;
 
     protected $table = 'user_sessions';
 
@@ -80,7 +80,7 @@ class UserSession extends Model
      */
     public function scopeTrusted($query)
     {
-        return $query->where('is_trusted', TRUE);
+        return $query->where('is_trusted', true);
     }
 
     /**
@@ -90,7 +90,7 @@ class UserSession extends Model
      */
     public function scopeCurrent($query)
     {
-        return $query->where('is_current', TRUE);
+        return $query->where('is_current', true);
     }
 
     /**
@@ -123,7 +123,7 @@ class UserSession extends Model
      */
     public function markAsTrusted(): void
     {
-        $this->update(['is_trusted' => TRUE]);
+        $this->update(['is_trusted' => true]);
     }
 
     /**
@@ -163,7 +163,7 @@ class UserSession extends Model
             $parts = array_filter([
                 $this->browser,
                 $this->operating_system,
-                $this->device_type ? "({$this->device_type})" : NULL,
+                $this->device_type ? "({$this->device_type})" : null,
             ]);
 
             return implode(' on ', $parts) ?: 'Unknown Device';

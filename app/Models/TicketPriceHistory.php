@@ -181,7 +181,7 @@ class TicketPriceHistory extends Model
                 ->orderBy('recorded_at', 'desc')
                 ->first();
             if (! $previousRecord || $previousRecord->price === 0) {
-                return NULL;
+                return null;
             }
 
             return (($this->price - $previousRecord->price) / $previousRecord->price) * 100;
@@ -199,7 +199,7 @@ class TicketPriceHistory extends Model
                 ->orderBy('recorded_at', 'desc')
                 ->first();
             if (! $previousRecord) {
-                return NULL;
+                return null;
             }
 
             return $this->quantity - $previousRecord->quantity;

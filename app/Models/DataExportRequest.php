@@ -132,7 +132,7 @@ class DataExportRequest extends Model
     public function getDownloadUrl(): ?string
     {
         if (! $this->isAvailableForDownload()) {
-            return NULL;
+            return null;
         }
 
         return Storage::url($this->file_path);
@@ -147,14 +147,14 @@ class DataExportRequest extends Model
     public function markAsProcessing(): bool
     {
         if (! $this->isPending()) {
-            return FALSE;
+            return false;
         }
 
         $this->update([
             'status' => self::STATUS_PROCESSING,
         ]);
 
-        return TRUE;
+        return true;
     }
 
     /**
@@ -166,7 +166,7 @@ class DataExportRequest extends Model
     public function markAsCompleted(string $filePath, int $fileSize): bool
     {
         if (! $this->isProcessing()) {
-            return FALSE;
+            return false;
         }
 
         $this->update([
@@ -176,7 +176,7 @@ class DataExportRequest extends Model
             'expires_at' => now()->addDays(7), // File expires in 7 days
         ]);
 
-        return TRUE;
+        return true;
     }
 
     /**
@@ -192,7 +192,7 @@ class DataExportRequest extends Model
             'error_message' => $errorMessage,
         ]);
 
-        return TRUE;
+        return true;
     }
 
     /**
@@ -207,7 +207,7 @@ class DataExportRequest extends Model
             return Storage::delete($this->file_path);
         }
 
-        return TRUE;
+        return true;
     }
 
     /**
@@ -308,7 +308,7 @@ class DataExportRequest extends Model
     {
         return Attribute::make(get: function (): ?string {
             if (! $this->file_size) {
-                return NULL;
+                return null;
             }
             $units = ['B', 'KB', 'MB', 'GB'];
             $bytes = $this->file_size;

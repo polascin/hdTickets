@@ -98,7 +98,7 @@ class UserPermission extends Model
      */
     public function scopeResourceType($query, ?string $resourceType)
     {
-        if ($resourceType === NULL) {
+        if ($resourceType === null) {
             return $query->whereNull('resource_type');
         }
 
@@ -143,10 +143,10 @@ class UserPermission extends Model
     public function getTimeUntilExpiration(): ?CarbonInterval
     {
         if (! $this->expires_at) {
-            return NULL;
+            return null;
         }
 
-        return now()->diffAsCarbonInterval($this->expires_at, FALSE);
+        return now()->diffAsCarbonInterval($this->expires_at, false);
     }
 
     /**
@@ -155,7 +155,7 @@ class UserPermission extends Model
     public function extend(DateInterval $interval): bool
     {
         if (! $this->expires_at) {
-            return FALSE;
+            return false;
         }
 
         $this->expires_at = $this->expires_at->add($interval);
@@ -168,7 +168,7 @@ class UserPermission extends Model
      */
     public function makePermanent(): bool
     {
-        $this->expires_at = NULL;
+        $this->expires_at = null;
 
         return $this->save();
     }

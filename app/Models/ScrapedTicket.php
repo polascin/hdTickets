@@ -110,7 +110,7 @@ class ScrapedTicket extends Model
     // Optimized Scopes for better performance
     public function scopeHighDemand($query)
     {
-        return $query->where('is_high_demand', TRUE);
+        return $query->where('is_high_demand', true);
     }
 
     public function scopeByPlatform($query, $platform)
@@ -120,7 +120,7 @@ class ScrapedTicket extends Model
 
     public function scopeAvailable($query)
     {
-        return $query->where('is_available', TRUE);
+        return $query->where('is_available', true);
     }
 
     public function scopePopular($query, $threshold = 80)
@@ -137,7 +137,7 @@ class ScrapedTicket extends Model
         });
     }
 
-    public function scopePriceRange($query, $minPrice = NULL, $maxPrice = NULL)
+    public function scopePriceRange($query, $minPrice = null, $maxPrice = null)
     {
         if ($minPrice) {
             $query->where('min_price', '>=', $minPrice);
@@ -165,7 +165,7 @@ class ScrapedTicket extends Model
         return $query->where('event_date', '>=', now());
     }
 
-    public function scopeByDateRange($query, $from = NULL, $to = NULL)
+    public function scopeByDateRange($query, $from = null, $to = null)
     {
         if ($from) {
             $query->where('event_date', '>=', $from);

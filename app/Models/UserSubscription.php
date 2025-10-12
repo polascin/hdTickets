@@ -129,7 +129,7 @@ class UserSubscription extends Model
     public function isActive(): bool
     {
         if ($this->status !== 'active') {
-            return FALSE;
+            return false;
         }
 
         return ! ($this->ends_at && $this->ends_at->isPast());
@@ -144,7 +144,7 @@ class UserSubscription extends Model
     public function isOnTrial(): bool
     {
         if ($this->status !== 'trial' && $this->status !== 'active') {
-            return FALSE;
+            return false;
         }
 
         return $this->trial_ends_at && $this->trial_ends_at->isFuture();
@@ -226,7 +226,7 @@ class UserSubscription extends Model
 
                     break;
                 case 'lifetime':
-                    $this->ends_at = NULL; // No expiration
+                    $this->ends_at = null; // No expiration
 
                     break;
             }
@@ -259,7 +259,7 @@ class UserSubscription extends Model
             if (! $this->ends_at) {
                 return; // Unlimited
             }
-            $days = now()->diffInDays($this->ends_at, FALSE);
+            $days = now()->diffInDays($this->ends_at, false);
 
             return $days > 0 ? $days : 0;
         });
@@ -274,7 +274,7 @@ class UserSubscription extends Model
             if (! $this->trial_ends_at) {
                 return;
             }
-            $days = now()->diffInDays($this->trial_ends_at, FALSE);
+            $days = now()->diffInDays($this->trial_ends_at, false);
 
             return $days > 0 ? $days : 0;
         });

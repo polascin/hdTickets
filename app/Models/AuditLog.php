@@ -53,18 +53,18 @@ class AuditLog extends Model
     public function getResource(): ?Model
     {
         if (! $this->resource_type || ! $this->resource_id) {
-            return NULL;
+            return null;
         }
 
         try {
             $modelClass = $this->getResourceModelClass();
             if (! $modelClass) {
-                return NULL;
+                return null;
             }
 
             return $modelClass::find($this->resource_id);
         } catch (Exception) {
-            return NULL;
+            return null;
         }
     }
 
@@ -89,7 +89,7 @@ class AuditLog extends Model
             'system_config_change',
         ];
 
-        return in_array($this->action, $sensitiveActions, TRUE);
+        return in_array($this->action, $sensitiveActions, true);
     }
 
     /**
@@ -212,9 +212,9 @@ class AuditLog extends Model
      */
     public static function logAction(
         string $action,
-        ?User $user = NULL,
-        ?string $resourceType = NULL,
-        $resourceId = NULL,
+        ?User $user = null,
+        ?string $resourceType = null,
+        $resourceId = null,
         array $changes = [],
     ): self {
         $request = request();
@@ -227,7 +227,7 @@ class AuditLog extends Model
             'changes'       => $changes,
             'ip_address'    => $request->ip(),
             'user_agent'    => $request->header('User-Agent'),
-            'session_id'    => defined('PHPSTAN_RUNNING') ? NULL : session()->getId(),
+            'session_id'    => defined('PHPSTAN_RUNNING') ? null : session()->getId(),
             'performed_at'  => now(),
         ]);
     }
@@ -247,7 +247,7 @@ class AuditLog extends Model
             // Add more resource type mappings as needed
         ];
 
-        return $resourceTypeMap[$this->resource_type] ?? NULL;
+        return $resourceTypeMap[$this->resource_type] ?? null;
     }
 
     /**
@@ -257,7 +257,7 @@ class AuditLog extends Model
      */
     protected function formatValue($value): string
     {
-        if (NULL === $value) {
+        if (null === $value) {
             return '[null]';
         }
 

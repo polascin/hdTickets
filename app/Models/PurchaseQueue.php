@@ -231,7 +231,7 @@ class PurchaseQueue extends Model
         return in_array($this->status, [
             self::STATUS_QUEUED,
             self::STATUS_PROCESSING,
-        ], TRUE);
+        ], true);
     }
 
     /**
@@ -373,7 +373,7 @@ class PurchaseQueue extends Model
             return $this->scheduled_for->diffForHumans();
         }
 
-        return NULL;
+        return null;
     }
 
     /**

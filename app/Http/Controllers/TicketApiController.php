@@ -62,7 +62,7 @@ class TicketApiController extends Controller
             $results = $this->apiManager->searchEvents($criteria, $platforms);
 
             return response()->json([
-                'success' => TRUE,
+                'success' => true,
                 'data'    => $results,
                 'summary' => $this->generateSearchSummary($results),
             ]);
@@ -73,7 +73,7 @@ class TicketApiController extends Controller
             ]);
 
             return response()->json([
-                'success' => FALSE,
+                'success' => false,
                 'message' => 'Search failed: ' . $e->getMessage(),
             ], 500);
         }
@@ -92,13 +92,13 @@ class TicketApiController extends Controller
 
             if (! $event) {
                 return response()->json([
-                    'success' => FALSE,
+                    'success' => false,
                     'message' => 'Event not found',
                 ], 404);
             }
 
             return response()->json([
-                'success' => TRUE,
+                'success' => true,
                 'data'    => $event,
             ]);
         } catch (Exception $e) {
@@ -109,7 +109,7 @@ class TicketApiController extends Controller
             ]);
 
             return response()->json([
-                'success' => FALSE,
+                'success' => false,
                 'message' => 'Failed to get event details: ' . $e->getMessage(),
             ], 500);
         }
@@ -135,9 +135,9 @@ class TicketApiController extends Controller
 
         try {
             // Enable auto-save temporarily if requested
-            $originalAutoSave = config('ticket_apis.auto_save', FALSE);
+            $originalAutoSave = config('ticket_apis.auto_save', false);
             if ($request->boolean('save_to_db')) {
-                config(['ticket_apis.auto_save' => TRUE]);
+                config(['ticket_apis.auto_save' => true]);
             }
 
             $results = $this->apiManager->searchEvents($criteria, $platforms);
@@ -151,7 +151,7 @@ class TicketApiController extends Controller
             }
 
             return response()->json([
-                'success' => TRUE,
+                'success' => true,
                 'message' => "Successfully imported {$importedCount} events",
                 'data'    => $results,
                 'summary' => $this->generateSearchSummary($results),
@@ -163,7 +163,7 @@ class TicketApiController extends Controller
             ]);
 
             return response()->json([
-                'success' => FALSE,
+                'success' => false,
                 'message' => 'Import failed: ' . $e->getMessage(),
             ], 500);
         }
@@ -194,7 +194,7 @@ class TicketApiController extends Controller
         }
 
         return response()->json([
-            'success' => TRUE,
+            'success' => true,
             'data'    => $results,
         ]);
     }
@@ -222,7 +222,7 @@ class TicketApiController extends Controller
 
         if ($validator->fails()) {
             return response()->json([
-                'success' => FALSE,
+                'success' => false,
                 'message' => 'Validation failed',
                 'errors'  => $validator->errors(),
             ], 422);
@@ -286,11 +286,11 @@ class TicketApiController extends Controller
                 if ($request->filled('availability')) {
                     $availability = $request->input('availability');
                     if ($availability === 'available') {
-                        $query->where('is_available', TRUE);
+                        $query->where('is_available', true);
                     } elseif ($availability === 'limited') {
-                        $query->where('is_high_demand', TRUE);
+                        $query->where('is_high_demand', true);
                     } elseif ($availability === 'sold_out') {
-                        $query->where('is_available', FALSE);
+                        $query->where('is_available', false);
                     }
                 }
 
@@ -350,17 +350,17 @@ class TicketApiController extends Controller
                 return $query->paginate($perPage);
             });
 
-            // Add bookmark status to each ticket (placeholder for future implementation)
+            // Note: Bookmark functionality not yet implemented
             if (Auth::check()) {
                 $result->getCollection()->transform(function ($ticket) {
-                    $ticket->is_bookmarked = FALSE; // TODO: Implement bookmark functionality
+                    $ticket->is_bookmarked = false;
 
                     return $ticket;
                 });
             }
 
             return response()->json([
-                'success'    => TRUE,
+                'success'    => true,
                 'data'       => $result->items(),
                 'pagination' => [
                     'current_page' => $result->currentPage(),
@@ -379,7 +379,7 @@ class TicketApiController extends Controller
             ]);
 
             return response()->json([
-                'success' => FALSE,
+                'success' => false,
                 'message' => 'Failed to filter tickets: ' . $e->getMessage(),
             ], 500);
         }
@@ -396,7 +396,7 @@ class TicketApiController extends Controller
 
         if ($validator->fails()) {
             return response()->json([
-                'success' => FALSE,
+                'success' => false,
                 'message' => 'Query parameter is required and must be at least 2 characters',
             ], 422);
         }
@@ -475,7 +475,7 @@ class TicketApiController extends Controller
             });
 
             return response()->json([
-                'success'     => TRUE,
+                'success'     => true,
                 'suggestions' => $suggestions,
             ]);
         } catch (Exception $e) {
@@ -485,7 +485,7 @@ class TicketApiController extends Controller
             ]);
 
             return response()->json([
-                'success' => FALSE,
+                'success' => false,
                 'message' => 'Failed to get suggestions',
             ], 500);
         }
@@ -500,33 +500,19 @@ class TicketApiController extends Controller
     {
         if (! Auth::check()) {
             return response()->json([
-                'success' => FALSE,
+                'success' => false,
                 'message' => 'Authentication required',
             ], 401);
         }
 
         try {
             $ticket = ScrapedTicket::findOrFail($ticketId);
-            $user = Auth::user();
 
-            // TODO: Implement bookmark functionality
-            $bookmark = NULL; // $user->bookmarks()->where('ticket_id', $ticketId)->first();
-
-            if ($bookmark) {
-                // $bookmark->delete();
-                $bookmarked = FALSE;
-                $message = 'Bookmark removed (placeholder)';
-            } else {
-                // $user->bookmarks()->create(['ticket_id' => $ticketId]);
-                $bookmarked = TRUE;
-                $message = 'Bookmark added (placeholder)';
-            }
-
+            // Note: Bookmark functionality not yet implemented
             return response()->json([
-                'success'    => TRUE,
-                'bookmarked' => $bookmarked,
-                'message'    => $message,
-            ]);
+                'success' => false,
+                'message' => 'Bookmark functionality is not yet implemented',
+            ], 501);
         } catch (Exception $e) {
             Log::error('Bookmark toggle failed', [
                 'ticket_id' => $ticketId,
@@ -535,7 +521,7 @@ class TicketApiController extends Controller
             ]);
 
             return response()->json([
-                'success' => FALSE,
+                'success' => false,
                 'message' => 'Failed to update bookmark',
             ], 500);
         }
@@ -555,15 +541,15 @@ class TicketApiController extends Controller
             // TODO: Add view count tracking if needed
             // $ticket->increment('view_count');
 
-            // Add bookmark status if user is authenticated
+            // Add bookmark status if user is authenticated (not yet implemented)
             if (Auth::check()) {
-                $ticket->is_bookmarked = FALSE; // TODO: Implement bookmark functionality
+                $ticket->is_bookmarked = false;
             } else {
-                $ticket->is_bookmarked = FALSE;
+                $ticket->is_bookmarked = false;
             }
 
             return response()->json([
-                'success' => TRUE,
+                'success' => true,
                 'data'    => $ticket,
             ]);
         } catch (Exception $e) {
@@ -573,7 +559,7 @@ class TicketApiController extends Controller
             ]);
 
             return response()->json([
-                'success' => FALSE,
+                'success' => false,
                 'message' => 'Ticket not found',
             ], 404);
         }
@@ -588,7 +574,7 @@ class TicketApiController extends Controller
     {
         if (app()->environment('production')) {
             return response()->json([
-                'success' => FALSE,
+                'success' => false,
                 'message' => 'This endpoint is only available in development',
             ], 403);
         }
@@ -617,7 +603,7 @@ class TicketApiController extends Controller
             ));
 
             return response()->json([
-                'success' => TRUE,
+                'success' => true,
                 'message' => 'Price change event triggered',
                 'data'    => [
                     'ticket_id'         => $ticket->id,
@@ -633,7 +619,7 @@ class TicketApiController extends Controller
             ]);
 
             return response()->json([
-                'success' => FALSE,
+                'success' => false,
                 'message' => 'Failed to trigger price change',
             ], 500);
         }
@@ -683,7 +669,7 @@ class TicketApiController extends Controller
         $summary = [
             'total_events' => 0,
             'platforms'    => [],
-            'price_range'  => ['min' => NULL, 'max' => NULL],
+            'price_range'  => ['min' => null, 'max' => null],
         ];
 
         foreach ($results as $platform => $events) {
@@ -693,14 +679,14 @@ class TicketApiController extends Controller
 
             // Calculate price range
             foreach ($events as $event) {
-                if (isset($event['price_min']) && $event['price_min'] !== NULL) {
-                    $summary['price_range']['min'] = $summary['price_range']['min'] === NULL
+                if (isset($event['price_min']) && $event['price_min'] !== null) {
+                    $summary['price_range']['min'] = $summary['price_range']['min'] === null
                         ? $event['price_min']
                         : min($summary['price_range']['min'], $event['price_min']);
                 }
 
-                if (isset($event['price_max']) && $event['price_max'] !== NULL) {
-                    $summary['price_range']['max'] = $summary['price_range']['max'] === NULL
+                if (isset($event['price_max']) && $event['price_max'] !== null) {
+                    $summary['price_range']['max'] = $summary['price_range']['max'] === null
                         ? $event['price_max']
                         : max($summary['price_range']['max'], $event['price_max']);
                 }

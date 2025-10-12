@@ -91,7 +91,7 @@ class EmailTemplate extends Model
      */
     public function scopeActive($query)
     {
-        return $query->where('active', TRUE);
+        return $query->where('active', true);
     }
 
     /**
@@ -174,7 +174,7 @@ class EmailTemplate extends Model
         // Check for undefined variables (skip validation during seeding)
         if (! app()->runningInConsole()) {
             foreach ($extractedVars as $var) {
-                if (! in_array($var, $availableVars, TRUE)) {
+                if (! in_array($var, $availableVars, true)) {
                     $errors[] = "Undefined variable: {{$var}}";
                 }
             }
@@ -201,12 +201,12 @@ class EmailTemplate extends Model
      *
      * @return static
      */
-    public function cloneTemplate(string $newKey, ?string $newName = NULL): self
+    public function cloneTemplate(string $newKey, ?string $newName = null): self
     {
         $clone = $this->replicate();
         $clone->key = $newKey;
         $clone->name = $newName ?? $this->name . ' (Copy)';
-        $clone->active = FALSE; // New clones start as inactive
+        $clone->active = false; // New clones start as inactive
         $clone->save();
 
         return $clone;
@@ -259,8 +259,8 @@ class EmailTemplate extends Model
 
         // Set default values when creating
         static::creating(function ($model): void {
-            if (NULL === $model->active) {
-                $model->active = TRUE;
+            if (null === $model->active) {
+                $model->active = true;
             }
 
             if (empty($model->variables)) {

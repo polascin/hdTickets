@@ -48,8 +48,8 @@ class AccountDeletionAuditLog extends Model
         string $action,
         string $description,
         array $context = [],
-        ?string $statusFrom = NULL,
-        ?string $statusTo = NULL,
+        ?string $statusFrom = null,
+        ?string $statusTo = null,
     ): self {
         return self::create([
             'user_id'     => $userId,

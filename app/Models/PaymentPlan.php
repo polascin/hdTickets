@@ -64,7 +64,7 @@ class PaymentPlan extends Model
      */
     public function scopeActive($query): Builder
     {
-        return $query->where('is_active', TRUE);
+        return $query->where('is_active', true);
     }
 
     /**
@@ -112,9 +112,9 @@ class PaymentPlan extends Model
                 'max_tickets_per_month'    => 5,
                 'max_concurrent_purchases' => 1,
                 'max_platforms'            => 1,
-                'priority_support'         => FALSE,
-                'advanced_analytics'       => FALSE,
-                'automated_purchasing'     => FALSE,
+                'priority_support'         => false,
+                'advanced_analytics'       => false,
+                'automated_purchasing'     => false,
                 'sort_order'               => 1,
             ],
             [
@@ -133,9 +133,9 @@ class PaymentPlan extends Model
                 'max_tickets_per_month'    => 25,
                 'max_concurrent_purchases' => 2,
                 'max_platforms'            => 2,
-                'priority_support'         => FALSE,
-                'advanced_analytics'       => FALSE,
-                'automated_purchasing'     => FALSE,
+                'priority_support'         => false,
+                'advanced_analytics'       => false,
+                'automated_purchasing'     => false,
                 'sort_order'               => 2,
             ],
             [
@@ -156,9 +156,9 @@ class PaymentPlan extends Model
                 'max_tickets_per_month'    => 0, // unlimited
                 'max_concurrent_purchases' => 5,
                 'max_platforms'            => 0, // unlimited
-                'priority_support'         => TRUE,
-                'advanced_analytics'       => TRUE,
-                'automated_purchasing'     => TRUE,
+                'priority_support'         => true,
+                'advanced_analytics'       => true,
+                'automated_purchasing'     => true,
                 'sort_order'               => 3,
             ],
             [
@@ -179,9 +179,9 @@ class PaymentPlan extends Model
                 'max_tickets_per_month'    => 0, // unlimited
                 'max_concurrent_purchases' => 0, // unlimited
                 'max_platforms'            => 0, // unlimited
-                'priority_support'         => TRUE,
-                'advanced_analytics'       => TRUE,
-                'automated_purchasing'     => TRUE,
+                'priority_support'         => true,
+                'advanced_analytics'       => true,
+                'automated_purchasing'     => true,
                 'sort_order'               => 4,
             ],
         ];

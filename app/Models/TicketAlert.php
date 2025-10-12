@@ -99,17 +99,17 @@ class TicketAlert extends Model
         $eventTitle = strtolower($ticket->event_title);
 
         if (! str_contains($eventTitle, $keywords)) {
-            return FALSE;
+            return false;
         }
 
         // Check platform filter
         if ($this->platform && $this->platform !== $ticket->platform) {
-            return FALSE;
+            return false;
         }
 
         // Check price limit
         if ($this->max_price && $ticket->total_price > $this->max_price) {
-            return FALSE;
+            return false;
         }
 
         // Check additional filters if any
@@ -118,19 +118,19 @@ class TicketAlert extends Model
                 switch ($key) {
                     case 'venue':
                         if (! str_contains(strtolower((string) $ticket->venue), strtolower($value))) {
-                            return FALSE;
+                            return false;
                         }
 
                         break;
                     case 'min_quantity':
                         if ($ticket->quantity_available < $value) {
-                            return FALSE;
+                            return false;
                         }
 
                         break;
                     case 'section':
                         if ($ticket->section && ! str_contains(strtolower($ticket->section), strtolower($value))) {
-                            return FALSE;
+                            return false;
                         }
 
                         break;
@@ -138,7 +138,7 @@ class TicketAlert extends Model
             }
         }
 
-        return TRUE;
+        return true;
     }
 
     /**
@@ -156,7 +156,7 @@ class TicketAlert extends Model
      */
     protected function formattedMaxPrice(): Attribute
     {
-        return Attribute::make(get: fn () => $this->max_price ? $this->currency . ' ' . number_format((float) $this->max_price, 2) : NULL);
+        return Attribute::make(get: fn () => $this->max_price ? $this->currency . ' ' . number_format((float) $this->max_price, 2) : null);
     }
 
     /**
@@ -194,11 +194,7 @@ class TicketAlert extends Model
     {
         parent::boot();
 
-        // static::creating(function ($alert) {
-        //     if (empty($alert->uuid)) {
-        //         $alert->uuid = (string) Str::uuid();
-        //     }
-        // });
+        // Auto-generate UUID when creating alerts is handled by the model's default attribute
     }
 
     protected function casts(): array

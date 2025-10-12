@@ -133,18 +133,18 @@ class ResourceAccess extends Model
     public function getResource(): ?Model
     {
         if (! $this->resource_type || ! $this->resource_id) {
-            return NULL;
+            return null;
         }
 
         try {
             $modelClass = $this->getResourceModelClass();
             if (! $modelClass) {
-                return NULL;
+                return null;
             }
 
             return $modelClass::find($this->resource_id);
         } catch (Exception) {
-            return NULL;
+            return null;
         }
     }
 
@@ -159,11 +159,11 @@ class ResourceAccess extends Model
 
         foreach ($criteria as $key => $value) {
             if (! isset($this->context[$key]) || $this->context[$key] !== $value) {
-                return FALSE;
+                return false;
             }
         }
 
-        return TRUE;
+        return true;
     }
 
     /**
@@ -177,7 +177,7 @@ class ResourceAccess extends Model
         $resourceId,
         string $action,
         array $context = [],
-        ?DateTime $expiresAt = NULL,
+        ?DateTime $expiresAt = null,
     ): self {
         return static::create([
             'user_id'       => $user->id,
@@ -226,11 +226,11 @@ class ResourceAccess extends Model
             // For context matching, we need to check each record individually
             foreach ($query->get() as $access) {
                 if ($access->matchesContext($context)) {
-                    return TRUE;
+                    return true;
                 }
             }
 
-            return FALSE;
+            return false;
         }
 
         return $query->exists();
@@ -250,7 +250,7 @@ class ResourceAccess extends Model
             // Add more resource type mappings as needed
         ];
 
-        return $resourceTypeMap[$this->resource_type] ?? NULL;
+        return $resourceTypeMap[$this->resource_type] ?? null;
     }
 
     protected function casts(): array

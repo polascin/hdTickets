@@ -174,28 +174,6 @@ class User extends Authenticatable implements MustVerifyEmail, OAuthenticatable
     ];
 
     /**
-     * Encrypt email before saving to database.
-     */
-    // public function setEmailAttribute($value)
-    // {
-    //     if (!$this->encryptionService) {
-    //         $this->encryptionService = $this->getEncryptionService();
-    //     }
-    //     $this->attributes['email'] = $this->encryptionService->encrypt($value);
-    // }
-
-    /**
-     * Decrypt email after retrieving from database.
-     */
-    // public function getEmailAttribute($value)
-    // {
-    //     if (!$this->encryptionService) {
-    //         $this->encryptionService = $this->getEncryptionService();
-    //     }
-    //     return $this->encryptionService->decrypt($value);
-    // }
-
-    /**
      * The attributes that should be hidden for serialization.
      *
      * @var array<int, string>
@@ -216,7 +194,7 @@ class User extends Authenticatable implements MustVerifyEmail, OAuthenticatable
         } catch (Exception $e) {
             // Log the error but continue without encryption
             logger('EncryptionService failed to initialize: ' . $e->getMessage());
-            $this->encryptionService = NULL;
+            $this->encryptionService = null;
         }
 
         // Encrypt sensitive fields on save
@@ -354,7 +332,7 @@ class User extends Authenticatable implements MustVerifyEmail, OAuthenticatable
     public function canSelectAndPurchaseTickets(): bool
     {
         if ($this->isAgent()) {
-            return TRUE;
+            return true;
         }
 
         return $this->isAdmin();
@@ -369,7 +347,7 @@ class User extends Authenticatable implements MustVerifyEmail, OAuthenticatable
     public function canMakePurchaseDecisions(): bool
     {
         if ($this->isAgent()) {
-            return TRUE;
+            return true;
         }
 
         return $this->isAdmin();
@@ -384,7 +362,7 @@ class User extends Authenticatable implements MustVerifyEmail, OAuthenticatable
     public function canManageMonitoring(): bool
     {
         if ($this->isAgent()) {
-            return TRUE;
+            return true;
         }
 
         return $this->isAdmin();
@@ -399,7 +377,7 @@ class User extends Authenticatable implements MustVerifyEmail, OAuthenticatable
     public function canViewScrapingMetrics(): bool
     {
         if ($this->isAgent()) {
-            return TRUE;
+            return true;
         }
 
         return $this->isAdmin();
@@ -510,7 +488,7 @@ class User extends Authenticatable implements MustVerifyEmail, OAuthenticatable
      *
      * @return Builder
      */
-    public function scopeUniqueUsername($query, $username, $excludeId = NULL)
+    public function scopeUniqueUsername($query, $username, $excludeId = null)
     {
         $query = $query->where('username', $username);
 
@@ -533,7 +511,7 @@ class User extends Authenticatable implements MustVerifyEmail, OAuthenticatable
      * @param mixed $username
      * @param mixed $excludeId
      */
-    public function isUsernameUnique($username, $excludeId = NULL): bool
+    public function isUsernameUnique($username, $excludeId = null): bool
     {
         return ! static::uniqueUsername($username, $excludeId)->exists();
     }
@@ -591,9 +569,9 @@ class User extends Authenticatable implements MustVerifyEmail, OAuthenticatable
         if (! $this->last_login_at) {
             return [
                 'formatted'  => 'Never logged in',
-                'datetime'   => NULL,
-                'ip'         => NULL,
-                'user_agent' => NULL,
+                'datetime'   => null,
+                'ip'         => null,
+                'user_agent' => null,
                 'relative'   => 'Never',
             ];
         }
@@ -688,7 +666,7 @@ class User extends Authenticatable implements MustVerifyEmail, OAuthenticatable
             'profile_picture'    => ! empty($this->profile_picture),
             'timezone'           => ! empty($this->timezone),
             'language'           => ! empty($this->language),
-            'two_factor_enabled' => $this->two_factor_enabled ?? FALSE,
+            'two_factor_enabled' => $this->two_factor_enabled ?? false,
         ];
 
         $completedFields = array_filter($fields);
@@ -723,7 +701,7 @@ class User extends Authenticatable implements MustVerifyEmail, OAuthenticatable
         $initials = strtoupper(substr($this->name, 0, 1) . substr($this->surname ?? '', 0, 1));
 
         // Handle profile picture URL - check if it already contains full URL
-        $pictureUrl = NULL;
+        $pictureUrl = null;
         if ($this->profile_picture) {
             if (str_starts_with($this->profile_picture, 'http')) {
                 // Already a full URL (from new upload system)
@@ -795,8 +773,8 @@ class User extends Authenticatable implements MustVerifyEmail, OAuthenticatable
     public function getNotificationPreferences(): array
     {
         return [
-            'email_notifications' => $this->email_notifications ?? TRUE,
-            'push_notifications'  => $this->push_notifications ?? TRUE,
+            'email_notifications' => $this->email_notifications ?? true,
+            'push_notifications'  => $this->push_notifications ?? true,
         ];
     }
 
@@ -976,14 +954,14 @@ class User extends Authenticatable implements MustVerifyEmail, OAuthenticatable
         try {
             // Check if subscriptions table exists
             if (! $this->subscriptions()->getModel()->getConnection()->getSchemaBuilder()->hasTable('user_subscriptions')) {
-                return FALSE; // No subscriptions table means no subscriptions
+                return false; // No subscriptions table means no subscriptions
             }
 
-            return $this->activeSubscription() !== NULL;
+            return $this->activeSubscription() !== null;
         } catch (Exception $e) {
             Log::warning('Error checking active subscription for user ' . $this->id . ': ' . $e->getMessage());
 
-            return FALSE; // Default to no subscription on error
+            return false; // Default to no subscription on error
         }
     }
 
@@ -1007,7 +985,7 @@ class User extends Authenticatable implements MustVerifyEmail, OAuthenticatable
     {
         $subscription = $this->activeSubscription();
 
-        return $subscription ? $subscription->paymentPlan : NULL;
+        return $subscription ? $subscription->paymentPlan : null;
     }
 
     /**
@@ -1021,14 +999,14 @@ class User extends Authenticatable implements MustVerifyEmail, OAuthenticatable
         $plan = $this->getCurrentPlan();
 
         if (! $plan) {
-            return FALSE; // No plan = no access
+            return false; // No plan = no access
         }
 
         return match ($feature) {
             'advanced_analytics'   => $plan->advanced_analytics,
             'automated_purchasing' => $plan->automated_purchasing,
             'priority_support'     => $plan->priority_support,
-            default                => TRUE,
+            default                => true,
         };
     }
 
@@ -1081,13 +1059,13 @@ class User extends Authenticatable implements MustVerifyEmail, OAuthenticatable
             'payment_plan_id'        => $plan->id,
             'status'                 => $options['status'] ?? 'trial',
             'starts_at'              => $options['starts_at'] ?? now(),
-            'ends_at'                => $options['ends_at'] ?? NULL,
+            'ends_at'                => $options['ends_at'] ?? null,
             'trial_ends_at'          => $options['trial_ends_at'] ?? now()->addDays(14),
-            'stripe_subscription_id' => $options['stripe_subscription_id'] ?? NULL,
-            'stripe_customer_id'     => $options['stripe_customer_id'] ?? NULL,
+            'stripe_subscription_id' => $options['stripe_subscription_id'] ?? null,
+            'stripe_customer_id'     => $options['stripe_customer_id'] ?? null,
             'amount_paid'            => $options['amount_paid'] ?? 0,
-            'payment_method'         => $options['payment_method'] ?? NULL,
-            'metadata'               => $options['metadata'] ?? NULL,
+            'payment_method'         => $options['payment_method'] ?? null,
+            'metadata'               => $options['metadata'] ?? null,
         ]);
 
         // Update current subscription reference
@@ -1148,7 +1126,7 @@ class User extends Authenticatable implements MustVerifyEmail, OAuthenticatable
      */
     public function hasActiveDeletionRequest(): bool
     {
-        return $this->currentDeletionRequest !== NULL;
+        return $this->currentDeletionRequest !== null;
     }
 
     /**
@@ -1196,12 +1174,12 @@ class User extends Authenticatable implements MustVerifyEmail, OAuthenticatable
 
     public function isVerified(): bool
     {
-        return NULL !== $this->email_verified_at;
+        return null !== $this->email_verified_at;
     }
 
     public function hasPermission(string $permission): bool
     {
-        return TRUE;
+        return true;
     }
 
     public function scrapedTickets(): HasMany
@@ -1377,7 +1355,7 @@ class User extends Authenticatable implements MustVerifyEmail, OAuthenticatable
     public function getFreeTrialDaysRemaining(): ?int
     {
         if ($this->hasActiveSubscription()) {
-            return NULL; // Not on trial
+            return null; // Not on trial
         }
 
         $trialPeriod = (int) config('subscription.free_access_days', 7);

@@ -61,7 +61,7 @@ class PriceAlertThreshold extends Model
      */
     public function scopeActive($query): Builder
     {
-        return $query->where('is_active', TRUE);
+        return $query->where('is_active', true);
     }
 
     /**
@@ -88,7 +88,7 @@ class PriceAlertThreshold extends Model
     public function shouldTrigger($currentPrice): bool
     {
         if (! $this->is_active) {
-            return FALSE;
+            return false;
         }
 
         switch ($this->alert_type) {
@@ -98,7 +98,7 @@ class PriceAlertThreshold extends Model
                 return $currentPrice >= $this->target_price;
             case 'percentage_change':
                 if (! $this->percentage_threshold) {
-                    return FALSE;
+                    return false;
                 }
 
                 $basePrice = $this->ticket->price ?? $this->target_price;
@@ -106,7 +106,7 @@ class PriceAlertThreshold extends Model
 
                 return abs($changePercentage) >= $this->percentage_threshold;
             default:
-                return FALSE;
+                return false;
         }
     }
 

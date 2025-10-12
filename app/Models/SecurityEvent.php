@@ -105,7 +105,7 @@ class SecurityEvent extends Model
             '2fa_disabled',
             'password_reset_completed',
             '2fa_recovery_used',
-        ], TRUE);
+        ], true);
     }
 
     /**

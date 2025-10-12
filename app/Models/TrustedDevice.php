@@ -145,7 +145,7 @@ class TrustedDevice extends Model
      */
     public function getDaysUntilExpiration(): int
     {
-        return max(0, now()->diffInDays($this->expires_at, FALSE));
+        return max(0, now()->diffInDays($this->expires_at, false));
     }
 
     /**

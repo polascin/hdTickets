@@ -107,7 +107,7 @@ class ScheduledReport extends Model
      */
     public function scopeActive($query)
     {
-        return $query->where('is_active', TRUE);
+        return $query->where('is_active', true);
     }
 
     /**
@@ -178,7 +178,7 @@ class ScheduledReport extends Model
     public function isDue(): bool
     {
         if (! $this->is_active) {
-            return FALSE;
+            return false;
         }
 
         $lastRun = $this->getLastRunTime();
@@ -189,8 +189,8 @@ class ScheduledReport extends Model
             self::TYPE_MONTHLY => ! $lastRun instanceof Carbon || $lastRun->lt(now()->startOfMonth()),
             // For custom schedules, would need to parse the cron expression
             // This is a simplified implementation
-            self::TYPE_CUSTOM => TRUE,
-            default           => FALSE,
+            self::TYPE_CUSTOM => true,
+            default           => false,
         };
     }
 
@@ -200,7 +200,7 @@ class ScheduledReport extends Model
     public function getLastRunTime(): ?Carbon
     {
         if (! isset($this->statistics['last_run'])) {
-            return NULL;
+            return null;
         }
 
         return Carbon::parse($this->statistics['last_run']);
@@ -212,7 +212,7 @@ class ScheduledReport extends Model
     public function getLastSuccessfulRunTime(): ?Carbon
     {
         if (! isset($this->statistics['last_successful_run'])) {
-            return NULL;
+            return null;
         }
 
         return Carbon::parse($this->statistics['last_successful_run']);
@@ -270,7 +270,7 @@ class ScheduledReport extends Model
      */
     public function getLastError(): ?string
     {
-        return $this->statistics['last_error'] ?? NULL;
+        return $this->statistics['last_error'] ?? null;
     }
 
     /**
@@ -279,7 +279,7 @@ class ScheduledReport extends Model
     public function getNextRunTime(): ?Carbon
     {
         if (! $this->is_active) {
-            return NULL;
+            return null;
         }
 
         return match ($this->type) {
@@ -289,7 +289,7 @@ class ScheduledReport extends Model
             // For custom schedules, would need to parse the cron expression
             // This is a simplified implementation
             self::TYPE_CUSTOM => now()->addHour(),
-            default           => NULL,
+            default           => null,
         };
     }
 
@@ -335,7 +335,7 @@ class ScheduledReport extends Model
      */
     public function includesSection(string $section): bool
     {
-        return in_array($section, $this->sections, TRUE);
+        return in_array($section, $this->sections, true);
     }
 
     /**
@@ -363,7 +363,7 @@ class ScheduledReport extends Model
      */
     public function addRecipient(string $email): void
     {
-        if (! in_array($email, $this->recipients, TRUE)) {
+        if (! in_array($email, $this->recipients, true)) {
             $recipients = $this->recipients;
             $recipients[] = $email;
             $this->recipients = $recipients;
@@ -383,7 +383,7 @@ class ScheduledReport extends Model
      */
     public function activate(): void
     {
-        $this->is_active = TRUE;
+        $this->is_active = true;
         $this->save();
     }
 
@@ -392,7 +392,7 @@ class ScheduledReport extends Model
      */
     public function deactivate(): void
     {
-        $this->is_active = FALSE;
+        $this->is_active = false;
         $this->save();
     }
 

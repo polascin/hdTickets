@@ -248,7 +248,7 @@ class TicketPurchase extends Model
         return in_array($this->status, [
             self::STATUS_PENDING,
             self::STATUS_PROCESSING,
-        ], TRUE);
+        ], true);
     }
 
     /**
@@ -259,7 +259,7 @@ class TicketPurchase extends Model
         return in_array($this->status, [
             self::STATUS_FAILED,
             self::STATUS_CANCELLED,
-        ], TRUE);
+        ], true);
     }
 
     /**
@@ -268,7 +268,7 @@ class TicketPurchase extends Model
     public function canBeRetried(): bool
     {
         return $this->hasFailed()
-               && ! in_array($this->external_error_code, ['PAYMENT_DECLINED', 'TICKET_NO_LONGER_AVAILABLE'], TRUE);
+               && ! in_array($this->external_error_code, ['PAYMENT_DECLINED', 'TICKET_NO_LONGER_AVAILABLE'], true);
     }
 
     /**
@@ -322,13 +322,13 @@ class TicketPurchase extends Model
             return $this->initiated_at->diffInSeconds($this->failed_at);
         }
 
-        return NULL;
+        return null;
     }
 
     /**
      * Mark purchase as completed
      */
-    public function markAsCompleted(string $confirmationNumber, ?string $externalReference = NULL): bool
+    public function markAsCompleted(string $confirmationNumber, ?string $externalReference = null): bool
     {
         return $this->update([
             'status'              => self::STATUS_COMPLETED,
@@ -341,7 +341,7 @@ class TicketPurchase extends Model
     /**
      * Mark purchase as failed
      */
-    public function markAsFailed(string $reason, ?string $errorCode = NULL): bool
+    public function markAsFailed(string $reason, ?string $errorCode = null): bool
     {
         return $this->update([
             'status'              => self::STATUS_FAILED,

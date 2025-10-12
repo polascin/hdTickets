@@ -53,7 +53,7 @@ class LoginHistory extends Model
      */
     public function scopeSuccessful($query)
     {
-        return $query->where('success', TRUE);
+        return $query->where('success', true);
     }
 
     /**
@@ -63,7 +63,7 @@ class LoginHistory extends Model
      */
     public function scopeFailed($query)
     {
-        return $query->where('success', FALSE);
+        return $query->where('success', false);
     }
 
     /**
@@ -73,7 +73,7 @@ class LoginHistory extends Model
      */
     public function scopeSuspicious($query)
     {
-        return $query->where('is_suspicious', TRUE);
+        return $query->where('is_suspicious', true);
     }
 
     /**
@@ -113,7 +113,7 @@ class LoginHistory extends Model
             $parts = array_filter([
                 $this->browser,
                 $this->operating_system,
-                $this->device_type ? "({$this->device_type})" : NULL,
+                $this->device_type ? "({$this->device_type})" : null,
             ]);
 
             return implode(' on ', $parts) ?: 'Unknown Device';

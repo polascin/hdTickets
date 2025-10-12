@@ -53,7 +53,7 @@ class DeletedUser extends Model
     public function getRemainingRecoveryTime(): ?Carbon
     {
         if (! $this->isRecoverable()) {
-            return NULL;
+            return null;
         }
 
         return $this->recoverable_until;
@@ -68,15 +68,15 @@ class DeletedUser extends Model
     public function markRecovered(): bool
     {
         if (! $this->isRecoverable()) {
-            return FALSE;
+            return false;
         }
 
         $this->update([
-            'is_recovered' => TRUE,
+            'is_recovered' => true,
             'recovered_at' => now(),
         ]);
 
-        return TRUE;
+        return true;
     }
 
     /**
@@ -86,7 +86,7 @@ class DeletedUser extends Model
      */
     public function scopeRecoverable($query)
     {
-        return $query->where('is_recovered', FALSE)
+        return $query->where('is_recovered', false)
             ->where('recoverable_until', '>', now());
     }
 
@@ -97,7 +97,7 @@ class DeletedUser extends Model
      */
     public function scopeRecoveryExpired($query)
     {
-        return $query->where('is_recovered', FALSE)
+        return $query->where('is_recovered', false)
             ->where('recoverable_until', '<=', now());
     }
 
@@ -108,7 +108,7 @@ class DeletedUser extends Model
      */
     public function scopeRecovered($query)
     {
-        return $query->where('is_recovered', TRUE);
+        return $query->where('is_recovered', true);
     }
 
     /**

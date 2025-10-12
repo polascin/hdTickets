@@ -62,7 +62,7 @@ class UserNotificationSettings extends Model
      */
     public function scopeEnabled($query)
     {
-        return $query->where('is_enabled', TRUE);
+        return $query->where('is_enabled', true);
     }
 
     /**
@@ -88,7 +88,7 @@ class UserNotificationSettings extends Model
             'discord'  => ! empty($this->webhook_url) || ! empty($this->discord_user_id),
             'telegram' => ! empty($this->chat_id),
             'webhook'  => ! empty($this->webhook_url),
-            default    => FALSE,
+            default    => false,
         };
     }
 
@@ -154,14 +154,14 @@ class UserNotificationSettings extends Model
     {
         if (! $this->is_enabled) {
             return [
-                'success' => FALSE,
+                'success' => false,
                 'message' => 'Channel is disabled',
             ];
         }
 
         if (! $this->isConfigured()) {
             return [
-                'success' => FALSE,
+                'success' => false,
                 'message' => 'Channel is not properly configured',
             ];
         }
@@ -186,13 +186,13 @@ class UserNotificationSettings extends Model
                     return $channel->testConnection($this->user);
                 default:
                     return [
-                        'success' => FALSE,
+                        'success' => false,
                         'message' => 'Unknown channel type',
                     ];
             }
         } catch (Exception $e) {
             return [
-                'success' => FALSE,
+                'success' => false,
                 'message' => 'Test failed: ' . $e->getMessage(),
             ];
         }

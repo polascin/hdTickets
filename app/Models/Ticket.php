@@ -443,7 +443,7 @@ class Ticket extends Model
             self::STATUS_OPEN,
             self::STATUS_IN_PROGRESS,
             self::STATUS_PENDING,
-        ], TRUE);
+        ], true);
     }
 
     /**
@@ -458,7 +458,7 @@ class Ticket extends Model
             self::STATUS_RESOLVED,
             self::STATUS_CLOSED,
             self::STATUS_CANCELLED,
-        ], TRUE);
+        ], true);
     }
 
     /**
@@ -484,7 +484,7 @@ class Ticket extends Model
             self::PRIORITY_HIGH,
             self::PRIORITY_URGENT,
             self::PRIORITY_CRITICAL,
-        ], TRUE);
+        ], true);
     }
 
     /**
@@ -523,13 +523,13 @@ class Ticket extends Model
     public function addTag(string $tag): bool
     {
         $tags = $this->tags ?? [];
-        if (! in_array($tag, $tags, TRUE)) {
+        if (! in_array($tag, $tags, true)) {
             $tags[] = $tag;
 
             return $this->update(['tags' => $tags]);
         }
 
-        return FALSE;
+        return false;
     }
 
     /**
@@ -541,14 +541,14 @@ class Ticket extends Model
     public function removeTag(string $tag): bool
     {
         $tags = $this->tags ?? [];
-        $key = array_search($tag, $tags, TRUE);
-        if ($key !== FALSE) {
+        $key = array_search($tag, $tags, true);
+        if ($key !== false) {
             unset($tags[$key]);
 
             return $this->update(['tags' => array_values($tags)]);
         }
 
-        return FALSE;
+        return false;
     }
 
     /**

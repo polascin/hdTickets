@@ -47,7 +47,7 @@ class WebPushSubscription extends Model
      */
     public function disable(): void
     {
-        $this->update(['is_active' => FALSE]);
+        $this->update(['is_active' => false]);
     }
 
     protected function casts(): array

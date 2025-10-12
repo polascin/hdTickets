@@ -84,7 +84,7 @@ class UserFavoriteTeam extends Model
      */
     public function scopeWithEmailAlerts($query)
     {
-        return $query->where('email_alerts', TRUE);
+        return $query->where('email_alerts', true);
     }
 
     /**
@@ -94,7 +94,7 @@ class UserFavoriteTeam extends Model
      */
     public function scopeWithPushAlerts($query)
     {
-        return $query->where('push_alerts', TRUE);
+        return $query->where('push_alerts', true);
     }
 
     /**
@@ -179,7 +179,7 @@ class UserFavoriteTeam extends Model
     /**
      * Get  popular teams
      */
-    public static function getPopularTeams(?string $sport = NULL): array
+    public static function getPopularTeams(?string $sport = null): array
     {
         $query = self::select('team_name', 'team_city', 'league', 'sport_type')
             ->selectRaw('COUNT(*) as popularity')
@@ -263,7 +263,7 @@ class UserFavoriteTeam extends Model
             'total_teams'         => $teams->count(),
             'sports_count'        => $teams->groupBy('sport_type')->count(),
             'high_priority_count' => $teams->where('priority', '>=', 4)->count(),
-            'email_alerts_count'  => $teams->where('email_alerts', TRUE)->count(),
+            'email_alerts_count'  => $teams->where('email_alerts', true)->count(),
             'most_popular_sport'  => $teams->groupBy('sport_type')->sortByDesc(fn ($group) => $group->count())->keys()->first(),
             'by_sport'            => $teams->groupBy('sport_type')->map(fn ($group) => $group->count())->toArray(),
         ];
