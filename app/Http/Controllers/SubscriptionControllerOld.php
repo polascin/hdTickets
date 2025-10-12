@@ -4,20 +4,20 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers;
 
-use App\Services\SubscriptionService;
-use App\Models\User;
-use App\Models\Subscription;
 use App\Models\Payment;
+use App\Models\Subscription;
 use App\Models\UsageRecord;
-use Illuminate\Http\Request;
+use App\Models\User;
+use App\Services\SubscriptionService;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\ValidationException;
 
 /**
  * Subscription Controller
- * 
+ *
  * Handles subscription management including:
  * - Plan subscription and upgrades
  * - Payment processing and billing
@@ -46,23 +46,22 @@ class SubscriptionController extends Controller
             $currentPlan = $user->subscription_plan ?? 'free';
 
             return response()->json([
-                'success' => true,
-                'data' => [
-                    'plans' => $plans,
-                    'current_plan' => $currentPlan,
-                    'subscription_status' => $user->subscription_status ?? 'free'
-                ]
+                'success' => TRUE,
+                'data'    => [
+                    'plans'               => $plans,
+                    'current_plan'        => $currentPlan,
+                    'subscription_status' => $user->subscription_status ?? 'free',
+                ],
             ]);
-
         } catch (\Exception $e) {
             Log::error('Failed to get subscription plans', [
-                'error' => $e->getMessage(),
-                'user_id' => Auth::id()
+                'error'   => $e->getMessage(),
+                'user_id' => Auth::id(),
             ]);
 
             return response()->json([
-                'success' => false,
-                'message' => 'Failed to load subscription plans'
+                'success' => FALSE,
+                'message' => 'Failed to load subscription plans',
             ], 500);
         }
     }
@@ -74,18 +73,18 @@ class SubscriptionController extends Controller
     {
         try {
             $validated = $request->validate([
-                'plan' => 'required|string|in:starter,pro,enterprise',
+                'plan'              => 'required|string|in:starter,pro,enterprise',
                 'payment_method_id' => 'required|string',
-                'trial_days' => 'nullable|integer|min:0|max:30'
+                'trial_days'        => 'nullable|integer|min:0|max:30',
             ]);
 
             $user = Auth::user();
-            
+
             // Check if user already has active subscription
             if ($user->activeSubscription()) {
                 return response()->json([
-                    'success' => false,
-                    'message' => 'You already have an active subscription. Use upgrade instead.'
+                    'success' => FALSE,
+                    'message' => 'You already have an active subscription. Use upgrade instead.',
                 ], 400);
             }
 
@@ -102,31 +101,29 @@ class SubscriptionController extends Controller
             );
 
             return response()->json([
-                'success' => true,
-                'data' => [
-                    'subscription' => $result['subscription'],
-                    'billing_summary' => $result['subscription']->getBillingSummary()
+                'success' => TRUE,
+                'data'    => [
+                    'subscription'    => $result['subscription'],
+                    'billing_summary' => $result['subscription']->getBillingSummary(),
                 ],
-                'message' => $result['message']
+                'message' => $result['message'],
             ]);
-
         } catch (ValidationException $e) {
             return response()->json([
-                'success' => false,
+                'success' => FALSE,
                 'message' => 'Validation failed',
-                'errors' => $e->errors()
+                'errors'  => $e->errors(),
             ], 422);
-
         } catch (\Exception $e) {
             Log::error('Failed to create subscription', [
-                'error' => $e->getMessage(),
+                'error'   => $e->getMessage(),
                 'user_id' => Auth::id(),
-                'plan' => $request->input('plan')
+                'plan'    => $request->input('plan'),
             ]);
 
             return response()->json([
-                'success' => false,
-                'message' => 'Failed to create subscription: ' . $e->getMessage()
+                'success' => FALSE,
+                'message' => 'Failed to create subscription: ' . $e->getMessage(),
             ], 500);
         }
     }
@@ -138,29 +135,29 @@ class SubscriptionController extends Controller
     {
         try {
             $validated = $request->validate([
-                'plan' => 'required|string|in:starter,pro,enterprise',
-                'prorate' => 'nullable|boolean'
+                'plan'    => 'required|string|in:starter,pro,enterprise',
+                'prorate' => 'nullable|boolean',
             ]);
 
             $user = Auth::user();
             $currentSubscription = $user->activeSubscription();
-            
+
             if (!$currentSubscription) {
                 return response()->json([
-                    'success' => false,
-                    'message' => 'No active subscription found. Create a subscription first.'
+                    'success' => FALSE,
+                    'message' => 'No active subscription found. Create a subscription first.',
                 ], 400);
             }
 
             if ($currentSubscription->plan_name === $validated['plan']) {
                 return response()->json([
-                    'success' => false,
-                    'message' => 'You are already on this plan.'
+                    'success' => FALSE,
+                    'message' => 'You are already on this plan.',
                 ], 400);
             }
 
             $options = [
-                'prorate' => $validated['prorate'] ?? true
+                'prorate' => $validated['prorate'] ?? TRUE,
             ];
 
             $result = $this->subscriptionService->updateSubscription(
@@ -170,31 +167,29 @@ class SubscriptionController extends Controller
             );
 
             return response()->json([
-                'success' => true,
-                'data' => [
-                    'subscription' => $result['subscription'],
-                    'billing_summary' => $result['subscription']->getBillingSummary()
+                'success' => TRUE,
+                'data'    => [
+                    'subscription'    => $result['subscription'],
+                    'billing_summary' => $result['subscription']->getBillingSummary(),
                 ],
-                'message' => $result['message']
+                'message' => $result['message'],
             ]);
-
         } catch (ValidationException $e) {
             return response()->json([
-                'success' => false,
+                'success' => FALSE,
                 'message' => 'Validation failed',
-                'errors' => $e->errors()
+                'errors'  => $e->errors(),
             ], 422);
-
         } catch (\Exception $e) {
             Log::error('Failed to upgrade subscription', [
-                'error' => $e->getMessage(),
-                'user_id' => Auth::id(),
-                'new_plan' => $request->input('plan')
+                'error'    => $e->getMessage(),
+                'user_id'  => Auth::id(),
+                'new_plan' => $request->input('plan'),
             ]);
 
             return response()->json([
-                'success' => false,
-                'message' => 'Failed to upgrade subscription: ' . $e->getMessage()
+                'success' => FALSE,
+                'message' => 'Failed to upgrade subscription: ' . $e->getMessage(),
             ], 500);
         }
     }
@@ -207,42 +202,40 @@ class SubscriptionController extends Controller
         try {
             $validated = $request->validate([
                 'immediately' => 'nullable|boolean',
-                'reason' => 'nullable|string|max:500'
+                'reason'      => 'nullable|string|max:500',
             ]);
 
             $user = Auth::user();
-            
+
             $result = $this->subscriptionService->cancelSubscription(
                 $user,
-                $validated['immediately'] ?? false,
-                $validated['reason'] ?? null
+                $validated['immediately'] ?? FALSE,
+                $validated['reason'] ?? NULL
             );
 
             return response()->json([
-                'success' => true,
-                'data' => [
-                    'subscription' => $result['subscription'],
-                    'billing_summary' => $result['subscription']->getBillingSummary()
+                'success' => TRUE,
+                'data'    => [
+                    'subscription'    => $result['subscription'],
+                    'billing_summary' => $result['subscription']->getBillingSummary(),
                 ],
-                'message' => $result['message']
+                'message' => $result['message'],
             ]);
-
         } catch (ValidationException $e) {
             return response()->json([
-                'success' => false,
+                'success' => FALSE,
                 'message' => 'Validation failed',
-                'errors' => $e->errors()
+                'errors'  => $e->errors(),
             ], 422);
-
         } catch (\Exception $e) {
             Log::error('Failed to cancel subscription', [
-                'error' => $e->getMessage(),
-                'user_id' => Auth::id()
+                'error'   => $e->getMessage(),
+                'user_id' => Auth::id(),
             ]);
 
             return response()->json([
-                'success' => false,
-                'message' => 'Failed to cancel subscription: ' . $e->getMessage()
+                'success' => FALSE,
+                'message' => 'Failed to cancel subscription: ' . $e->getMessage(),
             ], 500);
         }
     }
@@ -254,27 +247,26 @@ class SubscriptionController extends Controller
     {
         try {
             $user = Auth::user();
-            
+
             $result = $this->subscriptionService->resumeSubscription($user);
 
             return response()->json([
-                'success' => true,
-                'data' => [
-                    'subscription' => $result['subscription'],
-                    'billing_summary' => $result['subscription']->getBillingSummary()
+                'success' => TRUE,
+                'data'    => [
+                    'subscription'    => $result['subscription'],
+                    'billing_summary' => $result['subscription']->getBillingSummary(),
                 ],
-                'message' => $result['message']
+                'message' => $result['message'],
             ]);
-
         } catch (\Exception $e) {
             Log::error('Failed to resume subscription', [
-                'error' => $e->getMessage(),
-                'user_id' => Auth::id()
+                'error'   => $e->getMessage(),
+                'user_id' => Auth::id(),
             ]);
 
             return response()->json([
-                'success' => false,
-                'message' => 'Failed to resume subscription: ' . $e->getMessage()
+                'success' => FALSE,
+                'message' => 'Failed to resume subscription: ' . $e->getMessage(),
             ], 500);
         }
     }
@@ -290,36 +282,35 @@ class SubscriptionController extends Controller
 
             if (!$subscription) {
                 return response()->json([
-                    'success' => true,
-                    'data' => [
-                        'subscription' => null,
+                    'success' => TRUE,
+                    'data'    => [
+                        'subscription'    => NULL,
                         'billing_summary' => [
-                            'plan' => 'Free',
-                            'status' => 'free',
-                            'features' => $this->subscriptionService->getUserLimits($user)
-                        ]
-                    ]
+                            'plan'     => 'Free',
+                            'status'   => 'free',
+                            'features' => $this->subscriptionService->getUserLimits($user),
+                        ],
+                    ],
                 ]);
             }
 
             return response()->json([
-                'success' => true,
-                'data' => [
-                    'subscription' => $subscription,
+                'success' => TRUE,
+                'data'    => [
+                    'subscription'    => $subscription,
                     'billing_summary' => $subscription->getBillingSummary(),
-                    'usage_summary' => UsageRecord::getCurrentPeriodSummary($user)
-                ]
+                    'usage_summary'   => UsageRecord::getCurrentPeriodSummary($user),
+                ],
             ]);
-
         } catch (\Exception $e) {
             Log::error('Failed to get current subscription', [
-                'error' => $e->getMessage(),
-                'user_id' => Auth::id()
+                'error'   => $e->getMessage(),
+                'user_id' => Auth::id(),
             ]);
 
             return response()->json([
-                'success' => false,
-                'message' => 'Failed to load subscription details'
+                'success' => FALSE,
+                'message' => 'Failed to load subscription details',
             ], 500);
         }
     }
@@ -334,19 +325,18 @@ class SubscriptionController extends Controller
             $summary = $this->subscriptionService->getBillingSummary($user);
 
             return response()->json([
-                'success' => true,
-                'data' => $summary
+                'success' => TRUE,
+                'data'    => $summary,
             ]);
-
         } catch (\Exception $e) {
             Log::error('Failed to get billing summary', [
-                'error' => $e->getMessage(),
-                'user_id' => Auth::id()
+                'error'   => $e->getMessage(),
+                'user_id' => Auth::id(),
             ]);
 
             return response()->json([
-                'success' => false,
-                'message' => 'Failed to load billing summary'
+                'success' => FALSE,
+                'message' => 'Failed to load billing summary',
             ], 500);
         }
     }
@@ -358,11 +348,11 @@ class SubscriptionController extends Controller
     {
         try {
             $validated = $request->validate([
-                'page' => 'nullable|integer|min:1',
-                'per_page' => 'nullable|integer|min:1|max:100',
-                'status' => 'nullable|string|in:pending,succeeded,failed,cancelled,refunded',
+                'page'       => 'nullable|integer|min:1',
+                'per_page'   => 'nullable|integer|min:1|max:100',
+                'status'     => 'nullable|string|in:pending,succeeded,failed,cancelled,refunded',
                 'start_date' => 'nullable|date',
-                'end_date' => 'nullable|date|after_or_equal:start_date'
+                'end_date'   => 'nullable|date|after_or_equal:start_date',
             ]);
 
             $user = Auth::user();
@@ -387,26 +377,24 @@ class SubscriptionController extends Controller
             );
 
             return response()->json([
-                'success' => true,
-                'data' => $payments
+                'success' => TRUE,
+                'data'    => $payments,
             ]);
-
         } catch (ValidationException $e) {
             return response()->json([
-                'success' => false,
+                'success' => FALSE,
                 'message' => 'Validation failed',
-                'errors' => $e->errors()
+                'errors'  => $e->errors(),
             ], 422);
-
         } catch (\Exception $e) {
             Log::error('Failed to get payment history', [
-                'error' => $e->getMessage(),
-                'user_id' => Auth::id()
+                'error'   => $e->getMessage(),
+                'user_id' => Auth::id(),
             ]);
 
             return response()->json([
-                'success' => false,
-                'message' => 'Failed to load payment history'
+                'success' => FALSE,
+                'message' => 'Failed to load payment history',
             ], 500);
         }
     }
@@ -419,9 +407,9 @@ class SubscriptionController extends Controller
         try {
             $validated = $request->validate([
                 'resource_type' => 'nullable|string',
-                'start_date' => 'nullable|date',
-                'end_date' => 'nullable|date|after_or_equal:start_date',
-                'granularity' => 'nullable|string|in:day,week,month'
+                'start_date'    => 'nullable|date',
+                'end_date'      => 'nullable|date|after_or_equal:start_date',
+                'granularity'   => 'nullable|string|in:day,week,month',
             ]);
 
             $user = Auth::user();
@@ -452,31 +440,29 @@ class SubscriptionController extends Controller
             $grouped = $this->groupUsageByGranularity($records, $granularity);
 
             return response()->json([
-                'success' => true,
-                'data' => [
+                'success' => TRUE,
+                'data'    => [
                     'records' => $records,
                     'grouped' => $grouped,
                     'summary' => UsageRecord::getCurrentPeriodSummary($user),
-                    'limits' => $this->subscriptionService->getUserLimits($user)
-                ]
+                    'limits'  => $this->subscriptionService->getUserLimits($user),
+                ],
             ]);
-
         } catch (ValidationException $e) {
             return response()->json([
-                'success' => false,
+                'success' => FALSE,
                 'message' => 'Validation failed',
-                'errors' => $e->errors()
+                'errors'  => $e->errors(),
             ], 422);
-
         } catch (\Exception $e) {
             Log::error('Failed to get usage analytics', [
-                'error' => $e->getMessage(),
-                'user_id' => Auth::id()
+                'error'   => $e->getMessage(),
+                'user_id' => Auth::id(),
             ]);
 
             return response()->json([
-                'success' => false,
-                'message' => 'Failed to load usage analytics'
+                'success' => FALSE,
+                'message' => 'Failed to load usage analytics',
             ], 500);
         }
     }
@@ -488,7 +474,7 @@ class SubscriptionController extends Controller
     {
         try {
             $validated = $request->validate([
-                'feature' => 'required|string'
+                'feature' => 'required|string',
             ]);
 
             $user = Auth::user();
@@ -496,32 +482,30 @@ class SubscriptionController extends Controller
             $limits = $this->subscriptionService->getUserLimits($user);
 
             return response()->json([
-                'success' => true,
-                'data' => [
+                'success' => TRUE,
+                'data'    => [
                     'has_access' => $hasAccess,
-                    'feature' => $validated['feature'],
-                    'plan' => $user->subscription_plan ?? 'free',
-                    'limits' => $limits
-                ]
+                    'feature'    => $validated['feature'],
+                    'plan'       => $user->subscription_plan ?? 'free',
+                    'limits'     => $limits,
+                ],
             ]);
-
         } catch (ValidationException $e) {
             return response()->json([
-                'success' => false,
+                'success' => FALSE,
                 'message' => 'Validation failed',
-                'errors' => $e->errors()
+                'errors'  => $e->errors(),
             ], 422);
-
         } catch (\Exception $e) {
             Log::error('Failed to check feature access', [
-                'error' => $e->getMessage(),
+                'error'   => $e->getMessage(),
                 'user_id' => Auth::id(),
-                'feature' => $request->input('feature')
+                'feature' => $request->input('feature'),
             ]);
 
             return response()->json([
-                'success' => false,
-                'message' => 'Failed to check feature access'
+                'success' => FALSE,
+                'message' => 'Failed to check feature access',
             ], 500);
         }
     }
@@ -531,74 +515,26 @@ class SubscriptionController extends Controller
     private function groupUsageByGranularity($records, string $granularity): array
     {
         $grouped = [];
-        
+
         foreach ($records as $record) {
             $key = match ($granularity) {
-                'day' => $record->recorded_at->format('Y-m-d'),
-                'week' => $record->recorded_at->format('Y-W'),
+                'day'   => $record->recorded_at->format('Y-m-d'),
+                'week'  => $record->recorded_at->format('Y-W'),
                 'month' => $record->recorded_at->format('Y-m'),
                 default => $record->recorded_at->format('Y-m-d')
             };
 
             if (!isset($grouped[$key])) {
                 $grouped[$key] = [
-                    'period' => $key,
-                    'resources' => []
+                    'period'    => $key,
+                    'resources' => [],
                 ];
             }
 
             if (!isset($grouped[$key]['resources'][$record->resource_type])) {
                 $grouped[$key]['resources'][$record->resource_type] = [
                     'quantity' => 0,
-                    'cost' => 0
-                ];
-            }
-
-            $grouped[$key]['resources'][$record->resource_type]['quantity'] += $record->quantity;
-            $grouped[$key]['resources'][$record->resource_type]['cost'] += $record->total_amount;
-        }
-
-        return array_values($grouped);
-    }
-}
-
-    // Private helper methods
-
-    private function groupUsageByGranularity($records, string $granularity): array
-    {
-        $grouped = [];
-        
-        foreach ($records as $record) {
-            $key = match ($granularity) {
-                'day' => $record->recorded_at->format('Y-m-d'),
-                'week' => $record->recorded_at->format('Y-W'),
-                'month' => $record->recorded_at->format('Y-m'),
-                default => $record->recorded_at->format('Y-m-d')
-            };
-
-            if (!isset($grouped[$key])) {
-                $grouped[$key] = [
-                    'period' => $key,
-                    'resources' => []
-                ];
-            }
-
-            if (!isset($grouped[$key]['resources'][$record->resource_type])) {
-                $grouped[$key]['resources'][$record->resource_type] = [
-                    'quantity' => 0,
-                    'cost' => 0
-                ];
-            }
-
-            $grouped[$key]['resources'][$record->resource_type]['quantity'] += $record->quantity;
-            $grouped[$key]['resources'][$record->resource_type]['cost'] += $record->total_amount;
-        }
-
-        return array_values($grouped);
-    }
-                $grouped[$key]['resources'][$record->resource_type] = [
-                    'quantity' => 0,
-                    'cost' => 0
+                    'cost'     => 0,
                 ];
             }
 
