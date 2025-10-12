@@ -171,6 +171,8 @@ class User extends Authenticatable implements MustVerifyEmail, OAuthenticatable
         'billing_address',
         'stripe_customer_id',
         'password_history',
+        'subscription_plan',
+        'subscription_status',
     ];
 
     /**
@@ -887,6 +889,40 @@ class User extends Authenticatable implements MustVerifyEmail, OAuthenticatable
                     ->orWhere('ends_at', '>', now());
             })
             ->with('paymentPlan')
+            ->first();
+    }
+
+    /**
+     * Get new subscription system subscriptions
+     */
+    public function newSubscriptions(): HasMany
+    {
+        return $this->hasMany(Subscription::class);
+    }
+
+    /**
+     * Get new subscription system payments
+     */
+    public function newPayments(): HasMany
+    {
+        return $this->hasMany(Payment::class);
+    }
+
+    /**
+     * Get usage records
+     */
+    public function usageRecords(): HasMany
+    {
+        return $this->hasMany(UsageRecord::class);
+    }
+
+    /**
+     * Get active new subscription
+     */
+    public function activeNewSubscription(): ?Subscription
+    {
+        return $this->newSubscriptions()
+            ->active()
             ->first();
     }
 

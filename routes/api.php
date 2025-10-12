@@ -363,33 +363,40 @@ Route::prefix('v1/purchases')->middleware(['auth:sanctum', ApiRateLimit::class .
 // Subscription routes
 Route::prefix('v1/subscriptions')->middleware(['auth:sanctum', ApiRateLimit::class . ':api,60,1'])->group(function (): void {
     /*
-       * Subscription Creation and Management
-       * Purpose: Handle subscription lifecycle for sports events ticket monitoring
+       * New Subscription Management System
+       * Purpose: Handle tiered subscription plans for sports events ticket monitoring
        * Access: Authenticated users
-       * Payment Methods: Stripe and PayPal supported
+       * Features: Starter ($19), Pro ($49), Enterprise ($199) plans
        */
-    Route::post('/create', [\App\Http\Controllers\SubscriptionController::class, 'processPayment'])
-        ->name('api.subscriptions.create');
+    Route::get('/plans', [\App\Http\Controllers\SubscriptionController::class, 'getPlans'])
+        ->name('api.subscriptions.plans');
 
-    Route::get('/current', [\App\Http\Controllers\SubscriptionController::class, 'getCurrent'])
-        ->name('api.subscriptions.current');
+    Route::post('/subscribe', [\App\Http\Controllers\SubscriptionController::class, 'subscribe'])
+        ->name('api.subscriptions.subscribe');
+
+    Route::post('/upgrade', [\App\Http\Controllers\SubscriptionController::class, 'upgrade'])
+        ->name('api.subscriptions.upgrade');
 
     Route::post('/cancel', [\App\Http\Controllers\SubscriptionController::class, 'cancel'])
         ->name('api.subscriptions.cancel');
 
-    Route::get('/history', [\App\Http\Controllers\SubscriptionController::class, 'getHistory'])
-        ->name('api.subscriptions.history');
+    Route::post('/resume', [\App\Http\Controllers\SubscriptionController::class, 'resume'])
+        ->name('api.subscriptions.resume');
 
-    /*
-       * PayPal-specific subscription endpoints
-       * Purpose: Handle PayPal subscription approval and activation flows
-       * Access: Authenticated users
-       */
-    Route::post('/paypal/approve', [\App\Http\Controllers\SubscriptionController::class, 'paypalApprove'])
-        ->name('api.subscriptions.paypal.approve');
+    Route::get('/current', [\App\Http\Controllers\SubscriptionController::class, 'current'])
+        ->name('api.subscriptions.current');
 
-    Route::post('/paypal/activate', [\App\Http\Controllers\SubscriptionController::class, 'paypalActivate'])
-        ->name('api.subscriptions.paypal.activate');
+    Route::get('/billing', [\App\Http\Controllers\SubscriptionController::class, 'billing'])
+        ->name('api.subscriptions.billing');
+
+    Route::get('/payments', [\App\Http\Controllers\SubscriptionController::class, 'payments'])
+        ->name('api.subscriptions.payments');
+
+    Route::get('/usage', [\App\Http\Controllers\SubscriptionController::class, 'usage'])
+        ->name('api.subscriptions.usage');
+
+    Route::post('/check-feature-access', [\App\Http\Controllers\SubscriptionController::class, 'checkFeatureAccess'])
+        ->name('api.subscriptions.check-feature-access');
 });
 
 // Category routes
@@ -879,4 +886,166 @@ Route::prefix('v1')->middleware(['auth:sanctum', ApiRateLimit::class . ':api,120
         // Routes that require agent or admin role
         // Most ticket operations are available to agents and admins
     });
+});
+
+/*
+|--------------------------------------------------------------------------
+| API Access Layer Routes - External Integration & Mobile API
+|--------------------------------------------------------------------------
+|
+| Comprehensive RESTful API routes for third-party integrations and mobile apps
+| Features: API Key Authentication, Rate Limiting, Webhook Support, 
+| Developer Documentation, and complete CRUD operations
+|
+*/
+
+// Add API Access Layer import statements
+use App\Http\Controllers\API\V1\AuthController as V1AuthController;
+use App\Http\Controllers\API\V1\EventsController as V1EventsController;
+use App\Http\Controllers\API\MultiEventController;
+use App\Http\Controllers\API\V1\WebhooksController;
+use App\Http\Controllers\API\V1\DocumentationController;
+use App\Http\Middleware\ApiKeyAuth;
+
+// API Access Layer - V1 Routes
+Route::prefix('api-access/v1')->group(function () {
+    
+    // Public endpoints (no authentication required)
+    Route::get('/', [DocumentationController::class, 'index']);
+    Route::get('/health', [DocumentationController::class, 'health']);
+    Route::get('/docs', [DocumentationController::class, 'documentation']);
+    Route::get('/openapi', [DocumentationController::class, 'openApiSpec']);
+    
+    // Authentication endpoints
+    Route::prefix('auth')->group(function () {
+        Route::post('/login', [V1AuthController::class, 'login']);
+        Route::post('/register', [V1AuthController::class, 'register']);
+        
+        // Authenticated auth endpoints
+        Route::middleware([ApiKeyAuth::class])->group(function () {
+            Route::post('/logout', [V1AuthController::class, 'logout']);
+            Route::get('/profile', [V1AuthController::class, 'profile']);
+            Route::put('/profile', [V1AuthController::class, 'updateProfile']);
+            Route::get('/usage', [V1AuthController::class, 'usageStats']);
+        });
+    });
+
+    // API Key Management
+    Route::middleware([ApiKeyAuth::class])->prefix('api-keys')->group(function () {
+        Route::get('/', [V1AuthController::class, 'listApiKeys']);
+        Route::post('/', [V1AuthController::class, 'createApiKey']);
+        Route::delete('/{keyId}', [V1AuthController::class, 'revokeApiKey']);
+    });
+
+    // Events API - Core functionality
+    Route::middleware([ApiKeyAuth::class])->prefix('events')->group(function () {
+        
+        // Event discovery and search
+        Route::get('/', [V1EventsController::class, 'index'])
+            ->middleware('throttle:100,60'); // 100 requests per hour
+        Route::get('/search', [V1EventsController::class, 'search'])
+            ->middleware('throttle:50,60'); // 50 requests per hour for search
+        Route::get('/{event}', [V1EventsController::class, 'show']);
+
+        // Event monitoring
+        Route::prefix('{event}/monitoring')->group(function () {
+            Route::post('/start', [V1EventsController::class, 'startMonitoring'])
+                ->middleware(ApiKeyAuth::class . ':write');
+            Route::post('/stop', [V1EventsController::class, 'stopMonitoring'])
+                ->middleware(ApiKeyAuth::class . ':write');
+            Route::get('/status', [V1EventsController::class, 'monitoringStatus']);
+            Route::put('/config', [V1EventsController::class, 'updateMonitoring'])
+                ->middleware(ApiKeyAuth::class . ':write');
+        });
+
+        // Price analytics and alerts
+        Route::prefix('{event}/price')->group(function () {
+            Route::get('/analytics', [V1EventsController::class, 'priceAnalytics'])
+                ->middleware('throttle:30,60'); // 30 requests per hour for analytics
+            Route::post('/alerts', [V1EventsController::class, 'createPriceAlert'])
+                ->middleware(ApiKeyAuth::class . ':write');
+        });
+
+        // Automated purchasing
+        Route::prefix('{event}/purchase')->group(function () {
+            Route::post('/configure', [V1EventsController::class, 'configureAutoPurchase'])
+                ->middleware(ApiKeyAuth::class . ':write');
+        });
+    });
+
+    // Multi-Event Management API
+    Route::middleware([ApiKeyAuth::class])->prefix('multi-event')->group(function () {
+        
+        // Portfolio overview
+        Route::get('/portfolio', [MultiEventController::class, 'portfolio']);
+        Route::get('/dashboard', [MultiEventController::class, 'dashboard']);
+        Route::get('/recommendations', [MultiEventController::class, 'recommendations']);
+
+        // Event groups
+        Route::prefix('groups')->group(function () {
+            Route::post('/', [MultiEventController::class, 'createGroup'])
+                ->middleware(ApiKeyAuth::class . ':write');
+            Route::get('/{group}', [MultiEventController::class, 'getGroup']);
+            Route::put('/{group}', [MultiEventController::class, 'updateGroup'])
+                ->middleware(ApiKeyAuth::class . ':write');
+            Route::delete('/{group}', [MultiEventController::class, 'deleteGroup'])
+                ->middleware(ApiKeyAuth::class . ':write');
+            
+            // Group event management
+            Route::post('/{group}/events', [MultiEventController::class, 'addEventsToGroup'])
+                ->middleware(ApiKeyAuth::class . ':write');
+            Route::delete('/{group}/events', [MultiEventController::class, 'removeEventsFromGroup'])
+                ->middleware(ApiKeyAuth::class . ':write');
+        });
+
+        // Bulk operations
+        Route::post('/bulk-operation', [MultiEventController::class, 'bulkOperation'])
+            ->middleware([ApiKeyAuth::class . ':write', 'throttle:10,60']); // 10 requests per hour for bulk operations
+
+        // Smart categorization
+        Route::post('/categorize', [MultiEventController::class, 'categorizeEvents'])
+            ->middleware([ApiKeyAuth::class . ':write', 'throttle:20,60']); // 20 requests per hour for ML operations
+
+        // Automation rules
+        Route::post('/automation-rules', [MultiEventController::class, 'createAutomationRule'])
+            ->middleware(ApiKeyAuth::class . ':admin');
+    });
+
+    // Webhooks API
+    Route::middleware([ApiKeyAuth::class])->prefix('webhooks')->group(function () {
+        Route::get('/', [WebhooksController::class, 'list']);
+        Route::post('/', [WebhooksController::class, 'create'])
+            ->middleware(ApiKeyAuth::class . ':write');
+        Route::get('/{webhook}', [WebhooksController::class, 'show']);
+        Route::put('/{webhook}', [WebhooksController::class, 'update'])
+            ->middleware(ApiKeyAuth::class . ':write');
+        Route::delete('/{webhook}', [WebhooksController::class, 'delete'])
+            ->middleware(ApiKeyAuth::class . ':write');
+        Route::post('/{webhook}/test', [WebhooksController::class, 'test'])
+            ->middleware(ApiKeyAuth::class . ':write');
+        Route::get('/{webhook}/logs', [WebhooksController::class, 'logs']);
+    });
+
+    // Developer Tools
+    Route::middleware([ApiKeyAuth::class])->prefix('dev-tools')->group(function () {
+        Route::get('/test-connection', [DocumentationController::class, 'testConnection']);
+        Route::get('/rate-limits', [DocumentationController::class, 'rateLimits']);
+        Route::get('/usage-stats', [DocumentationController::class, 'usageStats']);
+        Route::post('/validate-webhook', [DocumentationController::class, 'validateWebhook']);
+    });
+});
+
+// Webhook receiver endpoints (no authentication, validates signatures)
+Route::prefix('webhooks/v1')->group(function () {
+    Route::post('/price-alert', [WebhooksController::class, 'receivePriceAlert']);
+    Route::post('/monitoring-update', [WebhooksController::class, 'receiveMonitoringUpdate']);
+    Route::post('/purchase-complete', [WebhooksController::class, 'receivePurchaseComplete']);
+    Route::post('/system-notification', [WebhooksController::class, 'receiveSystemNotification']);
+});
+
+// Backwards compatibility aliases for API Access Layer
+Route::prefix('api-access/v1/legacy')->group(function () {
+    Route::get('/events', [V1EventsController::class, 'index']);
+    Route::get('/events/{event}', [V1EventsController::class, 'show']);
+    Route::post('/events/{event}/monitor', [V1EventsController::class, 'startMonitoring']);
 });
