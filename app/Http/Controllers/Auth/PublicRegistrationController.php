@@ -34,18 +34,7 @@ class PublicRegistrationController extends Controller
      */
     public function create(): View
     {
-        // Get all required legal documents
-        $legalDocuments = LegalDocument::getActiveRequiredDocuments();
-
-        // Check if all required documents exist
-        $requiredTypes = LegalDocument::getRequiredForRegistration();
-        $missingDocuments = array_diff($requiredTypes, array_keys($legalDocuments));
-
-        if ($missingDocuments !== []) {
-            abort(503, 'Registration is temporarily unavailable. Missing legal documents: ' . implode(', ', $missingDocuments));
-        }
-
-        return view('auth.new-register', ['legalDocuments' => $legalDocuments]);
+        return view('auth.public-register');
     }
 
     /**
@@ -53,38 +42,35 @@ class PublicRegistrationController extends Controller
      */
     public function store(PublicRegistrationRequest $request): RedirectResponse
     {
+        // Check honeypot field - if filled, it's likely a bot
+        if ($request->filled('website_url')) {
+            // Silently fail - don't give bots feedback
+            return back()->withInput()->withErrors([
+                'email' => 'Registration failed. Please try again.'
+            ]);
+        }
+
         try {
             DB::beginTransaction();
 
-            // Validate legal document acceptances
-            $this->validateLegalAcceptances($request);
+            $validated = $request->validated();
 
-            // Create the user
+            // Create the user with the new registration fields
             $user = User::create([
-                'name'                => $request->validated()['name'],
-                'surname'             => $request->validated()['surname'] ?? NULL,
-                'email'               => $request->validated()['email'],
-                'phone'               => $request->validated()['phone'] ?? NULL,
-                'password'            => Hash::make($request->validated()['password']),
+                'name'                => $validated['first_name'] . ' ' . $validated['last_name'],
+                'first_name'          => $validated['first_name'],
+                'last_name'           => $validated['last_name'],
+                'email'               => $validated['email'],
+                'phone'               => $validated['phone'] ?? null,
+                'password'            => Hash::make($validated['password']),
                 'role'                => User::ROLE_CUSTOMER,
-                'is_active'           => TRUE,
+                'is_active'           => true,
                 'registration_source' => 'public_web',
                 'password_changed_at' => now(),
-                'require_2fa'         => $request->boolean('enable_2fa', FALSE),
+                'terms_accepted_at'   => now(),
+                'privacy_accepted_at' => now(),
+                'marketing_opt_in'    => $request->boolean('marketing_opt_in', false),
             ]);
-
-            // Record legal document acceptances
-            $this->recordLegalAcceptances($user, $request);
-
-            // Set up 2FA if requested
-            if ($request->boolean('enable_2fa', FALSE)) {
-                $this->setupTwoFactorAuth($user);
-            }
-
-            // Send phone verification if phone provided
-            if ($request->filled('phone')) {
-                $this->phoneService->sendVerificationCode($user);
-            }
 
             DB::commit();
 
@@ -94,15 +80,23 @@ class PublicRegistrationController extends Controller
             // Log the user in
             Auth::login($user);
 
+            // Send email verification notification
+            $user->sendEmailVerificationNotification();
+
+            // Check if 2FA setup should be prompted
+            if ($request->boolean('enable_2fa', false) || config('auth.registration.two_factor_prompt', false)) {
+                return redirect()->route('register.twofactor.show');
+            }
+
             // Redirect to email verification notice
             return redirect()->route('verification.notice')
-                ->with('success', 'Registration successful! Please check your email to verify your account.');
+                ->with('status', 'Registration successful! Please check your email to verify your account.');
         } catch (Exception $e) {
             DB::rollBack();
 
             return back()
-                ->withErrors(['error' => 'Registration failed: ' . $e->getMessage()])
-                ->withInput();
+                ->withErrors(['error' => 'Registration failed. Please try again.'])
+                ->withInput($request->except('password', 'password_confirmation'));
         }
     }
 
@@ -213,39 +207,6 @@ class PublicRegistrationController extends Controller
             ->withErrors(['code' => 'Invalid authentication code.']);
     }
 
-    /**
-     * Validate that all required legal documents have been accepted
-     */
-    private function validateLegalAcceptances(PublicRegistrationRequest $request): void
-    {
-        $requiredTypes = LegalDocument::getRequiredForRegistration();
-        $legalDocuments = LegalDocument::getActiveRequiredDocuments();
-
-        foreach ($requiredTypes as $type) {
-            if (! $request->boolean("accept_{$type}")) {
-                throw new Exception("You must accept the {$legalDocuments[$type]->type_name} to register.");
-            }
-        }
-    }
-
-    /**
-     * Record user's legal document acceptances
-     */
-    private function recordLegalAcceptances(User $user, PublicRegistrationRequest $request): void
-    {
-        $legalDocuments = LegalDocument::getActiveRequiredDocuments();
-
-        foreach ($legalDocuments as $document) {
-            if ($request->boolean("accept_{$document->type}")) {
-                UserLegalAcceptance::recordAcceptance(
-                    $user->id,
-                    $document->id,
-                    $document->version,
-                    UserLegalAcceptance::METHOD_REGISTRATION,
-                );
-            }
-        }
-    }
 
     /**
      * Set up two-factor authentication for the user

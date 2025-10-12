@@ -13,6 +13,7 @@ use App\Http\Controllers\Auth\PublicRegistrationValidationController;
 use App\Http\Controllers\Auth\RegisteredUserController;
 use App\Http\Controllers\Auth\ComprehensiveRegistrationController;
 use App\Http\Controllers\Auth\TwoFactorController;
+use App\Http\Controllers\Auth\TwoFactorSetupController;
 use App\Http\Controllers\Auth\VerifyEmailController;
 use App\Http\Controllers\Auth\OAuthController;
 use App\Http\Middleware\EnhancedLoginSecurity;
@@ -46,11 +47,15 @@ Route::middleware(['guest', EnhancedLoginSecurity::class])->group(function (): v
     Route::post('reset-password', [NewPasswordController::class, 'store'])
         ->name('password.store');
 
-    // Registration routes
-    Route::get('register', [RegisteredUserController::class, 'create'])
-        ->name('register');
+    // Registration routes - redirect to public registration
+    Route::redirect('register', 'register/public', 301);
+    
+    // Admin-only registration
+    Route::get('register/admin', [RegisteredUserController::class, 'create'])
+        ->name('register.admin');
 
-    Route::post('register', [RegisteredUserController::class, 'store']);
+    Route::post('register/admin', [RegisteredUserController::class, 'store'])
+        ->name('register.admin.store');
 
     // Comprehensive registration routes (recommended)
     Route::get('register/comprehensive', [ComprehensiveRegistrationController::class, 'create'])
@@ -77,9 +82,11 @@ Route::middleware(['guest', EnhancedLoginSecurity::class])->group(function (): v
 
     // Public registration routes (alternative path)
     Route::get('register/public', [PublicRegistrationController::class, 'create'])
-        ->name('register.public');
+        ->name('register.public.create');
 
-    Route::post('register/public', [PublicRegistrationController::class, 'store']);
+    Route::post('register/public', [PublicRegistrationController::class, 'store'])
+        ->name('register.public.store')
+        ->middleware('throttle:12,1');
 
     // Progressive enhancement validation endpoints
     Route::post('register/public/validate', [PublicRegistrationValidationController::class, 'validate'])
@@ -141,6 +148,15 @@ Route::prefix('auth')->name('oauth.')->group(function (): void {
 });
 
 Route::middleware('auth')->group(function (): void {
+    // Two-Factor Authentication setup for new registrations
+    Route::get('register/two-factor', [TwoFactorSetupController::class, 'show'])
+        ->name('register.twofactor.show');
+    Route::post('register/two-factor/enable', [TwoFactorSetupController::class, 'enable'])
+        ->name('register.twofactor.enable')
+        ->middleware('throttle:6,1');
+    Route::post('register/two-factor/skip', [TwoFactorSetupController::class, 'skip'])
+        ->name('register.twofactor.skip');
+    
     Route::get('verify-email', [EmailVerificationPromptController::class, '__invoke'])
         ->name('verification.notice');
 

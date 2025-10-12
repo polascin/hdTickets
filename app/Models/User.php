@@ -122,6 +122,8 @@ class User extends Authenticatable implements MustVerifyEmail, OAuthenticatable
      */
     protected $fillable = [
         'name',
+        'first_name',
+        'last_name',
         'surname',
         'username',
         'email',
@@ -136,6 +138,10 @@ class User extends Authenticatable implements MustVerifyEmail, OAuthenticatable
         'two_factor_secret',
         'two_factor_confirmed_at',
         'two_factor_recovery_codes',
+        'two_factor_enabled_at',
+        'terms_accepted_at',
+        'privacy_accepted_at',
+        'marketing_opt_in',
         'role',
         'is_active',
         'email_verified_at',
@@ -197,6 +203,8 @@ class User extends Authenticatable implements MustVerifyEmail, OAuthenticatable
     protected $hidden = [
         'password',
         'remember_token',
+        'two_factor_secret',
+        'two_factor_recovery_codes',
     ];
 
     public function __construct(array $attributes = [])
@@ -1452,6 +1460,9 @@ class User extends Authenticatable implements MustVerifyEmail, OAuthenticatable
     {
         return [
             'email_verified_at'         => 'datetime',
+            'terms_accepted_at'         => 'datetime',
+            'privacy_accepted_at'       => 'datetime',
+            'two_factor_enabled_at'     => 'datetime',
             'last_login_at'             => 'datetime',
             'last_activity_at'          => 'datetime',
             'locked_until'              => 'datetime',
@@ -1462,6 +1473,7 @@ class User extends Authenticatable implements MustVerifyEmail, OAuthenticatable
             'two_factor_enabled'        => 'boolean',
             'two_factor_confirmed_at'   => 'datetime',
             'two_factor_recovery_codes' => 'array',
+            'marketing_opt_in'          => 'boolean',
             'require_2fa'               => 'boolean',
             'is_active'                 => 'boolean',
             'email_notifications'       => 'boolean',
