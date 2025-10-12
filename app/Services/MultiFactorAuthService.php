@@ -108,7 +108,7 @@ class MultiFactorAuthService
         try {
             $setupData = Cache::get("mfa_setup_{$user->id}");
 
-            if (! $setupData) {
+            if (!$setupData) {
                 Log::warning('MFA setup verification attempted without active setup', [
                     'user_id' => $user->id,
                 ]);
@@ -164,12 +164,12 @@ class MultiFactorAuthService
      */
     public function verifyCode(User $user, string $code, ?string $backupCode = NULL): bool
     {
-        if (! $user->mfa_enabled) {
+        if (!$user->mfa_enabled) {
             return TRUE; // MFA not enabled for user
         }
 
         // Check rate limiting
-        if (! $this->checkRateLimit($user)) {
+        if (!$this->checkRateLimit($user)) {
             $this->securityMonitoring->logSecurityEvent(
                 'mfa_rate_limit_exceeded',
                 $user,
@@ -218,7 +218,7 @@ class MultiFactorAuthService
     public function disableMFA(User $user, User $disabledBy, string $reason = ''): bool
     {
         try {
-            if (! $user->mfa_enabled) {
+            if (!$user->mfa_enabled) {
                 return TRUE;
             }
 
@@ -301,7 +301,7 @@ class MultiFactorAuthService
     public function verifyBackupCode(User $user, string $code): bool
     {
         try {
-            if (! $user->mfa_enabled || ! $user->mfa_backup_codes) {
+            if (!$user->mfa_enabled || !$user->mfa_backup_codes) {
                 return FALSE;
             }
 
@@ -493,7 +493,7 @@ class MultiFactorAuthService
     public function sendSMSCode(User $user): bool
     {
         try {
-            if (! $user->phone || ! $user->phone_verified) {
+            if (!$user->phone || !$user->phone_verified) {
                 return FALSE;
             }
 
@@ -536,7 +536,7 @@ class MultiFactorAuthService
         try {
             $smsData = Cache::get("sms_mfa_{$user->id}");
 
-            if (! $smsData || now()->gt($smsData['expires_at'])) {
+            if (!$smsData || now()->gt($smsData['expires_at'])) {
                 return FALSE;
             }
 
@@ -618,7 +618,7 @@ class MultiFactorAuthService
 
     private function verifyUserTOTPCode(User $user, string $code): bool
     {
-        if (! $user->mfa_secret) {
+        if (!$user->mfa_secret) {
             return FALSE;
         }
 

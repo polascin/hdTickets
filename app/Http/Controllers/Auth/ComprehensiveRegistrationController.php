@@ -31,7 +31,8 @@ class ComprehensiveRegistrationController extends Controller
     public function __construct(
         private PhoneVerificationService $phoneService,
         private TwoFactorAuthService $twoFactorService,
-    ) {}
+    ) {
+    }
 
     /**
      * Show the comprehensive registration form
@@ -45,8 +46,8 @@ class ComprehensiveRegistrationController extends Controller
         }
 
         return view('auth.register-new', [
-            'legalDocuments' => $legalDocuments,
-            'availableRoles' => $this->getAvailableRoles(),
+            'legalDocuments'       => $legalDocuments,
+            'availableRoles'       => $this->getAvailableRoles(),
             'passwordRequirements' => $this->getPasswordRequirements(),
         ]);
     }
@@ -60,6 +61,7 @@ class ComprehensiveRegistrationController extends Controller
         $key = 'registration-attempt:' . $request->ip();
         if (RateLimiter::tooManyAttempts($key, 5)) {
             $seconds = RateLimiter::availableIn($key);
+
             throw ValidationException::withMessages([
                 'email' => "Too many registration attempts. Please try again in {$seconds} seconds.",
             ]);
@@ -71,7 +73,7 @@ class ComprehensiveRegistrationController extends Controller
         $validated = $request->validatedWithDefaults();
 
         DB::beginTransaction();
-        
+
         try {
             // Create the user
             $user = $this->createUser($validated);
@@ -92,9 +94,9 @@ class ComprehensiveRegistrationController extends Controller
             // Log successful registration
             Log::info('User registered successfully', [
                 'user_id' => $user->id,
-                'email' => $user->email,
-                'role' => $user->role,
-                'ip' => $request->ip(),
+                'email'   => $user->email,
+                'role'    => $user->role,
+                'ip'      => $request->ip(),
             ]);
 
             // Clear rate limiter on success
@@ -102,8 +104,8 @@ class ComprehensiveRegistrationController extends Controller
 
             if ($request->expectsJson()) {
                 return response()->json([
-                    'success' => true,
-                    'message' => 'Registration successful! Please check your email to verify your account.',
+                    'success'      => TRUE,
+                    'message'      => 'Registration successful! Please check your email to verify your account.',
                     'redirect_url' => route('verification.notice'),
                 ]);
             }
@@ -111,27 +113,27 @@ class ComprehensiveRegistrationController extends Controller
             // Auto-login for customers (agents/admins should be manually activated)
             if ($user->role === User::ROLE_CUSTOMER) {
                 Auth::login($user);
+
                 return redirect()->route('verification.notice')
                     ->with('success', 'Welcome! Your account has been created. Please verify your email address.');
             }
 
             return redirect()->route('login')
                 ->with('success', 'Your account has been created and is pending approval. You will receive an email once activated.');
-
         } catch (Exception $e) {
             DB::rollBack();
-            
+
             Log::error('Registration failed', [
                 'email' => $validated['email'] ?? 'unknown',
                 'error' => $e->getMessage(),
-                'ip' => $request->ip(),
+                'ip'    => $request->ip(),
             ]);
 
             if ($request->expectsJson()) {
                 return response()->json([
-                    'success' => false,
+                    'success' => FALSE,
                     'message' => 'Registration failed. Please try again.',
-                    'errors' => ['general' => [$e->getMessage()]],
+                    'errors'  => ['general' => [$e->getMessage()]],
                 ], 422);
             }
 
@@ -145,12 +147,12 @@ class ComprehensiveRegistrationController extends Controller
     public function checkEmailAvailability(Request $request): JsonResponse
     {
         $request->validate(['email' => ['required', 'email']]);
-        
+
         $exists = User::where('email', $request->email)->exists();
-        
+
         return response()->json([
             'available' => !$exists,
-            'message' => $exists ? 'This email is already registered.' : 'Email is available.',
+            'message'   => $exists ? 'This email is already registered.' : 'Email is available.',
         ]);
     }
 
@@ -160,12 +162,12 @@ class ComprehensiveRegistrationController extends Controller
     public function checkUsernameAvailability(Request $request): JsonResponse
     {
         $request->validate(['username' => ['required', 'string', 'min:3']]);
-        
+
         $exists = User::where('username', $request->username)->exists();
-        
+
         return response()->json([
             'available' => !$exists,
-            'message' => $exists ? 'This username is already taken.' : 'Username is available.',
+            'message'   => $exists ? 'This username is already taken.' : 'Username is available.',
         ]);
     }
 
@@ -179,11 +181,11 @@ class ComprehensiveRegistrationController extends Controller
         ]);
 
         $strength = $this->calculatePasswordStrength($request->password ?? '');
-        
+
         return response()->json([
-            'valid' => !$validator->fails(),
-            'strength' => $strength,
-            'errors' => $validator->errors()->get('password'),
+            'valid'        => !$validator->fails(),
+            'strength'     => $strength,
+            'errors'       => $validator->errors()->get('password'),
             'requirements' => $this->getPasswordRequirements(),
         ]);
     }
@@ -195,11 +197,11 @@ class ComprehensiveRegistrationController extends Controller
     {
         $step = $request->input('step');
         $rules = $this->getValidationRulesForStep($step);
-        
+
         $validator = Validator::make($request->all(), $rules);
-        
+
         return response()->json([
-            'valid' => !$validator->fails(),
+            'valid'  => !$validator->fails(),
             'errors' => $validator->errors(),
         ]);
     }
@@ -212,31 +214,31 @@ class ComprehensiveRegistrationController extends Controller
         $rules = [
             // Personal Information
             'first_name' => ['required', 'string', 'max:50', 'regex:/^[a-zA-Z\s\-\'\.]+$/'],
-            'last_name' => ['required', 'string', 'max:50', 'regex:/^[a-zA-Z\s\-\'\.]+$/'],
-            'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:users'],
-            'username' => ['nullable', 'string', 'min:3', 'max:50', 'regex:/^[a-zA-Z0-9_\-\.]+$/', 'unique:users'],
-            'phone' => ['nullable', 'string', 'max:20', 'regex:/^[\+]?[1-9][\d]{0,15}$/'],
-            
+            'last_name'  => ['required', 'string', 'max:50', 'regex:/^[a-zA-Z\s\-\'\.]+$/'],
+            'email'      => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:users'],
+            'username'   => ['nullable', 'string', 'min:3', 'max:50', 'regex:/^[a-zA-Z0-9_\-\.]+$/', 'unique:users'],
+            'phone'      => ['nullable', 'string', 'max:20', 'regex:/^[\+]?[1-9][\d]{0,15}$/'],
+
             // Account Security
-            'password' => ['required', 'confirmed', Password::defaults()],
+            'password'              => ['required', 'confirmed', Password::defaults()],
             'password_confirmation' => ['required'],
-            
+
             // Account Type & Preferences
-            'role' => ['required', 'in:customer,agent'],
+            'role'     => ['required', 'in:customer,agent'],
             'timezone' => ['nullable', 'string', 'max:50'],
             'language' => ['nullable', 'string', 'max:5'],
-            
+
             // Legal Acceptances
-            'legal_acceptances' => ['required', 'array'],
+            'legal_acceptances'   => ['required', 'array'],
             'legal_acceptances.*' => ['required', 'boolean', 'accepted'],
-            
+
             // Marketing
-            'marketing_emails' => ['boolean'],
+            'marketing_emails'        => ['boolean'],
             'newsletter_subscription' => ['boolean'],
-            
+
             // Security Options
             'enable_2fa' => ['boolean'],
-            
+
             // Referral (optional)
             'referral_code' => ['nullable', 'string', 'max:50'],
         ];
@@ -250,23 +252,23 @@ class ComprehensiveRegistrationController extends Controller
     private function createUser(array $validated): User
     {
         return User::create([
-            'name' => trim($validated['first_name'] . ' ' . $validated['last_name']),
-            'surname' => $validated['last_name'],
-            'email' => $validated['email'],
-            'username' => $validated['username'],
-            'phone' => $validated['phone'] ?? null,
-            'password' => Hash::make($validated['password']),
-            'role' => $validated['role'],
-            'timezone' => $validated['timezone'] ?? config('app.timezone'),
-            'language' => $validated['language'] ?? config('app.locale'),
-            'is_active' => $validated['role'] === User::ROLE_CUSTOMER,
-            'require_2fa' => $validated['enable_2fa'] ?? false,
-            'marketing_emails' => $validated['marketing_emails'] ?? false,
-            'newsletter_subscription' => $validated['newsletter_subscription'] ?? false,
-            'registration_source' => 'comprehensive_public',
-            'referral_code' => $validated['referral_code'] ?? null,
-            'password_changed_at' => now(),
-            'registration_ip' => request()->ip(),
+            'name'                    => trim($validated['first_name'] . ' ' . $validated['last_name']),
+            'surname'                 => $validated['last_name'],
+            'email'                   => $validated['email'],
+            'username'                => $validated['username'],
+            'phone'                   => $validated['phone'] ?? NULL,
+            'password'                => Hash::make($validated['password']),
+            'role'                    => $validated['role'],
+            'timezone'                => $validated['timezone'] ?? config('app.timezone'),
+            'language'                => $validated['language'] ?? config('app.locale'),
+            'is_active'               => $validated['role'] === User::ROLE_CUSTOMER,
+            'require_2fa'             => $validated['enable_2fa'] ?? FALSE,
+            'marketing_emails'        => $validated['marketing_emails'] ?? FALSE,
+            'newsletter_subscription' => $validated['newsletter_subscription'] ?? FALSE,
+            'registration_source'     => 'comprehensive_public',
+            'referral_code'           => $validated['referral_code'] ?? NULL,
+            'password_changed_at'     => now(),
+            'registration_ip'         => request()->ip(),
             'registration_user_agent' => request()->userAgent(),
         ]);
     }
@@ -285,11 +287,11 @@ class ComprehensiveRegistrationController extends Controller
                 $document = LegalDocument::getActiveDocument($documentType);
                 if ($document) {
                     UserLegalAcceptance::create([
-                        'user_id' => $user->id,
+                        'user_id'           => $user->id,
                         'legal_document_id' => $document->id,
-                        'accepted_at' => now(),
-                        'ip_address' => request()->ip(),
-                        'user_agent' => request()->userAgent(),
+                        'accepted_at'       => now(),
+                        'ip_address'        => request()->ip(),
+                        'user_agent'        => request()->userAgent(),
                     ]);
                 }
             }
@@ -303,15 +305,15 @@ class ComprehensiveRegistrationController extends Controller
     {
         $baseUsername = strtolower($firstName . '.' . $lastName);
         $baseUsername = preg_replace('/[^a-z0-9\.]/', '', $baseUsername);
-        
+
         $username = $baseUsername;
         $counter = 1;
-        
+
         while (User::where('username', $username)->exists()) {
             $username = $baseUsername . $counter;
             $counter++;
         }
-        
+
         return $username;
     }
 
@@ -322,9 +324,9 @@ class ComprehensiveRegistrationController extends Controller
     {
         return [
             User::ROLE_CUSTOMER => [
-                'label' => 'Sports Fan',
+                'label'       => 'Sports Fan',
                 'description' => 'Perfect for individual sports enthusiasts',
-                'features' => [
+                'features'    => [
                     'Monitor ticket prices across platforms',
                     'Set price drop alerts',
                     'Purchase tickets with ease',
@@ -334,9 +336,9 @@ class ComprehensiveRegistrationController extends Controller
                 'trial' => '7-day free trial',
             ],
             User::ROLE_AGENT => [
-                'label' => 'Business/Professional',
+                'label'       => 'Business/Professional',
                 'description' => 'For businesses and professional ticket buyers',
-                'features' => [
+                'features'    => [
                     'Advanced analytics and reporting',
                     'Bulk ticket purchasing',
                     'API access for integrations',
@@ -356,16 +358,18 @@ class ComprehensiveRegistrationController extends Controller
     {
         $score = 0;
         $checks = [
-            'length' => strlen($password) >= 8,
+            'length'    => strlen($password) >= 8,
             'lowercase' => preg_match('/[a-z]/', $password),
             'uppercase' => preg_match('/[A-Z]/', $password),
-            'numbers' => preg_match('/[0-9]/', $password),
-            'special' => preg_match('/[^a-zA-Z0-9]/', $password),
-            'long' => strlen($password) >= 12,
+            'numbers'   => preg_match('/[0-9]/', $password),
+            'special'   => preg_match('/[^a-zA-Z0-9]/', $password),
+            'long'      => strlen($password) >= 12,
         ];
 
         foreach ($checks as $check) {
-            if ($check) $score++;
+            if ($check) {
+                $score++;
+            }
         }
 
         $levels = [
@@ -379,9 +383,9 @@ class ComprehensiveRegistrationController extends Controller
         ];
 
         return array_merge($levels[$score] ?? $levels[0], [
-            'score' => $score,
+            'score'     => $score,
             'max_score' => 6,
-            'checks' => $checks,
+            'checks'    => $checks,
         ]);
     }
 
@@ -391,12 +395,12 @@ class ComprehensiveRegistrationController extends Controller
     private function getPasswordRequirements(): array
     {
         return [
-            'min_length' => 8,
-            'requires_lowercase' => true,
-            'requires_uppercase' => true,
-            'requires_numbers' => true,
-            'requires_special_characters' => true,
-            'description' => 'Password must be at least 8 characters long and contain uppercase, lowercase, numbers, and special characters.',
+            'min_length'                  => 8,
+            'requires_lowercase'          => TRUE,
+            'requires_uppercase'          => TRUE,
+            'requires_numbers'            => TRUE,
+            'requires_special_characters' => TRUE,
+            'description'                 => 'Password must be at least 8 characters long and contain uppercase, lowercase, numbers, and special characters.',
         ];
     }
 
@@ -411,17 +415,17 @@ class ComprehensiveRegistrationController extends Controller
             ],
             2 => [
                 'first_name' => ['required', 'string', 'max:50', 'regex:/^[a-zA-Z\s\-\'\.]+$/'],
-                'last_name' => ['required', 'string', 'max:50', 'regex:/^[a-zA-Z\s\-\'\.]+$/'],
-                'email' => ['required', 'email', 'max:255', 'unique:users'],
-                'username' => ['nullable', 'string', 'min:3', 'max:50', 'regex:/^[a-zA-Z0-9_\-\.]+$/', 'unique:users'],
-                'phone' => ['nullable', 'string', 'max:20', 'regex:/^[\+]?[1-9][\d]{0,15}$/'],
+                'last_name'  => ['required', 'string', 'max:50', 'regex:/^[a-zA-Z\s\-\'\.]+$/'],
+                'email'      => ['required', 'email', 'max:255', 'unique:users'],
+                'username'   => ['nullable', 'string', 'min:3', 'max:50', 'regex:/^[a-zA-Z0-9_\-\.]+$/', 'unique:users'],
+                'phone'      => ['nullable', 'string', 'max:20', 'regex:/^[\+]?[1-9][\d]{0,15}$/'],
             ],
             3 => [
-                'password' => ['required', 'confirmed', Password::defaults()],
+                'password'              => ['required', 'confirmed', Password::defaults()],
                 'password_confirmation' => ['required'],
             ],
             4 => [
-                'legal_acceptances' => ['required', 'array'],
+                'legal_acceptances'   => ['required', 'array'],
                 'legal_acceptances.*' => ['required', 'boolean', 'accepted'],
             ],
             default => [],

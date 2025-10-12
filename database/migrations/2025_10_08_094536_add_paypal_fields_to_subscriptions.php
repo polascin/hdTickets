@@ -1,11 +1,10 @@
-<?php
+<?php declare(strict_types=1);
 
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-return new class extends Migration
-{
+return new class() extends Migration {
     /**
      * Run the migrations.
      */
@@ -17,7 +16,7 @@ return new class extends Migration
             $table->string('paypal_payer_id')->nullable()->after('paypal_subscription_id');
             $table->string('paypal_plan_id')->nullable()->after('paypal_payer_id');
             $table->timestamp('next_billing_at')->nullable()->after('paypal_plan_id');
-            
+
             // Add indexes for PayPal fields
             $table->index(['paypal_subscription_id'], 'idx_paypal_subscription_id');
         });
@@ -26,7 +25,7 @@ return new class extends Migration
             // PayPal order fields
             $table->string('paypal_order_id')->nullable()->after('transaction_id');
             $table->string('paypal_capture_id')->nullable()->after('paypal_order_id');
-            
+
             // Add indexes for PayPal fields
             $table->index(['paypal_order_id'], 'idx_paypal_order_id');
         });

@@ -41,13 +41,13 @@ use App\Http\Controllers\AnalyticsDashboardController;
 use App\Http\Controllers\Api\ScrapingController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\EnhancedDashboardController;
-use App\Http\Controllers\ModernCustomerDashboardController;
 use App\Http\Controllers\Examples\DatabaseOptimizationDemoController;
 use App\Http\Controllers\Examples\PerformanceDemoController;
 use App\Http\Controllers\HealthController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\ImapDashboardController;
 use App\Http\Controllers\LegalController;
+use App\Http\Controllers\ModernCustomerDashboardController;
 use App\Http\Controllers\MonitoringController;
 use App\Http\Controllers\ProductionHealthController;
 use App\Http\Controllers\ProfileController;
@@ -62,7 +62,6 @@ use App\Http\Controllers\TicketScrapingController;
 use App\Http\Controllers\TicketSourceController;
 use App\Http\Controllers\UserActivityController;
 use App\Http\Controllers\UserPreferencesController;
-use App\Http\Controllers\PayPalWebhookController;
 use App\Http\Controllers\WelcomeController;
 use App\Http\Middleware\AgentMiddleware;
 use App\Http\Middleware\CustomerMiddleware;
@@ -176,7 +175,7 @@ Route::post('/webhooks/stripe', function (Request $request) {
 Route::get('/subscription/paypal/return', [\App\Http\Controllers\SubscriptionController::class, 'paypalReturn'])
     ->name('subscription.paypal.return')
     ->middleware(['auth']);
-    
+
 Route::get('/subscription/paypal/cancel', [\App\Http\Controllers\SubscriptionController::class, 'paypalCancel'])
     ->name('subscription.paypal.cancel')
     ->middleware(['auth']);
@@ -185,7 +184,7 @@ Route::get('/subscription/paypal/cancel', [\App\Http\Controllers\SubscriptionCon
 Route::get('/tickets/paypal/return', [\App\Http\Controllers\TicketPurchaseController::class, 'paypalReturn'])
     ->name('tickets.paypal.return')
     ->middleware(['auth']);
-    
+
 Route::get('/tickets/paypal/cancel', [\App\Http\Controllers\TicketPurchaseController::class, 'paypalCancel'])
     ->name('tickets.paypal.cancel')
     ->middleware(['auth']);
@@ -340,7 +339,7 @@ Route::middleware(['auth', 'verified'])->prefix('dashboard')->name('dashboard.')
         // Download route for exports
         Route::get('/download/{file}', function (string $file) {
             $path = storage_path('app/analytics/exports/' . $file);
-            if (! file_exists($path)) {
+            if (!file_exists($path)) {
                 abort(404);
             }
 
@@ -389,17 +388,17 @@ Route::middleware(['auth', 'verified'])->prefix('dashboard')->name('dashboard.')
 Route::middleware(['auth', 'verified'])->prefix('live-monitoring')->name('live-monitoring.')->group(function (): void {
     // Main live monitoring dashboard
     Route::get('/', [App\Http\Controllers\LiveMonitoringController::class, 'index'])->name('index');
-    
+
     // API endpoints for real-time data
     Route::get('/data', [App\Http\Controllers\LiveMonitoringController::class, 'getLiveData'])->name('data');
     Route::get('/availability-updates', [App\Http\Controllers\LiveMonitoringController::class, 'getAvailabilityUpdates'])->name('availability-updates');
     Route::get('/platform-status', [App\Http\Controllers\LiveMonitoringController::class, 'getPlatformStatus'])->name('platform-status');
     Route::get('/system-stats', [App\Http\Controllers\LiveMonitoringController::class, 'getSystemStats'])->name('system-stats');
-    
+
     // User preferences management
     Route::get('/preferences', [App\Http\Controllers\LiveMonitoringController::class, 'getPreferences'])->name('preferences.get');
     Route::post('/preferences', [App\Http\Controllers\LiveMonitoringController::class, 'updatePreferences'])->name('preferences.update');
-    
+
     // Smart alerts management (inspired by TicketScoutie alerts)
     Route::prefix('alerts')->name('alerts.')->group(function (): void {
         Route::get('/', [App\Http\Controllers\SmartAlertsController::class, 'index'])->name('index');
@@ -409,7 +408,7 @@ Route::middleware(['auth', 'verified'])->prefix('live-monitoring')->name('live-m
         Route::delete('/{alert}', [App\Http\Controllers\SmartAlertsController::class, 'destroy'])->name('destroy');
         Route::post('/{alert}/toggle', [App\Http\Controllers\SmartAlertsController::class, 'toggle'])->name('toggle');
     });
-    
+
     // Push notification subscription management
     Route::prefix('push')->name('push.')->group(function (): void {
         Route::post('/subscribe', [App\Http\Controllers\PushNotificationController::class, 'subscribe'])->name('subscribe');
@@ -865,7 +864,7 @@ require __DIR__ . '/admin.php';
 
 Route::get('/dashboard-test', function () {
     $user = User::where('role', 'admin')->first();
-    if (! $user) {
+    if (!$user) {
         return response()->json(['error' => 'Admin user not found']);
     }
 
@@ -893,7 +892,7 @@ Route::get('/dashboard/customer-test', [App\Http\Controllers\CustomerDashboardTe
 
 Route::get('/customer-test', function () {
     $user = User::where('role', 'customer')->first();
-    if (! $user) {
+    if (!$user) {
         return response()->json(['error' => 'Customer user not found']);
     }
 

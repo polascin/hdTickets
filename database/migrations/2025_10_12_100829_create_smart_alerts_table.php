@@ -1,14 +1,13 @@
-<?php
+<?php declare(strict_types=1);
 
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-return new class extends Migration
-{
+return new class() extends Migration {
     /**
      * Run the migrations.
-     * 
+     *
      * Smart Alerts table for TicketScoutie-inspired intelligent alert system
      */
     public function up(): void
@@ -20,17 +19,17 @@ return new class extends Migration
             $table->text('description')->nullable();
             $table->enum('alert_type', [
                 'price_drop',
-                'availability', 
+                'availability',
                 'instant_deal',
                 'price_comparison',
                 'venue_alert',
                 'league_alert',
-                'keyword_alert'
+                'keyword_alert',
             ]);
             $table->json('trigger_conditions'); // Flexible conditions based on alert type
             $table->json('notification_channels'); // email, sms, push, webhook
             $table->json('notification_settings')->nullable(); // Channel-specific settings
-            $table->boolean('is_active')->default(true);
+            $table->boolean('is_active')->default(TRUE);
             $table->enum('priority', ['low', 'medium', 'high', 'urgent'])->default('medium');
             $table->integer('cooldown_minutes')->default(30); // Minimum time between triggers
             $table->integer('max_triggers_per_day')->default(10); // Daily trigger limit

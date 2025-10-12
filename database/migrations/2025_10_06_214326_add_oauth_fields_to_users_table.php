@@ -1,11 +1,10 @@
-<?php
+<?php declare(strict_types=1);
 
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-return new class extends Migration
-{
+return new class() extends Migration {
     /**
      * Run the migrations.
      */
@@ -17,10 +16,10 @@ return new class extends Migration
             $table->string('provider')->nullable()->after('avatar');
             $table->string('provider_id')->nullable()->after('provider');
             $table->timestamp('provider_verified_at')->nullable()->after('provider_id');
-            
+
             // Make password nullable for OAuth users
             $table->string('password')->nullable()->change();
-            
+
             // Add indexes for OAuth fields
             $table->index(['provider', 'provider_id']);
             $table->index('google_id');
@@ -35,17 +34,17 @@ return new class extends Migration
         Schema::table('users', function (Blueprint $table) {
             $table->dropIndex(['provider', 'provider_id']);
             $table->dropIndex(['google_id']);
-            
+
             $table->dropColumn([
                 'google_id',
                 'avatar',
                 'provider',
                 'provider_id',
-                'provider_verified_at'
+                'provider_verified_at',
             ]);
-            
+
             // Make password required again
-            $table->string('password')->nullable(false)->change();
+            $table->string('password')->nullable(FALSE)->change();
         });
     }
 };

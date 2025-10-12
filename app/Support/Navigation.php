@@ -34,7 +34,7 @@ class Navigation
     {
         $role ??= $this->getCurrentUserRole();
 
-        if (! isset($this->config['menus'][$role])) {
+        if (!isset($this->config['menus'][$role])) {
             return collect();
         }
 
@@ -89,7 +89,7 @@ class Navigation
      */
     public function getCurrentUserRole(): string
     {
-        if (! $this->user) {
+        if (!$this->user) {
             return 'guest';
         }
 
@@ -122,7 +122,7 @@ class Navigation
      */
     public function canSeeItem(array $item): bool
     {
-        if (! isset($item['permissions'])) {
+        if (!isset($item['permissions'])) {
             return TRUE;
         }
 
@@ -136,7 +136,7 @@ class Navigation
      */
     public function isActive(array $item): bool
     {
-        if (! isset($item['active_patterns'])) {
+        if (!isset($item['active_patterns'])) {
             // Fall back to checking current route name
             if (isset($item['route']) && Route::currentRouteName() === $item['route']) {
                 return TRUE;
@@ -161,14 +161,14 @@ class Navigation
      */
     public function getBadge(string $badgeKey): ?array
     {
-        if (! $badgeKey || ! isset($this->config['badges'][$badgeKey])) {
+        if (!$badgeKey || !isset($this->config['badges'][$badgeKey])) {
             return NULL;
         }
 
         $badgeConfig = $this->config['badges'][$badgeKey];
 
         // Ensure badge config has required fields
-        if (! isset($badgeConfig['source']) || ! isset($badgeConfig['type'])) {
+        if (!isset($badgeConfig['source']) || !isset($badgeConfig['type'])) {
             return NULL;
         }
 
@@ -182,7 +182,7 @@ class Navigation
 
         // Ensure we always have a valid variant
         $validVariants = ['default', 'primary', 'secondary', 'success', 'warning', 'error', 'info'];
-        if (! in_array($variant, $validVariants, TRUE)) {
+        if (!in_array($variant, $validVariants, TRUE)) {
             $variant = 'default';
         }
 
@@ -323,7 +323,7 @@ class Navigation
      */
     protected function getBadgeValue(string $source): mixed
     {
-        if (! $this->user) {
+        if (!$this->user) {
             return NULL;
         }
 

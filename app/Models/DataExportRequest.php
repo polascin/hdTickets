@@ -118,7 +118,7 @@ class DataExportRequest extends Model
     public function isAvailableForDownload(): bool
     {
         return $this->isCompleted()
-               && ! $this->isExpired()
+               && !$this->isExpired()
                && $this->file_path
                && Storage::exists($this->file_path);
     }
@@ -131,8 +131,8 @@ class DataExportRequest extends Model
      */
     public function getDownloadUrl(): ?string
     {
-        if (! $this->isAvailableForDownload()) {
-            return null;
+        if (!$this->isAvailableForDownload()) {
+            return NULL;
         }
 
         return Storage::url($this->file_path);
@@ -146,15 +146,15 @@ class DataExportRequest extends Model
      */
     public function markAsProcessing(): bool
     {
-        if (! $this->isPending()) {
-            return false;
+        if (!$this->isPending()) {
+            return FALSE;
         }
 
         $this->update([
             'status' => self::STATUS_PROCESSING,
         ]);
 
-        return true;
+        return TRUE;
     }
 
     /**
@@ -165,8 +165,8 @@ class DataExportRequest extends Model
      */
     public function markAsCompleted(string $filePath, int $fileSize): bool
     {
-        if (! $this->isProcessing()) {
-            return false;
+        if (!$this->isProcessing()) {
+            return FALSE;
         }
 
         $this->update([
@@ -176,7 +176,7 @@ class DataExportRequest extends Model
             'expires_at' => now()->addDays(7), // File expires in 7 days
         ]);
 
-        return true;
+        return TRUE;
     }
 
     /**
@@ -192,7 +192,7 @@ class DataExportRequest extends Model
             'error_message' => $errorMessage,
         ]);
 
-        return true;
+        return TRUE;
     }
 
     /**
@@ -207,7 +207,7 @@ class DataExportRequest extends Model
             return Storage::delete($this->file_path);
         }
 
-        return true;
+        return TRUE;
     }
 
     /**
@@ -307,8 +307,8 @@ class DataExportRequest extends Model
     protected function formattedFileSize(): Attribute
     {
         return Attribute::make(get: function (): ?string {
-            if (! $this->file_size) {
-                return null;
+            if (!$this->file_size) {
+                return NULL;
             }
             $units = ['B', 'KB', 'MB', 'GB'];
             $bytes = $this->file_size;

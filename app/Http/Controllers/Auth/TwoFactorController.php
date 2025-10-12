@@ -26,7 +26,7 @@ class TwoFactorController extends Controller
      */
     public function challenge(): View|RedirectResponse
     {
-        if (! Session::has('2fa_user_id')) {
+        if (!Session::has('2fa_user_id')) {
             return redirect()->route('login');
         }
 
@@ -47,12 +47,12 @@ class TwoFactorController extends Controller
         ]);
 
         $userId = Session::get('2fa_user_id');
-        if (! $userId) {
+        if (!$userId) {
             return redirect()->route('login')->withErrors(['code' => 'Session expired. Please login again.']);
         }
 
         $user = User::find($userId);
-        if (! $user) {
+        if (!$user) {
             return redirect()->route('login')->withErrors(['code' => 'Invalid session.']);
         }
 
@@ -61,7 +61,7 @@ class TwoFactorController extends Controller
         if ($request->boolean('recovery')) {
             // Verify recovery code
             $isValid = $this->twoFactorService->verifyRecoveryCode($user, $request->code);
-            if (! $isValid) {
+            if (!$isValid) {
                 $isValid = $this->twoFactorService->verifyAdminBackupCode($user, $request->code);
             }
         } else {
@@ -72,17 +72,17 @@ class TwoFactorController extends Controller
             }
 
             // If TOTP fails, try SMS code
-            if (! $isValid) {
+            if (!$isValid) {
                 $isValid = $this->twoFactorService->verifySmsCode($user, $request->code);
             }
 
             // If SMS fails, try email code
-            if (! $isValid) {
+            if (!$isValid) {
                 $isValid = $this->twoFactorService->verifyEmailCode($user, $request->code);
             }
         }
 
-        if (! $isValid) {
+        if (!$isValid) {
             // Track failed attempts
             $user->increment('failed_login_attempts');
 
@@ -178,11 +178,11 @@ class TwoFactorController extends Controller
         $user = Auth::user();
         $secret = Session::get('2fa_setup_secret');
 
-        if (! $secret) {
+        if (!$secret) {
             return redirect()->route('2fa.setup')->withErrors(['code' => 'Setup session expired. Please start over.']);
         }
 
-        if (! $this->twoFactorService->enableTwoFactor($user, $secret, $request->code)) {
+        if (!$this->twoFactorService->enableTwoFactor($user, $secret, $request->code)) {
             return back()->withErrors(['code' => 'Invalid verification code. Please try again.']);
         }
 
@@ -207,7 +207,7 @@ class TwoFactorController extends Controller
     {
         $user = Auth::user();
 
-        if (! $this->twoFactorService->isEnabled($user)) {
+        if (!$this->twoFactorService->isEnabled($user)) {
             return redirect()->route('profile.security');
         }
 
@@ -231,7 +231,7 @@ class TwoFactorController extends Controller
     {
         $user = Auth::user();
 
-        if (! $this->twoFactorService->isEnabled($user)) {
+        if (!$this->twoFactorService->isEnabled($user)) {
             return redirect()->route('profile.security');
         }
 
@@ -257,7 +257,7 @@ class TwoFactorController extends Controller
 
         $user = Auth::user();
 
-        if (! $this->twoFactorService->isEnabled($user)) {
+        if (!$this->twoFactorService->isEnabled($user)) {
             return redirect()->route('profile.security')->with('info', 'Two-factor authentication is not enabled.');
         }
 
@@ -275,12 +275,12 @@ class TwoFactorController extends Controller
     public function sendSmsCode(Request $request): RedirectResponse
     {
         $userId = Session::get('2fa_user_id');
-        if (! $userId) {
+        if (!$userId) {
             return redirect()->route('login');
         }
 
         $user = User::find($userId);
-        if (! $user || ! $user->phone) {
+        if (!$user || !$user->phone) {
             return back()->withErrors(['code' => 'SMS backup is not available for this account.']);
         }
 
@@ -300,12 +300,12 @@ class TwoFactorController extends Controller
     public function sendEmailCode(Request $request): RedirectResponse
     {
         $userId = Session::get('2fa_user_id');
-        if (! $userId) {
+        if (!$userId) {
             return redirect()->route('login');
         }
 
         $user = User::find($userId);
-        if (! $user) {
+        if (!$user) {
             return back()->withErrors(['code' => 'Invalid session.']);
         }
 
@@ -329,7 +329,7 @@ class TwoFactorController extends Controller
     public function adminGenerateBackupCodes(Request $request, $userId): RedirectResponse
     {
         $admin = Auth::user();
-        if (! $admin->isAdmin()) {
+        if (!$admin->isAdmin()) {
             abort(403, 'Access denied.');
         }
 

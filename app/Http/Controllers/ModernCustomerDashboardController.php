@@ -277,13 +277,13 @@ class ModernCustomerDashboardController extends Controller
             ->when($user->preferences, function ($query) use ($user) {
                 // Apply user preferences for personalization
                 $preferences = $user->preferences;
-                
+
                 // Handle both object and string preferences
                 if (is_object($preferences) && isset($preferences->favorite_categories)) {
                     $categories = explode(',', $preferences->favorite_categories);
                     $query->whereIn('event_type', $categories);
                 } elseif (is_string($preferences)) {
-                    $decodedPrefs = json_decode($preferences, true);
+                    $decodedPrefs = json_decode($preferences, TRUE);
                     if (is_array($decodedPrefs) && isset($decodedPrefs['favorite_categories'])) {
                         $categories = explode(',', $decodedPrefs['favorite_categories']);
                         $query->whereIn('event_type', $categories);

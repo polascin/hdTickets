@@ -136,8 +136,8 @@ class AccountDeletionRequest extends Model
      */
     public function getRemainingGraceTime(): ?Carbon
     {
-        if (! $this->isInGracePeriod()) {
-            return null;
+        if (!$this->isInGracePeriod()) {
+            return NULL;
         }
 
         return $this->grace_period_expires_at;
@@ -149,10 +149,10 @@ class AccountDeletionRequest extends Model
     /**
      * Check if can cel
      */
-    public function cancel(?string $reason = null): bool
+    public function cancel(?string $reason = NULL): bool
     {
-        if (! $this->isPending() && ! $this->isConfirmed()) {
-            return false;
+        if (!$this->isPending() && !$this->isConfirmed()) {
+            return FALSE;
         }
 
         $this->update([
@@ -165,7 +165,7 @@ class AccountDeletionRequest extends Model
             ]),
         ]);
 
-        return true;
+        return TRUE;
     }
 
     /**
@@ -176,8 +176,8 @@ class AccountDeletionRequest extends Model
      */
     public function confirm(): bool
     {
-        if (! $this->isPending()) {
-            return false;
+        if (!$this->isPending()) {
+            return FALSE;
         }
 
         $gracePeriodEnd = now()->addHours(24); // 24-hour grace period
@@ -192,7 +192,7 @@ class AccountDeletionRequest extends Model
             ]),
         ]);
 
-        return true;
+        return TRUE;
     }
 
     /**
@@ -203,8 +203,8 @@ class AccountDeletionRequest extends Model
      */
     public function markCompleted(): bool
     {
-        if (! $this->isConfirmed()) {
-            return false;
+        if (!$this->isConfirmed()) {
+            return FALSE;
         }
 
         $this->update([
@@ -212,7 +212,7 @@ class AccountDeletionRequest extends Model
             'deleted_at' => now(),
         ]);
 
-        return true;
+        return TRUE;
     }
 
     /**
@@ -227,7 +227,7 @@ class AccountDeletionRequest extends Model
             'status' => self::STATUS_EXPIRED,
         ]);
 
-        return true;
+        return TRUE;
     }
 
     /**
@@ -290,7 +290,7 @@ class AccountDeletionRequest extends Model
     protected function timeRemaining(): Attribute
     {
         return Attribute::make(get: function () {
-            if (! $this->isInGracePeriod()) {
+            if (!$this->isInGracePeriod()) {
                 return;
             }
 

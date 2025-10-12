@@ -49,7 +49,7 @@ class ProfileController extends Controller
             'joined_days_ago'      => $user->created_at->diffInDays(now()),
             'login_count'          => $user->login_count ?? 0,
             'last_login_display'   => $user->last_login_at ? $user->last_login_at->diffForHumans() : 'Never',
-            'last_login_formatted' => $user->last_login_at ? $user->last_login_at->format('M j, Y \\a\\t g:i A') : null,
+            'last_login_formatted' => $user->last_login_at ? $user->last_login_at->format('M j, Y \\a\\t g:i A') : NULL,
 
             // Sports Events Monitoring Statistics
             'monitored_events' => $user->ticketAlerts()->where('status', 'active')->count(),
@@ -150,7 +150,7 @@ class ProfileController extends Controller
 
             // Handle email change - require re-verification
             if ($user->isDirty('email')) {
-                $user->email_verified_at = null;
+                $user->email_verified_at = NULL;
                 $user->sendEmailVerificationNotification();
             }
 
@@ -173,7 +173,7 @@ class ProfileController extends Controller
 
             if ($request->ajax()) {
                 return response()->json([
-                    'success' => true,
+                    'success' => TRUE,
                     'message' => 'Profile updated successfully!',
                     'user'    => $user->only([
                         'name', 'surname', 'username', 'email', 'phone', 'bio',
@@ -194,9 +194,9 @@ class ProfileController extends Controller
 
             if ($request->ajax()) {
                 return response()->json([
-                    'success' => false,
+                    'success' => FALSE,
                     'message' => 'Failed to update profile. Please try again.',
-                    'errors'  => config('app.debug') ? $e->getMessage() : null,
+                    'errors'  => config('app.debug') ? $e->getMessage() : NULL,
                 ], 500);
             }
 
@@ -219,14 +219,14 @@ class ProfileController extends Controller
 
             if ($validator->fails()) {
                 return response()->json([
-                    'success' => false,
+                    'success' => FALSE,
                     'errors'  => $validator->errors(),
                 ], 422);
             }
 
             $user = $request->user();
             $photo = $request->file('photo');
-            $cropData = $request->input('crop_data') ? json_decode((string) $request->input('crop_data'), true) : null;
+            $cropData = $request->input('crop_data') ? json_decode((string) $request->input('crop_data'), TRUE) : NULL;
 
             // Delete old profile picture
             if ($user->profile_picture) {
@@ -247,7 +247,7 @@ class ProfileController extends Controller
             $user->save();
 
             return response()->json([
-                'success'   => true,
+                'success'   => TRUE,
                 'message'   => 'Profile picture updated successfully!',
                 'image_url' => Storage::disk('public')->url($path),
             ]);
@@ -255,7 +255,7 @@ class ProfileController extends Controller
             Log::error('Profile picture upload error: ' . $e->getMessage());
 
             return response()->json([
-                'success' => false,
+                'success' => FALSE,
                 'message' => 'Failed to upload profile picture.',
             ], 500);
         }
@@ -286,7 +286,7 @@ class ProfileController extends Controller
             ]);
 
             return response()->json([
-                'success'    => true,
+                'success'    => TRUE,
                 'stats'      => $userStats,
                 'updated_at' => now()->toISOString(),
             ]);
@@ -294,7 +294,7 @@ class ProfileController extends Controller
             Log::error('Profile stats error: ' . $e->getMessage());
 
             return response()->json([
-                'success' => false,
+                'success' => FALSE,
                 'message' => 'Unable to load statistics.',
             ], 500);
         }
@@ -356,14 +356,14 @@ class ProfileController extends Controller
             ];
 
             return response()->json([
-                'success' => true,
+                'success' => TRUE,
                 'data'    => $data,
             ]);
         } catch (Exception $e) {
             Log::error('Activity data error: ' . $e->getMessage());
 
             return response()->json([
-                'success' => false,
+                'success' => FALSE,
                 'message' => 'Failed to load activity data.',
             ], 500);
         }
@@ -382,16 +382,16 @@ class ProfileController extends Controller
 
             if ($validator->fails()) {
                 return response()->json([
-                    'success' => false,
+                    'success' => FALSE,
                     'errors'  => $validator->errors(),
                 ], 422);
             }
 
             $user = $request->user();
 
-            if (! Hash::check($request->current_password, $user->password)) {
+            if (!Hash::check($request->current_password, $user->password)) {
                 return response()->json([
-                    'success' => false,
+                    'success' => FALSE,
                     'message' => 'Current password is incorrect.',
                 ], 422);
             }
@@ -402,14 +402,14 @@ class ProfileController extends Controller
             ]);
 
             return response()->json([
-                'success' => true,
+                'success' => TRUE,
                 'message' => 'Password updated successfully!',
             ]);
         } catch (Exception $e) {
             Log::error('Password update error: ' . $e->getMessage());
 
             return response()->json([
-                'success' => false,
+                'success' => FALSE,
                 'message' => 'Failed to update password.',
             ], 500);
         }
@@ -427,9 +427,9 @@ class ProfileController extends Controller
                 ->where('id', $sessionId)
                 ->first();
 
-            if (! $session) {
+            if (!$session) {
                 return response()->json([
-                    'success' => false,
+                    'success' => FALSE,
                     'message' => 'Session not found.',
                 ], 404);
             }
@@ -437,14 +437,14 @@ class ProfileController extends Controller
             $session->delete();
 
             return response()->json([
-                'success' => true,
+                'success' => TRUE,
                 'message' => 'Session revoked successfully.',
             ]);
         } catch (Exception $e) {
             Log::error('Session revoke error: ' . $e->getMessage());
 
             return response()->json([
-                'success' => false,
+                'success' => FALSE,
                 'message' => 'Failed to revoke session.',
             ], 500);
         }
@@ -472,7 +472,7 @@ class ProfileController extends Controller
 
             if ($validator->fails()) {
                 return response()->json([
-                    'success' => false,
+                    'success' => FALSE,
                     'errors'  => $validator->errors(),
                 ], 422);
             }
@@ -481,7 +481,7 @@ class ProfileController extends Controller
             $preferences = $user->preferences ?? [];
 
             foreach ($request->only(['notifications', 'privacy', 'interface']) as $key => $value) {
-                if ($value !== null) {
+                if ($value !== NULL) {
                     $preferences[$key] = $value;
                 }
             }
@@ -489,7 +489,7 @@ class ProfileController extends Controller
             $user->update(['preferences' => $preferences]);
 
             return response()->json([
-                'success'     => true,
+                'success'     => TRUE,
                 'message'     => 'Preferences updated successfully!',
                 'preferences' => $preferences,
             ]);
@@ -497,7 +497,7 @@ class ProfileController extends Controller
             Log::error('Preferences update error: ' . $e->getMessage());
 
             return response()->json([
-                'success' => false,
+                'success' => FALSE,
                 'message' => 'Failed to update preferences.',
             ], 500);
         }
@@ -532,14 +532,14 @@ class ProfileController extends Controller
                 ->delete();
 
             return response()->json([
-                'success' => true,
+                'success' => TRUE,
                 'message' => 'All other sessions revoked successfully.',
             ]);
         } catch (Exception $e) {
             Log::error('Session revoke all error: ' . $e->getMessage());
 
             return response()->json([
-                'success' => false,
+                'success' => FALSE,
                 'message' => 'Failed to revoke sessions.',
             ], 500);
         }
@@ -566,14 +566,14 @@ class ProfileController extends Controller
             $user->update(['trusted_devices' => $trustedDevices]);
 
             return response()->json([
-                'success' => true,
+                'success' => TRUE,
                 'message' => 'Device trusted successfully.',
             ]);
         } catch (Exception $e) {
             Log::error('Trust device error: ' . $e->getMessage());
 
             return response()->json([
-                'success' => false,
+                'success' => FALSE,
                 'message' => 'Failed to trust device.',
             ], 500);
         }
@@ -588,9 +588,9 @@ class ProfileController extends Controller
             $user = $request->user();
             $trustedDevices = $user->trusted_devices ?? [];
 
-            if (! isset($trustedDevices[$deviceIndex])) {
+            if (!isset($trustedDevices[$deviceIndex])) {
                 return response()->json([
-                    'success' => false,
+                    'success' => FALSE,
                     'message' => 'Device not found.',
                 ], 404);
             }
@@ -601,14 +601,14 @@ class ProfileController extends Controller
             $user->update(['trusted_devices' => $trustedDevices]);
 
             return response()->json([
-                'success' => true,
+                'success' => TRUE,
                 'message' => 'Trusted device removed successfully.',
             ]);
         } catch (Exception $e) {
             Log::error('Remove trusted device error: ' . $e->getMessage());
 
             return response()->json([
-                'success' => false,
+                'success' => FALSE,
                 'message' => 'Failed to remove trusted device.',
             ], 500);
         }
@@ -622,7 +622,7 @@ class ProfileController extends Controller
         try {
             $user = $request->user();
 
-            if (! $user->two_factor_secret) {
+            if (!$user->two_factor_secret) {
                 abort(404, 'Two-factor authentication is not enabled.');
             }
 
@@ -666,7 +666,7 @@ class ProfileController extends Controller
             $analytics = $this->getAnalyticsOverview($user);
 
             return response()->json([
-                'success'    => true,
+                'success'    => TRUE,
                 'analytics'  => $analytics,
                 'updated_at' => now()->toISOString(),
             ]);
@@ -674,7 +674,7 @@ class ProfileController extends Controller
             Log::error('Analytics data error: ' . $e->getMessage());
 
             return response()->json([
-                'success' => false,
+                'success' => FALSE,
                 'message' => 'Failed to load analytics data.',
             ], 500);
         }
@@ -685,9 +685,9 @@ class ProfileController extends Controller
      *
      * @param mixed $user
      */
-    private function calculateSecurityScore($user, ?array $securityStatus = null): int
+    private function calculateSecurityScore($user, ?array $securityStatus = NULL): int
     {
-        if (! $securityStatus) {
+        if (!$securityStatus) {
             $securityStatus = [
                 'email_verified'     => (bool) $user->email_verified_at,
                 'two_factor_enabled' => (bool) $user->two_factor_secret,
@@ -726,7 +726,7 @@ class ProfileController extends Controller
         }
 
         // Phone number
-        if (! empty($user->phone)) {
+        if (!empty($user->phone)) {
             $score += 5;
         }
 
@@ -752,19 +752,19 @@ class ProfileController extends Controller
             ];
         }
 
-        if (! $securityStatus['email_verified']) {
+        if (!$securityStatus['email_verified']) {
             $recommendations[] = [
                 'type'        => 'security',
                 'priority'    => 'high',
                 'title'       => 'Verify Your Email',
                 'description' => 'Verify your email address to secure your account.',
                 'action'      => 'Verify Email',
-                'route'       => null,
+                'route'       => NULL,
                 'icon'        => 'mail',
             ];
         }
 
-        if (! $securityStatus['two_factor_enabled']) {
+        if (!$securityStatus['two_factor_enabled']) {
             $recommendations[] = [
                 'type'        => 'security',
                 'priority'    => 'medium',
@@ -782,7 +782,7 @@ class ProfileController extends Controller
     /**
      * Process profile image
      */
-    private function processProfileImage(string $path, ?array $cropData = null): void
+    private function processProfileImage(string $path, ?array $cropData = NULL): void
     {
         try {
             $fullPath = Storage::disk('public')->path($path);

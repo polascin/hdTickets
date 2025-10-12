@@ -19,51 +19,53 @@ class PayPalSubscriptionTest extends TestCase
     use RefreshDatabase;
 
     private User $user;
+
     private PaymentPlan $monthlyPlan;
+
     private PaymentPlan $annualPlan;
 
     protected function setUp(): void
     {
         parent::setUp();
-        
+
         // Create test user
         $this->user = $this->createTestUser([
             'email' => 'test@example.com',
-            'name' => 'Test User'
+            'name'  => 'Test User',
         ], 'customer');
 
         // Create test payment plans
         $this->monthlyPlan = PaymentPlan::create([
-            'name' => 'Monthly Plan',
-            'slug' => 'monthly',
-            'price' => 29.99,
-            'currency' => 'USD',
-            'interval' => 'monthly',
-            'interval_days' => 30,
+            'name'                  => 'Monthly Plan',
+            'slug'                  => 'monthly',
+            'price'                 => 29.99,
+            'currency'              => 'USD',
+            'interval'              => 'monthly',
+            'interval_days'         => 30,
             'max_tickets_per_month' => 100,
-            'is_active' => true,
-            'features' => [
-                'ticket_limit' => 100,
-                'price_alerts' => true,
-                'notifications' => true
-            ]
+            'is_active'             => TRUE,
+            'features'              => [
+                'ticket_limit'  => 100,
+                'price_alerts'  => TRUE,
+                'notifications' => TRUE,
+            ],
         ]);
 
         $this->annualPlan = PaymentPlan::create([
-            'name' => 'Annual Plan',
-            'slug' => 'annual',
-            'price' => 299.99,
-            'currency' => 'USD',
-            'interval' => 'annual',
-            'interval_days' => 365,
+            'name'                  => 'Annual Plan',
+            'slug'                  => 'annual',
+            'price'                 => 299.99,
+            'currency'              => 'USD',
+            'interval'              => 'annual',
+            'interval_days'         => 365,
             'max_tickets_per_month' => 100,
-            'is_active' => true,
-            'features' => [
-                'ticket_limit' => 100,
-                'price_alerts' => true,
-                'notifications' => true,
-                'priority_support' => true
-            ]
+            'is_active'             => TRUE,
+            'features'              => [
+                'ticket_limit'     => 100,
+                'price_alerts'     => TRUE,
+                'notifications'    => TRUE,
+                'priority_support' => TRUE,
+            ],
         ]);
     }
 
@@ -88,37 +90,37 @@ class PayPalSubscriptionTest extends TestCase
         $this->mockPayPalServices();
 
         $subscriptionData = [
-            'plan_type' => 'monthly',
+            'plan_type'    => 'monthly',
             'billing_info' => [
-                'firstName' => 'John',
-                'lastName' => 'Doe',
-                'email' => 'john.doe@example.com',
-                'address' => '123 Main St',
-                'city' => 'New York',
-                'state' => 'NY',
+                'firstName'  => 'John',
+                'lastName'   => 'Doe',
+                'email'      => 'john.doe@example.com',
+                'address'    => '123 Main St',
+                'city'       => 'New York',
+                'state'      => 'NY',
                 'postalCode' => '10001',
-                'country' => 'US'
-            ]
+                'country'    => 'US',
+            ],
         ];
 
         // Act
         $response = $this->actingAs($this->user)
             ->postJson(route('api.subscriptions.create'), array_merge($subscriptionData, [
-                'payment_method' => 'paypal'
+                'payment_method' => 'paypal',
             ]));
 
         // Assert
         $response->assertStatus(Response::HTTP_OK);
         $response->assertJson([
-            'success' => true,
-            'message' => 'Subscription created successfully'
+            'success' => TRUE,
+            'message' => 'Subscription created successfully',
         ]);
-        
+
         $this->assertDatabaseHas('user_subscriptions', [
-            'user_id' => $this->user->id,
+            'user_id'         => $this->user->id,
             'payment_plan_id' => $this->monthlyPlan->id,
-            'payment_method' => 'paypal',
-            'status' => 'pending'
+            'payment_method'  => 'paypal',
+            'status'          => 'pending',
         ]);
     }
 
@@ -130,12 +132,12 @@ class PayPalSubscriptionTest extends TestCase
 
         $approvalData = [
             'subscription_id' => 'I-BW452GLLEP1G',
-            'plan_type' => 'monthly',
-            'billing_info' => [
+            'plan_type'       => 'monthly',
+            'billing_info'    => [
                 'firstName' => 'John',
-                'lastName' => 'Doe',
-                'email' => 'john.doe@example.com'
-            ]
+                'lastName'  => 'Doe',
+                'email'     => 'john.doe@example.com',
+            ],
         ];
 
         // Act
@@ -145,14 +147,14 @@ class PayPalSubscriptionTest extends TestCase
         // Assert
         $response->assertStatus(Response::HTTP_OK);
         $response->assertJson([
-            'success' => true,
-            'message' => 'Subscription approved successfully'
+            'success' => TRUE,
+            'message' => 'Subscription approved successfully',
         ]);
 
         $this->assertDatabaseHas('user_subscriptions', [
-            'user_id' => $this->user->id,
+            'user_id'                => $this->user->id,
             'paypal_subscription_id' => 'I-BW452GLLEP1G',
-            'payment_method' => 'paypal'
+            'payment_method'         => 'paypal',
         ]);
     }
 
@@ -164,23 +166,23 @@ class PayPalSubscriptionTest extends TestCase
 
         // Create a pending subscription
         $subscription = UserSubscription::create([
-            'user_id' => $this->user->id,
-            'payment_plan_id' => $this->monthlyPlan->id,
+            'user_id'                => $this->user->id,
+            'payment_plan_id'        => $this->monthlyPlan->id,
             'paypal_subscription_id' => 'I-BW452GLLEP1G',
-            'payment_method' => 'paypal',
-            'status' => 'pending',
-            'amount_paid' => $this->monthlyPlan->price,
-            'starts_at' => now(),
-            'ends_at' => now()->addMonth()
+            'payment_method'         => 'paypal',
+            'status'                 => 'pending',
+            'amount_paid'            => $this->monthlyPlan->price,
+            'starts_at'              => now(),
+            'ends_at'                => now()->addMonth(),
         ]);
 
         $activationData = [
             'subscription_id' => 'I-BW452GLLEP1G',
-            'billing_info' => [
+            'billing_info'    => [
                 'firstName' => 'John',
-                'lastName' => 'Doe',
-                'email' => 'john.doe@example.com'
-            ]
+                'lastName'  => 'Doe',
+                'email'     => 'john.doe@example.com',
+            ],
         ];
 
         // Act
@@ -190,14 +192,14 @@ class PayPalSubscriptionTest extends TestCase
         // Assert
         $response->assertStatus(Response::HTTP_OK);
         $response->assertJson([
-            'success' => true,
-            'message' => 'Subscription activated successfully'
+            'success' => TRUE,
+            'message' => 'Subscription activated successfully',
         ]);
 
         $this->assertDatabaseHas('user_subscriptions', [
-            'id' => $subscription->id,
-            'status' => 'active',
-            'paypal_subscription_id' => 'I-BW452GLLEP1G'
+            'id'                     => $subscription->id,
+            'status'                 => 'active',
+            'paypal_subscription_id' => 'I-BW452GLLEP1G',
         ]);
     }
 
@@ -208,14 +210,14 @@ class PayPalSubscriptionTest extends TestCase
         $this->mockPayPalServices();
 
         $subscription = UserSubscription::create([
-            'user_id' => $this->user->id,
-            'payment_plan_id' => $this->monthlyPlan->id,
+            'user_id'                => $this->user->id,
+            'payment_plan_id'        => $this->monthlyPlan->id,
             'paypal_subscription_id' => 'I-BW452GLLEP1G',
-            'payment_method' => 'paypal',
-            'status' => 'active',
-            'amount_paid' => $this->monthlyPlan->price,
-            'starts_at' => now(),
-            'ends_at' => now()->addMonth()
+            'payment_method'         => 'paypal',
+            'status'                 => 'active',
+            'amount_paid'            => $this->monthlyPlan->price,
+            'starts_at'              => now(),
+            'ends_at'                => now()->addMonth(),
         ]);
 
         // Act
@@ -225,13 +227,13 @@ class PayPalSubscriptionTest extends TestCase
         // Assert
         $response->assertStatus(Response::HTTP_OK);
         $response->assertJson([
-            'success' => true,
-            'message' => 'Subscription cancelled successfully'
+            'success' => TRUE,
+            'message' => 'Subscription cancelled successfully',
         ]);
 
         $this->assertDatabaseHas('user_subscriptions', [
-            'id' => $subscription->id,
-            'status' => 'cancelled'
+            'id'     => $subscription->id,
+            'status' => 'cancelled',
         ]);
     }
 
@@ -240,25 +242,25 @@ class PayPalSubscriptionTest extends TestCase
     {
         // Arrange
         $webhookPayload = [
-            'id' => 'WH-1234567890',
+            'id'         => 'WH-1234567890',
             'event_type' => 'BILLING.SUBSCRIPTION.CREATED',
-            'resource' => [
-                'id' => 'I-BW452GLLEP1G',
-                'status' => 'APPROVAL_PENDING',
-                'plan_id' => 'P-5ML4271244454362WXNWU5NQ'
-            ]
+            'resource'   => [
+                'id'      => 'I-BW452GLLEP1G',
+                'status'  => 'APPROVAL_PENDING',
+                'plan_id' => 'P-5ML4271244454362WXNWU5NQ',
+            ],
         ];
 
         // Mock webhook signature verification
-        $this->mockWebhookVerification(true);
+        $this->mockWebhookVerification(TRUE);
 
         // Act
         $response = $this->postJson(route('webhooks.paypal'), $webhookPayload, [
-            'PAYPAL-TRANSMISSION-ID' => 'test-transmission-id',
-            'PAYPAL-CERT-ID' => 'test-cert-id',
-            'PAYPAL-AUTH-ALGO' => 'SHA256withRSA',
-            'PAYPAL-TRANSMISSION-SIG' => 'test-signature',
-            'PAYPAL-TRANSMISSION-TIME' => now()->toISOString()
+            'PAYPAL-TRANSMISSION-ID'   => 'test-transmission-id',
+            'PAYPAL-CERT-ID'           => 'test-cert-id',
+            'PAYPAL-AUTH-ALGO'         => 'SHA256withRSA',
+            'PAYPAL-TRANSMISSION-SIG'  => 'test-signature',
+            'PAYPAL-TRANSMISSION-TIME' => now()->toISOString(),
         ]);
 
         // Assert
@@ -271,37 +273,37 @@ class PayPalSubscriptionTest extends TestCase
     {
         // Arrange
         $subscription = UserSubscription::create([
-            'user_id' => $this->user->id,
-            'payment_plan_id' => $this->monthlyPlan->id,
+            'user_id'                => $this->user->id,
+            'payment_plan_id'        => $this->monthlyPlan->id,
             'paypal_subscription_id' => 'I-BW452GLLEP1G',
-            'payment_method' => 'paypal',
-            'status' => 'pending',
-            'amount_paid' => $this->monthlyPlan->price,
-            'starts_at' => now(),
-            'ends_at' => now()->addMonth()
+            'payment_method'         => 'paypal',
+            'status'                 => 'pending',
+            'amount_paid'            => $this->monthlyPlan->price,
+            'starts_at'              => now(),
+            'ends_at'                => now()->addMonth(),
         ]);
 
         $webhookPayload = [
-            'id' => 'WH-1234567890',
+            'id'         => 'WH-1234567890',
             'event_type' => 'BILLING.SUBSCRIPTION.ACTIVATED',
-            'resource' => [
-                'id' => 'I-BW452GLLEP1G',
-                'status' => 'ACTIVE'
-            ]
+            'resource'   => [
+                'id'     => 'I-BW452GLLEP1G',
+                'status' => 'ACTIVE',
+            ],
         ];
 
-        $this->mockWebhookVerification(true);
+        $this->mockWebhookVerification(TRUE);
 
         // Act
         $response = $this->postJson(route('webhooks.paypal'), $webhookPayload, [
-            'PAYPAL-TRANSMISSION-ID' => 'test-transmission-id'
+            'PAYPAL-TRANSMISSION-ID' => 'test-transmission-id',
         ]);
 
         // Assert
         $response->assertStatus(Response::HTTP_OK);
         $this->assertDatabaseHas('user_subscriptions', [
-            'id' => $subscription->id,
-            'status' => 'active'
+            'id'     => $subscription->id,
+            'status' => 'active',
         ]);
     }
 
@@ -310,37 +312,37 @@ class PayPalSubscriptionTest extends TestCase
     {
         // Arrange
         $subscription = UserSubscription::create([
-            'user_id' => $this->user->id,
-            'payment_plan_id' => $this->monthlyPlan->id,
+            'user_id'                => $this->user->id,
+            'payment_plan_id'        => $this->monthlyPlan->id,
             'paypal_subscription_id' => 'I-BW452GLLEP1G',
-            'payment_method' => 'paypal',
-            'status' => 'active',
-            'amount_paid' => $this->monthlyPlan->price,
-            'starts_at' => now(),
-            'ends_at' => now()->addMonth()
+            'payment_method'         => 'paypal',
+            'status'                 => 'active',
+            'amount_paid'            => $this->monthlyPlan->price,
+            'starts_at'              => now(),
+            'ends_at'                => now()->addMonth(),
         ]);
 
         $webhookPayload = [
-            'id' => 'WH-1234567890',
+            'id'         => 'WH-1234567890',
             'event_type' => 'BILLING.SUBSCRIPTION.CANCELLED',
-            'resource' => [
-                'id' => 'I-BW452GLLEP1G',
-                'status' => 'CANCELLED'
-            ]
+            'resource'   => [
+                'id'     => 'I-BW452GLLEP1G',
+                'status' => 'CANCELLED',
+            ],
         ];
 
-        $this->mockWebhookVerification(true);
+        $this->mockWebhookVerification(TRUE);
 
         // Act
         $response = $this->postJson(route('webhooks.paypal'), $webhookPayload, [
-            'PAYPAL-TRANSMISSION-ID' => 'test-transmission-id'
+            'PAYPAL-TRANSMISSION-ID' => 'test-transmission-id',
         ]);
 
         // Assert
         $response->assertStatus(Response::HTTP_OK);
         $this->assertDatabaseHas('user_subscriptions', [
-            'id' => $subscription->id,
-            'status' => 'cancelled'
+            'id'     => $subscription->id,
+            'status' => 'cancelled',
         ]);
     }
 
@@ -349,40 +351,40 @@ class PayPalSubscriptionTest extends TestCase
     {
         // Arrange
         $subscription = UserSubscription::create([
-            'user_id' => $this->user->id,
-            'payment_plan_id' => $this->monthlyPlan->id,
+            'user_id'                => $this->user->id,
+            'payment_plan_id'        => $this->monthlyPlan->id,
             'paypal_subscription_id' => 'I-BW452GLLEP1G',
-            'payment_method' => 'paypal',
-            'status' => 'active',
-            'amount_paid' => $this->monthlyPlan->price,
-            'starts_at' => now(),
-            'ends_at' => now()->addMonth()
+            'payment_method'         => 'paypal',
+            'status'                 => 'active',
+            'amount_paid'            => $this->monthlyPlan->price,
+            'starts_at'              => now(),
+            'ends_at'                => now()->addMonth(),
         ]);
 
         $webhookPayload = [
-            'id' => 'WH-1234567890',
+            'id'         => 'WH-1234567890',
             'event_type' => 'BILLING.SUBSCRIPTION.PAYMENT.COMPLETED',
-            'resource' => [
+            'resource'   => [
                 'billing_agreement_id' => 'I-BW452GLLEP1G',
-                'amount' => [
-                    'total' => '29.99',
-                    'currency' => 'USD'
-                ]
-            ]
+                'amount'               => [
+                    'total'    => '29.99',
+                    'currency' => 'USD',
+                ],
+            ],
         ];
 
-        $this->mockWebhookVerification(true);
+        $this->mockWebhookVerification(TRUE);
 
         // Act
         $response = $this->postJson(route('webhooks.paypal'), $webhookPayload, [
-            'PAYPAL-TRANSMISSION-ID' => 'test-transmission-id'
+            'PAYPAL-TRANSMISSION-ID' => 'test-transmission-id',
         ]);
 
         // Assert
         $response->assertStatus(Response::HTTP_OK);
         $this->assertDatabaseHas('user_subscriptions', [
-            'id' => $subscription->id,
-            'status' => 'active'
+            'id'     => $subscription->id,
+            'status' => 'active',
         ]);
     }
 
@@ -391,44 +393,44 @@ class PayPalSubscriptionTest extends TestCase
     {
         // Arrange
         $subscription = UserSubscription::create([
-            'user_id' => $this->user->id,
-            'payment_plan_id' => $this->monthlyPlan->id,
+            'user_id'                => $this->user->id,
+            'payment_plan_id'        => $this->monthlyPlan->id,
             'paypal_subscription_id' => 'I-BW452GLLEP1G',
-            'payment_method' => 'paypal',
-            'status' => 'active',
-            'amount_paid' => $this->monthlyPlan->price,
-            'starts_at' => now(),
-            'ends_at' => now()->addMonth()
+            'payment_method'         => 'paypal',
+            'status'                 => 'active',
+            'amount_paid'            => $this->monthlyPlan->price,
+            'starts_at'              => now(),
+            'ends_at'                => now()->addMonth(),
         ]);
 
         $webhookPayload = [
-            'id' => 'WH-1234567890',
+            'id'         => 'WH-1234567890',
             'event_type' => 'BILLING.SUBSCRIPTION.PAYMENT.FAILED',
-            'resource' => [
+            'resource'   => [
                 'billing_agreement_id' => 'I-BW452GLLEP1G',
-                'failure_reason' => 'INSUFFICIENT_FUNDS',
-                'amount' => [
-                    'total' => '29.99',
-                    'currency' => 'USD'
-                ]
-            ]
+                'failure_reason'       => 'INSUFFICIENT_FUNDS',
+                'amount'               => [
+                    'total'    => '29.99',
+                    'currency' => 'USD',
+                ],
+            ],
         ];
 
-        $this->mockWebhookVerification(true);
+        $this->mockWebhookVerification(TRUE);
 
         // Act
         $response = $this->postJson(route('webhooks.paypal'), $webhookPayload, [
-            'PAYPAL-TRANSMISSION-ID' => 'test-transmission-id'
+            'PAYPAL-TRANSMISSION-ID' => 'test-transmission-id',
         ]);
 
         // Assert
         $response->assertStatus(Response::HTTP_OK);
-        
+
         // Check that audit log was created for failed payment
         $this->assertDatabaseHas('audit_logs', [
-            'event_type' => 'paypal_failed_payment',
-            'auditable_id' => $subscription->user_id,
-            'auditable_type' => User::class
+            'event_type'     => 'paypal_failed_payment',
+            'auditable_id'   => $subscription->user_id,
+            'auditable_type' => User::class,
         ]);
     }
 
@@ -437,15 +439,15 @@ class PayPalSubscriptionTest extends TestCase
     {
         // Arrange
         $webhookPayload = [
-            'id' => 'WH-1234567890',
-            'event_type' => 'BILLING.SUBSCRIPTION.CREATED'
+            'id'         => 'WH-1234567890',
+            'event_type' => 'BILLING.SUBSCRIPTION.CREATED',
         ];
 
-        $this->mockWebhookVerification(false);
+        $this->mockWebhookVerification(FALSE);
 
         // Act
         $response = $this->postJson(route('webhooks.paypal'), $webhookPayload, [
-            'PAYPAL-TRANSMISSION-ID' => 'invalid-transmission-id'
+            'PAYPAL-TRANSMISSION-ID' => 'invalid-transmission-id',
         ]);
 
         // Assert
@@ -457,14 +459,14 @@ class PayPalSubscriptionTest extends TestCase
     {
         // Arrange
         $subscription = UserSubscription::create([
-            'user_id' => $this->user->id,
-            'payment_plan_id' => $this->monthlyPlan->id,
+            'user_id'                => $this->user->id,
+            'payment_plan_id'        => $this->monthlyPlan->id,
             'paypal_subscription_id' => 'I-BW452GLLEP1G',
-            'payment_method' => 'paypal',
-            'status' => 'active',
-            'amount_paid' => $this->monthlyPlan->price,
-            'starts_at' => now(),
-            'ends_at' => now()->addMonth()
+            'payment_method'         => 'paypal',
+            'status'                 => 'active',
+            'amount_paid'            => $this->monthlyPlan->price,
+            'starts_at'              => now(),
+            'ends_at'                => now()->addMonth(),
         ]);
 
         // Act
@@ -474,13 +476,13 @@ class PayPalSubscriptionTest extends TestCase
         // Assert
         $response->assertStatus(Response::HTTP_OK);
         $response->assertJson([
-            'success' => true,
+            'success'      => TRUE,
             'subscription' => [
-                'id' => $subscription->id,
-                'status' => 'active',
+                'id'             => $subscription->id,
+                'status'         => 'active',
                 'payment_method' => 'paypal',
-                'plan_name' => $this->monthlyPlan->name
-            ]
+                'plan_name'      => $this->monthlyPlan->name,
+            ],
         ]);
     }
 
@@ -489,25 +491,25 @@ class PayPalSubscriptionTest extends TestCase
     {
         // Arrange
         $oldSubscription = UserSubscription::create([
-            'user_id' => $this->user->id,
-            'payment_plan_id' => $this->monthlyPlan->id,
+            'user_id'                => $this->user->id,
+            'payment_plan_id'        => $this->monthlyPlan->id,
             'paypal_subscription_id' => 'I-OLD123456',
-            'payment_method' => 'paypal',
-            'status' => 'cancelled',
-            'amount_paid' => $this->monthlyPlan->price,
-            'starts_at' => now()->subMonths(2),
-            'ends_at' => now()->subMonth()
+            'payment_method'         => 'paypal',
+            'status'                 => 'cancelled',
+            'amount_paid'            => $this->monthlyPlan->price,
+            'starts_at'              => now()->subMonths(2),
+            'ends_at'                => now()->subMonth(),
         ]);
 
         $currentSubscription = UserSubscription::create([
-            'user_id' => $this->user->id,
-            'payment_plan_id' => $this->monthlyPlan->id,
+            'user_id'                => $this->user->id,
+            'payment_plan_id'        => $this->monthlyPlan->id,
             'paypal_subscription_id' => 'I-CURRENT123',
-            'payment_method' => 'paypal',
-            'status' => 'active',
-            'amount_paid' => $this->monthlyPlan->price,
-            'starts_at' => now(),
-            'ends_at' => now()->addMonth()
+            'payment_method'         => 'paypal',
+            'status'                 => 'active',
+            'amount_paid'            => $this->monthlyPlan->price,
+            'starts_at'              => now(),
+            'ends_at'                => now()->addMonth(),
         ]);
 
         // Act
@@ -525,9 +527,9 @@ class PayPalSubscriptionTest extends TestCase
                     'payment_method',
                     'plan_name',
                     'amount',
-                    'created_at'
-                ]
-            ]
+                    'created_at',
+                ],
+            ],
         ]);
 
         $responseData = $response->json();
@@ -539,7 +541,7 @@ class PayPalSubscriptionTest extends TestCase
     {
         // Act & Assert
         $this->postJson(route('api.subscriptions.create'), [
-            'payment_method' => 'paypal'
+            'payment_method' => 'paypal',
         ])->assertStatus(Response::HTTP_UNAUTHORIZED);
 
         $this->getJson(route('api.subscriptions.current'))
@@ -555,7 +557,7 @@ class PayPalSubscriptionTest extends TestCase
         // Act & Assert - Missing plan type
         $this->actingAs($this->user)
             ->postJson(route('api.subscriptions.paypal.approve'), [
-                'subscription_id' => 'I-TEST123456'
+                'subscription_id' => 'I-TEST123456',
                 // Missing plan_type and billing_info
             ])
             ->assertStatus(Response::HTTP_UNPROCESSABLE_ENTITY);
@@ -564,8 +566,8 @@ class PayPalSubscriptionTest extends TestCase
         $this->actingAs($this->user)
             ->postJson(route('api.subscriptions.paypal.approve'), [
                 'subscription_id' => 'I-TEST123456',
-                'plan_type' => 'invalid_plan',
-                'billing_info' => []
+                'plan_type'       => 'invalid_plan',
+                'billing_info'    => [],
             ])
             ->assertStatus(Response::HTTP_UNPROCESSABLE_ENTITY);
     }
@@ -576,26 +578,26 @@ class PayPalSubscriptionTest extends TestCase
         $paypalService = Mockery::mock(PayPalService::class);
         $paypalService->shouldReceive('createSubscription')->andReturn([
             'subscription_id' => 'I-BW452GLLEP1G',
-            'status' => 'APPROVAL_PENDING',
-            'approve_link' => 'https://sandbox.paypal.com/approve?subscription_id=I-BW452GLLEP1G'
+            'status'          => 'APPROVAL_PENDING',
+            'approve_link'    => 'https://sandbox.paypal.com/approve?subscription_id=I-BW452GLLEP1G',
         ]);
-        $paypalService->shouldReceive('cancelSubscription')->andReturn(true);
-        
+        $paypalService->shouldReceive('cancelSubscription')->andReturn(TRUE);
+
         $this->app->instance(PayPalService::class, $paypalService);
 
         // Mock PayPal Subscription Service
         $subscriptionService = Mockery::mock(PayPalSubscriptionService::class);
-        $subscriptionService->shouldReceive('activateSubscription')->andReturn(true);
+        $subscriptionService->shouldReceive('activateSubscription')->andReturn(TRUE);
         $subscriptionService->shouldReceive('processRenewal')->andReturn(new UserSubscription());
-        
+
         $this->app->instance(PayPalSubscriptionService::class, $subscriptionService);
 
         // Mock Audit Service
         $auditService = Mockery::mock(AuditService::class);
-        $auditService->shouldReceive('logPayPalSubscription')->andReturn(null);
-        $auditService->shouldReceive('logPayPalWebhook')->andReturn(null);
-        $auditService->shouldReceive('logFailedPayment')->andReturn(null);
-        
+        $auditService->shouldReceive('logPayPalSubscription')->andReturn(NULL);
+        $auditService->shouldReceive('logPayPalWebhook')->andReturn(NULL);
+        $auditService->shouldReceive('logFailedPayment')->andReturn(NULL);
+
         $this->app->instance(AuditService::class, $auditService);
     }
 
@@ -603,7 +605,7 @@ class PayPalSubscriptionTest extends TestCase
     {
         $paypalService = Mockery::mock(PayPalService::class);
         $paypalService->shouldReceive('verifyWebhookSignature')->andReturn($isValid);
-        
+
         $this->app->instance(PayPalService::class, $paypalService);
     }
 }

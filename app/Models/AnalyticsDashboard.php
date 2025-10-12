@@ -44,7 +44,7 @@ class AnalyticsDashboard extends Model
      */
     public function scopePublic($query)
     {
-        return $query->where('is_public', true);
+        return $query->where('is_public', TRUE);
     }
 
     /**
@@ -57,7 +57,7 @@ class AnalyticsDashboard extends Model
     {
         return $query->where(function ($q) use ($userId): void {
             $q->where('user_id', $userId)
-                ->orWhere('is_public', true)
+                ->orWhere('is_public', TRUE)
                 ->orWhereJsonContains('shared_with', $userId);
         });
     }
@@ -70,7 +70,7 @@ class AnalyticsDashboard extends Model
     public static function getDefaultForUser($userId)
     {
         return static::where('user_id', $userId)
-            ->where('is_default', true)
+            ->where('is_default', TRUE)
             ->first();
     }
 
@@ -103,8 +103,8 @@ class AnalyticsDashboard extends Model
                 'categories' => [],
             ],
             'refresh_interval' => 300, // 5 minutes
-            'is_default'       => true,
-            'is_public'        => false,
+            'is_default'       => TRUE,
+            'is_public'        => FALSE,
         ]);
     }
 
@@ -129,7 +129,7 @@ class AnalyticsDashboard extends Model
     {
         return $this->user_id === $userId
                || $this->is_public
-               || in_array($userId, $this->shared_with ?? [], true);
+               || in_array($userId, $this->shared_with ?? [], TRUE);
     }
 
     /**

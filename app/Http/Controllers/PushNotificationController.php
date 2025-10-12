@@ -13,7 +13,7 @@ use Illuminate\Support\Facades\Validator;
 
 /**
  * Push Notification Controller
- * 
+ *
  * Handles browser push notification subscriptions and management.
  * Supports WebPush API for real-time notifications inspired by
  * TicketScoutie's notification system.
@@ -22,7 +22,8 @@ class PushNotificationController extends Controller
 {
     public function __construct(
         private readonly PushNotificationService $pushService
-    ) {}
+    ) {
+    }
 
     /**
      * Subscribe user to push notifications
@@ -30,23 +31,23 @@ class PushNotificationController extends Controller
     public function subscribe(Request $request): JsonResponse
     {
         $validator = Validator::make($request->all(), [
-            'endpoint' => 'required|string|url',
-            'keys' => 'required|array',
+            'endpoint'    => 'required|string|url',
+            'keys'        => 'required|array',
             'keys.p256dh' => 'required|string',
-            'keys.auth' => 'required|string',
+            'keys.auth'   => 'required|string',
         ]);
 
         if ($validator->fails()) {
             return response()->json([
-                'success' => false,
+                'success' => FALSE,
                 'message' => 'Invalid subscription data',
-                'errors' => $validator->errors(),
+                'errors'  => $validator->errors(),
             ], 422);
         }
 
         try {
             $user = $request->user();
-            
+
             // Check if subscription already exists
             $existingSubscription = PushSubscription::where('user_id', $user->id)
                 ->where('endpoint', $request->input('endpoint'))
@@ -55,20 +56,20 @@ class PushNotificationController extends Controller
             if ($existingSubscription) {
                 // Update existing subscription
                 $existingSubscription->update([
-                    'p256dh_key' => $request->input('keys.p256dh'),
-                    'auth_key' => $request->input('keys.auth'),
+                    'p256dh_key'   => $request->input('keys.p256dh'),
+                    'auth_key'     => $request->input('keys.auth'),
                     'last_used_at' => now(),
-                    'updated_at' => now(),
+                    'updated_at'   => now(),
                 ]);
 
                 $subscription = $existingSubscription;
             } else {
                 // Create new subscription
                 $subscription = PushSubscription::create([
-                    'user_id' => $user->id,
-                    'endpoint' => $request->input('endpoint'),
-                    'p256dh_key' => $request->input('keys.p256dh'),
-                    'auth_key' => $request->input('keys.auth'),
+                    'user_id'      => $user->id,
+                    'endpoint'     => $request->input('endpoint'),
+                    'p256dh_key'   => $request->input('keys.p256dh'),
+                    'auth_key'     => $request->input('keys.auth'),
                     'last_used_at' => now(),
                 ]);
             }
@@ -77,19 +78,19 @@ class PushNotificationController extends Controller
             $this->pushService->sendWelcomeNotification($subscription);
 
             return response()->json([
-                'success' => true,
-                'message' => 'Successfully subscribed to push notifications',
+                'success'         => TRUE,
+                'message'         => 'Successfully subscribed to push notifications',
                 'subscription_id' => $subscription->id,
             ]);
         } catch (\Exception $e) {
             Log::error('Failed to subscribe to push notifications', [
-                'error' => $e->getMessage(),
-                'user_id' => $request->user()->id,
+                'error'    => $e->getMessage(),
+                'user_id'  => $request->user()->id,
                 'endpoint' => $request->input('endpoint'),
             ]);
 
             return response()->json([
-                'success' => false,
+                'success' => FALSE,
                 'message' => 'Failed to subscribe to push notifications',
             ], 500);
         }
@@ -106,42 +107,42 @@ class PushNotificationController extends Controller
 
         if ($validator->fails()) {
             return response()->json([
-                'success' => false,
+                'success' => FALSE,
                 'message' => 'Invalid unsubscribe data',
-                'errors' => $validator->errors(),
+                'errors'  => $validator->errors(),
             ], 422);
         }
 
         try {
             $user = $request->user();
-            
+
             $subscription = PushSubscription::where('user_id', $user->id)
                 ->where('endpoint', $request->input('endpoint'))
                 ->first();
 
             if (!$subscription) {
                 return response()->json([
-                    'success' => false,
+                    'success' => FALSE,
                     'message' => 'Subscription not found',
                 ], 404);
             }
 
             // Deactivate subscription instead of deleting to maintain history
-            $subscription->update(['last_used_at' => null]);
+            $subscription->update(['last_used_at' => NULL]);
 
             return response()->json([
-                'success' => true,
+                'success' => TRUE,
                 'message' => 'Successfully unsubscribed from push notifications',
             ]);
         } catch (\Exception $e) {
             Log::error('Failed to unsubscribe from push notifications', [
-                'error' => $e->getMessage(),
-                'user_id' => $request->user()->id,
+                'error'    => $e->getMessage(),
+                'user_id'  => $request->user()->id,
                 'endpoint' => $request->input('endpoint'),
             ]);
 
             return response()->json([
-                'success' => false,
+                'success' => FALSE,
                 'message' => 'Failed to unsubscribe from push notifications',
             ], 500);
         }
@@ -156,13 +157,13 @@ class PushNotificationController extends Controller
 
         if (!$vapidKey) {
             return response()->json([
-                'success' => false,
+                'success' => FALSE,
                 'message' => 'VAPID key not configured',
             ], 500);
         }
 
         return response()->json([
-            'success' => true,
+            'success'   => TRUE,
             'vapid_key' => $vapidKey,
         ]);
     }
@@ -173,14 +174,14 @@ class PushNotificationController extends Controller
     public function getStatus(Request $request): JsonResponse
     {
         $user = $request->user();
-        
+
         $subscriptions = PushSubscription::where('user_id', $user->id)
             ->where('last_used_at', '>=', now()->subDays(30))
             ->count();
 
         return response()->json([
-            'success' => true,
-            'is_subscribed' => $subscriptions > 0,
+            'success'            => TRUE,
+            'is_subscribed'      => $subscriptions > 0,
             'subscription_count' => $subscriptions,
         ]);
     }
@@ -192,23 +193,23 @@ class PushNotificationController extends Controller
     {
         try {
             $user = $request->user();
-            
+
             $result = $this->pushService->sendTestNotification($user);
 
             return response()->json([
-                'success' => true,
-                'message' => 'Test notification sent successfully',
-                'sent_count' => $result['sent_count'] ?? 0,
+                'success'      => TRUE,
+                'message'      => 'Test notification sent successfully',
+                'sent_count'   => $result['sent_count'] ?? 0,
                 'failed_count' => $result['failed_count'] ?? 0,
             ]);
         } catch (\Exception $e) {
             Log::error('Failed to send test push notification', [
-                'error' => $e->getMessage(),
+                'error'   => $e->getMessage(),
                 'user_id' => $request->user()->id,
             ]);
 
             return response()->json([
-                'success' => false,
+                'success' => FALSE,
                 'message' => 'Failed to send test notification',
             ], 500);
         }
@@ -220,24 +221,24 @@ class PushNotificationController extends Controller
     public function getSettings(Request $request): JsonResponse
     {
         $user = $request->user();
-        
+
         // Get user's push notification preferences from their profile or settings
         $settings = [
-            'enabled' => true,
-            'ticket_alerts' => true,
-            'price_drops' => true,
-            'new_matches' => true,
-            'system_notifications' => false,
-            'quiet_hours' => [
-                'enabled' => false,
-                'start' => '22:00',
-                'end' => '08:00',
+            'enabled'              => TRUE,
+            'ticket_alerts'        => TRUE,
+            'price_drops'          => TRUE,
+            'new_matches'          => TRUE,
+            'system_notifications' => FALSE,
+            'quiet_hours'          => [
+                'enabled' => FALSE,
+                'start'   => '22:00',
+                'end'     => '08:00',
             ],
             'frequency' => 'instant', // instant, hourly, daily
         ];
 
         return response()->json([
-            'success' => true,
+            'success'  => TRUE,
             'settings' => $settings,
         ]);
     }
@@ -248,45 +249,45 @@ class PushNotificationController extends Controller
     public function updateSettings(Request $request): JsonResponse
     {
         $validator = Validator::make($request->all(), [
-            'enabled' => 'boolean',
-            'ticket_alerts' => 'boolean',
-            'price_drops' => 'boolean',
-            'new_matches' => 'boolean',
+            'enabled'              => 'boolean',
+            'ticket_alerts'        => 'boolean',
+            'price_drops'          => 'boolean',
+            'new_matches'          => 'boolean',
             'system_notifications' => 'boolean',
-            'quiet_hours.enabled' => 'boolean',
-            'quiet_hours.start' => 'string|date_format:H:i',
-            'quiet_hours.end' => 'string|date_format:H:i',
-            'frequency' => 'string|in:instant,hourly,daily',
+            'quiet_hours.enabled'  => 'boolean',
+            'quiet_hours.start'    => 'string|date_format:H:i',
+            'quiet_hours.end'      => 'string|date_format:H:i',
+            'frequency'            => 'string|in:instant,hourly,daily',
         ]);
 
         if ($validator->fails()) {
             return response()->json([
-                'success' => false,
+                'success' => FALSE,
                 'message' => 'Invalid settings data',
-                'errors' => $validator->errors(),
+                'errors'  => $validator->errors(),
             ], 422);
         }
 
         try {
             $user = $request->user();
-            
+
             // In a real implementation, you would save these settings to a user_preferences table
             // For now, we'll just return success
-            
+
             return response()->json([
-                'success' => true,
-                'message' => 'Push notification settings updated successfully',
+                'success'  => TRUE,
+                'message'  => 'Push notification settings updated successfully',
                 'settings' => $request->validated(),
             ]);
         } catch (\Exception $e) {
             Log::error('Failed to update push notification settings', [
-                'error' => $e->getMessage(),
-                'user_id' => $request->user()->id,
+                'error'    => $e->getMessage(),
+                'user_id'  => $request->user()->id,
                 'settings' => $request->validated(),
             ]);
 
             return response()->json([
-                'success' => false,
+                'success' => FALSE,
                 'message' => 'Failed to update settings',
             ], 500);
         }
@@ -298,19 +299,19 @@ class PushNotificationController extends Controller
     public function getStatistics(Request $request): JsonResponse
     {
         $user = $request->user();
-        
+
         $stats = [
-            'total_subscriptions' => PushSubscription::where('user_id', $user->id)->count(),
+            'total_subscriptions'  => PushSubscription::where('user_id', $user->id)->count(),
             'active_subscriptions' => PushSubscription::where('user_id', $user->id)
-                ->where('is_active', true)
+                ->where('is_active', TRUE)
                 ->count(),
-            'notifications_sent_today' => 0, // Would be calculated from a notifications log table
+            'notifications_sent_today'      => 0, // Would be calculated from a notifications log table
             'notifications_sent_this_month' => 0,
-            'last_notification_sent' => null,
+            'last_notification_sent'        => NULL,
         ];
 
         return response()->json([
-            'success' => true,
+            'success'    => TRUE,
             'statistics' => $stats,
         ]);
     }

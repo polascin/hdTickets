@@ -29,7 +29,7 @@ class TicketPurchaseController extends Controller
         $user = Auth::user();
 
         // Check if user can access tickets
-        if (! $this->canAccessTickets($user)) {
+        if (!$this->canAccessTickets($user)) {
             return view('tickets.access-denied', ['user' => $user]);
         }
 
@@ -80,11 +80,11 @@ class TicketPurchaseController extends Controller
     {
         $user = Auth::user();
 
-        if (! $this->canAccessTickets($user)) {
+        if (!$this->canAccessTickets($user)) {
             abort(403, 'You do not have access to view tickets.');
         }
 
-        if (! $ticket->is_available || $ticket->expires_at <= now()) {
+        if (!$ticket->is_available || $ticket->expires_at <= now()) {
             abort(404, 'Ticket is no longer available.');
         }
 
@@ -102,17 +102,17 @@ class TicketPurchaseController extends Controller
         $user = Auth::user();
 
         $request->validate([
-            'quantity' => ['required', 'integer', 'min:1', 'max:10'],
+            'quantity'       => ['required', 'integer', 'min:1', 'max:10'],
             'payment_method' => ['sometimes', 'string', 'in:paypal,stripe,automatic'],
         ]);
 
         // Verify user can purchase tickets
-        if (! $this->canPurchaseTicket($user, $ticket)) {
+        if (!$this->canPurchaseTicket($user, $ticket)) {
             return back()->withErrors(['error' => 'You cannot purchase this ticket at this time.']);
         }
 
         // Check if ticket is still available
-        if (! $ticket->is_available || $ticket->expires_at <= now()) {
+        if (!$ticket->is_available || $ticket->expires_at <= now()) {
             return back()->withErrors(['error' => 'This ticket is no longer available.']);
         }
 
@@ -137,9 +137,10 @@ class TicketPurchaseController extends Controller
             // Handle PayPal payments separately from automatic purchase system
             if ($paymentMethod === 'paypal') {
                 $paymentResult = $this->handlePayPalTicketPurchase($user, $ticket, $quantity);
-                
+
                 if ($paymentResult['success']) {
                     DB::commit();
+
                     return redirect($paymentResult['approve_url']);
                 } else {
                     throw new Exception($paymentResult['error']);
@@ -166,11 +167,11 @@ class TicketPurchaseController extends Controller
             DB::rollBack();
 
             Log::error('Ticket purchase failed', [
-                'user_id' => $user->id,
-                'ticket_id' => $ticket->id,
-                'quantity' => $quantity,
+                'user_id'        => $user->id,
+                'ticket_id'      => $ticket->id,
+                'quantity'       => $quantity,
                 'payment_method' => $paymentMethod,
-                'error' => $e->getMessage(),
+                'error'          => $e->getMessage(),
             ]);
 
             return back()
@@ -247,7 +248,7 @@ class TicketPurchaseController extends Controller
         }
 
         // Customers need verified email and active subscription
-        if (! $user->hasVerifiedEmail()) {
+        if (!$user->hasVerifiedEmail()) {
             return FALSE;
         }
         if ($user->hasActiveSubscription()) {
@@ -263,12 +264,12 @@ class TicketPurchaseController extends Controller
     private function canPurchaseTicket(User $user, ScrapedTicket $ticket): bool
     {
         // Basic access check
-        if (! $this->canAccessTickets($user)) {
+        if (!$this->canAccessTickets($user)) {
             return FALSE;
         }
 
         // Check if user can purchase tickets at all
-        if (! $this->paymentService->canPurchaseTickets($user)) {
+        if (!$this->paymentService->canPurchaseTickets($user)) {
             return FALSE;
         }
 
@@ -298,45 +299,45 @@ class TicketPurchaseController extends Controller
             );
 
             if (!$paymentResult['success']) {
-                return ['success' => false, 'error' => $paymentResult['error']];
+                return ['success' => FALSE, 'error' => $paymentResult['error']];
             }
 
             // Create purchase attempt record for tracking
             $purchaseAttempt = $user->purchaseAttempts()->create([
                 'scraped_ticket_id' => $ticket->id,
-                'quantity' => $quantity,
-                'attempted_price' => $ticket->price * $quantity,
-                'status' => 'pending_payment',
-                'platform' => $ticket->platform_name,
-                'paypal_order_id' => $paymentResult['order_id'],
-                'metadata' => [
-                    'payment_method' => 'paypal',
+                'quantity'          => $quantity,
+                'attempted_price'   => $ticket->price * $quantity,
+                'status'            => 'pending_payment',
+                'platform'          => $ticket->platform_name,
+                'paypal_order_id'   => $paymentResult['order_id'],
+                'metadata'          => [
+                    'payment_method'  => 'paypal',
                     'paypal_order_id' => $paymentResult['order_id'],
-                    'approve_url' => $paymentResult['approve_url'],
+                    'approve_url'     => $paymentResult['approve_url'],
                 ],
             ]);
 
             Log::info('PayPal ticket purchase initiated', [
-                'user_id' => $user->id,
-                'ticket_id' => $ticket->id,
+                'user_id'             => $user->id,
+                'ticket_id'           => $ticket->id,
                 'purchase_attempt_id' => $purchaseAttempt->id,
-                'paypal_order_id' => $paymentResult['order_id'],
+                'paypal_order_id'     => $paymentResult['order_id'],
             ]);
 
             return [
-                'success' => true,
-                'approve_url' => $paymentResult['approve_url'],
-                'order_id' => $paymentResult['order_id'],
+                'success'             => TRUE,
+                'approve_url'         => $paymentResult['approve_url'],
+                'order_id'            => $paymentResult['order_id'],
                 'purchase_attempt_id' => $purchaseAttempt->id,
             ];
         } catch (Exception $e) {
             Log::error('PayPal ticket purchase failed', [
-                'user_id' => $user->id,
+                'user_id'   => $user->id,
                 'ticket_id' => $ticket->id,
-                'error' => $e->getMessage(),
+                'error'     => $e->getMessage(),
             ]);
 
-            return ['success' => false, 'error' => $e->getMessage()];
+            return ['success' => FALSE, 'error' => $e->getMessage()];
         }
     }
 
@@ -356,7 +357,7 @@ class TicketPurchaseController extends Controller
         try {
             // Find the purchase attempt
             $purchaseAttempt = $this->findPurchaseAttemptByPayPalOrder($orderId);
-            
+
             if (!$purchaseAttempt) {
                 throw new Exception('Purchase attempt not found.');
             }
@@ -367,37 +368,37 @@ class TicketPurchaseController extends Controller
             if ($captureResult['success']) {
                 // Update purchase attempt
                 $purchaseAttempt->update([
-                    'status' => 'completed',
+                    'status'            => 'completed',
                     'paypal_capture_id' => $captureResult['capture_id'],
-                    'total_paid' => $captureResult['amount'],
-                    'completed_at' => now(),
-                    'metadata' => array_merge($purchaseAttempt->metadata ?? [], [
+                    'total_paid'        => $captureResult['amount'],
+                    'completed_at'      => now(),
+                    'metadata'          => array_merge($purchaseAttempt->metadata ?? [], [
                         'paypal_capture_id' => $captureResult['capture_id'],
-                        'captured_at' => now()->toISOString(),
-                        'payer_id' => $payerId,
+                        'captured_at'       => now()->toISOString(),
+                        'payer_id'          => $payerId,
                     ]),
                 ]);
 
                 // Trigger payment processed event
                 event(new \App\Domain\Purchase\Events\PaymentProcessed(
-                    new \App\Domain\Purchase\ValueObjects\PurchaseId((string)$purchaseAttempt->id),
+                    new \App\Domain\Purchase\ValueObjects\PurchaseId((string) $purchaseAttempt->id),
                     'paypal',
                     $captureResult['capture_id'],
-                    (float)$captureResult['amount'],
+                    (float) $captureResult['amount'],
                     $captureResult['currency'],
                     'completed',
                     now(),
                     [
-                        'paypal_order_id' => $orderId,
+                        'paypal_order_id'   => $orderId,
                         'paypal_capture_id' => $captureResult['capture_id'],
-                        'payer_id' => $payerId,
+                        'payer_id'          => $payerId,
                     ]
                 ));
 
                 Log::info('PayPal ticket payment completed', [
                     'purchase_attempt_id' => $purchaseAttempt->id,
-                    'paypal_order_id' => $orderId,
-                    'capture_id' => $captureResult['capture_id'],
+                    'paypal_order_id'     => $orderId,
+                    'capture_id'          => $captureResult['capture_id'],
                 ]);
 
                 return redirect()->route('tickets.purchase.success', $purchaseAttempt->id)
@@ -405,9 +406,9 @@ class TicketPurchaseController extends Controller
             } else {
                 // Update purchase attempt as failed
                 $purchaseAttempt->update([
-                    'status' => 'failed',
+                    'status'         => 'failed',
                     'failure_reason' => $captureResult['error'] ?? 'Payment capture failed',
-                    'completed_at' => now(),
+                    'completed_at'   => now(),
                 ]);
 
                 throw new Exception($captureResult['error'] ?? 'Payment capture failed');
@@ -415,7 +416,7 @@ class TicketPurchaseController extends Controller
         } catch (Exception $e) {
             Log::error('PayPal ticket payment return handling failed', [
                 'order_id' => $orderId,
-                'error' => $e->getMessage(),
+                'error'    => $e->getMessage(),
             ]);
 
             return redirect()->route('tickets.index')
@@ -434,14 +435,14 @@ class TicketPurchaseController extends Controller
             $purchaseAttempt = $this->findPurchaseAttemptByPayPalOrder($orderId);
             if ($purchaseAttempt) {
                 $purchaseAttempt->update([
-                    'status' => 'cancelled',
+                    'status'         => 'cancelled',
                     'failure_reason' => 'User cancelled PayPal payment',
-                    'completed_at' => now(),
+                    'completed_at'   => now(),
                 ]);
 
                 Log::info('PayPal ticket payment cancelled', [
                     'purchase_attempt_id' => $purchaseAttempt->id,
-                    'paypal_order_id' => $orderId,
+                    'paypal_order_id'     => $orderId,
                 ]);
             }
         }

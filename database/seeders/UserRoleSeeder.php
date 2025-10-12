@@ -37,7 +37,7 @@ class UserRoleSeeder extends Seeder
             // Clear existing role assignments for this user
             DB::table('user_roles')->where('user_id', $user->id)->delete();
 
-            if (! empty($user->role)) {
+            if (!empty($user->role)) {
                 $role = Role::where('name', $user->role)->first();
 
                 if ($role) {

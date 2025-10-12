@@ -70,7 +70,7 @@ class SubscriptionController extends Controller
             $subscription = match ($request->payment_method) {
                 'stripe' => $this->handleStripeSubscription($user, $plan),
                 'paypal' => $this->handlePayPalSubscription($user, $plan),
-                default => throw new Exception('Invalid payment method'),
+                default  => throw new Exception('Invalid payment method'),
             };
 
             DB::commit();
@@ -81,10 +81,10 @@ class SubscriptionController extends Controller
             DB::rollBack();
 
             Log::error('Subscription creation failed', [
-                'user_id' => $user->id,
-                'plan_id' => $plan->id,
+                'user_id'        => $user->id,
+                'plan_id'        => $plan->id,
                 'payment_method' => $request->payment_method,
-                'error' => $e->getMessage(),
+                'error'          => $e->getMessage(),
             ]);
 
             return back()
@@ -101,7 +101,7 @@ class SubscriptionController extends Controller
         $user = Auth::user();
         $subscription = $user->activeSubscription();
 
-        if (! $subscription) {
+        if (!$subscription) {
             return redirect()->route('subscription.payment')
                 ->withErrors(['error' => 'No active subscription found.']);
         }
@@ -136,15 +136,15 @@ class SubscriptionController extends Controller
         $user = Auth::user();
         $subscription = $user->activeSubscription();
 
-        if (! $subscription) {
+        if (!$subscription) {
             return redirect()->route('subscription.manage')
                 ->withErrors(['error' => 'No active subscription found.']);
         }
 
         try {
             // Cancel subscription with appropriate payment provider
-            $cancelled = false;
-            
+            $cancelled = FALSE;
+
             if ($subscription->stripe_subscription_id) {
                 $cancelled = $this->paymentService->cancelStripeSubscription($subscription->stripe_subscription_id);
             } elseif ($subscription->paypal_subscription_id) {
@@ -163,8 +163,8 @@ class SubscriptionController extends Controller
 
             Log::info('Subscription cancelled successfully', [
                 'subscription_id' => $subscription->id,
-                'user_id' => $subscription->user_id,
-                'payment_method' => $subscription->payment_method,
+                'user_id'         => $subscription->user_id,
+                'payment_method'  => $subscription->payment_method,
             ]);
 
             return redirect()->route('subscription.manage')
@@ -172,10 +172,10 @@ class SubscriptionController extends Controller
         } catch (Exception $e) {
             Log::error('Subscription cancellation failed', [
                 'subscription_id' => $subscription->id,
-                'user_id' => $subscription->user_id,
-                'error' => $e->getMessage(),
+                'user_id'         => $subscription->user_id,
+                'error'           => $e->getMessage(),
             ]);
-            
+
             return redirect()->route('subscription.manage')
                 ->withErrors(['error' => 'Failed to cancel subscription: ' . $e->getMessage()]);
         }
@@ -288,6 +288,7 @@ class SubscriptionController extends Controller
     private function handleStripeSubscription(User $user, PaymentPlan $plan): UserSubscription
     {
         $stripeCustomer = $this->paymentService->createOrUpdateCustomer($user);
+
         return $this->paymentService->createStripeSubscription($user, $plan, $stripeCustomer->id);
     }
 
@@ -306,14 +307,14 @@ class SubscriptionController extends Controller
     {
         if ($paymentMethod === 'paypal') {
             // For PayPal, we need to redirect to PayPal for approval
-            $approveUrl = $subscription->metadata['paypal_approve_link'] ?? null;
-            
+            $approveUrl = $subscription->metadata['paypal_approve_link'] ?? NULL;
+
             if ($approveUrl) {
                 Log::info('Redirecting to PayPal for subscription approval', [
                     'subscription_id' => $subscription->id,
-                    'approve_url' => $approveUrl,
+                    'approve_url'     => $approveUrl,
                 ]);
-                
+
                 return redirect($approveUrl);
             }
         }
@@ -330,7 +331,7 @@ class SubscriptionController extends Controller
     {
         $subscriptionId = $request->get('subscription_id');
         $token = $request->get('token');
-        
+
         if (!$subscriptionId || !$token) {
             return redirect()->route('subscription.payment')
                 ->withErrors(['error' => 'Invalid PayPal response.']);
@@ -338,7 +339,7 @@ class SubscriptionController extends Controller
 
         try {
             $subscription = UserSubscription::where('paypal_subscription_id', $subscriptionId)->first();
-            
+
             if (!$subscription) {
                 throw new Exception('Subscription not found.');
             }
@@ -349,21 +350,21 @@ class SubscriptionController extends Controller
 
             if ($activatedSubscription) {
                 Log::info('PayPal subscription approved and activated', [
-                    'subscription_id' => $subscription->id,
+                    'subscription_id'        => $subscription->id,
                     'paypal_subscription_id' => $subscriptionId,
                 ]);
-                
+
                 return redirect()->route('subscription.success')
                     ->with('success', 'Subscription activated successfully!');
             }
-            
+
             throw new Exception('Failed to activate subscription.');
         } catch (Exception $e) {
             Log::error('PayPal subscription approval failed', [
                 'subscription_id' => $subscriptionId,
-                'error' => $e->getMessage(),
+                'error'           => $e->getMessage(),
             ]);
-            
+
             return redirect()->route('subscription.payment')
                 ->withErrors(['error' => 'Failed to activate subscription: ' . $e->getMessage()]);
         }
@@ -375,24 +376,24 @@ class SubscriptionController extends Controller
     public function paypalCancel(Request $request): RedirectResponse
     {
         $subscriptionId = $request->get('subscription_id');
-        
+
         if ($subscriptionId) {
             // Clean up the cancelled subscription
             $subscription = UserSubscription::where('paypal_subscription_id', $subscriptionId)->first();
             if ($subscription) {
                 $subscription->update([
-                    'status' => 'cancelled',
+                    'status'   => 'cancelled',
                     'metadata' => array_merge($subscription->metadata ?? [], [
                         'cancelled_at_approval' => now()->toISOString(),
                     ]),
                 ]);
             }
         }
-        
+
         Log::info('PayPal subscription approval cancelled', [
             'subscription_id' => $subscriptionId,
         ]);
-        
+
         return redirect()->route('subscription.payment')
             ->with('message', 'Subscription setup was cancelled.');
     }
@@ -404,8 +405,8 @@ class SubscriptionController extends Controller
     {
         $request->validate([
             'subscription_id' => ['required', 'string'],
-            'plan_type'      => ['required', 'in:monthly,annual'],
-            'billing_info'   => ['required', 'array'],
+            'plan_type'       => ['required', 'in:monthly,annual'],
+            'billing_info'    => ['required', 'array'],
         ]);
 
         $user = Auth::user();
@@ -415,7 +416,7 @@ class SubscriptionController extends Controller
             // Find the corresponding plan
             $planType = $request->input('plan_type');
             $plan = PaymentPlan::where('interval', $planType)
-                ->where('is_active', true)
+                ->where('is_active', TRUE)
                 ->first();
 
             if (!$plan) {
@@ -425,19 +426,19 @@ class SubscriptionController extends Controller
             // Create or update subscription record
             $subscription = UserSubscription::updateOrCreate(
                 [
-                    'user_id' => $user->id,
+                    'user_id'                => $user->id,
                     'paypal_subscription_id' => $subscriptionId,
                 ],
                 [
                     'payment_plan_id' => $plan->id,
-                    'status' => 'pending',
-                    'payment_method' => 'paypal',
-                    'amount_paid' => $plan->price,
-                    'starts_at' => now(),
-                    'ends_at' => now()->addDays($plan->interval_days ?? 30),
-                    'metadata' => [
+                    'status'          => 'pending',
+                    'payment_method'  => 'paypal',
+                    'amount_paid'     => $plan->price,
+                    'starts_at'       => now(),
+                    'ends_at'         => now()->addDays($plan->interval_days ?? 30),
+                    'metadata'        => [
                         'billing_info' => $request->input('billing_info'),
-                        'approved_at' => now()->toISOString(),
+                        'approved_at'  => now()->toISOString(),
                     ],
                 ]
             );
@@ -451,32 +452,32 @@ class SubscriptionController extends Controller
             }
 
             Log::info('PayPal subscription approved via API', [
-                'user_id' => $user->id,
-                'subscription_id' => $subscription->id,
+                'user_id'                => $user->id,
+                'subscription_id'        => $subscription->id,
                 'paypal_subscription_id' => $subscriptionId,
             ]);
 
             return response()->json([
-                'success' => true,
-                'message' => 'Subscription approved successfully.',
+                'success'      => TRUE,
+                'message'      => 'Subscription approved successfully.',
                 'subscription' => [
-                    'id' => $subscription->id,
-                    'status' => $subscription->status,
+                    'id'        => $subscription->id,
+                    'status'    => $subscription->status,
                     'plan_name' => $plan->name,
-                    'amount' => $plan->price,
-                    'interval' => $plan->interval,
+                    'amount'    => $plan->price,
+                    'interval'  => $plan->interval,
                 ],
                 'redirect_url' => route('subscriptions.success'),
             ]);
         } catch (Exception $e) {
             Log::error('PayPal subscription approval failed via API', [
-                'user_id' => $user->id,
+                'user_id'         => $user->id,
                 'subscription_id' => $subscriptionId,
-                'error' => $e->getMessage(),
+                'error'           => $e->getMessage(),
             ]);
 
             return response()->json([
-                'success' => false,
+                'success' => FALSE,
                 'message' => $e->getMessage(),
             ], 400);
         }
@@ -489,7 +490,7 @@ class SubscriptionController extends Controller
     {
         $request->validate([
             'subscription_id' => ['required', 'string'],
-            'billing_info'   => ['required', 'array'],
+            'billing_info'    => ['required', 'array'],
         ]);
 
         $user = Auth::user();
@@ -507,7 +508,7 @@ class SubscriptionController extends Controller
 
             // Update subscription to active
             $subscription->update([
-                'status' => 'active',
+                'status'   => 'active',
                 'metadata' => array_merge($subscription->metadata ?? [], [
                     'activated_at' => now()->toISOString(),
                     'billing_info' => $request->input('billing_info'),
@@ -515,31 +516,31 @@ class SubscriptionController extends Controller
             ]);
 
             Log::info('PayPal subscription activated via API', [
-                'user_id' => $user->id,
-                'subscription_id' => $subscription->id,
+                'user_id'                => $user->id,
+                'subscription_id'        => $subscription->id,
                 'paypal_subscription_id' => $subscriptionId,
             ]);
 
             return response()->json([
-                'success' => true,
-                'message' => 'Subscription activated successfully.',
+                'success'      => TRUE,
+                'message'      => 'Subscription activated successfully.',
                 'subscription' => [
-                    'id' => $subscription->id,
-                    'status' => $subscription->status,
+                    'id'        => $subscription->id,
+                    'status'    => $subscription->status,
                     'starts_at' => $subscription->starts_at,
-                    'ends_at' => $subscription->ends_at,
+                    'ends_at'   => $subscription->ends_at,
                 ],
                 'redirect_url' => route('subscriptions.success'),
             ]);
         } catch (Exception $e) {
             Log::error('PayPal subscription activation failed via API', [
-                'user_id' => $user->id,
+                'user_id'         => $user->id,
                 'subscription_id' => $subscriptionId,
-                'error' => $e->getMessage(),
+                'error'           => $e->getMessage(),
             ]);
 
             return response()->json([
-                'success' => false,
+                'success' => FALSE,
                 'message' => $e->getMessage(),
             ], 400);
         }
@@ -555,22 +556,22 @@ class SubscriptionController extends Controller
 
         if (!$subscription) {
             return response()->json([
-                'success' => true,
-                'subscription' => null,
-                'message' => 'No active subscription found.',
+                'success'      => TRUE,
+                'subscription' => NULL,
+                'message'      => 'No active subscription found.',
             ]);
         }
 
         return response()->json([
-            'success' => true,
+            'success'      => TRUE,
             'subscription' => [
-                'id' => $subscription->id,
-                'status' => $subscription->status,
-                'payment_method' => $subscription->payment_method,
-                'plan_name' => $subscription->paymentPlan->name,
-                'amount' => $subscription->amount_paid,
-                'starts_at' => $subscription->starts_at,
-                'ends_at' => $subscription->ends_at,
+                'id'                => $subscription->id,
+                'status'            => $subscription->status,
+                'payment_method'    => $subscription->payment_method,
+                'plan_name'         => $subscription->paymentPlan->name,
+                'amount'            => $subscription->amount_paid,
+                'starts_at'         => $subscription->starts_at,
+                'ends_at'           => $subscription->ends_at,
                 'next_billing_date' => $subscription->ends_at,
             ],
         ]);
@@ -589,17 +590,17 @@ class SubscriptionController extends Controller
             ->get();
 
         return response()->json([
-            'success' => true,
+            'success'       => TRUE,
             'subscriptions' => $subscriptions->map(function ($subscription) {
                 return [
-                    'id' => $subscription->id,
-                    'status' => $subscription->status,
+                    'id'             => $subscription->id,
+                    'status'         => $subscription->status,
                     'payment_method' => $subscription->payment_method,
-                    'plan_name' => $subscription->paymentPlan->name,
-                    'amount' => $subscription->amount_paid,
-                    'starts_at' => $subscription->starts_at,
-                    'ends_at' => $subscription->ends_at,
-                    'created_at' => $subscription->created_at,
+                    'plan_name'      => $subscription->paymentPlan->name,
+                    'amount'         => $subscription->amount_paid,
+                    'starts_at'      => $subscription->starts_at,
+                    'ends_at'        => $subscription->ends_at,
+                    'created_at'     => $subscription->created_at,
                 ];
             }),
         ]);

@@ -1,21 +1,21 @@
 <?php declare(strict_types=1);
 
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
+use App\Http\Controllers\Auth\ComprehensiveRegistrationController;
 use App\Http\Controllers\Auth\ConfirmablePasswordController;
 use App\Http\Controllers\Auth\EmailVerificationNotificationController;
 use App\Http\Controllers\Auth\EmailVerificationPromptController;
 use App\Http\Controllers\Auth\LoginEnhancementController;
 use App\Http\Controllers\Auth\NewPasswordController;
+use App\Http\Controllers\Auth\OAuthController;
 use App\Http\Controllers\Auth\PasswordController;
 use App\Http\Controllers\Auth\PasswordResetLinkController;
 use App\Http\Controllers\Auth\PublicRegistrationController;
 use App\Http\Controllers\Auth\PublicRegistrationValidationController;
 use App\Http\Controllers\Auth\RegisteredUserController;
-use App\Http\Controllers\Auth\ComprehensiveRegistrationController;
 use App\Http\Controllers\Auth\TwoFactorController;
 use App\Http\Controllers\Auth\TwoFactorSetupController;
 use App\Http\Controllers\Auth\VerifyEmailController;
-use App\Http\Controllers\Auth\OAuthController;
 use App\Http\Middleware\EnhancedLoginSecurity;
 use Illuminate\Support\Facades\Route;
 
@@ -49,7 +49,7 @@ Route::middleware(['guest', EnhancedLoginSecurity::class])->group(function (): v
 
     // Registration routes - redirect to public registration
     Route::redirect('register', 'register/public', 301)->name('register');
-    
+
     // Admin-only registration
     Route::get('register/admin', [RegisteredUserController::class, 'create'])
         ->name('register.admin');
@@ -122,25 +122,25 @@ Route::prefix('auth')->name('oauth.')->group(function (): void {
         Route::get('{provider}', [OAuthController::class, 'redirect'])
             ->where('provider', 'google|facebook|twitter')
             ->name('redirect');
-        
+
         Route::get('{provider}/callback', [OAuthController::class, 'callback'])
             ->where('provider', 'google|facebook|twitter')
             ->name('callback');
     });
-    
+
     // OAuth account linking routes (authenticated access)
     Route::middleware('auth')->group(function (): void {
         Route::get('link', [OAuthController::class, 'linkAccount'])
             ->name('link');
-        
+
         Route::get('{provider}/link', [OAuthController::class, 'redirect'])
             ->where('provider', 'google|facebook|twitter')
             ->name('link.redirect');
-        
+
         Route::get('{provider}/link/callback', [OAuthController::class, 'linkCallback'])
             ->where('provider', 'google|facebook|twitter')
             ->name('link.callback');
-        
+
         Route::delete('{provider}/unlink', [OAuthController::class, 'unlinkAccount'])
             ->where('provider', 'google|facebook|twitter')
             ->name('unlink');
@@ -156,7 +156,7 @@ Route::middleware('auth')->group(function (): void {
         ->middleware('throttle:6,1');
     Route::post('register/two-factor/skip', [TwoFactorSetupController::class, 'skip'])
         ->name('register.twofactor.skip');
-    
+
     Route::get('verify-email', [EmailVerificationPromptController::class, '__invoke'])
         ->name('verification.notice');
 

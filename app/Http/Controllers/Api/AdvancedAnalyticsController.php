@@ -485,7 +485,7 @@ class AdvancedAnalyticsController extends Controller
 
         $projections = [];
 
-        if (! empty($current) && ! empty($recommendations)) {
+        if (!empty($current) && !empty($recommendations)) {
             foreach ($recommendations as $recommendation) {
                 $projections[] = [
                     'metric'                => $recommendation['metric'] ?? 'overall',

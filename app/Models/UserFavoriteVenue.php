@@ -108,7 +108,7 @@ class UserFavoriteVenue extends Model
      */
     public function scopeWithEmailAlerts($query)
     {
-        return $query->where('email_alerts', true);
+        return $query->where('email_alerts', TRUE);
     }
 
     /**
@@ -183,7 +183,7 @@ class UserFavoriteVenue extends Model
     /**
      * Get  popular venues
      */
-    public static function getPopularVenues(?string $city = null): array
+    public static function getPopularVenues(?string $city = NULL): array
     {
         $query = self::select('venue_name', 'city', 'state_province', 'country', 'venue_types')
             ->selectRaw('COUNT(*) as popularity')
@@ -262,8 +262,8 @@ class UserFavoriteVenue extends Model
      */
     public function distanceFrom(float $latitude, float $longitude): ?float
     {
-        if (! $this->latitude || ! $this->longitude) {
-            return null;
+        if (!$this->latitude || !$this->longitude) {
+            return NULL;
         }
 
         $earthRadius = 3959; // Miles
@@ -312,7 +312,7 @@ class UserFavoriteVenue extends Model
             'cities_count'        => $venues->groupBy('city')->count(),
             'countries_count'     => $venues->groupBy('country')->count(),
             'high_priority_count' => $venues->where('priority', '>=', 4)->count(),
-            'email_alerts_count'  => $venues->where('email_alerts', true)->count(),
+            'email_alerts_count'  => $venues->where('email_alerts', TRUE)->count(),
             'most_popular_city'   => $byCity->keys()->first(),
             'by_city'             => $byCity->take(10)->toArray(),
             'by_venue_type'       => $byVenueType->take(5)->toArray(),
@@ -371,7 +371,7 @@ class UserFavoriteVenue extends Model
     protected function capacityTier(): Attribute
     {
         return Attribute::make(get: function (): string {
-            if (! $this->capacity) {
+            if (!$this->capacity) {
                 return 'unknown';
             }
             if ($this->capacity >= 50000) {

@@ -636,34 +636,34 @@ class AnalyticsService
     {
         try {
             $cacheKey = 'market_insights:' . $user->id;
-            
+
             return Cache::remember($cacheKey, 300, function () use ($user) {
                 return [
-                    'price_trends' => $this->getPriceTrends(),
+                    'price_trends'         => $this->getPriceTrends(),
                     'platform_performance' => $this->getPlatformPerformance(),
-                    'demand_analysis' => $this->getDemandAnalysis(),
-                    'popular_categories' => $this->getPopularCategories(),
-                    'seasonal_trends' => $this->getSeasonalTrends(),
+                    'demand_analysis'      => $this->getDemandAnalysis(),
+                    'popular_categories'   => $this->getPopularCategories(),
+                    'seasonal_trends'      => $this->getSeasonalTrends(),
                     'recommendation_score' => $this->calculateRecommendationScore($user),
-                    'market_summary' => $this->getMarketSummary(),
-                    'user_positioning' => $this->getUserMarketPositioning($user),
+                    'market_summary'       => $this->getMarketSummary(),
+                    'user_positioning'     => $this->getUserMarketPositioning($user),
                 ];
             });
         } catch (Exception $e) {
             Log::error('Failed to get market insights', [
-                'user_id' => $user->id ?? null,
-                'error' => $e->getMessage(),
+                'user_id' => $user->id ?? NULL,
+                'error'   => $e->getMessage(),
             ]);
-            
+
             return [
-                'price_trends' => [],
+                'price_trends'         => [],
                 'platform_performance' => [],
-                'demand_analysis' => [],
-                'popular_categories' => [],
-                'seasonal_trends' => [],
+                'demand_analysis'      => [],
+                'popular_categories'   => [],
+                'seasonal_trends'      => [],
                 'recommendation_score' => 0,
-                'market_summary' => 'Unable to load market data',
-                'user_positioning' => 'Unknown',
+                'market_summary'       => 'Unable to load market data',
+                'user_positioning'     => 'Unknown',
             ];
         }
     }
@@ -675,12 +675,12 @@ class AnalyticsService
     {
         try {
             return [
-                'overall_trend' => 'stable',
-                'percentage_change' => 2.3,
-                'trending_up_categories' => ['Football', 'Basketball'],
+                'overall_trend'            => 'stable',
+                'percentage_change'        => 2.3,
+                'trending_up_categories'   => ['Football', 'Basketball'],
                 'trending_down_categories' => ['Hockey'],
-                'avg_price_change_7d' => 1.2,
-                'volatility_index' => 0.15,
+                'avg_price_change_7d'      => 1.2,
+                'volatility_index'         => 0.15,
             ];
         } catch (Exception $e) {
             return [];
@@ -700,14 +700,14 @@ class AnalyticsService
                     ['platform' => 'Viagogo', 'score' => 8.1, 'tickets' => 720],
                 ],
                 'reliability_scores' => [
-                    'StubHub' => 95,
+                    'StubHub'      => 95,
                     'Ticketmaster' => 92,
-                    'Viagogo' => 88,
+                    'Viagogo'      => 88,
                 ],
                 'avg_response_times' => [
-                    'StubHub' => 1.2,
+                    'StubHub'      => 1.2,
                     'Ticketmaster' => 1.8,
-                    'Viagogo' => 2.1,
+                    'Viagogo'      => 2.1,
                 ],
             ];
         } catch (Exception $e) {
@@ -732,11 +732,11 @@ class AnalyticsService
                     'Growing interest in women\'s sports',
                     'Premium seating popularity rising',
                 ],
-                'demand_forecast' => 'increasing',
+                'demand_forecast'     => 'increasing',
                 'scarcity_indicators' => [
-                    'high' => 15,
+                    'high'   => 15,
                     'medium' => 42,
-                    'low' => 130,
+                    'low'    => 130,
                 ],
             ];
         } catch (Exception $e) {
@@ -770,11 +770,11 @@ class AnalyticsService
         try {
             $month = now()->month;
             $season = $this->determineSeason($month);
-            
+
             return [
-                'current_season' => $season,
-                'seasonal_multiplier' => $this->getSeasonalMultiplier($season),
-                'peak_months' => $this->getPeakMonthsForSeason($season),
+                'current_season'         => $season,
+                'seasonal_multiplier'    => $this->getSeasonalMultiplier($season),
+                'peak_months'            => $this->getPeakMonthsForSeason($season),
                 'recommended_categories' => $this->getSeasonalRecommendations($season),
             ];
         } catch (Exception $e) {
@@ -813,12 +813,12 @@ class AnalyticsService
      */
     private function determineSeason(int $month): string
     {
-        return match(true) {
-            in_array($month, [12, 1, 2]) => 'Winter',
-            in_array($month, [3, 4, 5]) => 'Spring', 
-            in_array($month, [6, 7, 8]) => 'Summer',
+        return match (TRUE) {
+            in_array($month, [12, 1, 2])  => 'Winter',
+            in_array($month, [3, 4, 5])   => 'Spring',
+            in_array($month, [6, 7, 8])   => 'Summer',
             in_array($month, [9, 10, 11]) => 'Fall',
-            default => 'Spring'
+            default                       => 'Spring'
         };
     }
 
@@ -827,12 +827,12 @@ class AnalyticsService
      */
     private function getSeasonalMultiplier(string $season): float
     {
-        return match($season) {
+        return match ($season) {
             'Winter' => 1.2,
             'Spring' => 1.1,
             'Summer' => 0.9,
-            'Fall' => 1.3,
-            default => 1.0
+            'Fall'   => 1.3,
+            default  => 1.0
         };
     }
 
@@ -841,12 +841,12 @@ class AnalyticsService
      */
     private function getPeakMonthsForSeason(string $season): array
     {
-        return match($season) {
+        return match ($season) {
             'Winter' => ['December', 'January'],
             'Spring' => ['March', 'April'],
             'Summer' => ['June', 'July'],
-            'Fall' => ['September', 'October'],
-            default => []
+            'Fall'   => ['September', 'October'],
+            default  => []
         };
     }
 
@@ -855,12 +855,12 @@ class AnalyticsService
      */
     private function getSeasonalRecommendations(string $season): array
     {
-        return match($season) {
+        return match ($season) {
             'Winter' => ['Basketball', 'Hockey', 'Indoor Concerts'],
             'Spring' => ['Baseball', 'Basketball Playoffs', 'Spring Training'],
             'Summer' => ['Baseball', 'Outdoor Concerts', 'Racing'],
-            'Fall' => ['Football', 'Basketball Season Start', 'Playoff Events'],
-            default => []
+            'Fall'   => ['Football', 'Basketball Season Start', 'Playoff Events'],
+            default  => []
         };
     }
 

@@ -57,16 +57,16 @@ class SystemSetting extends Model
      *
      * @return mixed
      */
-    public static function get(string $key, $default = null)
+    public static function get(string $key, $default = NULL)
     {
         $setting = static::where('key', $key)->first();
 
-        if (! $setting) {
+        if (!$setting) {
             return $default;
         }
 
         // Try to decode JSON, return raw value if not JSON
-        $decoded = json_decode($setting->value, true);
+        $decoded = json_decode($setting->value, TRUE);
 
         return json_last_error() === JSON_ERROR_NONE ? $decoded : $setting->value;
     }
@@ -85,7 +85,7 @@ class SystemSetting extends Model
         return static::updateOrCreate(
             ['key' => $key],
             ['value' => $encodedValue],
-        ) !== null;
+        ) !== NULL;
     }
 
     /**
@@ -99,7 +99,7 @@ class SystemSetting extends Model
             ->get()
             ->pluck('value', 'key')
             ->map(function ($value) {
-                $decoded = json_decode($value, true);
+                $decoded = json_decode($value, TRUE);
 
                 return json_last_error() === JSON_ERROR_NONE ? $decoded : $value;
             });

@@ -45,7 +45,7 @@ class UserPreferencePreset extends Model
      */
     public function scopeSystemPresets($query)
     {
-        return $query->where('is_system_preset', true);
+        return $query->where('is_system_preset', TRUE);
     }
 
     /**
@@ -55,7 +55,7 @@ class UserPreferencePreset extends Model
      */
     public function scopeUserPresets($query)
     {
-        return $query->where('is_system_preset', false);
+        return $query->where('is_system_preset', FALSE);
     }
 
     /**
@@ -70,7 +70,7 @@ class UserPreferencePreset extends Model
      */
     public function scopeActive($query): Builder
     {
-        return $query->where('is_active', true);
+        return $query->where('is_active', TRUE);
     }
 
     /**
@@ -81,7 +81,7 @@ class UserPreferencePreset extends Model
     public function scopeAccessibleTo($query, int $userId)
     {
         return $query->where(function ($q) use ($userId): void {
-            $q->where('is_system_preset', true)
+            $q->where('is_system_preset', TRUE)
                 ->orWhere('created_by', $userId);
         });
     }
@@ -100,12 +100,12 @@ class UserPreferencePreset extends Model
                 'description'     => 'Only essential notifications enabled',
                 'preference_data' => [
                     'notifications' => [
-                        'email_enabled'         => true,
-                        'email_ticket_assigned' => true,
-                        'email_ticket_updated'  => false,
-                        'email_ticket_closed'   => false,
-                        'push_enabled'          => false,
-                        'sms_enabled'           => false,
+                        'email_enabled'         => TRUE,
+                        'email_ticket_assigned' => TRUE,
+                        'email_ticket_updated'  => FALSE,
+                        'email_ticket_closed'   => FALSE,
+                        'push_enabled'          => FALSE,
+                        'sms_enabled'           => FALSE,
                     ],
                     'display' => [
                         'theme'   => 'light',
@@ -118,24 +118,24 @@ class UserPreferencePreset extends Model
                 'description'     => 'All features and notifications enabled',
                 'preference_data' => [
                     'notifications' => [
-                        'email_enabled'         => true,
-                        'email_ticket_assigned' => true,
-                        'email_ticket_updated'  => true,
-                        'email_ticket_closed'   => true,
-                        'push_enabled'          => true,
-                        'push_ticket_assigned'  => true,
-                        'push_ticket_updated'   => true,
-                        'push_ticket_closed'    => false,
-                        'sms_enabled'           => false,
+                        'email_enabled'         => TRUE,
+                        'email_ticket_assigned' => TRUE,
+                        'email_ticket_updated'  => TRUE,
+                        'email_ticket_closed'   => TRUE,
+                        'push_enabled'          => TRUE,
+                        'push_ticket_assigned'  => TRUE,
+                        'push_ticket_updated'   => TRUE,
+                        'push_ticket_closed'    => FALSE,
+                        'sms_enabled'           => FALSE,
                     ],
                     'display' => [
                         'theme'   => 'dark',
                         'density' => 'compact',
                     ],
                     'dashboard' => [
-                        'auto_refresh'     => true,
+                        'auto_refresh'     => TRUE,
                         'refresh_interval' => 15,
-                        'compact_view'     => true,
+                        'compact_view'     => TRUE,
                     ],
                 ],
             ],
@@ -144,18 +144,18 @@ class UserPreferencePreset extends Model
                 'description'     => 'Settings optimized for mobile use',
                 'preference_data' => [
                     'notifications' => [
-                        'push_enabled'         => true,
-                        'push_ticket_assigned' => true,
-                        'email_enabled'        => false,
-                        'sms_enabled'          => false,
+                        'push_enabled'         => TRUE,
+                        'push_ticket_assigned' => TRUE,
+                        'email_enabled'        => FALSE,
+                        'sms_enabled'          => FALSE,
                     ],
                     'display' => [
                         'theme'   => 'auto',
                         'density' => 'spacious',
                     ],
                     'dashboard' => [
-                        'auto_refresh' => false,
-                        'compact_view' => false,
+                        'auto_refresh' => FALSE,
+                        'compact_view' => FALSE,
                     ],
                 ],
             ],
@@ -176,13 +176,13 @@ class UserPreferencePreset extends Model
             self::updateOrCreate(
                 [
                     'name'             => $presetData['name'],
-                    'is_system_preset' => true,
+                    'is_system_preset' => TRUE,
                 ],
                 [
                     'description'     => $presetData['description'],
                     'preference_data' => $presetData['preference_data'],
-                    'is_active'       => true,
-                    'created_by'      => null,
+                    'is_active'       => TRUE,
+                    'created_by'      => NULL,
                 ],
             );
         }
@@ -197,8 +197,8 @@ class UserPreferencePreset extends Model
     public static function createFromUserPreferences(
         int $userId,
         string $name,
-        ?string $description = null,
-        ?array $categories = null,
+        ?string $description = NULL,
+        ?array $categories = NULL,
     ): self {
         // Get user's current preferences
         $query = UserPreference::where('user_id', $userId);
@@ -218,9 +218,9 @@ class UserPreferencePreset extends Model
             'name'             => $name,
             'description'      => $description ?? 'Custom preset created from user preferences',
             'preference_data'  => $preferences->toArray(),
-            'is_system_preset' => false,
+            'is_system_preset' => FALSE,
             'created_by'       => $userId,
-            'is_active'        => true,
+            'is_active'        => TRUE,
         ]);
     }
 
@@ -236,7 +236,7 @@ class UserPreferencePreset extends Model
         $errors = [];
 
         $presetData = is_string($this->preference_data)
-            ? json_decode($this->preference_data, true)
+            ? json_decode($this->preference_data, TRUE)
             : $this->preference_data;
 
         foreach ($presetData as $category => $preferences) {
@@ -295,15 +295,15 @@ class UserPreferencePreset extends Model
     /**
      * DuplicateForUser
      */
-    public function duplicateForUser(int $userId, ?string $newName = null): self
+    public function duplicateForUser(int $userId, ?string $newName = NULL): self
     {
         return self::create([
             'name'             => $newName ?? ($this->name . ' (Copy)'),
             'description'      => $this->description,
             'preference_data'  => $this->preference_data,
-            'is_system_preset' => false,
+            'is_system_preset' => FALSE,
             'created_by'       => $userId,
-            'is_active'        => true,
+            'is_active'        => TRUE,
         ]);
     }
 
@@ -317,10 +317,10 @@ class UserPreferencePreset extends Model
     {
         $errors = [];
         $presetData = is_string($this->preference_data)
-            ? json_decode($this->preference_data, true)
+            ? json_decode($this->preference_data, TRUE)
             : $this->preference_data;
 
-        if (! is_array($presetData)) {
+        if (!is_array($presetData)) {
             $errors[] = 'Preference data must be a valid JSON object';
 
             return $errors;
@@ -328,7 +328,7 @@ class UserPreferencePreset extends Model
 
         // Validate structure
         foreach ($presetData as $category => $preferences) {
-            if (! is_array($preferences)) {
+            if (!is_array($preferences)) {
                 $errors[] = "Category '{$category}' must contain an array of preferences";
 
                 continue;
@@ -337,12 +337,12 @@ class UserPreferencePreset extends Model
             foreach ($preferences as $key => $prefData) {
                 // Allow both simple values and structured data
                 if (is_array($prefData)) {
-                    if (! isset($prefData['value'])) {
+                    if (!isset($prefData['value'])) {
                         $errors[] = "Preference '{$category}.{$key}' must have a 'value' field";
                     }
 
                     $dataType = $prefData['data_type'] ?? 'string';
-                    if (! in_array($dataType, ['string', 'boolean', 'integer', 'array', 'json'], true)) {
+                    if (!in_array($dataType, ['string', 'boolean', 'integer', 'array', 'json'], TRUE)) {
                         $errors[] = "Invalid data type '{$dataType}' for preference '{$category}.{$key}'";
                     }
                 }
@@ -361,7 +361,7 @@ class UserPreferencePreset extends Model
     public function getSummary(): array
     {
         $presetData = is_string($this->preference_data)
-            ? json_decode($this->preference_data, true)
+            ? json_decode($this->preference_data, TRUE)
             : $this->preference_data;
 
         $summary = [
@@ -375,15 +375,15 @@ class UserPreferencePreset extends Model
 
             // Extract some key features for display
             if ($category === 'notifications') {
-                $emailEnabled = $preferences['email_enabled']['value'] ?? $preferences['email_enabled'] ?? false;
-                $pushEnabled = $preferences['push_enabled']['value'] ?? $preferences['push_enabled'] ?? false;
-                $smsEnabled = $preferences['sms_enabled']['value'] ?? $preferences['sms_enabled'] ?? false;
+                $emailEnabled = $preferences['email_enabled']['value'] ?? $preferences['email_enabled'] ?? FALSE;
+                $pushEnabled = $preferences['push_enabled']['value'] ?? $preferences['push_enabled'] ?? FALSE;
+                $smsEnabled = $preferences['sms_enabled']['value'] ?? $preferences['sms_enabled'] ?? FALSE;
 
                 $notificationTypes = array_filter(['Email', 'Push', 'SMS'], fn (string $type) => match ($type) {
                     'Email' => $emailEnabled,
                     'Push'  => $pushEnabled,
                     'SMS'   => $smsEnabled,
-                    default => false,
+                    default => FALSE,
                 });
 
                 if ($notificationTypes !== []) {
@@ -392,8 +392,8 @@ class UserPreferencePreset extends Model
             }
 
             if ($category === 'display') {
-                $theme = $preferences['theme']['value'] ?? $preferences['theme'] ?? null;
-                $density = $preferences['density']['value'] ?? $preferences['density'] ?? null;
+                $theme = $preferences['theme']['value'] ?? $preferences['theme'] ?? NULL;
+                $density = $preferences['density']['value'] ?? $preferences['density'] ?? NULL;
 
                 if ($theme) {
                     $summary['key_features'][] = ucfirst((string) $theme) . ' theme';

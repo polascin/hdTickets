@@ -88,7 +88,7 @@ class EventManagementService
         ?string $competition = NULL,
     ): void {
         $event = $this->eventRepository->findById($eventId);
-        if (! $event instanceof SportsEvent) {
+        if (!$event instanceof SportsEvent) {
             throw new DomainException('Event not found');
         }
 
@@ -102,7 +102,7 @@ class EventManagementService
     public function markEventAsHighDemand(EventId $eventId): void
     {
         $event = $this->eventRepository->findById($eventId);
-        if (! $event instanceof SportsEvent) {
+        if (!$event instanceof SportsEvent) {
             throw new DomainException('Event not found');
         }
 
@@ -116,7 +116,7 @@ class EventManagementService
     public function unmarkEventAsHighDemand(EventId $eventId): void
     {
         $event = $this->eventRepository->findById($eventId);
-        if (! $event instanceof SportsEvent) {
+        if (!$event instanceof SportsEvent) {
             throw new DomainException('Event not found');
         }
 

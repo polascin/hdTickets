@@ -2,7 +2,6 @@
 
 namespace App\Http\Requests\Auth;
 
-use App\Models\LegalDocument;
 use App\Models\User;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
@@ -28,14 +27,14 @@ class PublicRegistrationRequest extends FormRequest
     public function rules(): array
     {
         $rules = [
-            'first_name'     => ['required', 'string', 'max:100'],
-            'last_name'      => ['required', 'string', 'max:100'],
-            'email'          => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:' . User::class],
-            'phone'          => ['nullable', 'string', 'regex:/^\+?[1-9]\d{1,14}$/'], // E.164 format
-            'password'       => ['required', 'confirmed', Password::defaults()],
-            'accept_terms'   => ['required', 'accepted'],
+            'first_name'       => ['required', 'string', 'max:100'],
+            'last_name'        => ['required', 'string', 'max:100'],
+            'email'            => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:' . User::class],
+            'phone'            => ['nullable', 'string', 'regex:/^\+?[1-9]\d{1,14}$/'], // E.164 format
+            'password'         => ['required', 'confirmed', Password::defaults()],
+            'accept_terms'     => ['required', 'accepted'],
             'marketing_opt_in' => ['nullable', 'boolean'],
-            'enable_2fa'     => ['nullable', 'boolean'],
+            'enable_2fa'       => ['nullable', 'boolean'],
         ];
 
         return $rules;
@@ -48,15 +47,15 @@ class PublicRegistrationRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'first_name.required'    => 'Please enter your first name.',
-            'last_name.required'     => 'Please enter your last name.',
-            'email.required'         => 'Please enter your email address.',
-            'email.unique'           => 'This email address is already registered.',
-            'phone.regex'            => 'Please enter a valid phone number with country code.',
-            'password.required'      => 'Please enter a password.',
-            'password.confirmed'     => 'Please confirm your password.',
-            'accept_terms.required'  => 'You must accept the terms and conditions.',
-            'accept_terms.accepted'  => 'You must accept the terms and conditions to register.',
+            'first_name.required'   => 'Please enter your first name.',
+            'last_name.required'    => 'Please enter your last name.',
+            'email.required'        => 'Please enter your email address.',
+            'email.unique'          => 'This email address is already registered.',
+            'phone.regex'           => 'Please enter a valid phone number with country code.',
+            'password.required'     => 'Please enter a password.',
+            'password.confirmed'    => 'Please confirm your password.',
+            'accept_terms.required' => 'You must accept the terms and conditions.',
+            'accept_terms.accepted' => 'You must accept the terms and conditions to register.',
         ];
     }
 
@@ -67,14 +66,14 @@ class PublicRegistrationRequest extends FormRequest
     public function attributes(): array
     {
         return [
-            'first_name'     => 'first name',
-            'last_name'      => 'last name',
-            'email'          => 'email address',
-            'phone'          => 'phone number',
-            'password'       => 'password',
-            'accept_terms'   => 'terms and conditions',
+            'first_name'       => 'first name',
+            'last_name'        => 'last name',
+            'email'            => 'email address',
+            'phone'            => 'phone number',
+            'password'         => 'password',
+            'accept_terms'     => 'terms and conditions',
             'marketing_opt_in' => 'marketing preferences',
-            'enable_2fa'     => 'two-factor authentication',
+            'enable_2fa'       => 'two-factor authentication',
         ];
     }
 

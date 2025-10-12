@@ -98,7 +98,7 @@ class ScrapingSource extends Model
      */
     public function scopeEnabled($query)
     {
-        return $query->where('enabled', true);
+        return $query->where('enabled', TRUE);
     }
 
     /**
@@ -205,7 +205,7 @@ class ScrapingSource extends Model
      */
     public function toggle(): bool
     {
-        return $this->update(['enabled' => ! $this->enabled]);
+        return $this->update(['enabled' => !$this->enabled]);
     }
 
     /**
@@ -215,7 +215,7 @@ class ScrapingSource extends Model
      *
      * @return mixed
      */
-    public function getConfig(string $key, $default = null)
+    public function getConfig(string $key, $default = NULL)
     {
         return data_get($this->config, $key, $default);
     }
@@ -250,8 +250,8 @@ class ScrapingSource extends Model
                 $model->priority = self::PRIORITY_MEDIUM;
             }
 
-            if (null === $model->enabled) {
-                $model->enabled = true;
+            if (NULL === $model->enabled) {
+                $model->enabled = TRUE;
             }
 
             if (empty($model->rate_limit)) {

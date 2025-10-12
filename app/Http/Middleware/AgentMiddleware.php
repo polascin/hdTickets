@@ -19,12 +19,12 @@ class AgentMiddleware
      */
     public function handle(Request $request, Closure $next): Response
     {
-        if (! Auth::check()) {
+        if (!Auth::check()) {
             return redirect('login');
         }
 
         $user = Auth::user();
-        if (! $user->isAgent() && ! $user->isAdmin()) {
+        if (!$user->isAgent() && !$user->isAdmin()) {
             abort(403, 'Access denied. Agent role required.');
         }
 

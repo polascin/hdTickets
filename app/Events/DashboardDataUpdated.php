@@ -12,7 +12,9 @@ use Illuminate\Queue\SerializesModels;
 
 class DashboardDataUpdated implements ShouldBroadcast
 {
-    use Dispatchable, InteractsWithSockets, SerializesModels;
+    use Dispatchable;
+    use InteractsWithSockets;
+    use SerializesModels;
 
     /**
      * Create a new event instance.
@@ -21,7 +23,7 @@ class DashboardDataUpdated implements ShouldBroadcast
         public User $user,
         public string $updateType,
         public array $data,
-        public ?string $message = null
+        public ?string $message = NULL
     ) {
         //
     }
@@ -53,11 +55,11 @@ class DashboardDataUpdated implements ShouldBroadcast
     public function broadcastWith(): array
     {
         return [
-            'user_id' => $this->user->id,
+            'user_id'     => $this->user->id,
             'update_type' => $this->updateType,
-            'data' => $this->data,
-            'message' => $this->message,
-            'timestamp' => now()->toISOString(),
+            'data'        => $this->data,
+            'message'     => $this->message,
+            'timestamp'   => now()->toISOString(),
         ];
     }
 
@@ -66,7 +68,7 @@ class DashboardDataUpdated implements ShouldBroadcast
      */
     public function shouldBroadcast(): bool
     {
-        return true;
+        return TRUE;
     }
 
     /**

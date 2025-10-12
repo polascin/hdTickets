@@ -38,7 +38,7 @@ class TwoFactorRecovery extends Model
      */
     public function isUsed(): bool
     {
-        return $this->used_at !== null;
+        return $this->used_at !== NULL;
     }
 
     /**
@@ -46,7 +46,7 @@ class TwoFactorRecovery extends Model
      */
     public function isValid(): bool
     {
-        return ! $this->isUsed() && ! $this->isExpired();
+        return !$this->isUsed() && !$this->isExpired();
     }
 
     /**

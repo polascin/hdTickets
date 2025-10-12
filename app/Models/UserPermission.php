@@ -66,7 +66,7 @@ class UserPermission extends Model
      */
     public function isActive(): bool
     {
-        return ! $this->isExpired();
+        return !$this->isExpired();
     }
 
     /**
@@ -98,7 +98,7 @@ class UserPermission extends Model
      */
     public function scopeResourceType($query, ?string $resourceType)
     {
-        if ($resourceType === null) {
+        if ($resourceType === NULL) {
             return $query->whereNull('resource_type');
         }
 
@@ -142,11 +142,11 @@ class UserPermission extends Model
      */
     public function getTimeUntilExpiration(): ?CarbonInterval
     {
-        if (! $this->expires_at) {
-            return null;
+        if (!$this->expires_at) {
+            return NULL;
         }
 
-        return now()->diffAsCarbonInterval($this->expires_at, false);
+        return now()->diffAsCarbonInterval($this->expires_at, FALSE);
     }
 
     /**
@@ -154,8 +154,8 @@ class UserPermission extends Model
      */
     public function extend(DateInterval $interval): bool
     {
-        if (! $this->expires_at) {
-            return false;
+        if (!$this->expires_at) {
+            return FALSE;
         }
 
         $this->expires_at = $this->expires_at->add($interval);
@@ -168,7 +168,7 @@ class UserPermission extends Model
      */
     public function makePermanent(): bool
     {
-        $this->expires_at = null;
+        $this->expires_at = NULL;
 
         return $this->save();
     }

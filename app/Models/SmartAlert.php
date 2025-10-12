@@ -11,24 +11,24 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 /**
  * Smart Alert Model
- * 
+ *
  * Represents intelligent ticket monitoring alerts inspired by TicketScoutie's
  * smart alert system. Supports multi-channel notifications and complex
  * trigger conditions for price drops, availability changes, and more.
- * 
- * @property int $id
- * @property int $user_id
- * @property string $name
- * @property string|null $description
- * @property string $alert_type
- * @property array $trigger_conditions
- * @property array $notification_channels
- * @property array $notification_settings
- * @property bool $is_active
- * @property string $priority
- * @property int $cooldown_minutes
- * @property int $max_triggers_per_day
- * @property int $trigger_count
+ *
+ * @property int                 $id
+ * @property int                 $user_id
+ * @property string              $name
+ * @property string|null         $description
+ * @property string              $alert_type
+ * @property array               $trigger_conditions
+ * @property array               $notification_channels
+ * @property array               $notification_settings
+ * @property bool                $is_active
+ * @property string              $priority
+ * @property int                 $cooldown_minutes
+ * @property int                 $max_triggers_per_day
+ * @property int                 $trigger_count
  * @property \Carbon\Carbon|null $last_triggered_at
  * @property \Carbon\Carbon|null $created_at
  * @property \Carbon\Carbon|null $updated_at
@@ -36,7 +36,8 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  */
 class SmartAlert extends Model
 {
-    use HasFactory, SoftDeletes;
+    use HasFactory;
+    use SoftDeletes;
 
     protected $fillable = [
         'user_id',
@@ -55,36 +56,36 @@ class SmartAlert extends Model
     ];
 
     protected $casts = [
-        'trigger_conditions' => 'array',
+        'trigger_conditions'    => 'array',
         'notification_channels' => 'array',
         'notification_settings' => 'array',
-        'is_active' => 'boolean',
-        'cooldown_minutes' => 'integer',
-        'max_triggers_per_day' => 'integer',
-        'trigger_count' => 'integer',
-        'last_triggered_at' => 'datetime',
+        'is_active'             => 'boolean',
+        'cooldown_minutes'      => 'integer',
+        'max_triggers_per_day'  => 'integer',
+        'trigger_count'         => 'integer',
+        'last_triggered_at'     => 'datetime',
     ];
 
     /**
      * Alert types
      */
     public const ALERT_TYPES = [
-        'price_drop' => 'Price Drop',
-        'availability' => 'New Availability',
-        'instant_deal' => 'Instant Deal',
+        'price_drop'       => 'Price Drop',
+        'availability'     => 'New Availability',
+        'instant_deal'     => 'Instant Deal',
         'price_comparison' => 'Price Comparison',
-        'venue_alert' => 'Venue Alert',
-        'league_alert' => 'League Alert',
-        'keyword_alert' => 'Keyword Alert',
+        'venue_alert'      => 'Venue Alert',
+        'league_alert'     => 'League Alert',
+        'keyword_alert'    => 'Keyword Alert',
     ];
 
     /**
      * Notification channels
      */
     public const NOTIFICATION_CHANNELS = [
-        'email' => 'Email',
-        'sms' => 'SMS',
-        'push' => 'Push Notification',
+        'email'   => 'Email',
+        'sms'     => 'SMS',
+        'push'    => 'Push Notification',
         'webhook' => 'Webhook',
     ];
 
@@ -92,9 +93,9 @@ class SmartAlert extends Model
      * Priority levels
      */
     public const PRIORITIES = [
-        'low' => 'Low',
+        'low'    => 'Low',
         'medium' => 'Medium',
-        'high' => 'High',
+        'high'   => 'High',
         'urgent' => 'Urgent',
     ];
 
@@ -112,21 +113,21 @@ class SmartAlert extends Model
     public function canTrigger(): bool
     {
         if (!$this->is_active) {
-            return false;
+            return FALSE;
         }
 
         // Check cooldown period
-        if ($this->last_triggered_at && 
+        if ($this->last_triggered_at &&
             $this->last_triggered_at->addMinutes($this->cooldown_minutes)->isFuture()) {
-            return false;
+            return FALSE;
         }
 
         // Check daily trigger limit
         if ($this->getTriggersToday() >= $this->max_triggers_per_day) {
-            return false;
+            return FALSE;
         }
 
-        return true;
+        return TRUE;
     }
 
     /**
@@ -151,7 +152,7 @@ class SmartAlert extends Model
         }
 
         $daysSinceCreation = $this->created_at->diffInDays(now()) ?: 1;
-        
+
         return round($this->trigger_count / $daysSinceCreation, 2);
     }
 
@@ -174,27 +175,20 @@ class SmartAlert extends Model
         switch ($this->alert_type) {
             case 'price_drop':
                 return $this->matchesPriceDropConditions($data, $conditions);
-            
             case 'availability':
                 return $this->matchesAvailabilityConditions($data, $conditions);
-            
             case 'instant_deal':
                 return $this->matchesInstantDealConditions($data, $conditions);
-            
             case 'price_comparison':
                 return $this->matchesPriceComparisonConditions($data, $conditions);
-            
             case 'venue_alert':
                 return $this->matchesVenueConditions($data, $conditions);
-            
             case 'league_alert':
                 return $this->matchesLeagueConditions($data, $conditions);
-            
             case 'keyword_alert':
                 return $this->matchesKeywordConditions($data, $conditions);
-            
             default:
-                return false;
+                return FALSE;
         }
     }
 
@@ -205,26 +199,26 @@ class SmartAlert extends Model
     {
         $currentPrice = $data['current_price'] ?? 0;
         $previousPrice = $data['previous_price'] ?? 0;
-        
+
         if ($previousPrice <= 0 || $currentPrice >= $previousPrice) {
-            return false;
+            return FALSE;
         }
 
         // Check absolute threshold
-        if (isset($conditions['price_threshold']) && 
+        if (isset($conditions['price_threshold']) &&
             $currentPrice > $conditions['price_threshold']) {
-            return false;
+            return FALSE;
         }
 
         // Check percentage drop
         if (isset($conditions['percentage_drop'])) {
             $dropPercentage = (($previousPrice - $currentPrice) / $previousPrice) * 100;
             if ($dropPercentage < $conditions['percentage_drop']) {
-                return false;
+                return FALSE;
             }
         }
 
-        return true;
+        return TRUE;
     }
 
     /**
@@ -237,10 +231,11 @@ class SmartAlert extends Model
             $eventTitle = strtolower($data['event_title'] ?? '');
             foreach ($conditions['event_keywords'] as $keyword) {
                 if (str_contains($eventTitle, strtolower($keyword))) {
-                    return true;
+                    return TRUE;
                 }
             }
-            return false;
+
+            return FALSE;
         }
 
         // Check venue keywords
@@ -248,31 +243,32 @@ class SmartAlert extends Model
             $venue = strtolower($data['venue'] ?? '');
             foreach ($conditions['venue_keywords'] as $keyword) {
                 if (str_contains($venue, strtolower($keyword))) {
-                    return true;
+                    return TRUE;
                 }
             }
-            return false;
+
+            return FALSE;
         }
 
         // Check date range
         if (!empty($conditions['date_range'])) {
-            $eventDate = $data['event_date'] ?? null;
+            $eventDate = $data['event_date'] ?? NULL;
             if ($eventDate) {
                 $eventDate = \Carbon\Carbon::parse($eventDate);
-                $start = $conditions['date_range']['start'] ? \Carbon\Carbon::parse($conditions['date_range']['start']) : null;
-                $end = $conditions['date_range']['end'] ? \Carbon\Carbon::parse($conditions['date_range']['end']) : null;
-                
+                $start = $conditions['date_range']['start'] ? \Carbon\Carbon::parse($conditions['date_range']['start']) : NULL;
+                $end = $conditions['date_range']['end'] ? \Carbon\Carbon::parse($conditions['date_range']['end']) : NULL;
+
                 if ($start && $eventDate->isBefore($start)) {
-                    return false;
+                    return FALSE;
                 }
-                
+
                 if ($end && $eventDate->isAfter($end)) {
-                    return false;
+                    return FALSE;
                 }
             }
         }
 
-        return true;
+        return TRUE;
     }
 
     /**
@@ -284,25 +280,25 @@ class SmartAlert extends Model
         if (isset($conditions['discount_percentage'])) {
             $discount = $data['discount_percentage'] ?? 0;
             if ($discount < $conditions['discount_percentage']) {
-                return false;
+                return FALSE;
             }
         }
 
         // Check limited quantity
         if (isset($conditions['limited_quantity']) && $conditions['limited_quantity']) {
-            if (!($data['is_limited_quantity'] ?? false)) {
-                return false;
+            if (!($data['is_limited_quantity'] ?? FALSE)) {
+                return FALSE;
             }
         }
 
         // Check time sensitivity
         if (isset($conditions['time_sensitive']) && $conditions['time_sensitive']) {
-            if (!($data['is_time_sensitive'] ?? false)) {
-                return false;
+            if (!($data['is_time_sensitive'] ?? FALSE)) {
+                return FALSE;
             }
         }
 
-        return true;
+        return TRUE;
     }
 
     /**
@@ -312,19 +308,19 @@ class SmartAlert extends Model
     {
         $platforms = $conditions['platforms'] ?? [];
         $threshold = $conditions['price_difference_threshold'] ?? 0;
-        
+
         $prices = $data['platform_prices'] ?? [];
-        
+
         if (count($prices) < 2) {
-            return false;
+            return FALSE;
         }
 
         $minPrice = min($prices);
         $maxPrice = max($prices);
-        
+
         $priceDifference = $maxPrice - $minPrice;
         $percentageDifference = ($priceDifference / $maxPrice) * 100;
-        
+
         return $percentageDifference >= $threshold;
     }
 
@@ -335,14 +331,14 @@ class SmartAlert extends Model
     {
         $venue = strtolower($data['venue'] ?? '');
         $targetVenues = array_map('strtolower', $conditions['venues'] ?? []);
-        
+
         foreach ($targetVenues as $targetVenue) {
             if (str_contains($venue, $targetVenue)) {
-                return true;
+                return TRUE;
             }
         }
-        
-        return false;
+
+        return FALSE;
     }
 
     /**
@@ -352,7 +348,7 @@ class SmartAlert extends Model
     {
         $league = strtolower($data['league'] ?? '');
         $targetLeagues = array_map('strtolower', $conditions['leagues'] ?? []);
-        
+
         return in_array($league, $targetLeagues);
     }
 
@@ -367,14 +363,14 @@ class SmartAlert extends Model
             $data['venue'] ?? '',
             $data['description'] ?? '',
         ]));
-        
+
         foreach ($keywords as $keyword) {
             if (str_contains($searchText, strtolower($keyword))) {
-                return true;
+                return TRUE;
             }
         }
-        
-        return false;
+
+        return FALSE;
     }
 
     /**
@@ -408,7 +404,7 @@ class SmartAlert extends Model
      */
     public function scopeActive($query)
     {
-        return $query->where('is_active', true);
+        return $query->where('is_active', TRUE);
     }
 
     /**

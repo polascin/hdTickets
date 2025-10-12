@@ -1,21 +1,21 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace App\Http\Controllers;
 
 use App\Models\ScrapedTicket;
-use App\Models\TicketAlert;
 use App\Services\LiveMonitoringService;
-use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
-use Illuminate\View\View;
-use Illuminate\Support\Facades\Cache;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\View\View;
 
 class LiveMonitoringController extends Controller
 {
     public function __construct(
         private LiveMonitoringService $monitoringService
-    ) {}
+    ) {
+    }
 
     /**
      * Show the live monitoring dashboard
@@ -24,11 +24,11 @@ class LiveMonitoringController extends Controller
     {
         $stats = Cache::remember('live_monitoring_stats', 60, function () {
             return [
-                'total_matches' => ScrapedTicket::active()->count(),
+                'total_matches'       => ScrapedTicket::active()->count(),
                 'high_demand_matches' => ScrapedTicket::highDemand()->count(),
                 'platforms_monitored' => ScrapedTicket::distinct('platform')->count(),
-                'price_drops_today' => ScrapedTicket::where('price_changed_at', '>=', today())->count(),
-                'new_matches_today' => ScrapedTicket::whereDate('created_at', today())->count(),
+                'price_drops_today'   => ScrapedTicket::where('price_changed_at', '>=', today())->count(),
+                'new_matches_today'   => ScrapedTicket::whereDate('created_at', today())->count(),
             ];
         });
 
@@ -45,30 +45,30 @@ class LiveMonitoringController extends Controller
     {
         $request->validate([
             'category' => 'nullable|string|in:upcoming,high_demand,recent,all',
-            'league' => 'nullable|string',
+            'league'   => 'nullable|string',
             'platform' => 'nullable|string',
-            'limit' => 'nullable|integer|min:1|max:50',
+            'limit'    => 'nullable|integer|min:1|max:50',
         ]);
 
         $category = $request->input('category', 'upcoming');
         $limit = $request->input('limit', 20);
 
-        $data = match($category) {
-            'upcoming' => $this->getUpcomingMatches($request, $limit),
+        $data = match ($category) {
+            'upcoming'    => $this->getUpcomingMatches($request, $limit),
             'high_demand' => $this->getHighDemandMatches($request, $limit),
-            'recent' => $this->getRecentMatches($request, $limit),
-            'all' => $this->getAllMatches($request, $limit),
-            default => $this->getUpcomingMatches($request, $limit),
+            'recent'      => $this->getRecentMatches($request, $limit),
+            'all'         => $this->getAllMatches($request, $limit),
+            default       => $this->getUpcomingMatches($request, $limit),
         };
 
         return response()->json([
-            'success' => true,
-            'data' => $data,
-            'meta' => [
-                'category' => $category,
+            'success' => TRUE,
+            'data'    => $data,
+            'meta'    => [
+                'category'    => $category,
                 'total_count' => $data['pagination']['total'] ?? count($data['matches']),
-                'updated_at' => now()->toISOString(),
-            ]
+                'updated_at'  => now()->toISOString(),
+            ],
         ]);
     }
 
@@ -78,7 +78,7 @@ class LiveMonitoringController extends Controller
     public function getAvailabilityUpdates(Request $request): JsonResponse
     {
         $request->validate([
-            'ticket_ids' => 'required|array',
+            'ticket_ids'   => 'required|array',
             'ticket_ids.*' => 'integer|exists:scraped_tickets,id',
         ]);
 
@@ -89,21 +89,21 @@ class LiveMonitoringController extends Controller
             $ticket = ScrapedTicket::find($ticketId);
             if ($ticket) {
                 $updates[$ticketId] = [
-                    'id' => $ticket->id,
-                    'title' => $ticket->title,
-                    'availability' => $ticket->availability_status,
-                    'price' => $ticket->price,
-                    'price_changed' => $ticket->price_changed_at ? $ticket->price_changed_at->isAfter(now()->subMinutes(5)) : false,
-                    'last_updated' => $ticket->updated_at->toISOString(),
-                    'platform' => $ticket->platform,
+                    'id'               => $ticket->id,
+                    'title'            => $ticket->title,
+                    'availability'     => $ticket->availability_status,
+                    'price'            => $ticket->price,
+                    'price_changed'    => $ticket->price_changed_at ? $ticket->price_changed_at->isAfter(now()->subMinutes(5)) : FALSE,
+                    'last_updated'     => $ticket->updated_at->toISOString(),
+                    'platform'         => $ticket->platform,
                     'status_indicator' => $this->getStatusIndicator($ticket),
                 ];
             }
         }
 
         return response()->json([
-            'success' => true,
-            'updates' => $updates,
+            'success'   => TRUE,
+            'updates'   => $updates,
             'timestamp' => now()->toISOString(),
         ]);
     }
@@ -114,10 +114,10 @@ class LiveMonitoringController extends Controller
     public function getPlatformStatus(): JsonResponse
     {
         $platforms = $this->monitoringService->getPlatformStatus();
-        
+
         return response()->json([
-            'success' => true,
-            'platforms' => $platforms,
+            'success'    => TRUE,
+            'platforms'  => $platforms,
             'last_check' => now()->toISOString(),
         ]);
     }
@@ -128,22 +128,22 @@ class LiveMonitoringController extends Controller
     public function getMonitoringPreferences(): JsonResponse
     {
         if (!Auth::check()) {
-            return response()->json(['success' => false, 'message' => 'Authentication required'], 401);
+            return response()->json(['success' => FALSE, 'message' => 'Authentication required'], 401);
         }
 
         $user = Auth::user();
         $preferences = $user->monitoring_preferences ?? [
-            'auto_refresh' => true,
-            'refresh_interval' => 30,
-            'show_price_changes' => true,
-            'show_availability_changes' => true,
-            'preferred_leagues' => [],
-            'preferred_platforms' => [],
-            'hide_sold_out' => false,
+            'auto_refresh'              => TRUE,
+            'refresh_interval'          => 30,
+            'show_price_changes'        => TRUE,
+            'show_availability_changes' => TRUE,
+            'preferred_leagues'         => [],
+            'preferred_platforms'       => [],
+            'hide_sold_out'             => FALSE,
         ];
 
         return response()->json([
-            'success' => true,
+            'success'     => TRUE,
             'preferences' => $preferences,
         ]);
     }
@@ -154,22 +154,22 @@ class LiveMonitoringController extends Controller
     public function updateMonitoringPreferences(Request $request): JsonResponse
     {
         if (!Auth::check()) {
-            return response()->json(['success' => false, 'message' => 'Authentication required'], 401);
+            return response()->json(['success' => FALSE, 'message' => 'Authentication required'], 401);
         }
 
         $request->validate([
-            'auto_refresh' => 'boolean',
-            'refresh_interval' => 'integer|min:10|max:300',
-            'show_price_changes' => 'boolean',
+            'auto_refresh'              => 'boolean',
+            'refresh_interval'          => 'integer|min:10|max:300',
+            'show_price_changes'        => 'boolean',
             'show_availability_changes' => 'boolean',
-            'preferred_leagues' => 'array',
-            'preferred_platforms' => 'array',
-            'hide_sold_out' => 'boolean',
+            'preferred_leagues'         => 'array',
+            'preferred_platforms'       => 'array',
+            'hide_sold_out'             => 'boolean',
         ]);
 
         $user = Auth::user();
         $currentPreferences = $user->monitoring_preferences ?? [];
-        
+
         $newPreferences = array_merge($currentPreferences, $request->only([
             'auto_refresh',
             'refresh_interval',
@@ -183,7 +183,7 @@ class LiveMonitoringController extends Controller
         $user->update(['monitoring_preferences' => $newPreferences]);
 
         return response()->json([
-            'success' => true,
+            'success'     => TRUE,
             'preferences' => $newPreferences,
         ]);
     }
@@ -196,30 +196,30 @@ class LiveMonitoringController extends Controller
         $trending = Cache::remember('trending_matches', 300, function () {
             return ScrapedTicket::select([
                 'id', 'title', 'venue', 'event_date', 'price', 'platform',
-                'availability_status', 'views_count', 'searches_count'
+                'availability_status', 'views_count', 'searches_count',
             ])
             ->where('event_date', '>=', now())
-            ->where('is_available', true)
+            ->where('is_available', TRUE)
             ->orderByDesc('views_count')
             ->orderByDesc('searches_count')
             ->limit(10)
             ->get()
             ->map(function ($ticket) {
                 return [
-                    'id' => $ticket->id,
-                    'title' => $ticket->title,
-                    'venue' => $ticket->venue,
-                    'event_date' => $ticket->event_date,
-                    'price' => $ticket->price,
-                    'platform' => $ticket->platform,
-                    'status' => $this->getStatusIndicator($ticket),
+                    'id'          => $ticket->id,
+                    'title'       => $ticket->title,
+                    'venue'       => $ticket->venue,
+                    'event_date'  => $ticket->event_date,
+                    'price'       => $ticket->price,
+                    'platform'    => $ticket->platform,
+                    'status'      => $this->getStatusIndicator($ticket),
                     'trend_score' => $ticket->views_count + ($ticket->searches_count * 2),
                 ];
             });
         });
 
         return response()->json([
-            'success' => true,
+            'success'  => TRUE,
             'trending' => $trending,
         ]);
     }
@@ -228,7 +228,7 @@ class LiveMonitoringController extends Controller
     {
         $query = ScrapedTicket::query()
             ->where('event_date', '>=', now())
-            ->where('is_available', true)
+            ->where('is_available', TRUE)
             ->orderBy('event_date');
 
         $this->applyFilters($query, $request);
@@ -236,13 +236,13 @@ class LiveMonitoringController extends Controller
         $matches = $query->paginate($limit);
 
         return [
-            'matches' => $matches->items()->map(fn($ticket) => $this->formatTicketForDisplay($ticket)),
+            'matches'    => $matches->items()->map(fn ($ticket) => $this->formatTicketForDisplay($ticket)),
             'pagination' => [
                 'current_page' => $matches->currentPage(),
-                'last_page' => $matches->lastPage(),
-                'per_page' => $matches->perPage(),
-                'total' => $matches->total(),
-            ]
+                'last_page'    => $matches->lastPage(),
+                'per_page'     => $matches->perPage(),
+                'total'        => $matches->total(),
+            ],
         ];
     }
 
@@ -250,10 +250,10 @@ class LiveMonitoringController extends Controller
     {
         $query = ScrapedTicket::query()
             ->where('event_date', '>=', now())
-            ->where(function($q) {
+            ->where(function ($q) {
                 $q->where('availability_status', 'limited')
                   ->orWhere('availability_status', 'sold_out')
-                  ->orWhere('is_high_demand', true);
+                  ->orWhere('is_high_demand', TRUE);
             })
             ->orderByDesc('views_count')
             ->orderBy('event_date');
@@ -263,13 +263,13 @@ class LiveMonitoringController extends Controller
         $matches = $query->paginate($limit);
 
         return [
-            'matches' => $matches->items()->map(fn($ticket) => $this->formatTicketForDisplay($ticket)),
+            'matches'    => $matches->items()->map(fn ($ticket) => $this->formatTicketForDisplay($ticket)),
             'pagination' => [
                 'current_page' => $matches->currentPage(),
-                'last_page' => $matches->lastPage(),
-                'per_page' => $matches->perPage(),
-                'total' => $matches->total(),
-            ]
+                'last_page'    => $matches->lastPage(),
+                'per_page'     => $matches->perPage(),
+                'total'        => $matches->total(),
+            ],
         ];
     }
 
@@ -284,7 +284,7 @@ class LiveMonitoringController extends Controller
         $matches = $query->limit($limit)->get();
 
         return [
-            'matches' => $matches->map(fn($ticket) => $this->formatTicketForDisplay($ticket))->toArray(),
+            'matches' => $matches->map(fn ($ticket) => $this->formatTicketForDisplay($ticket))->toArray(),
         ];
     }
 
@@ -299,13 +299,13 @@ class LiveMonitoringController extends Controller
         $matches = $query->paginate($limit);
 
         return [
-            'matches' => $matches->items()->map(fn($ticket) => $this->formatTicketForDisplay($ticket)),
+            'matches'    => $matches->items()->map(fn ($ticket) => $this->formatTicketForDisplay($ticket)),
             'pagination' => [
                 'current_page' => $matches->currentPage(),
-                'last_page' => $matches->lastPage(),
-                'per_page' => $matches->perPage(),
-                'total' => $matches->total(),
-            ]
+                'last_page'    => $matches->lastPage(),
+                'per_page'     => $matches->perPage(),
+                'total'        => $matches->total(),
+            ],
         ];
     }
 
@@ -323,21 +323,21 @@ class LiveMonitoringController extends Controller
     private function formatTicketForDisplay($ticket): array
     {
         return [
-            'id' => $ticket->id,
-            'title' => $ticket->title,
-            'venue' => $ticket->venue,
-            'location' => $ticket->location,
-            'event_date' => $ticket->event_date,
-            'price' => $ticket->price,
-            'currency' => $ticket->currency ?? 'GBP',
-            'platform' => $ticket->platform,
-            'availability' => $ticket->availability_status,
-            'status_indicator' => $this->getStatusIndicator($ticket),
+            'id'                     => $ticket->id,
+            'title'                  => $ticket->title,
+            'venue'                  => $ticket->venue,
+            'location'               => $ticket->location,
+            'event_date'             => $ticket->event_date,
+            'price'                  => $ticket->price,
+            'currency'               => $ticket->currency ?? 'GBP',
+            'platform'               => $ticket->platform,
+            'availability'           => $ticket->availability_status,
+            'status_indicator'       => $this->getStatusIndicator($ticket),
             'price_changed_recently' => $ticket->price_changed_at && $ticket->price_changed_at->isAfter(now()->subHours(1)),
-            'is_new' => $ticket->created_at->isAfter(now()->subHours(6)),
-            'view_count' => $ticket->views_count ?? 0,
-            'url' => route('tickets.show', $ticket->id),
-            'external_url' => $ticket->url,
+            'is_new'                 => $ticket->created_at->isAfter(now()->subHours(6)),
+            'view_count'             => $ticket->views_count ?? 0,
+            'url'                    => route('tickets.show', $ticket->id),
+            'external_url'           => $ticket->url,
         ];
     }
 

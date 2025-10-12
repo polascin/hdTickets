@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace App\Models;
 
@@ -23,9 +23,9 @@ class PushSubscription extends Model
     ];
 
     protected $casts = [
-        'last_used_at' => 'datetime',
+        'last_used_at'             => 'datetime',
         'successful_notifications' => 'integer',
-        'failed_notifications' => 'integer',
+        'failed_notifications'     => 'integer',
     ];
 
     /**
@@ -66,7 +66,7 @@ class PushSubscription extends Model
     public function getSuccessRate(): float
     {
         $total = $this->successful_notifications + $this->failed_notifications;
-        
+
         if ($total === 0) {
             return 0.0;
         }

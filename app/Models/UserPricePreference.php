@@ -77,7 +77,7 @@ class UserPricePreference extends Model
      */
     public function scopeActive($query): Builder
     {
-        return $query->where('is_active', true);
+        return $query->where('is_active', TRUE);
     }
 
     /**
@@ -87,7 +87,7 @@ class UserPricePreference extends Model
      */
     public function scopeWithAutoPurchase($query)
     {
-        return $query->where('auto_purchase_enabled', true);
+        return $query->where('auto_purchase_enabled', TRUE);
     }
 
     /**
@@ -113,7 +113,7 @@ class UserPricePreference extends Model
      */
     public function scopeWithEmailAlerts($query)
     {
-        return $query->where('email_alerts', true);
+        return $query->where('email_alerts', TRUE);
     }
 
     /**
@@ -186,7 +186,7 @@ class UserPricePreference extends Model
     public function matchesPrice(float $ticketPrice): bool
     {
         if ($this->min_price && $ticketPrice < $this->min_price) {
-            return false;
+            return FALSE;
         }
 
         return $ticketPrice <= $this->max_price;
@@ -201,7 +201,7 @@ class UserPricePreference extends Model
     public function isPriceDropSignificant(float $oldPrice, float $newPrice): bool
     {
         if ($oldPrice <= 0) {
-            return false;
+            return FALSE;
         }
 
         $percentageChange = (($oldPrice - $newPrice) / $oldPrice) * 100;
@@ -218,7 +218,7 @@ class UserPricePreference extends Model
     public function isPriceIncreaseSignificant(float $oldPrice, float $newPrice): bool
     {
         if ($oldPrice <= 0) {
-            return false;
+            return FALSE;
         }
 
         $percentageChange = (($newPrice - $oldPrice) / $oldPrice) * 100;
@@ -235,16 +235,16 @@ class UserPricePreference extends Model
     public function matchesSeatPreferences(array $ticketSeatInfo): bool
     {
         if (empty($this->seat_preferences)) {
-            return true; // No specific seat preferences
+            return TRUE; // No specific seat preferences
         }
 
         foreach ($this->seat_preferences as $preference) {
-            if (in_array($preference, $ticketSeatInfo, true)) {
-                return true;
+            if (in_array($preference, $ticketSeatInfo, TRUE)) {
+                return TRUE;
             }
         }
 
-        return false;
+        return FALSE;
     }
 
     /**
@@ -256,10 +256,10 @@ class UserPricePreference extends Model
     public function matchesSectionPreferences(string $ticketSection): bool
     {
         if (empty($this->section_preferences)) {
-            return true; // No specific section preferences
+            return TRUE; // No specific section preferences
         }
 
-        return in_array($ticketSection, $this->section_preferences, true);
+        return in_array($ticketSection, $this->section_preferences, TRUE);
     }
 
     /**
@@ -270,8 +270,8 @@ class UserPricePreference extends Model
      */
     public function shouldAutoPurchase(float $ticketPrice): bool
     {
-        if (! $this->auto_purchase_enabled || ! $this->auto_purchase_max_price) {
-            return false;
+        if (!$this->auto_purchase_enabled || !$this->auto_purchase_max_price) {
+            return FALSE;
         }
 
         return $ticketPrice <= $this->auto_purchase_max_price;
@@ -344,7 +344,7 @@ class UserPricePreference extends Model
     /**
      * CloneFor
      */
-    public function cloneFor(?string $sportType = null, ?string $eventCategory = null): self
+    public function cloneFor(?string $sportType = NULL, ?string $eventCategory = NULL): self
     {
         $clone = $this->replicate();
         $clone->preference_name = $this->preference_name . ' (Copy)';
@@ -372,14 +372,14 @@ class UserPricePreference extends Model
     {
         $preferences = self::where('user_id', $userId)->get();
 
-        $activePref = $preferences->where('is_active', true);
+        $activePref = $preferences->where('is_active', TRUE);
         $avgMaxPrice = $activePref->avg('max_price') ?? 0;
         $avgMinPrice = $activePref->where('min_price', '>', 0)->avg('min_price') ?? 0;
 
         return [
             'total_preferences'     => $preferences->count(),
             'active_preferences'    => $activePref->count(),
-            'auto_purchase_enabled' => $preferences->where('auto_purchase_enabled', true)->count(),
+            'auto_purchase_enabled' => $preferences->where('auto_purchase_enabled', TRUE)->count(),
             'average_max_price'     => round($avgMaxPrice, 2),
             'average_min_price'     => round($avgMinPrice, 2),
             'total_budget'          => round($activePref->sum('max_price'), 2),
@@ -389,9 +389,9 @@ class UserPricePreference extends Model
             ])->toArray(),
             'by_category'   => $preferences->groupBy('event_category')->map(fn ($group) => $group->count())->toArray(),
             'alert_methods' => [
-                'email' => $preferences->where('email_alerts', true)->count(),
-                'push'  => $preferences->where('push_alerts', true)->count(),
-                'sms'   => $preferences->where('sms_alerts', true)->count(),
+                'email' => $preferences->where('email_alerts', TRUE)->count(),
+                'push'  => $preferences->where('push_alerts', TRUE)->count(),
+                'sms'   => $preferences->where('sms_alerts', TRUE)->count(),
             ],
         ];
     }

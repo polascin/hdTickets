@@ -39,6 +39,7 @@ declare(strict_types=1);
  * - Backward compatibility maintained
  */
 
+use App\Http\Controllers\Api\AdvancedSearchController;
 use App\Http\Controllers\Api\AlertController;
 use App\Http\Controllers\Api\AnalyticsController;
 use App\Http\Controllers\Api\AuthController;
@@ -46,27 +47,24 @@ use App\Http\Controllers\Api\BusinessIntelligenceApiController;
 use App\Http\Controllers\Api\CategoryController;
 use App\Http\Controllers\Api\DashboardController;
 use App\Http\Controllers\Api\EnhancedAnalyticsController;
+use App\Http\Controllers\Api\FollowingController;
 use App\Http\Controllers\Api\ImapMonitoringController;
 use App\Http\Controllers\Api\MonitoringController;
 use App\Http\Controllers\Api\PerformanceMetricsController;
 use App\Http\Controllers\Api\PreferencesController;
 use App\Http\Controllers\Api\PurchaseController;
 use App\Http\Controllers\Api\ScrapingController;
+use App\Http\Controllers\Api\SocialProofController;
 use App\Http\Controllers\Api\StubHubController;
+use App\Http\Controllers\Api\TicketComparisonController;
 use App\Http\Controllers\Api\TicketController;
 use App\Http\Controllers\Api\TicketCriteriaController;
+// Import React Feature API Controllers
 use App\Http\Controllers\Api\TicketmasterController;
+use App\Http\Controllers\Api\TicketMonitoringController;
 use App\Http\Controllers\Api\TickPickController;
 use App\Http\Controllers\Api\ViagogoController;
 use App\Http\Controllers\Api\WelcomeStatsController;
-
-// Import React Feature API Controllers
-use App\Http\Controllers\Api\TicketMonitoringController;
-use App\Http\Controllers\Api\AdvancedSearchController;
-use App\Http\Controllers\Api\FollowingController;
-use App\Http\Controllers\Api\TicketComparisonController;
-use App\Http\Controllers\Api\SocialProofController;
-
 use App\Http\Controllers\Auth\LoginEnhancementController;
 use App\Http\Controllers\AutomatedPurchaseController;
 use App\Http\Controllers\EnhancedDashboardController;
@@ -372,16 +370,16 @@ Route::prefix('v1/subscriptions')->middleware(['auth:sanctum', ApiRateLimit::cla
        */
     Route::post('/create', [\App\Http\Controllers\SubscriptionController::class, 'processPayment'])
         ->name('api.subscriptions.create');
-        
+
     Route::get('/current', [\App\Http\Controllers\SubscriptionController::class, 'getCurrent'])
         ->name('api.subscriptions.current');
-        
+
     Route::post('/cancel', [\App\Http\Controllers\SubscriptionController::class, 'cancel'])
         ->name('api.subscriptions.cancel');
-        
+
     Route::get('/history', [\App\Http\Controllers\SubscriptionController::class, 'getHistory'])
         ->name('api.subscriptions.history');
-    
+
     /*
        * PayPal-specific subscription endpoints
        * Purpose: Handle PayPal subscription approval and activation flows
@@ -389,7 +387,7 @@ Route::prefix('v1/subscriptions')->middleware(['auth:sanctum', ApiRateLimit::cla
        */
     Route::post('/paypal/approve', [\App\Http\Controllers\SubscriptionController::class, 'paypalApprove'])
         ->name('api.subscriptions.paypal.approve');
-        
+
     Route::post('/paypal/activate', [\App\Http\Controllers\SubscriptionController::class, 'paypalActivate'])
         ->name('api.subscriptions.paypal.activate');
 });
@@ -423,7 +421,7 @@ Route::prefix('v1')->middleware(['auth:sanctum', ApiRateLimit::class . ':api,120
     // Session Management Routes for Professional Auth Features
     Route::post('/session/extend', function (Request $request) {
         try {
-            if (! Auth::check()) {
+            if (!Auth::check()) {
                 return response()->json([
                     'success' => FALSE,
                     'message' => 'User not authenticated',
@@ -462,7 +460,7 @@ Route::prefix('v1')->middleware(['auth:sanctum', ApiRateLimit::class . ':api,120
     });
 
     Route::get('/session/status', function (Request $request) {
-        if (! Auth::check()) {
+        if (!Auth::check()) {
             return response()->json([
                 'success'       => FALSE,
                 'authenticated' => FALSE,
@@ -787,7 +785,7 @@ Route::prefix('v1')->middleware(['auth:sanctum', ApiRateLimit::class . ':api,120
         // Download route for API exports
         Route::get('/download/{file}', function (string $file) {
             $path = storage_path('app/analytics/exports/api/' . $file);
-            if (! file_exists($path)) {
+            if (!file_exists($path)) {
                 return response()->json([
                     'success' => FALSE,
                     'message' => 'Export file not found or has expired',
@@ -830,7 +828,7 @@ Route::prefix('v1')->middleware(['auth:sanctum', ApiRateLimit::class . ':api,120
       | advanced search, following system, comparison engine, and social proof.
       |
       */
-    
+
     // Smart Ticket Monitoring Dashboard Routes
     Route::prefix('monitoring')->name('api.monitoring.')->group(function (): void {
         Route::get('/dashboard', [TicketMonitoringController::class, 'dashboard'])->name('dashboard');
@@ -838,14 +836,14 @@ Route::prefix('v1')->middleware(['auth:sanctum', ApiRateLimit::class . ':api,120
         Route::post('/settings', [TicketMonitoringController::class, 'updateSettings'])->name('settings');
         Route::get('/tickets/{ticketId}', [TicketMonitoringController::class, 'show'])->name('show');
     });
-    
+
     // Advanced Search & Filtering Routes
     Route::prefix('search')->name('api.search.')->group(function (): void {
         Route::get('/advanced', [AdvancedSearchController::class, 'search'])->name('advanced');
         Route::get('/suggestions', [AdvancedSearchController::class, 'suggestions'])->name('suggestions');
         Route::get('/popular', [AdvancedSearchController::class, 'popularSearches'])->name('popular');
     });
-    
+
     // Team & Venue Following System Routes
     Route::prefix('following')->name('api.following.')->group(function (): void {
         Route::get('/dashboard', [FollowingController::class, 'dashboard'])->name('dashboard');
@@ -856,7 +854,7 @@ Route::prefix('v1')->middleware(['auth:sanctum', ApiRateLimit::class . ':api,120
         Route::post('/notifications/toggle', [FollowingController::class, 'toggleNotifications'])->name('notifications.toggle');
         Route::get('/stats', [FollowingController::class, 'stats'])->name('stats');
     });
-    
+
     // Ticket Comparison Engine Routes
     Route::prefix('comparison')->name('api.comparison.')->group(function (): void {
         Route::get('/compare', [TicketComparisonController::class, 'compare'])->name('compare');
@@ -864,7 +862,7 @@ Route::prefix('v1')->middleware(['auth:sanctum', ApiRateLimit::class . ':api,120
         Route::get('/platforms', [TicketComparisonController::class, 'platforms'])->name('platforms');
         Route::get('/value-analysis', [TicketComparisonController::class, 'valueAnalysis'])->name('value_analysis');
     });
-    
+
     // Social Proof Features Routes
     Route::prefix('social')->name('api.social.')->group(function (): void {
         Route::get('/dashboard', [SocialProofController::class, 'dashboard'])->name('dashboard');

@@ -4,8 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-return new class() extends Migration
-{
+return new class() extends Migration {
     /**
      * Run the migrations.
      */
@@ -26,9 +25,9 @@ return new class() extends Migration
                 $table->timestamp('privacy_accepted_at')->nullable()->after('terms_accepted_at');
             }
             if (!Schema::hasColumn('users', 'marketing_opt_in')) {
-                $table->boolean('marketing_opt_in')->default(false)->after('privacy_accepted_at');
+                $table->boolean('marketing_opt_in')->default(FALSE)->after('privacy_accepted_at');
             }
-            
+
             // Two-factor authentication fields (additional to existing two_factor_secret)
             if (!Schema::hasColumn('users', 'two_factor_recovery_codes')) {
                 $table->text('two_factor_recovery_codes')->nullable()->after('two_factor_secret');
@@ -47,7 +46,7 @@ return new class() extends Migration
         Schema::table('users', function (Blueprint $table): void {
             $table->dropColumn([
                 'first_name',
-                'last_name', 
+                'last_name',
                 'terms_accepted_at',
                 'privacy_accepted_at',
                 'marketing_opt_in',

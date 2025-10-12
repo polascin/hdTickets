@@ -140,7 +140,7 @@ class Category extends Model
      */
     public function scopeActive($query): Builder
     {
-        return $query->where('is_active', true);
+        return $query->where('is_active', TRUE);
     }
 
     /**
@@ -217,7 +217,7 @@ class Category extends Model
      */
     public function isRoot(): bool
     {
-        return null === $this->parent_id;
+        return NULL === $this->parent_id;
     }
 
     /**
@@ -291,7 +291,7 @@ class Category extends Model
      */
     protected function availableTicketsCount(): Attribute
     {
-        return Attribute::make(get: fn () => $this->scrapedTickets()->where('is_available', true)->count());
+        return Attribute::make(get: fn () => $this->scrapedTickets()->where('is_available', TRUE)->count());
     }
 
     /**

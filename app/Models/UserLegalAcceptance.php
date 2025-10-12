@@ -70,8 +70,8 @@ class UserLegalAcceptance extends Model
         int $documentId,
         string $version,
         string $method = self::METHOD_EXPLICIT,
-        ?string $ipAddress = null,
-        ?string $userAgent = null,
+        ?string $ipAddress = NULL,
+        ?string $userAgent = NULL,
     ): self {
         // Remove any existing acceptance for the same document type by this user
         $document = LegalDocument::find($documentId);

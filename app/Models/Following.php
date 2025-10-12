@@ -12,14 +12,15 @@ use Illuminate\Database\Eloquent\Relations\MorphTo;
 
 /**
  * Following Model
- * 
+ *
  * Represents user following relationships with teams and venues
  * Uses polymorphic relationships to support following different entity types
  */
 class Following extends Model
 {
-    use HasFactory, HasUuids;
-    
+    use HasFactory;
+    use HasUuids;
+
     protected $fillable = [
         'user_id',
         'followable_type',
@@ -28,22 +29,22 @@ class Following extends Model
         'last_activity_at',
         'followed_at',
     ];
-    
+
     protected $casts = [
         'notifications_enabled' => 'boolean',
-        'last_activity_at' => 'datetime',
-        'followed_at' => 'datetime',
+        'last_activity_at'      => 'datetime',
+        'followed_at'           => 'datetime',
     ];
-    
+
     protected static function boot()
     {
         parent::boot();
-        
+
         static::creating(function ($model) {
             $model->followed_at = now();
         });
     }
-    
+
     /**
      * Get the user who is following
      */
@@ -51,7 +52,7 @@ class Following extends Model
     {
         return $this->belongsTo(User::class);
     }
-    
+
     /**
      * Get the followable model (team or venue)
      */
@@ -59,15 +60,15 @@ class Following extends Model
     {
         return $this->morphTo();
     }
-    
+
     /**
      * Scope for active followings (with notifications enabled)
      */
     public function scopeWithNotifications($query)
     {
-        return $query->where('notifications_enabled', true);
+        return $query->where('notifications_enabled', TRUE);
     }
-    
+
     /**
      * Scope for recent activity
      */
@@ -75,7 +76,7 @@ class Following extends Model
     {
         return $query->where('last_activity_at', '>=', now()->subDays($days));
     }
-    
+
     /**
      * Scope for team followings
      */
@@ -83,7 +84,7 @@ class Following extends Model
     {
         return $query->where('followable_type', Team::class);
     }
-    
+
     /**
      * Scope for venue followings
      */
@@ -91,7 +92,7 @@ class Following extends Model
     {
         return $query->where('followable_type', Venue::class);
     }
-    
+
     /**
      * Update last activity timestamp
      */

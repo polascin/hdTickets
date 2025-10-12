@@ -44,7 +44,7 @@ class LoginAttempt extends Model
      */
     public function wasFailed(): bool
     {
-        return ! $this->success;
+        return !$this->success;
     }
 
     /**
@@ -93,7 +93,7 @@ class LoginAttempt extends Model
      */
     public function scopeSuccessful($query)
     {
-        return $query->where('success', true);
+        return $query->where('success', TRUE);
     }
 
     /**
@@ -103,7 +103,7 @@ class LoginAttempt extends Model
      */
     public function scopeFailed($query)
     {
-        return $query->where('success', false);
+        return $query->where('success', FALSE);
     }
 
     /**

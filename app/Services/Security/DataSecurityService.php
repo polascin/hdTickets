@@ -280,7 +280,7 @@ class DataSecurityService
         $backupPath = storage_path("backups/secure_backup_{$timestamp}_{$backupId}");
 
         // Create backup directory
-        if (! is_dir(dirname($backupPath))) {
+        if (!is_dir(dirname($backupPath))) {
             mkdir(dirname($backupPath), 0o755, TRUE);
         }
 
@@ -348,7 +348,7 @@ class DataSecurityService
 
         foreach ($rows as $row) {
             foreach ($columns as $column) {
-                if (! empty($row->$column)) {
+                if (!empty($row->$column)) {
                     try {
                         $decrypted = $this->decryptField("{$table}.{$column}", $row->$column);
                         if ($decrypted === '[DECRYPTION_ERROR]') {
@@ -520,7 +520,7 @@ class DataSecurityService
     protected function detokenizeData(string $fieldName, string $token): string
     {
         $encryptedValue = Cache::get("token:{$token}");
-        if (! $encryptedValue) {
+        if (!$encryptedValue) {
             throw new DecryptException('Token not found or expired');
         }
 
@@ -559,7 +559,7 @@ class DataSecurityService
     {
         $key = Cache::get('field_encryption_key');
 
-        if (! $key) {
+        if (!$key) {
             $key = base64_encode(random_bytes(32)); // 256-bit key
             Cache::put('field_encryption_key', $key, now()->addYears(1));
         }
@@ -578,7 +578,7 @@ class DataSecurityService
         $keyName = $version ? "field_key:{$fieldName}:v{$version}" : "field_key:{$fieldName}";
 
         $key = Cache::get($keyName);
-        if (! $key) {
+        if (!$key) {
             $key = base64_encode(random_bytes(32));
             Cache::put($keyName, $key, now()->addYears(1));
         }

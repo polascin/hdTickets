@@ -7,8 +7,8 @@ namespace App\Http\Requests\Auth;
 use App\Models\User;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\Http;
-use Illuminate\Validation\Rules\Password;
 use Illuminate\Validation\Rule;
+use Illuminate\Validation\Rules\Password;
 
 class ComprehensiveRegistrationRequest extends FormRequest
 {
@@ -17,7 +17,7 @@ class ComprehensiveRegistrationRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return true; // Public registration is allowed
+        return TRUE; // Public registration is allowed
     }
 
     /**
@@ -96,11 +96,11 @@ class ComprehensiveRegistrationRequest extends FormRequest
             ],
 
             // Legal Acceptances
-            'legal_acceptances' => ['required', 'array'],
+            'legal_acceptances'   => ['required', 'array'],
             'legal_acceptances.*' => ['required', 'boolean', 'accepted'],
 
             // Marketing Preferences
-            'marketing_emails' => ['boolean'],
+            'marketing_emails'        => ['boolean'],
             'newsletter_subscription' => ['boolean'],
 
             // Security Options
@@ -132,29 +132,29 @@ class ComprehensiveRegistrationRequest extends FormRequest
         return [
             // Personal Information Messages
             'first_name.required' => 'Please enter your first name.',
-            'first_name.regex' => 'First name can only contain letters, spaces, hyphens, apostrophes, and periods.',
-            'last_name.required' => 'Please enter your last name.',
-            'last_name.regex' => 'Last name can only contain letters, spaces, hyphens, apostrophes, and periods.',
-            'email.required' => 'Please enter your email address.',
-            'email.email' => 'Please enter a valid email address.',
-            'email.unique' => 'This email address is already registered. Please use a different email or sign in.',
-            'username.min' => 'Username must be at least 3 characters long.',
-            'username.regex' => 'Username can only contain letters, numbers, underscores, hyphens, and periods.',
-            'username.unique' => 'This username is already taken. Please choose a different one.',
-            'phone.regex' => 'Please enter a valid phone number.',
+            'first_name.regex'    => 'First name can only contain letters, spaces, hyphens, apostrophes, and periods.',
+            'last_name.required'  => 'Please enter your last name.',
+            'last_name.regex'     => 'Last name can only contain letters, spaces, hyphens, apostrophes, and periods.',
+            'email.required'      => 'Please enter your email address.',
+            'email.email'         => 'Please enter a valid email address.',
+            'email.unique'        => 'This email address is already registered. Please use a different email or sign in.',
+            'username.min'        => 'Username must be at least 3 characters long.',
+            'username.regex'      => 'Username can only contain letters, numbers, underscores, hyphens, and periods.',
+            'username.unique'     => 'This username is already taken. Please choose a different one.',
+            'phone.regex'         => 'Please enter a valid phone number.',
 
             // Password Messages
-            'password.required' => 'Please enter a password.',
-            'password.confirmed' => 'Password confirmation does not match.',
-            'password.min' => 'Password must be at least 8 characters long.',
+            'password.required'              => 'Please enter a password.',
+            'password.confirmed'             => 'Password confirmation does not match.',
+            'password.min'                   => 'Password must be at least 8 characters long.',
             'password_confirmation.required' => 'Please confirm your password.',
 
             // Account Type Messages
             'role.required' => 'Please select an account type.',
-            'role.in' => 'Please select a valid account type.',
+            'role.in'       => 'Please select a valid account type.',
 
             // Legal Acceptance Messages
-            'legal_acceptances.required' => 'You must accept the terms and conditions to continue.',
+            'legal_acceptances.required'   => 'You must accept the terms and conditions to continue.',
             'legal_acceptances.*.accepted' => 'You must accept all required legal documents.',
 
             // reCAPTCHA Messages
@@ -170,16 +170,16 @@ class ComprehensiveRegistrationRequest extends FormRequest
     public function attributes(): array
     {
         return [
-            'first_name' => 'first name',
-            'last_name' => 'last name',
-            'email' => 'email address',
-            'username' => 'username',
-            'phone' => 'phone number',
-            'password' => 'password',
+            'first_name'            => 'first name',
+            'last_name'             => 'last name',
+            'email'                 => 'email address',
+            'username'              => 'username',
+            'phone'                 => 'phone number',
+            'password'              => 'password',
             'password_confirmation' => 'password confirmation',
-            'role' => 'account type',
-            'legal_acceptances.*' => 'legal agreement',
-            'g-recaptcha-response' => 'reCAPTCHA',
+            'role'                  => 'account type',
+            'legal_acceptances.*'   => 'legal agreement',
+            'g-recaptcha-response'  => 'reCAPTCHA',
         ];
     }
 
@@ -211,9 +211,9 @@ class ComprehensiveRegistrationRequest extends FormRequest
 
         // Ensure boolean fields are properly set
         $this->merge([
-            'marketing_emails' => $this->boolean('marketing_emails'),
+            'marketing_emails'        => $this->boolean('marketing_emails'),
             'newsletter_subscription' => $this->boolean('newsletter_subscription'),
-            'enable_2fa' => $this->boolean('enable_2fa'),
+            'enable_2fa'              => $this->boolean('enable_2fa'),
         ]);
     }
 
@@ -224,7 +224,7 @@ class ComprehensiveRegistrationRequest extends FormRequest
     {
         $validator->after(function ($validator) {
             // Additional custom validation logic can go here
-            
+
             // Validate reCAPTCHA if enabled
             if (config('services.recaptcha.enabled')) {
                 $this->validateRecaptcha($validator);
@@ -241,19 +241,19 @@ class ComprehensiveRegistrationRequest extends FormRequest
     private function validateRecaptcha($validator): void
     {
         $recaptchaResponse = $this->input('g-recaptcha-response');
-        
+
         if (!$recaptchaResponse) {
             return; // Required validation will handle this
         }
 
         $response = Http::asForm()->post('https://www.google.com/recaptcha/api/siteverify', [
-            'secret' => config('services.recaptcha.secret_key'),
+            'secret'   => config('services.recaptcha.secret_key'),
             'response' => $recaptchaResponse,
             'remoteip' => $this->ip(),
         ]);
 
         $result = $response->json();
-        
+
         if (!$result['success'] || ($result['score'] ?? 0) < config('services.recaptcha.minimum_score', 0.5)) {
             $validator->errors()->add('g-recaptcha-response', 'reCAPTCHA verification failed. Please try again.');
         }
@@ -265,7 +265,7 @@ class ComprehensiveRegistrationRequest extends FormRequest
     private function validateBusinessRules($validator): void
     {
         // Example: Check if registration is currently allowed
-        if (!config('app.registration_enabled', true)) {
+        if (!config('app.registration_enabled', TRUE)) {
             $validator->errors()->add('general', 'Registration is currently disabled. Please try again later.');
         }
 
@@ -293,13 +293,13 @@ class ComprehensiveRegistrationRequest extends FormRequest
     public function validatedWithDefaults(): array
     {
         $validated = $this->validated();
-        
+
         // Set defaults
         $validated['timezone'] = $validated['timezone'] ?? config('app.timezone');
         $validated['language'] = $validated['language'] ?? config('app.locale');
-        $validated['marketing_emails'] = $validated['marketing_emails'] ?? false;
-        $validated['newsletter_subscription'] = $validated['newsletter_subscription'] ?? false;
-        $validated['enable_2fa'] = $validated['enable_2fa'] ?? false;
+        $validated['marketing_emails'] = $validated['marketing_emails'] ?? FALSE;
+        $validated['newsletter_subscription'] = $validated['newsletter_subscription'] ?? FALSE;
+        $validated['enable_2fa'] = $validated['enable_2fa'] ?? FALSE;
 
         // Generate username if not provided
         if (empty($validated['username'])) {
@@ -316,15 +316,15 @@ class ComprehensiveRegistrationRequest extends FormRequest
     {
         $baseUsername = strtolower($firstName . '.' . $lastName);
         $baseUsername = preg_replace('/[^a-z0-9\.]/', '', $baseUsername);
-        
+
         $username = $baseUsername;
         $counter = 1;
-        
+
         while (User::where('username', $username)->exists()) {
             $username = $baseUsername . $counter;
             $counter++;
         }
-        
+
         return $username;
     }
 }

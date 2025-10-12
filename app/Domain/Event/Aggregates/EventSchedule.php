@@ -52,7 +52,7 @@ class EventSchedule
     {
         $id = $eventId->value();
 
-        if (! isset($this->events[$id])) {
+        if (!isset($this->events[$id])) {
             throw new DomainException('Event not found in schedule');
         }
 

@@ -91,7 +91,7 @@ class EmailTemplate extends Model
      */
     public function scopeActive($query)
     {
-        return $query->where('active', true);
+        return $query->where('active', TRUE);
     }
 
     /**
@@ -172,9 +172,9 @@ class EmailTemplate extends Model
         $availableVars = array_merge($availableVars, $commonVars);
 
         // Check for undefined variables (skip validation during seeding)
-        if (! app()->runningInConsole()) {
+        if (!app()->runningInConsole()) {
             foreach ($extractedVars as $var) {
-                if (! in_array($var, $availableVars, true)) {
+                if (!in_array($var, $availableVars, TRUE)) {
                     $errors[] = "Undefined variable: {{$var}}";
                 }
             }
@@ -201,12 +201,12 @@ class EmailTemplate extends Model
      *
      * @return static
      */
-    public function cloneTemplate(string $newKey, ?string $newName = null): self
+    public function cloneTemplate(string $newKey, ?string $newName = NULL): self
     {
         $clone = $this->replicate();
         $clone->key = $newKey;
         $clone->name = $newName ?? $this->name . ' (Copy)';
-        $clone->active = false; // New clones start as inactive
+        $clone->active = FALSE; // New clones start as inactive
         $clone->save();
 
         return $clone;
@@ -234,7 +234,7 @@ class EmailTemplate extends Model
      */
     public function toggle(): bool
     {
-        return $this->update(['active' => ! $this->active]);
+        return $this->update(['active' => !$this->active]);
     }
 
     /**
@@ -259,8 +259,8 @@ class EmailTemplate extends Model
 
         // Set default values when creating
         static::creating(function ($model): void {
-            if (null === $model->active) {
-                $model->active = true;
+            if (NULL === $model->active) {
+                $model->active = TRUE;
             }
 
             if (empty($model->variables)) {
@@ -271,7 +271,7 @@ class EmailTemplate extends Model
         // Validate before saving
         static::saving(function ($model): void {
             $errors = $model->validateSyntax();
-            if (! empty($errors)) {
+            if (!empty($errors)) {
                 throw new InvalidArgumentException('Template validation failed: ' . implode(', ', $errors));
             }
         });

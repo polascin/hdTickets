@@ -62,7 +62,7 @@ class UserNotificationSettings extends Model
      */
     public function scopeEnabled($query)
     {
-        return $query->where('is_enabled', true);
+        return $query->where('is_enabled', TRUE);
     }
 
     /**
@@ -84,11 +84,11 @@ class UserNotificationSettings extends Model
     public function isConfigured(): bool
     {
         return match ($this->channel) {
-            'slack'    => ! empty($this->webhook_url) || ! empty($this->slack_user_id),
-            'discord'  => ! empty($this->webhook_url) || ! empty($this->discord_user_id),
-            'telegram' => ! empty($this->chat_id),
-            'webhook'  => ! empty($this->webhook_url),
-            default    => false,
+            'slack'    => !empty($this->webhook_url) || !empty($this->slack_user_id),
+            'discord'  => !empty($this->webhook_url) || !empty($this->discord_user_id),
+            'telegram' => !empty($this->chat_id),
+            'webhook'  => !empty($this->webhook_url),
+            default    => FALSE,
         };
     }
 
@@ -152,16 +152,16 @@ class UserNotificationSettings extends Model
      */
     public function test(): array
     {
-        if (! $this->is_enabled) {
+        if (!$this->is_enabled) {
             return [
-                'success' => false,
+                'success' => FALSE,
                 'message' => 'Channel is disabled',
             ];
         }
 
-        if (! $this->isConfigured()) {
+        if (!$this->isConfigured()) {
             return [
-                'success' => false,
+                'success' => FALSE,
                 'message' => 'Channel is not properly configured',
             ];
         }
@@ -186,13 +186,13 @@ class UserNotificationSettings extends Model
                     return $channel->testConnection($this->user);
                 default:
                     return [
-                        'success' => false,
+                        'success' => FALSE,
                         'message' => 'Unknown channel type',
                     ];
             }
         } catch (Exception $e) {
             return [
-                'success' => false,
+                'success' => FALSE,
                 'message' => 'Test failed: ' . $e->getMessage(),
             ];
         }

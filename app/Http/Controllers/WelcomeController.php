@@ -163,12 +163,12 @@ class WelcomeController extends Controller
 
             // Load comprehensive data for the modern welcome page
             $data = $service->getWelcomePageData([
-                'include_stats' => true,
-                'include_pricing' => true,
-                'include_features' => true,
-                'include_testimonials' => true,
-                'include_featured_tickets' => true,
-                'ab_variant' => 'modern_landing',
+                'include_stats'            => TRUE,
+                'include_pricing'          => TRUE,
+                'include_features'         => TRUE,
+                'include_testimonials'     => TRUE,
+                'include_featured_tickets' => TRUE,
+                'ab_variant'               => 'modern_landing',
             ]);
 
             // Add modern landing page specific data
@@ -179,10 +179,10 @@ class WelcomeController extends Controller
             return view('welcome-modern', $data);
         } catch (Exception $e) {
             Log::error('Error loading modern welcome page', [
-                'error' => $e->getMessage(),
+                'error'      => $e->getMessage(),
                 'user_agent' => $request->userAgent(),
-                'ip' => $request->ip(),
-                'trace' => $e->getTraceAsString(),
+                'ip'         => $request->ip(),
+                'trace'      => $e->getTraceAsString(),
             ]);
 
             // Fallback with static data
@@ -241,49 +241,49 @@ class WelcomeController extends Controller
     {
         return [
             'ticket_monitoring' => [
-                'title' => 'Real-Time Ticket Monitoring',
+                'title'       => 'Real-Time Ticket Monitoring',
                 'description' => 'Advanced web scraping and API integration across 15+ major ticketing platforms',
-                'features' => [
+                'features'    => [
                     'Multi-platform scraping service with rotation',
                     'Real-time availability notifications',
                     'Historical price analysis and trends',
                     'Custom monitoring criteria and filters',
-                    'Anti-detection and CAPTCHA handling'
-                ]
+                    'Anti-detection and CAPTCHA handling',
+                ],
             ],
             'purchase_automation' => [
-                'title' => 'AI-Powered Purchase Automation',
+                'title'       => 'AI-Powered Purchase Automation',
                 'description' => 'Intelligent purchase decision engine with machine learning algorithms',
-                'features' => [
+                'features'    => [
                     'Smart purchase decision algorithms',
                     'Automated checkout with payment processing',
                     'Purchase queue management system',
                     'Risk assessment and validation',
-                    'Success rate optimization'
-                ]
+                    'Success rate optimization',
+                ],
             ],
             'security_system' => [
-                'title' => 'Enterprise Security',
+                'title'       => 'Enterprise Security',
                 'description' => 'Multi-layered security architecture with advanced authentication',
-                'features' => [
+                'features'    => [
                     'Two-factor authentication (2FA)',
                     'Trusted device management',
                     'End-to-end encryption',
                     'Security incident monitoring',
-                    'Comprehensive audit trails'
-                ]
+                    'Comprehensive audit trails',
+                ],
             ],
             'analytics_engine' => [
-                'title' => 'Advanced Analytics Engine',
+                'title'       => 'Advanced Analytics Engine',
                 'description' => 'Comprehensive business intelligence with predictive analytics',
-                'features' => [
+                'features'    => [
                     'Real-time analytics dashboard',
                     'User behavior tracking and insights',
                     'Market trend analysis',
                     'Performance metrics and KPIs',
-                    'Automated reporting system'
-                ]
-            ]
+                    'Automated reporting system',
+                ],
+            ],
         ];
     }
 
@@ -299,20 +299,20 @@ class WelcomeController extends Controller
                 'Laravel 10',
                 'PHP 8.4',
                 'MySQL/MariaDB',
-                'Redis Cache'
+                'Redis Cache',
             ],
             'infrastructure' => [
                 'Apache2',
                 'Ubuntu 24.04',
                 'Queue Jobs',
-                'WebSockets'
+                'WebSockets',
             ],
             'architecture' => [
                 'Domain-Driven Design',
                 'Event-Driven Architecture',
                 'CQRS Pattern',
-                'Microservices Ready'
-            ]
+                'Microservices Ready',
+            ],
         ];
     }
 
@@ -325,21 +325,21 @@ class WelcomeController extends Controller
     {
         return [
             'authentication' => [
-                'title' => 'Advanced Authentication',
-                'description' => 'Two-factor authentication, trusted devices, and biometric support'
+                'title'       => 'Advanced Authentication',
+                'description' => 'Two-factor authentication, trusted devices, and biometric support',
             ],
             'encryption' => [
-                'title' => 'Data Encryption',
-                'description' => 'End-to-end encryption with industry-standard AES-256 protocols'
+                'title'       => 'Data Encryption',
+                'description' => 'End-to-end encryption with industry-standard AES-256 protocols',
             ],
             'monitoring' => [
-                'title' => 'Security Monitoring',
-                'description' => 'Real-time threat detection with automated incident response'
+                'title'       => 'Security Monitoring',
+                'description' => 'Real-time threat detection with automated incident response',
             ],
             'anti_fraud' => [
-                'title' => 'Anti-Fraud Protection',
-                'description' => 'Advanced fraud detection with machine learning-based risk assessment'
-            ]
+                'title'       => 'Anti-Fraud Protection',
+                'description' => 'Advanced fraud detection with machine learning-based risk assessment',
+            ],
         ];
     }
 
@@ -352,25 +352,25 @@ class WelcomeController extends Controller
     {
         return [
             'ticketmaster' => [
-                'name' => 'Ticketmaster',
+                'name'        => 'Ticketmaster',
                 'description' => 'Official API integration with real-time inventory access',
-                'status' => 'active'
+                'status'      => 'active',
             ],
             'stubhub' => [
-                'name' => 'StubHub',
+                'name'        => 'StubHub',
                 'description' => 'Secondary market monitoring with price comparison',
-                'status' => 'active'
+                'status'      => 'active',
             ],
             'seatgeek' => [
-                'name' => 'SeatGeek',
+                'name'        => 'SeatGeek',
                 'description' => 'Marketplace integration with deal scoring',
-                'status' => 'active'
+                'status'      => 'active',
             ],
             'football_clubs' => [
-                'name' => 'Football Club Stores',
+                'name'        => 'Football Club Stores',
                 'description' => 'Direct integration with official team stores',
-                'status' => 'active'
-            ]
+                'status'      => 'active',
+            ],
         ];
     }
 
@@ -383,15 +383,15 @@ class WelcomeController extends Controller
     {
         return [
             'stats' => [
-                'platforms' => '15+',
-                'monitoring' => '24/7',
-                'users' => '10K+',
-                'success_rate' => '99.9%'
+                'platforms'    => '15+',
+                'monitoring'   => '24/7',
+                'users'        => '10K+',
+                'success_rate' => '99.9%',
             ],
-            'backend_features' => $this->getBackendFeatures(),
-            'technology_stack' => $this->getTechnologyStack(),
-            'security_features' => $this->getSecurityFeatures(),
-            'platform_integrations' => $this->getPlatformIntegrations()
+            'backend_features'      => $this->getBackendFeatures(),
+            'technology_stack'      => $this->getTechnologyStack(),
+            'security_features'     => $this->getSecurityFeatures(),
+            'platform_integrations' => $this->getPlatformIntegrations(),
         ];
     }
 
@@ -403,7 +403,7 @@ class WelcomeController extends Controller
     protected function getABTestVariant(Request $request)
     {
         // Check if A/B testing is enabled
-        if (! config('app.ab_testing_enabled', FALSE)) {
+        if (!config('app.ab_testing_enabled', FALSE)) {
             return;
         }
 
@@ -552,31 +552,31 @@ class WelcomeController extends Controller
     {
         return [
             [
-                'event_name' => 'Liverpool vs Manchester City',
-                'venue' => 'Anfield Stadium',
-                'section' => 'Kop End',
-                'current_price' => 150,
+                'event_name'     => 'Liverpool vs Manchester City',
+                'venue'          => 'Anfield Stadium',
+                'section'        => 'Kop End',
+                'current_price'  => 150,
                 'original_price' => 200,
-                'discount' => 25,
-                'platform' => 'StubHub',
+                'discount'       => 25,
+                'platform'       => 'StubHub',
             ],
             [
-                'event_name' => 'Arsenal vs Chelsea',
-                'venue' => 'Emirates Stadium',
-                'section' => 'North Bank',
-                'current_price' => 95,
+                'event_name'     => 'Arsenal vs Chelsea',
+                'venue'          => 'Emirates Stadium',
+                'section'        => 'North Bank',
+                'current_price'  => 95,
                 'original_price' => 130,
-                'discount' => 27,
-                'platform' => 'Viagogo',
+                'discount'       => 27,
+                'platform'       => 'Viagogo',
             ],
             [
-                'event_name' => 'Manchester United vs Tottenham',
-                'venue' => 'Old Trafford',
-                'section' => 'Stretford End',
-                'current_price' => 120,
+                'event_name'     => 'Manchester United vs Tottenham',
+                'venue'          => 'Old Trafford',
+                'section'        => 'Stretford End',
+                'current_price'  => 120,
                 'original_price' => 180,
-                'discount' => 33,
-                'platform' => 'Ticketmaster',
+                'discount'       => 33,
+                'platform'       => 'Ticketmaster',
             ],
         ];
     }
@@ -588,24 +588,24 @@ class WelcomeController extends Controller
     {
         return [
             [
-                'name' => 'James Davidson',
-                'role' => 'Manchester United Fan',
-                'avatar' => 'JD',
-                'rating' => 5,
+                'name'    => 'James Davidson',
+                'role'    => 'Manchester United Fan',
+                'avatar'  => 'JD',
+                'rating'  => 5,
                 'comment' => 'HD Tickets saved me over £300 on Champions League final tickets. The alerts are instant and the platform is so easy to use.',
             ],
             [
-                'name' => 'Sarah Thompson', 
-                'role' => 'Arsenal Season Ticket Holder',
-                'avatar' => 'ST',
-                'rating' => 5,
+                'name'    => 'Sarah Thompson',
+                'role'    => 'Arsenal Season Ticket Holder',
+                'avatar'  => 'ST',
+                'rating'  => 5,
                 'comment' => 'As a season ticket holder for Arsenal, I use HD Tickets to find away game tickets. It\'s found me deals I never would have seen.',
             ],
             [
-                'name' => 'Mike Roberts',
-                'role' => 'Tennis Enthusiast',
-                'avatar' => 'MR',
-                'rating' => 5,
+                'name'    => 'Mike Roberts',
+                'role'    => 'Tennis Enthusiast',
+                'avatar'  => 'MR',
+                'rating'  => 5,
                 'comment' => 'The automated purchasing feature is a game-changer. I got Wimbledon final tickets while I was sleeping!',
             ],
         ];
@@ -618,13 +618,13 @@ class WelcomeController extends Controller
     {
         return [
             'stats' => [
-                'total_tickets' => 50000,
-                'active_events' => 2500,
+                'total_tickets'       => 50000,
+                'active_events'       => 2500,
                 'satisfied_customers' => 10000,
-                'avg_savings' => 35,
+                'avg_savings'         => 35,
             ],
-            'featured_tickets' => $this->getFeaturedTickets(),
-            'user_testimonials' => $this->getUserTestimonials(),
+            'featured_tickets'      => $this->getFeaturedTickets(),
+            'user_testimonials'     => $this->getUserTestimonials(),
             'platform_integrations' => $this->getPlatformIntegrations(),
         ];
     }

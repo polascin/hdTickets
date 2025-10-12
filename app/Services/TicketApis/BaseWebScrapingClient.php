@@ -88,7 +88,7 @@ abstract class BaseWebScrapingClient extends BaseApiClient
      */
     public function fallbackToScraping(array $criteria): array
     {
-        if (! $this->hasScrapingFallback()) {
+        if (!$this->hasScrapingFallback()) {
             throw new TicketPlatformException(
                 "Scraping fallback not enabled for {$this->getPlatformName()}",
                 500,
@@ -299,7 +299,7 @@ abstract class BaseWebScrapingClient extends BaseApiClient
         ];
 
         // Add cookies for session management
-        if (! empty($this->sessionCookies)) {
+        if (!empty($this->sessionCookies)) {
             $options['cookies'] = $this->sessionCookies;
         }
 
@@ -383,13 +383,13 @@ abstract class BaseWebScrapingClient extends BaseApiClient
                     $json = json_decode($node->text(), TRUE);
                     if (json_last_error() === JSON_ERROR_NONE) {
                         // Handle array of structured data
-                        if (is_array($json) && ! isset($json['@type'])) {
+                        if (is_array($json) && !isset($json['@type'])) {
                             foreach ($json as $item) {
-                                if (isset($item['@type']) && (! $type || $item['@type'] === $type)) {
+                                if (isset($item['@type']) && (!$type || $item['@type'] === $type)) {
                                     $data[] = $item;
                                 }
                             }
-                        } elseif (isset($json['@type']) && (! $type || $json['@type'] === $type)) {
+                        } elseif (isset($json['@type']) && (!$type || $json['@type'] === $type)) {
                             $data[] = $json;
                         }
                     }
@@ -489,7 +489,7 @@ abstract class BaseWebScrapingClient extends BaseApiClient
             $elements = $crawler->filter("*:contains('{$indicator}')");
             $elements->each(function (Crawler $node) use (&$selectors): void {
                 $class = $node->attr('class');
-                if ($class && ! in_array($class, $selectors, TRUE)) {
+                if ($class && !in_array($class, $selectors, TRUE)) {
                     $selectors[] = '.' . str_replace(' ', '.', $class);
                 }
             });
@@ -713,7 +713,7 @@ abstract class BaseWebScrapingClient extends BaseApiClient
             return $url;
         }
 
-        if (! $baseUrl) {
+        if (!$baseUrl) {
             $baseUrl = $this->baseUrl;
         }
 

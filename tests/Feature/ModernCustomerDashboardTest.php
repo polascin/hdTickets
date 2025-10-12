@@ -2,64 +2,62 @@
 
 namespace Tests\Feature;
 
-use App\Http\Controllers\ModernCustomerDashboardController;
-use App\Models\User;
-use App\Models\Ticket;
-use App\Models\TicketAlert;
 use App\Models\PaymentPlan;
 use App\Models\Subscription;
+use App\Models\Ticket;
+use App\Models\TicketAlert;
+use App\Models\User;
 use App\Models\UserPreference;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Tests\TestCase;
-use Carbon\Carbon;
-use Illuminate\Support\Str;
-use Illuminate\Support\Facades\Hash;
 
 class ModernCustomerDashboardTest extends TestCase
 {
-    use RefreshDatabase, WithFaker;
+    use RefreshDatabase;
+    use WithFaker;
 
     private User $customer;
+
     private User $adminUser;
 
     protected function setUp(): void
     {
         parent::setUp();
-        
+
         // Create test customer
         $this->customer = User::factory()->create([
-            'role' => User::ROLE_CUSTOMER,
-            'email' => 'test.customer@example.com',
+            'role'              => User::ROLE_CUSTOMER,
+            'email'             => 'test.customer@example.com',
             'email_verified_at' => now(),
         ]);
 
         // Create admin user for comparison
         $this->adminUser = User::factory()->create([
-            'role' => User::ROLE_ADMIN,
+            'role'  => User::ROLE_ADMIN,
             'email' => 'admin@example.com',
         ]);
 
         // Create payment plan and subscription
         $paymentPlan = PaymentPlan::create([
-            'name' => 'Test Plan',
-            'slug' => 'test-plan',
-            'description' => 'Test payment plan',
-            'price' => 19.99,
-            'currency' => 'USD',
+            'name'             => 'Test Plan',
+            'slug'             => 'test-plan',
+            'description'      => 'Test payment plan',
+            'price'            => 19.99,
+            'currency'         => 'USD',
             'billing_interval' => 'monthly',
-            'stripe_price_id' => 'price_test_monthly',
-            'features' => json_encode(['ticket_alerts' => 50]),
-            'is_active' => true,
+            'stripe_price_id'  => 'price_test_monthly',
+            'features'         => json_encode(['ticket_alerts' => 50]),
+            'is_active'        => TRUE,
         ]);
 
         Subscription::create([
-            'user_id' => $this->customer->id,
-            'payment_plan_id' => $paymentPlan->id,
+            'user_id'                => $this->customer->id,
+            'payment_plan_id'        => $paymentPlan->id,
             'stripe_subscription_id' => 'sub_test_123',
-            'status' => 'active',
-            'current_period_start' => now()->subDays(10),
-            'current_period_end' => now()->addDays(20),
+            'status'                 => 'active',
+            'current_period_start'   => now()->subDays(10),
+            'current_period_end'     => now()->addDays(20),
         ]);
     }
 
@@ -77,7 +75,7 @@ class ModernCustomerDashboardTest extends TestCase
             'stats',
             'recent_tickets',
             'alerts',
-            'recommendations'
+            'recommendations',
         ]);
     }
 
@@ -104,27 +102,27 @@ class ModernCustomerDashboardTest extends TestCase
         // Create test tickets for the customer
         Ticket::factory()->count(5)->create([
             'requester_id' => $this->customer->id,
-            'is_available' => true,
-            'price' => 100.00,
-            'created_at' => now()->subHours(2),
+            'is_available' => TRUE,
+            'price'        => 100.00,
+            'created_at'   => now()->subHours(2),
         ]);
 
         Ticket::factory()->count(3)->create([
             'requester_id' => $this->customer->id,
-            'is_available' => true,
-            'price' => 150.00,
-            'created_at' => now(),
+            'is_available' => TRUE,
+            'price'        => 150.00,
+            'created_at'   => now(),
         ]);
 
         // Create alerts
         TicketAlert::factory()->count(4)->create([
-            'user_id' => $this->customer->id,
-            'is_active' => true,
+            'user_id'   => $this->customer->id,
+            'is_active' => TRUE,
         ]);
 
         TicketAlert::factory()->count(2)->create([
-            'user_id' => $this->customer->id,
-            'is_active' => true,
+            'user_id'      => $this->customer->id,
+            'is_active'    => TRUE,
             'triggered_at' => now()->subHours(1),
         ]);
 
@@ -133,11 +131,11 @@ class ModernCustomerDashboardTest extends TestCase
 
         $response->assertStatus(200);
         $response->assertJson([
-            'success' => true,
+            'success' => TRUE,
         ]);
 
         $data = $response->json('data');
-        
+
         $this->assertEquals(8, $data['available_tickets']);
         $this->assertEquals(3, $data['new_today']);
         $this->assertEquals(4, $data['active_alerts']);
@@ -151,7 +149,7 @@ class ModernCustomerDashboardTest extends TestCase
         // Create 25 tickets for pagination test
         Ticket::factory()->count(25)->create([
             'requester_id' => $this->customer->id,
-            'is_available' => true,
+            'is_available' => TRUE,
         ]);
 
         $response = $this->actingAs($this->customer)
@@ -159,11 +157,11 @@ class ModernCustomerDashboardTest extends TestCase
 
         $response->assertStatus(200);
         $response->assertJson([
-            'success' => true,
+            'success' => TRUE,
         ]);
 
         $data = $response->json('data');
-        
+
         $this->assertCount(10, $data['tickets']);
         $this->assertEquals(1, $data['pagination']['current_page']);
         $this->assertEquals(3, $data['pagination']['last_page']); // 25 tickets / 10 per page = 3 pages
@@ -175,15 +173,15 @@ class ModernCustomerDashboardTest extends TestCase
     {
         // Create alerts for this customer
         $customerAlerts = TicketAlert::factory()->count(3)->create([
-            'user_id' => $this->customer->id,
-            'is_active' => true,
+            'user_id'   => $this->customer->id,
+            'is_active' => TRUE,
         ]);
 
         // Create alerts for another user (should not appear)
         $otherUser = User::factory()->create(['role' => User::ROLE_CUSTOMER]);
         TicketAlert::factory()->count(2)->create([
-            'user_id' => $otherUser->id,
-            'is_active' => true,
+            'user_id'   => $otherUser->id,
+            'is_active' => TRUE,
         ]);
 
         $response = $this->actingAs($this->customer)
@@ -191,13 +189,13 @@ class ModernCustomerDashboardTest extends TestCase
 
         $response->assertStatus(200);
         $response->assertJson([
-            'success' => true,
+            'success' => TRUE,
         ]);
 
         $data = $response->json('data');
-        
+
         $this->assertCount(3, $data);
-        
+
         // Verify all alerts belong to the customer
         foreach ($data as $alert) {
             $this->assertEquals($this->customer->id, $alert['user_id']);
@@ -209,20 +207,20 @@ class ModernCustomerDashboardTest extends TestCase
     {
         // Create user preferences
         UserPreference::create([
-            'user_id' => $this->customer->id,
+            'user_id'     => $this->customer->id,
             'preferences' => json_encode([
                 'tickets' => [
                     'preferred_events' => ['Basketball', 'Football'],
-                    'max_price_range' => ['min' => 100, 'max' => 500],
-                ]
+                    'max_price_range'  => ['min' => 100, 'max' => 500],
+                ],
             ]),
         ]);
 
         // Create some tickets matching preferences
         Ticket::factory()->count(3)->create([
-            'event_type' => 'Basketball',
-            'price' => 250.00,
-            'is_available' => true,
+            'event_type'   => 'Basketball',
+            'price'        => 250.00,
+            'is_available' => TRUE,
         ]);
 
         $response = $this->actingAs($this->customer)
@@ -230,7 +228,7 @@ class ModernCustomerDashboardTest extends TestCase
 
         $response->assertStatus(200);
         $response->assertJson([
-            'success' => true,
+            'success' => TRUE,
         ]);
 
         $data = $response->json('data');
@@ -245,11 +243,11 @@ class ModernCustomerDashboardTest extends TestCase
 
         $response->assertStatus(200);
         $response->assertJson([
-            'success' => true,
+            'success' => TRUE,
         ]);
 
         $data = $response->json('data');
-        
+
         $this->assertArrayHasKey('price_trends', $data);
         $this->assertArrayHasKey('platform_performance', $data);
         $this->assertArrayHasKey('demand_analysis', $data);
@@ -273,7 +271,7 @@ class ModernCustomerDashboardTest extends TestCase
             ->getJson('/ajax/customer-dashboard/stats');
 
         $response2->assertStatus(200);
-        
+
         // Data should be identical (cached)
         $this->assertEquals(
             $response1->json('data'),
@@ -288,9 +286,9 @@ class ModernCustomerDashboardTest extends TestCase
             ->get('/dashboard/customer');
 
         $response->assertStatus(200);
-        
+
         $subscriptionStatus = $response->viewData('subscription_status');
-        
+
         $this->assertEquals('active', $subscriptionStatus['status']);
         $this->assertTrue($subscriptionStatus['has_active_subscription']);
         $this->assertFalse($subscriptionStatus['is_trial']);
@@ -302,29 +300,29 @@ class ModernCustomerDashboardTest extends TestCase
     {
         // Create a trial user
         $trialUser = User::factory()->create([
-            'role' => User::ROLE_CUSTOMER,
+            'role'  => User::ROLE_CUSTOMER,
             'email' => 'trial@example.com',
         ]);
 
         $paymentPlan = PaymentPlan::first();
-        
+
         Subscription::create([
-            'user_id' => $trialUser->id,
-            'payment_plan_id' => $paymentPlan->id,
+            'user_id'                => $trialUser->id,
+            'payment_plan_id'        => $paymentPlan->id,
             'stripe_subscription_id' => 'sub_trial_123',
-            'status' => 'trialing',
-            'trial_ends_at' => now()->addDays(7),
-            'current_period_start' => now(),
-            'current_period_end' => now()->addMonth(),
+            'status'                 => 'trialing',
+            'trial_ends_at'          => now()->addDays(7),
+            'current_period_start'   => now(),
+            'current_period_end'     => now()->addMonth(),
         ]);
 
         $response = $this->actingAs($trialUser)
             ->get('/dashboard/customer');
 
         $response->assertStatus(200);
-        
+
         $subscriptionStatus = $response->viewData('subscription_status');
-        
+
         $this->assertEquals('trialing', $subscriptionStatus['status']);
         $this->assertTrue($subscriptionStatus['has_active_subscription']);
         $this->assertTrue($subscriptionStatus['is_trial']);
@@ -371,7 +369,7 @@ class ModernCustomerDashboardTest extends TestCase
     {
         // Test with a customer that has no data
         $emptyCustomer = User::factory()->create([
-            'role' => User::ROLE_CUSTOMER,
+            'role'  => User::ROLE_CUSTOMER,
             'email' => 'empty@example.com',
         ]);
 
@@ -380,7 +378,7 @@ class ModernCustomerDashboardTest extends TestCase
 
         $response->assertStatus(200);
         $response->assertViewIs('dashboard.customer-modern');
-        
+
         // Should still provide default data structure
         $stats = $response->viewData('stats');
         $this->assertIsArray($stats);
@@ -395,9 +393,9 @@ class ModernCustomerDashboardTest extends TestCase
             ->get('/dashboard/customer');
 
         $response->assertStatus(200);
-        $response->assertSee('data-stats', false);
-        $response->assertSee('data-tickets', false);
-        $response->assertSee('x-data="modernCustomerDashboard()"', false);
-        $response->assertSee('csrf-token', false);
+        $response->assertSee('data-stats', FALSE);
+        $response->assertSee('data-tickets', FALSE);
+        $response->assertSee('x-data="modernCustomerDashboard()"', FALSE);
+        $response->assertSee('csrf-token', FALSE);
     }
 }

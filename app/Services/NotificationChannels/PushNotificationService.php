@@ -1,32 +1,34 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace App\Services\NotificationChannels;
 
-use App\Models\User;
 use App\Models\PushSubscription;
-use Illuminate\Support\Facades\Http;
+use App\Models\User;
 use Illuminate\Support\Facades\Log;
-use Minishlink\WebPush\WebPush;
 use Minishlink\WebPush\Subscription;
+use Minishlink\WebPush\WebPush;
 
 class PushNotificationService
 {
-    private WebPush $webPush;
+    private ?WebPush $webPush = NULL;
+
     private array $config;
 
     public function __construct()
     {
-        $this->config = config('services.webpush');
-        
-        $this->webPush = new WebPush([
-            'VAPID' => [
-                'subject' => $this->config['vapid']['subject'] ?? config('app.url'),
-                'publicKey' => $this->config['vapid']['public_key'],
-                'privateKey' => $this->config['vapid']['private_key'],
-            ],
-            'TTL' => 300, // 5 minutes
-            'urgency' => 'normal',
-        ]);
+        $this->config = config('services.webpush', []);
+
+        if ($this->isConfigured()) {
+            $this->webPush = new WebPush([
+                'VAPID' => [
+                    'subject'    => $this->config['vapid']['subject'] ?? config('app.url'),
+                    'publicKey'  => $this->config['vapid']['public_key'],
+                    'privateKey' => $this->config['vapid']['private_key'],
+                ],
+                'TTL'     => 300, // 5 minutes
+                'urgency' => 'normal',
+            ]);
+        }
     }
 
     /**
@@ -36,17 +38,19 @@ class PushNotificationService
     {
         if (!$this->isConfigured()) {
             Log::warning('Push notification service not configured');
-            return false;
+
+            return FALSE;
         }
 
-                // Get active push subscriptions for the user
+        // Get active push subscriptions for the user
         $subscriptions = PushSubscription::where('user_id', $user->id)
             ->where('last_used_at', '>=', now()->subDays(30))
             ->get();
-        
+
         if ($subscriptions->isEmpty()) {
             Log::info('No push subscriptions found for user', ['user_id' => $user->id]);
-            return false;
+
+            return FALSE;
         }
 
         $successCount = 0;
@@ -59,9 +63,9 @@ class PushNotificationService
         }
 
         Log::info('Push notifications sent', [
-            'user_id' => $user->id,
+            'user_id'       => $user->id,
             'success_count' => $successCount,
-            'total_count' => $totalCount
+            'total_count'   => $totalCount,
         ]);
 
         return $successCount > 0;
@@ -72,9 +76,15 @@ class PushNotificationService
      */
     public function sendToSubscription(PushSubscription $subscription, array $payload): bool
     {
+        if (!$this->isConfigured() || $this->webPush === NULL) {
+            Log::warning('Push notification service not configured for subscription');
+
+            return FALSE;
+        }
+
         try {
-                        $webPushSubscription = Subscription::create([
-                'endpoint' => $subscription->endpoint,
+            $webPushSubscription = Subscription::create([
+                'endpoint'  => $subscription->endpoint,
                 'publicKey' => $subscription->p256dh_key,
                 'authToken' => $subscription->auth_key,
             ]);
@@ -87,37 +97,38 @@ class PushNotificationService
             if ($notification->isSuccess()) {
                 $subscription->update([
                     'successful_notifications' => $subscription->successful_notifications + 1,
-                    'last_used_at' => now(),
+                    'last_used_at'             => now(),
                 ]);
-                return true;
+
+                return TRUE;
             }
 
             // Handle specific errors
             $statusCode = $notification->getResponse()->getStatusCode();
-            
+
             if (in_array($statusCode, [400, 404, 410, 413])) {
                 // Subscription is invalid, remove it
                 Log::info('Removing invalid push subscription', [
                     'subscription_id' => $subscription->id,
-                    'status_code' => $statusCode
+                    'status_code'     => $statusCode,
                 ]);
                 $subscription->delete();
             }
 
             Log::warning('Push notification failed', [
                 'subscription_id' => $subscription->id,
-                'status_code' => $statusCode,
-                'reason' => $notification->getReason()
+                'status_code'     => $statusCode,
+                'reason'          => $notification->getReason(),
             ]);
 
-            return false;
-
+            return FALSE;
         } catch (\Exception $e) {
             Log::error('Push notification exception', [
                 'subscription_id' => $subscription->id,
-                'error' => $e->getMessage()
+                'error'           => $e->getMessage(),
             ]);
-            return false;
+
+            return FALSE;
         }
     }
 
@@ -127,13 +138,13 @@ class PushNotificationService
     public function sendToUsers(array $userIds, array $payload): array
     {
         $results = [];
-        
+
         foreach ($userIds as $userId) {
             $user = User::find($userId);
             if ($user) {
                 $results[$userId] = $this->send($user, $payload);
             } else {
-                $results[$userId] = false;
+                $results[$userId] = FALSE;
             }
         }
 
@@ -149,7 +160,7 @@ class PushNotificationService
 
         // Apply criteria filters
         if (!empty($criteria['user_roles'])) {
-            $query->whereHas('user', function($q) use ($criteria) {
+            $query->whereHas('user', function ($q) use ($criteria) {
                 $q->whereIn('role', $criteria['user_roles']);
             });
         }
@@ -169,8 +180,8 @@ class PushNotificationService
 
         Log::info('Broadcast push notification sent', [
             'total_subscriptions' => $subscriptions->count(),
-            'successful_sends' => $successCount,
-            'criteria' => $criteria
+            'successful_sends'    => $successCount,
+            'criteria'            => $criteria,
         ]);
 
         return $successCount;
@@ -187,10 +198,10 @@ class PushNotificationService
             ->delete();
 
         return PushSubscription::create([
-            'user_id' => $user->id,
-            'endpoint' => $subscriptionData['endpoint'],
+            'user_id'    => $user->id,
+            'endpoint'   => $subscriptionData['endpoint'],
             'p256dh_key' => $subscriptionData['keys']['p256dh'],
-            'auth_key' => $subscriptionData['keys']['auth'],
+            'auth_key'   => $subscriptionData['keys']['auth'],
             'user_agent' => request()->userAgent(),
             'ip_address' => request()->ip(),
         ]);
@@ -199,10 +210,10 @@ class PushNotificationService
     /**
      * Unsubscribe user from push notifications
      */
-    public function unsubscribe(User $user, string $endpoint = null): int
+    public function unsubscribe(User $user, string $endpoint = NULL): int
     {
         $query = PushSubscription::where('user_id', $user->id);
-        
+
         if ($endpoint) {
             $query->where('endpoint', $endpoint);
         }
@@ -217,30 +228,30 @@ class PushNotificationService
     {
         return [
             'title' => $payload['title'] ?? 'HD Tickets',
-            'body' => $payload['body'] ?? '',
-            'icon' => $payload['icon'] ?? asset('images/logo-hdtickets-enhanced.svg'),
+            'body'  => $payload['body'] ?? '',
+            'icon'  => $payload['icon'] ?? asset('images/logo-hdtickets-enhanced.svg'),
             'badge' => $payload['badge'] ?? asset('images/logo-hdtickets-enhanced.svg'),
-            'image' => $payload['image'] ?? null,
-            'data' => array_merge([
+            'image' => $payload['image'] ?? NULL,
+            'data'  => array_merge([
                 'timestamp' => now()->toISOString(),
-                'origin' => config('app.url'),
+                'origin'    => config('app.url'),
             ], $payload['data'] ?? []),
             'actions' => $payload['actions'] ?? [
                 [
                     'action' => 'view',
-                    'title' => 'View Details',
-                    'icon' => asset('images/icons/view.svg')
+                    'title'  => 'View Details',
+                    'icon'   => asset('images/icons/view.svg'),
                 ],
                 [
                     'action' => 'dismiss',
-                    'title' => 'Dismiss',
-                    'icon' => asset('images/icons/close.svg')
-                ]
+                    'title'  => 'Dismiss',
+                    'icon'   => asset('images/icons/close.svg'),
+                ],
             ],
-            'tag' => $payload['tag'] ?? 'hd-tickets-notification',
-            'requireInteraction' => $payload['require_interaction'] ?? false,
-            'silent' => $payload['silent'] ?? false,
-            'vibrate' => $payload['vibrate'] ?? [200, 100, 200],
+            'tag'                => $payload['tag'] ?? 'hd-tickets-notification',
+            'requireInteraction' => $payload['require_interaction'] ?? FALSE,
+            'silent'             => $payload['silent'] ?? FALSE,
+            'vibrate'            => $payload['vibrate'] ?? [200, 100, 200],
         ];
     }
 
@@ -249,7 +260,7 @@ class PushNotificationService
      */
     private function isConfigured(): bool
     {
-        return !empty($this->config['vapid']['public_key']) && 
+        return !empty($this->config['vapid']['public_key']) &&
                !empty($this->config['vapid']['private_key']);
     }
 
@@ -268,11 +279,11 @@ class PushNotificationService
     {
         $testPayload = [
             'title' => '🎫 HD Tickets Test',
-            'body' => 'Push notifications are working correctly!',
-            'data' => [
+            'body'  => 'Push notifications are working correctly!',
+            'data'  => [
                 'type' => 'test',
-                'url' => route('dashboard')
-            ]
+                'url'  => route('dashboard'),
+            ],
         ];
 
         return $this->send($user, $testPayload);
@@ -284,9 +295,9 @@ class PushNotificationService
     public function getStats(): array
     {
         return [
-            'total_subscriptions' => PushSubscription::count(),
-            'active_subscriptions' => PushSubscription::where('last_used_at', '>=', now()->subDays(30))->count(),
-            'subscriptions_today' => PushSubscription::whereDate('created_at', today())->count(),
+            'total_subscriptions'                => PushSubscription::count(),
+            'active_subscriptions'               => PushSubscription::where('last_used_at', '>=', now()->subDays(30))->count(),
+            'subscriptions_today'                => PushSubscription::whereDate('created_at', today())->count(),
             'avg_notifications_per_subscription' => PushSubscription::avg('successful_notifications'),
         ];
     }
@@ -298,14 +309,14 @@ class PushNotificationService
     {
         // Remove subscriptions not used in the last 90 days
         $deletedCount = PushSubscription::where('last_used_at', '<', now()->subDays(90))
-            ->orWhere(function($query) {
+            ->orWhere(function ($query) {
                 $query->whereNull('last_used_at')
                       ->where('created_at', '<', now()->subDays(7));
             })
             ->delete();
 
         Log::info('Cleaned up expired push subscriptions', [
-            'deleted_count' => $deletedCount
+            'deleted_count' => $deletedCount,
         ]);
 
         return $deletedCount;

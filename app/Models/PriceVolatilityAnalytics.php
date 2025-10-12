@@ -80,7 +80,7 @@ class PriceVolatilityAnalytics extends Model
      *
      * @param mixed $date
      */
-    public static function calculateForTicket(int $ticketId, $date = null): ?self
+    public static function calculateForTicket(int $ticketId, $date = NULL): ?self
     {
         $date = $date ?: now()->format('Y-m-d');
 
@@ -90,7 +90,7 @@ class PriceVolatilityAnalytics extends Model
             ->get();
 
         if ($priceHistory->isEmpty()) {
-            return null;
+            return NULL;
         }
 
         $prices = $priceHistory->pluck('price');

@@ -74,12 +74,12 @@ class Role extends Model
             $permission = Permission::where('name', $permission)->first();
         }
 
-        if (! $permission) {
-            return false;
+        if (!$permission) {
+            return FALSE;
         }
 
         if ($this->hasPermission($permission->name)) {
-            return true;
+            return TRUE;
         }
 
         $this->permissions()->attach($permission->id, [
@@ -87,7 +87,7 @@ class Role extends Model
             'granted_by' => auth()->id(),
         ]);
 
-        return true;
+        return TRUE;
     }
 
     /**
@@ -101,8 +101,8 @@ class Role extends Model
             $permission = Permission::where('name', $permission)->first();
         }
 
-        if (! $permission) {
-            return false;
+        if (!$permission) {
+            return FALSE;
         }
 
         return $this->permissions()->detach($permission->id) > 0;
@@ -136,7 +136,7 @@ class Role extends Model
      */
     public function scopeSystemRoles($query)
     {
-        return $query->where('is_system_role', true);
+        return $query->where('is_system_role', TRUE);
     }
 
     /**
@@ -146,7 +146,7 @@ class Role extends Model
      */
     public function scopeCustomRoles($query)
     {
-        return $query->where('is_system_role', false);
+        return $query->where('is_system_role', FALSE);
     }
 
     protected function casts(): array

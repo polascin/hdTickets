@@ -223,7 +223,7 @@ class TicketCriteriaController extends Controller
         }
 
         $existingCriteria = $criteria[$criteriaIndex];
-        $existingCriteria['is_active'] = ! $existingCriteria['is_active'];
+        $existingCriteria['is_active'] = !$existingCriteria['is_active'];
         $existingCriteria['updated_at'] = now()->toISOString();
 
         $criteria[$criteriaIndex] = $existingCriteria;

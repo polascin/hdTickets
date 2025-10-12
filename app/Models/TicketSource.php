@@ -206,7 +206,7 @@ class TicketSource extends Model
      */
     public function scopeActive($query): Builder
     {
-        return $query->where('is_active', true);
+        return $query->where('is_active', TRUE);
     }
 
     public function scopeAvailable($query)
@@ -239,12 +239,12 @@ class TicketSource extends Model
         return $query->where('currency', $currency);
     }
 
-    public function scopeInPriceRange($query, $minPrice = null, $maxPrice = null)
+    public function scopeInPriceRange($query, $minPrice = NULL, $maxPrice = NULL)
     {
-        if ($minPrice !== null) {
+        if ($minPrice !== NULL) {
             $query->where('price_min', '>=', $minPrice);
         }
-        if ($maxPrice !== null) {
+        if ($maxPrice !== NULL) {
             $query->where('price_max', '<=', $maxPrice);
         }
 
@@ -296,7 +296,7 @@ class TicketSource extends Model
             self::PLATFORM_CELTIC,
         ];
 
-        return in_array($this->platform, $clubs, true);
+        return in_array($this->platform, $clubs, TRUE);
     }
 
     /**
@@ -313,7 +313,7 @@ class TicketSource extends Model
             self::PLATFORM_SILVERSTONE_F1,
         ];
 
-        return in_array($this->platform, $venues, true);
+        return in_array($this->platform, $venues, TRUE);
     }
 
     public static function getCurrencies(): array
@@ -398,18 +398,18 @@ class TicketSource extends Model
     protected function timeUntilEvent(): Attribute
     {
         return Attribute::make(get: function () {
-            if (! $this->event_date) {
+            if (!$this->event_date) {
                 return;
             }
 
-            return Carbon::now()->diffForHumans($this->event_date, true);
+            return Carbon::now()->diffForHumans($this->event_date, TRUE);
         });
     }
 
     protected function lastCheckedHuman(): Attribute
     {
         return Attribute::make(get: function () {
-            if (! $this->last_checked) {
+            if (!$this->last_checked) {
                 return 'Never';
             }
 

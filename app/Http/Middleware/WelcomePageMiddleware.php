@@ -34,7 +34,7 @@ class WelcomePageMiddleware
         $response = $next($request);
 
         // Add cache headers for public content
-        if (! Auth::check()) {
+        if (!Auth::check()) {
             $this->addPublicCacheHeaders($response);
         }
 
@@ -136,7 +136,7 @@ class WelcomePageMiddleware
         $visitorHash = hash('sha256', $request->ip() . $request->userAgent());
         $cacheKey = 'unique_visitor_' . date('Y-m-d') . '_' . $visitorHash;
 
-        if (! Cache::has($cacheKey)) {
+        if (!Cache::has($cacheKey)) {
             // Mark as seen for today
             Cache::put($cacheKey, TRUE, 86400); // 24 hours
 
@@ -204,8 +204,8 @@ class WelcomePageMiddleware
             // Example: Use a free GeoIP service
             try {
                 $response = file_get_contents("http://ip-api.com/json/{$ip}?fields=countryCode");
-                if ($response === false) {
-                    return null;
+                if ($response === FALSE) {
+                    return NULL;
                 }
                 $data = json_decode($response, TRUE);
 

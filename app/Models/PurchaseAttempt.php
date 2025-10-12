@@ -225,7 +225,7 @@ class PurchaseAttempt extends Model
     /**
      * MarkFailed
      */
-    public function markFailed(string $errorMessage, ?string $failureReason = null): bool
+    public function markFailed(string $errorMessage, ?string $failureReason = NULL): bool
     {
         return $this->update([
             'status'         => self::STATUS_FAILED,

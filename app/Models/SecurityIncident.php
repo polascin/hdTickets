@@ -66,7 +66,7 @@ class SecurityIncident extends Model
      */
     public function isOpen(): bool
     {
-        return in_array($this->status, ['open', 'investigating', 'in_progress'], true);
+        return in_array($this->status, ['open', 'investigating', 'in_progress'], TRUE);
     }
 
     /**
@@ -88,7 +88,7 @@ class SecurityIncident extends Model
     /**
      * Resolve incident with notes
      */
-    public function resolve(string $notes, bool $falsePositive = false): bool
+    public function resolve(string $notes, bool $falsePositive = FALSE): bool
     {
         return $this->update([
             'status'           => 'resolved',
@@ -115,13 +115,13 @@ class SecurityIncident extends Model
     public function escalate(): bool
     {
         $priorities = ['low', 'medium', 'high', 'critical'];
-        $currentIndex = array_search($this->priority, $priorities, true);
+        $currentIndex = array_search($this->priority, $priorities, TRUE);
 
-        if ($currentIndex !== false && $currentIndex < count($priorities) - 1) {
+        if ($currentIndex !== FALSE && $currentIndex < count($priorities) - 1) {
             return $this->update(['priority' => $priorities[$currentIndex + 1]]);
         }
 
-        return false;
+        return FALSE;
     }
 
     /**
@@ -137,8 +137,8 @@ class SecurityIncident extends Model
      */
     public function getResolutionTime(): ?CarbonInterval
     {
-        if (! $this->resolved_at) {
-            return null;
+        if (!$this->resolved_at) {
+            return NULL;
         }
 
         return $this->detected_at->diffAsCarbonInterval($this->resolved_at);

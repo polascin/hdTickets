@@ -8,7 +8,6 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Support\Str;
 use Override;
 
 class TicketAlert extends Model
@@ -98,18 +97,18 @@ class TicketAlert extends Model
         $keywords = strtolower($this->keywords);
         $eventTitle = strtolower($ticket->event_title);
 
-        if (! str_contains($eventTitle, $keywords)) {
-            return false;
+        if (!str_contains($eventTitle, $keywords)) {
+            return FALSE;
         }
 
         // Check platform filter
         if ($this->platform && $this->platform !== $ticket->platform) {
-            return false;
+            return FALSE;
         }
 
         // Check price limit
         if ($this->max_price && $ticket->total_price > $this->max_price) {
-            return false;
+            return FALSE;
         }
 
         // Check additional filters if any
@@ -117,20 +116,20 @@ class TicketAlert extends Model
             foreach ($this->filters as $key => $value) {
                 switch ($key) {
                     case 'venue':
-                        if (! str_contains(strtolower((string) $ticket->venue), strtolower($value))) {
-                            return false;
+                        if (!str_contains(strtolower((string) $ticket->venue), strtolower($value))) {
+                            return FALSE;
                         }
 
                         break;
                     case 'min_quantity':
                         if ($ticket->quantity_available < $value) {
-                            return false;
+                            return FALSE;
                         }
 
                         break;
                     case 'section':
-                        if ($ticket->section && ! str_contains(strtolower($ticket->section), strtolower($value))) {
-                            return false;
+                        if ($ticket->section && !str_contains(strtolower($ticket->section), strtolower($value))) {
+                            return FALSE;
                         }
 
                         break;
@@ -138,7 +137,7 @@ class TicketAlert extends Model
             }
         }
 
-        return true;
+        return TRUE;
     }
 
     /**
@@ -156,7 +155,7 @@ class TicketAlert extends Model
      */
     protected function formattedMaxPrice(): Attribute
     {
-        return Attribute::make(get: fn () => $this->max_price ? $this->currency . ' ' . number_format((float) $this->max_price, 2) : null);
+        return Attribute::make(get: fn () => $this->max_price ? $this->currency . ' ' . number_format((float) $this->max_price, 2) : NULL);
     }
 
     /**
@@ -173,7 +172,7 @@ class TicketAlert extends Model
     protected function platformDisplayName(): Attribute
     {
         return Attribute::make(get: function (): string {
-            if (! $this->platform) {
+            if (!$this->platform) {
                 return 'All Platforms';
             }
 

@@ -1,6 +1,6 @@
-<?php
+<?php declare(strict_types=1);
 // Direct test to bypass platform check
-define('LARAVEL_START', microtime(true));
+define('LARAVEL_START', microtime(TRUE));
 
 require_once '/var/www/hdtickets/vendor/autoload.php';
 
@@ -12,15 +12,14 @@ $request = Illuminate\Http\Request::capture();
 
 try {
     $response = $kernel->handle($request);
-    
+
     if ($response->getStatusCode() == 200) {
         echo "SUCCESS: Dashboard accessible\n";
     } else {
-        echo "HTTP " . $response->getStatusCode() . "\n";
+        echo 'HTTP ' . $response->getStatusCode() . "\n";
         echo $response->getContent();
     }
 } catch (Exception $e) {
-    echo "ERROR: " . $e->getMessage() . "\n";
+    echo 'ERROR: ' . $e->getMessage() . "\n";
     echo $e->getTraceAsString() . "\n";
 }
-?>

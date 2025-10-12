@@ -6,9 +6,7 @@ namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Auth\PublicRegistrationRequest;
-use App\Models\LegalDocument;
 use App\Models\User;
-use App\Models\UserLegalAcceptance;
 use App\Services\PhoneVerificationService;
 use App\Services\TwoFactorAuthService;
 use Exception;
@@ -46,7 +44,7 @@ class PublicRegistrationController extends Controller
         if ($request->filled('website_url')) {
             // Silently fail - don't give bots feedback
             return back()->withInput()->withErrors([
-                'email' => 'Registration failed. Please try again.'
+                'email' => 'Registration failed. Please try again.',
             ]);
         }
 
@@ -61,15 +59,15 @@ class PublicRegistrationController extends Controller
                 'first_name'          => $validated['first_name'],
                 'last_name'           => $validated['last_name'],
                 'email'               => $validated['email'],
-                'phone'               => $validated['phone'] ?? null,
+                'phone'               => $validated['phone'] ?? NULL,
                 'password'            => Hash::make($validated['password']),
                 'role'                => User::ROLE_CUSTOMER,
-                'is_active'           => true,
+                'is_active'           => TRUE,
                 'registration_source' => 'public_web',
                 'password_changed_at' => now(),
                 'terms_accepted_at'   => now(),
                 'privacy_accepted_at' => now(),
-                'marketing_opt_in'    => $request->boolean('marketing_opt_in', false),
+                'marketing_opt_in'    => $request->boolean('marketing_opt_in', FALSE),
             ]);
 
             DB::commit();
@@ -84,7 +82,7 @@ class PublicRegistrationController extends Controller
             $user->sendEmailVerificationNotification();
 
             // Check if 2FA setup should be prompted
-            if ($request->boolean('enable_2fa', false) || config('auth.registration.two_factor_prompt', false)) {
+            if ($request->boolean('enable_2fa', FALSE) || config('auth.registration.two_factor_prompt', FALSE)) {
                 return redirect()->route('register.twofactor.show');
             }
 
@@ -107,7 +105,7 @@ class PublicRegistrationController extends Controller
     {
         $user = Auth::user();
 
-        if (! $user || ! $user->phone) {
+        if (!$user || !$user->phone) {
             return redirect()->route('dashboard');
         }
 
@@ -125,7 +123,7 @@ class PublicRegistrationController extends Controller
 
         $user = Auth::user();
 
-        if (! $user || ! $user->phone) {
+        if (!$user || !$user->phone) {
             return redirect()->route('dashboard');
         }
 
@@ -147,7 +145,7 @@ class PublicRegistrationController extends Controller
     {
         $user = Auth::user();
 
-        if (! $user || ! $user->phone) {
+        if (!$user || !$user->phone) {
             return redirect()->route('dashboard');
         }
 
@@ -169,7 +167,7 @@ class PublicRegistrationController extends Controller
     {
         $user = Auth::user();
 
-        if (! $user || ! $user->two_factor_secret || $user->two_factor_enabled) {
+        if (!$user || !$user->two_factor_secret || $user->two_factor_enabled) {
             return redirect()->route('dashboard');
         }
 
@@ -189,7 +187,7 @@ class PublicRegistrationController extends Controller
 
         $user = Auth::user();
 
-        if (! $user || ! $user->two_factor_secret || $user->two_factor_enabled) {
+        if (!$user || !$user->two_factor_secret || $user->two_factor_enabled) {
             return redirect()->route('dashboard');
         }
 
@@ -206,7 +204,6 @@ class PublicRegistrationController extends Controller
         return back()
             ->withErrors(['code' => 'Invalid authentication code.']);
     }
-
 
     /**
      * Set up two-factor authentication for the user

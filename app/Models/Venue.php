@@ -7,18 +7,19 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\MorphMany;
 
 /**
  * Venue Model
- * 
+ *
  * Represents sports venues in the HD Tickets system
  */
 class Venue extends Model
 {
-    use HasFactory, HasUuids;
-    
+    use HasFactory;
+    use HasUuids;
+
     protected $fillable = [
         'name',
         'city',
@@ -32,14 +33,14 @@ class Venue extends Model
         'status',
         'metadata',
     ];
-    
+
     protected $casts = [
-        'capacity' => 'integer',
-        'followers_count' => 'integer',
+        'capacity'         => 'integer',
+        'followers_count'  => 'integer',
         'popularity_score' => 'integer',
-        'metadata' => 'array',
+        'metadata'         => 'array',
     ];
-    
+
     /**
      * Get all following relationships for this venue
      */
@@ -47,7 +48,7 @@ class Venue extends Model
     {
         return $this->morphMany(Following::class, 'followable');
     }
-    
+
     /**
      * Get all events at this venue
      */
@@ -55,7 +56,7 @@ class Venue extends Model
     {
         return $this->hasMany(Event::class);
     }
-    
+
     /**
      * Scope for venues by city
      */
@@ -63,7 +64,7 @@ class Venue extends Model
     {
         return $query->where('city', $city);
     }
-    
+
     /**
      * Scope for venues by type
      */
@@ -71,7 +72,7 @@ class Venue extends Model
     {
         return $query->where('venue_type', $type);
     }
-    
+
     /**
      * Scope for large venues
      */
@@ -79,7 +80,7 @@ class Venue extends Model
     {
         return $query->where('capacity', '>', 50000);
     }
-    
+
     /**
      * Scope for popular venues
      */
@@ -88,7 +89,7 @@ class Venue extends Model
         return $query->where('popularity_score', '>', 70)
                      ->orderByDesc('popularity_score');
     }
-    
+
     /**
      * Scope for most followed venues
      */

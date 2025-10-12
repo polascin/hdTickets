@@ -68,7 +68,7 @@ class Permission extends Model
     public function isInUse(): bool
     {
         if ($this->roles()->exists()) {
-            return true;
+            return TRUE;
         }
 
         return $this->users()->exists();
@@ -109,7 +109,7 @@ class Permission extends Model
      */
     public function scopeSystemPermissions($query)
     {
-        return $query->where('is_system_permission', true);
+        return $query->where('is_system_permission', TRUE);
     }
 
     /**
@@ -119,7 +119,7 @@ class Permission extends Model
      */
     public function scopeCustomPermissions($query)
     {
-        return $query->where('is_system_permission', false);
+        return $query->where('is_system_permission', FALSE);
     }
 
     /**

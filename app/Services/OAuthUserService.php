@@ -22,6 +22,7 @@ class OAuthUserService
         if ($user) {
             // Update user data with latest info from provider
             $this->updateUserFromProvider($user, $socialiteUser, $provider);
+
             return $user;
         }
 
@@ -31,6 +32,7 @@ class OAuthUserService
         if ($existingUser) {
             // Link existing account with OAuth provider
             $this->linkAccountWithProvider($existingUser, $socialiteUser, $provider);
+
             return $existingUser;
         }
 
@@ -44,20 +46,20 @@ class OAuthUserService
     protected function createUserFromProvider(SocialiteUser $socialiteUser, string $provider): User
     {
         $name = $this->extractName($socialiteUser);
-        
+
         $user = User::create([
-            'name' => $name['first'],
-            'surname' => $name['last'],
-            'email' => $socialiteUser->getEmail(),
-            'avatar' => $socialiteUser->getAvatar(),
-            'provider' => $provider,
-            'provider_id' => $socialiteUser->getId(),
+            'name'                 => $name['first'],
+            'surname'              => $name['last'],
+            'email'                => $socialiteUser->getEmail(),
+            'avatar'               => $socialiteUser->getAvatar(),
+            'provider'             => $provider,
+            'provider_id'          => $socialiteUser->getId(),
             'provider_verified_at' => now(),
-            'email_verified_at' => now(), // OAuth users are considered verified
-            'role' => User::ROLE_CUSTOMER, // Default role for OAuth users
-            'is_active' => true,
-            'registration_source' => 'oauth_' . $provider,
-            'password' => null, // OAuth users don't have passwords initially
+            'email_verified_at'    => now(), // OAuth users are considered verified
+            'role'                 => User::ROLE_CUSTOMER, // Default role for OAuth users
+            'is_active'            => TRUE,
+            'registration_source'  => 'oauth_' . $provider,
+            'password'             => NULL, // OAuth users don't have passwords initially
         ]);
 
         // Add Google ID for backwards compatibility
@@ -97,11 +99,11 @@ class OAuthUserService
     protected function linkAccountWithProvider(User $user, SocialiteUser $socialiteUser, string $provider): void
     {
         $user->update([
-            'provider' => $provider,
-            'provider_id' => $socialiteUser->getId(),
+            'provider'             => $provider,
+            'provider_id'          => $socialiteUser->getId(),
             'provider_verified_at' => now(),
-            'avatar' => $user->avatar ?: $socialiteUser->getAvatar(),
-            'last_activity_at' => now(),
+            'avatar'               => $user->avatar ?: $socialiteUser->getAvatar(),
+            'last_activity_at'     => now(),
         ]);
 
         // Add Google ID for backwards compatibility
@@ -120,7 +122,7 @@ class OAuthUserService
 
         return [
             'first' => $nameParts[0] ?? '',
-            'last' => $nameParts[1] ?? '',
+            'last'  => $nameParts[1] ?? '',
         ];
     }
 
@@ -138,15 +140,15 @@ class OAuthUserService
     public function setPasswordForOAuthUser(User $user, string $password): bool
     {
         if (!$user->provider) {
-            return false; // Not an OAuth user
+            return FALSE; // Not an OAuth user
         }
 
         $user->update([
-            'password' => Hash::make($password),
+            'password'            => Hash::make($password),
             'password_changed_at' => now(),
         ]);
 
-        return true;
+        return TRUE;
     }
 
     /**
@@ -155,7 +157,7 @@ class OAuthUserService
     public function canLoginWithProvider(User $user, string $provider): bool
     {
         if (!$user->is_active) {
-            return false;
+            return FALSE;
         }
 
         // Check if user has this provider linked
@@ -177,10 +179,10 @@ class OAuthUserService
     {
         return [
             'google' => [
-                'name' => 'Google',
-                'icon' => 'fab fa-google',
-                'color' => 'danger',
-                'enabled' => config('services.google.client_id') ? true : false,
+                'name'    => 'Google',
+                'icon'    => 'fab fa-google',
+                'color'   => 'danger',
+                'enabled' => config('services.google.client_id') ? TRUE : FALSE,
             ],
             // Add more providers here as needed
             // 'facebook' => [
@@ -200,11 +202,11 @@ class OAuthUserService
         // Update last login information
         if ($action === 'login') {
             $user->update([
-                'last_login_at' => now(),
-                'last_login_ip' => request()->ip(),
+                'last_login_at'         => now(),
+                'last_login_ip'         => request()->ip(),
                 'last_login_user_agent' => request()->userAgent(),
-                'last_activity_at' => now(),
-                'login_count' => ($user->login_count ?? 0) + 1,
+                'last_activity_at'      => now(),
+                'login_count'           => ($user->login_count ?? 0) + 1,
                 'failed_login_attempts' => 0, // Reset failed attempts on successful login
             ]);
         }

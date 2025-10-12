@@ -53,7 +53,7 @@ class LoginHistory extends Model
      */
     public function scopeSuccessful($query)
     {
-        return $query->where('success', true);
+        return $query->where('success', TRUE);
     }
 
     /**
@@ -63,7 +63,7 @@ class LoginHistory extends Model
      */
     public function scopeFailed($query)
     {
-        return $query->where('success', false);
+        return $query->where('success', FALSE);
     }
 
     /**
@@ -73,7 +73,7 @@ class LoginHistory extends Model
      */
     public function scopeSuspicious($query)
     {
-        return $query->where('is_suspicious', true);
+        return $query->where('is_suspicious', TRUE);
     }
 
     /**
@@ -113,7 +113,7 @@ class LoginHistory extends Model
             $parts = array_filter([
                 $this->browser,
                 $this->operating_system,
-                $this->device_type ? "({$this->device_type})" : null,
+                $this->device_type ? "({$this->device_type})" : NULL,
             ]);
 
             return implode(' on ', $parts) ?: 'Unknown Device';
@@ -126,7 +126,7 @@ class LoginHistory extends Model
     protected function riskLevel(): Attribute
     {
         return Attribute::make(get: function (): string {
-            if (! $this->is_suspicious) {
+            if (!$this->is_suspicious) {
                 return 'low';
             }
             $flagCount = is_array($this->suspicious_flags) ? count($this->suspicious_flags) : 0;

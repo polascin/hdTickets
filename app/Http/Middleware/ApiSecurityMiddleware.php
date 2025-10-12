@@ -95,19 +95,19 @@ class ApiSecurityMiddleware
     {
         $apiKey = $request->header('X-API-Key') ?? $request->input('api_key');
 
-        if (! $apiKey) {
+        if (!$apiKey) {
             $this->logSecurityViolation($request, 'Missing API key');
             abort(401, 'API key is required');
         }
 
-        if (! $this->isValidApiKey($apiKey)) {
+        if (!$this->isValidApiKey($apiKey)) {
             $this->logSecurityViolation($request, 'Invalid API key');
             abort(401, 'Invalid API key');
         }
 
         // Verify API key signature if present
         $signature = $request->header('X-API-Signature');
-        if ($signature && ! $this->verifyApiSignature($request, $apiKey, $signature)) {
+        if ($signature && !$this->verifyApiSignature($request, $apiKey, $signature)) {
             $this->logSecurityViolation($request, 'Invalid API signature');
             abort(401, 'Invalid API signature');
         }
@@ -191,7 +191,7 @@ class ApiSecurityMiddleware
      */
     protected function isMaliciousUserAgent(?string $userAgent): bool
     {
-        if (! $userAgent) {
+        if (!$userAgent) {
             return TRUE; // Require user agent
         }
 
@@ -267,7 +267,7 @@ class ApiSecurityMiddleware
     protected function isValidApiKey(string $apiKey): bool
     {
         // Check API key format (should be 40 character hash)
-        if (strlen($apiKey) !== 40 || ! ctype_alnum($apiKey)) {
+        if (strlen($apiKey) !== 40 || !ctype_alnum($apiKey)) {
             return FALSE;
         }
 

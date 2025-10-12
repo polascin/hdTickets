@@ -33,7 +33,7 @@ class RecaptchaService
      */
     public function verify(string $token, string $action = 'login', ?string $remoteIp = NULL): array
     {
-        if (! $this->enabled) {
+        if (!$this->enabled) {
             return [
                 'success'       => TRUE,
                 'score'         => 1.0,
@@ -75,7 +75,7 @@ class RecaptchaService
                     'remoteip' => $remoteIp ?: request()->ip(),
                 ]);
 
-            if (! $response->successful()) {
+            if (!$response->successful()) {
                 Log::warning('reCAPTCHA API request failed', [
                     'status' => $response->status(),
                     'body'   => $response->body(),
@@ -134,7 +134,7 @@ class RecaptchaService
      */
     public function passes(array $verificationResult): bool
     {
-        if (! ($verificationResult['success'] ?? FALSE)) {
+        if (!($verificationResult['success'] ?? FALSE)) {
             return FALSE;
         }
 
@@ -172,7 +172,7 @@ class RecaptchaService
      */
     public function shouldChallenge(Request $request): bool
     {
-        if (! $this->enabled) {
+        if (!$this->enabled) {
             return FALSE;
         }
 
@@ -209,13 +209,13 @@ class RecaptchaService
                 $metricsKey = "recaptcha_metrics:{$date}:{$hour}";
                 $hourlyMetrics = Cache::get($metricsKey, []);
 
-                if (! empty($hourlyMetrics)) {
+                if (!empty($hourlyMetrics)) {
                     $metrics['total_verifications'] += $hourlyMetrics['total'] ?? 0;
                     $metrics['successful_verifications'] += $hourlyMetrics['successful'] ?? 0;
                     $metrics['failed_verifications'] += $hourlyMetrics['failed'] ?? 0;
 
                     // Accumulate daily breakdown
-                    if (! isset($metrics['daily_breakdown'][$date])) {
+                    if (!isset($metrics['daily_breakdown'][$date])) {
                         $metrics['daily_breakdown'][$date] = [
                             'total'      => 0,
                             'successful' => 0,
@@ -297,7 +297,7 @@ class RecaptchaService
         $commonHeaders = ['accept-language', 'accept-encoding', 'accept'];
 
         foreach ($commonHeaders as $header) {
-            if (! $request->hasHeader($header)) {
+            if (!$request->hasHeader($header)) {
                 $missingHeaders++;
             }
         }

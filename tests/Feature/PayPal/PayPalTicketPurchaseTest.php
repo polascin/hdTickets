@@ -6,8 +6,8 @@ use App\Models\PurchaseAttempt;
 use App\Models\Ticket;
 use App\Models\User;
 use App\Services\AuditService;
-use App\Services\PayPal\PayPalService;
 use App\Services\PaymentService;
+use App\Services\PayPal\PayPalService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\Response;
 use Mockery;
@@ -18,29 +18,30 @@ class PayPalTicketPurchaseTest extends TestCase
     use RefreshDatabase;
 
     private User $user;
+
     private Ticket $ticket;
 
     protected function setUp(): void
     {
         parent::setUp();
-        
+
         // Create test user
         $this->user = $this->createTestUser([
             'email' => 'test@example.com',
-            'name' => 'Test User'
+            'name'  => 'Test User',
         ], 'customer');
 
         // Create test ticket
         $this->ticket = $this->createTestTicket([
-            'title' => 'Test Sports Event',
-            'price' => 99.99,
-            'currency' => 'USD',
+            'title'              => 'Test Sports Event',
+            'price'              => 99.99,
+            'currency'           => 'USD',
             'available_quantity' => 10,
-            'is_available' => true,
-            'venue' => 'Test Arena',
-            'location' => 'Test City, TC',
-            'sport' => 'basketball',
-            'event_date' => now()->addDays(30)
+            'is_available'       => TRUE,
+            'venue'              => 'Test Arena',
+            'location'           => 'Test City, TC',
+            'sport'              => 'basketball',
+            'event_date'         => now()->addDays(30),
         ]);
     }
 
@@ -66,16 +67,16 @@ class PayPalTicketPurchaseTest extends TestCase
         $this->mockPaymentServices();
 
         $purchaseData = [
-            'quantity' => 2,
-            'payment_method' => 'stripe',
+            'quantity'         => 2,
+            'payment_method'   => 'stripe',
             'seat_preferences' => [
-                'section' => 'Lower level',
-                'row' => 'A',
-                'seat_type' => 'standard'
+                'section'   => 'Lower level',
+                'row'       => 'A',
+                'seat_type' => 'standard',
             ],
             'special_requests' => 'Wheelchair accessible seats please',
-            'accept_terms' => true,
-            'confirm_purchase' => true
+            'accept_terms'     => TRUE,
+            'confirm_purchase' => TRUE,
         ];
 
         // Act
@@ -85,15 +86,15 @@ class PayPalTicketPurchaseTest extends TestCase
         // Assert
         $response->assertStatus(Response::HTTP_OK);
         $response->assertJson([
-            'success' => true
+            'success' => TRUE,
         ]);
 
         $this->assertDatabaseHas('purchase_attempts', [
-            'user_id' => $this->user->id,
-            'ticket_id' => $this->ticket->id,
-            'quantity' => 2,
+            'user_id'        => $this->user->id,
+            'ticket_id'      => $this->ticket->id,
+            'quantity'       => 2,
             'payment_method' => 'stripe',
-            'status' => 'completed'
+            'status'         => 'completed',
         ]);
     }
 
@@ -104,15 +105,15 @@ class PayPalTicketPurchaseTest extends TestCase
         $this->mockPaymentServices();
 
         $purchaseData = [
-            'quantity' => 1,
-            'payment_method' => 'paypal',
-            'paypal_order_id' => 'ORDER123456',
+            'quantity'         => 1,
+            'payment_method'   => 'paypal',
+            'paypal_order_id'  => 'ORDER123456',
             'seat_preferences' => [
-                'section' => 'Upper level',
-                'seat_type' => 'premium'
+                'section'   => 'Upper level',
+                'seat_type' => 'premium',
             ],
-            'accept_terms' => true,
-            'confirm_purchase' => true
+            'accept_terms'     => TRUE,
+            'confirm_purchase' => TRUE,
         ];
 
         // Act
@@ -122,16 +123,16 @@ class PayPalTicketPurchaseTest extends TestCase
         // Assert
         $response->assertStatus(Response::HTTP_OK);
         $response->assertJson([
-            'success' => true
+            'success' => TRUE,
         ]);
 
         $this->assertDatabaseHas('purchase_attempts', [
-            'user_id' => $this->user->id,
-            'ticket_id' => $this->ticket->id,
-            'quantity' => 1,
-            'payment_method' => 'paypal',
+            'user_id'         => $this->user->id,
+            'ticket_id'       => $this->ticket->id,
+            'quantity'        => 1,
+            'payment_method'  => 'paypal',
             'paypal_order_id' => 'ORDER123456',
-            'status' => 'completed'
+            'status'          => 'completed',
         ]);
     }
 
@@ -142,10 +143,10 @@ class PayPalTicketPurchaseTest extends TestCase
         $this->mockPaymentServices();
 
         $purchaseData = [
-            'quantity' => 3,
-            'payment_method' => 'paypal',
-            'accept_terms' => true,
-            'confirm_purchase' => true
+            'quantity'         => 3,
+            'payment_method'   => 'paypal',
+            'accept_terms'     => TRUE,
+            'confirm_purchase' => TRUE,
         ];
 
         // Act
@@ -172,22 +173,22 @@ class PayPalTicketPurchaseTest extends TestCase
 
         // Create a purchase attempt
         $attempt = PurchaseAttempt::create([
-            'user_id' => $this->user->id,
-            'ticket_id' => $this->ticket->id,
-            'quantity' => 2,
-            'unit_price' => $this->ticket->price,
-            'total_price' => $this->ticket->price * 2 + 6.48, // Including fees
-            'payment_method' => 'paypal',
+            'user_id'         => $this->user->id,
+            'ticket_id'       => $this->ticket->id,
+            'quantity'        => 2,
+            'unit_price'      => $this->ticket->price,
+            'total_price'     => $this->ticket->price * 2 + 6.48, // Including fees
+            'payment_method'  => 'paypal',
             'paypal_order_id' => 'ORDER123456',
-            'status' => 'pending',
-            'metadata' => [
-                'seat_preferences' => ['section' => 'Lower level']
-            ]
+            'status'          => 'pending',
+            'metadata'        => [
+                'seat_preferences' => ['section' => 'Lower level'],
+            ],
         ]);
 
         $captureData = [
-            'paypal_order_id' => 'ORDER123456',
-            'paypal_capture_id' => 'CAPTURE123456'
+            'paypal_order_id'   => 'ORDER123456',
+            'paypal_capture_id' => 'CAPTURE123456',
         ];
 
         // Act
@@ -197,14 +198,14 @@ class PayPalTicketPurchaseTest extends TestCase
         // Assert
         $response->assertStatus(Response::HTTP_OK);
         $response->assertJson([
-            'success' => true,
-            'message' => 'Payment captured successfully'
+            'success' => TRUE,
+            'message' => 'Payment captured successfully',
         ]);
 
         $this->assertDatabaseHas('purchase_attempts', [
-            'id' => $attempt->id,
-            'status' => 'completed',
-            'paypal_capture_id' => 'CAPTURE123456'
+            'id'                => $attempt->id,
+            'status'            => 'completed',
+            'paypal_capture_id' => 'CAPTURE123456',
         ]);
     }
 
@@ -213,40 +214,40 @@ class PayPalTicketPurchaseTest extends TestCase
     {
         // Arrange
         $attempt = PurchaseAttempt::create([
-            'user_id' => $this->user->id,
-            'ticket_id' => $this->ticket->id,
-            'quantity' => 1,
-            'unit_price' => $this->ticket->price,
-            'total_price' => $this->ticket->price + 3.24,
-            'payment_method' => 'paypal',
+            'user_id'         => $this->user->id,
+            'ticket_id'       => $this->ticket->id,
+            'quantity'        => 1,
+            'unit_price'      => $this->ticket->price,
+            'total_price'     => $this->ticket->price + 3.24,
+            'payment_method'  => 'paypal',
             'paypal_order_id' => 'ORDER123456',
-            'status' => 'pending'
+            'status'          => 'pending',
         ]);
 
         $webhookPayload = [
-            'id' => 'WH-1234567890',
+            'id'         => 'WH-1234567890',
             'event_type' => 'PAYMENT.CAPTURE.COMPLETED',
-            'resource' => [
-                'id' => 'CAPTURE123456',
+            'resource'   => [
+                'id'     => 'CAPTURE123456',
                 'status' => 'COMPLETED',
                 'amount' => [
-                    'value' => '103.23',
-                    'currency_code' => 'USD'
+                    'value'         => '103.23',
+                    'currency_code' => 'USD',
                 ],
-                'custom_id' => 'ticket_' . $this->ticket->id,
-                'invoice_id' => 'HDT_' . time()
-            ]
+                'custom_id'  => 'ticket_' . $this->ticket->id,
+                'invoice_id' => 'HDT_' . time(),
+            ],
         ];
 
-        $this->mockWebhookVerification(true);
+        $this->mockWebhookVerification(TRUE);
 
         // Act
         $response = $this->postJson(route('webhooks.paypal'), $webhookPayload, [
-            'PAYPAL-TRANSMISSION-ID' => 'test-transmission-id',
-            'PAYPAL-CERT-ID' => 'test-cert-id',
-            'PAYPAL-AUTH-ALGO' => 'SHA256withRSA',
-            'PAYPAL-TRANSMISSION-SIG' => 'test-signature',
-            'PAYPAL-TRANSMISSION-TIME' => now()->toISOString()
+            'PAYPAL-TRANSMISSION-ID'   => 'test-transmission-id',
+            'PAYPAL-CERT-ID'           => 'test-cert-id',
+            'PAYPAL-AUTH-ALGO'         => 'SHA256withRSA',
+            'PAYPAL-TRANSMISSION-SIG'  => 'test-signature',
+            'PAYPAL-TRANSMISSION-TIME' => now()->toISOString(),
         ]);
 
         // Assert
@@ -256,7 +257,7 @@ class PayPalTicketPurchaseTest extends TestCase
         // Verify audit log was created
         $this->assertDatabaseHas('audit_logs', [
             'event_type' => 'paypal_transaction',
-            'action' => 'payment_captured'
+            'action'     => 'payment_captured',
         ]);
     }
 
@@ -265,37 +266,37 @@ class PayPalTicketPurchaseTest extends TestCase
     {
         // Arrange
         $attempt = PurchaseAttempt::create([
-            'user_id' => $this->user->id,
-            'ticket_id' => $this->ticket->id,
-            'quantity' => 1,
-            'unit_price' => $this->ticket->price,
-            'total_price' => $this->ticket->price + 3.24,
-            'payment_method' => 'paypal',
+            'user_id'         => $this->user->id,
+            'ticket_id'       => $this->ticket->id,
+            'quantity'        => 1,
+            'unit_price'      => $this->ticket->price,
+            'total_price'     => $this->ticket->price + 3.24,
+            'payment_method'  => 'paypal',
             'paypal_order_id' => 'ORDER123456',
-            'status' => 'pending'
+            'status'          => 'pending',
         ]);
 
         $webhookPayload = [
-            'id' => 'WH-1234567890',
+            'id'         => 'WH-1234567890',
             'event_type' => 'PAYMENT.CAPTURE.DENIED',
-            'resource' => [
-                'id' => 'CAPTURE123456',
-                'status' => 'DECLINED',
+            'resource'   => [
+                'id'             => 'CAPTURE123456',
+                'status'         => 'DECLINED',
                 'status_details' => [
-                    'reason' => 'INSUFFICIENT_FUNDS'
+                    'reason' => 'INSUFFICIENT_FUNDS',
                 ],
                 'amount' => [
-                    'value' => '103.23',
-                    'currency_code' => 'USD'
-                ]
-            ]
+                    'value'         => '103.23',
+                    'currency_code' => 'USD',
+                ],
+            ],
         ];
 
-        $this->mockWebhookVerification(true);
+        $this->mockWebhookVerification(TRUE);
 
         // Act
         $response = $this->postJson(route('webhooks.paypal'), $webhookPayload, [
-            'PAYPAL-TRANSMISSION-ID' => 'test-transmission-id'
+            'PAYPAL-TRANSMISSION-ID' => 'test-transmission-id',
         ]);
 
         // Assert
@@ -304,7 +305,7 @@ class PayPalTicketPurchaseTest extends TestCase
         // Verify audit log was created for denied payment
         $this->assertDatabaseHas('audit_logs', [
             'event_type' => 'paypal_transaction',
-            'action' => 'payment_denied'
+            'action'     => 'payment_denied',
         ]);
     }
 
@@ -315,20 +316,20 @@ class PayPalTicketPurchaseTest extends TestCase
         $this->mockPaymentServices();
 
         $attempt = PurchaseAttempt::create([
-            'user_id' => $this->user->id,
-            'ticket_id' => $this->ticket->id,
-            'quantity' => 1,
-            'unit_price' => $this->ticket->price,
-            'total_price' => $this->ticket->price + 3.24,
-            'payment_method' => 'paypal',
-            'paypal_order_id' => 'ORDER123456',
+            'user_id'           => $this->user->id,
+            'ticket_id'         => $this->ticket->id,
+            'quantity'          => 1,
+            'unit_price'        => $this->ticket->price,
+            'total_price'       => $this->ticket->price + 3.24,
+            'payment_method'    => 'paypal',
+            'paypal_order_id'   => 'ORDER123456',
             'paypal_capture_id' => 'CAPTURE123456',
-            'status' => 'completed'
+            'status'            => 'completed',
         ]);
 
         $refundData = [
             'amount' => 50.00,
-            'reason' => 'Customer request'
+            'reason' => 'Customer request',
         ];
 
         // Act
@@ -338,13 +339,13 @@ class PayPalTicketPurchaseTest extends TestCase
         // Assert
         $response->assertStatus(Response::HTTP_OK);
         $response->assertJson([
-            'success' => true,
-            'message' => 'Refund processed successfully'
+            'success' => TRUE,
+            'message' => 'Refund processed successfully',
         ]);
 
         $this->assertDatabaseHas('purchase_attempts', [
-            'id' => $attempt->id,
-            'status' => 'refunded'
+            'id'     => $attempt->id,
+            'status' => 'refunded',
         ]);
     }
 
@@ -354,7 +355,7 @@ class PayPalTicketPurchaseTest extends TestCase
         // Act & Assert - Missing required fields
         $this->actingAs($this->user)
             ->postJson(route('tickets.purchase', $this->ticket), [
-                'payment_method' => 'paypal'
+                'payment_method' => 'paypal',
                 // Missing quantity, terms acceptance
             ])
             ->assertStatus(Response::HTTP_UNPROCESSABLE_ENTITY);
@@ -362,20 +363,20 @@ class PayPalTicketPurchaseTest extends TestCase
         // Invalid quantity
         $this->actingAs($this->user)
             ->postJson(route('tickets.purchase', $this->ticket), [
-                'quantity' => 0,
-                'payment_method' => 'paypal',
-                'accept_terms' => true,
-                'confirm_purchase' => true
+                'quantity'         => 0,
+                'payment_method'   => 'paypal',
+                'accept_terms'     => TRUE,
+                'confirm_purchase' => TRUE,
             ])
             ->assertStatus(Response::HTTP_UNPROCESSABLE_ENTITY);
 
         // Invalid payment method
         $this->actingAs($this->user)
             ->postJson(route('tickets.purchase', $this->ticket), [
-                'quantity' => 1,
-                'payment_method' => 'invalid_method',
-                'accept_terms' => true,
-                'confirm_purchase' => true
+                'quantity'         => 1,
+                'payment_method'   => 'invalid_method',
+                'accept_terms'     => TRUE,
+                'confirm_purchase' => TRUE,
             ])
             ->assertStatus(Response::HTTP_UNPROCESSABLE_ENTITY);
     }
@@ -385,17 +386,17 @@ class PayPalTicketPurchaseTest extends TestCase
     {
         // Arrange - Ticket with limited quantity
         $limitedTicket = $this->createTestTicket([
-            'title' => 'Limited Availability Event',
-            'price' => 150.00,
+            'title'              => 'Limited Availability Event',
+            'price'              => 150.00,
             'available_quantity' => 2,
-            'is_available' => true
+            'is_available'       => TRUE,
         ]);
 
         $purchaseData = [
-            'quantity' => 3, // More than available
-            'payment_method' => 'paypal',
-            'accept_terms' => true,
-            'confirm_purchase' => true
+            'quantity'         => 3, // More than available
+            'payment_method'   => 'paypal',
+            'accept_terms'     => TRUE,
+            'confirm_purchase' => TRUE,
         ];
 
         // Act
@@ -412,16 +413,16 @@ class PayPalTicketPurchaseTest extends TestCase
     {
         // Arrange - Unavailable ticket
         $unavailableTicket = $this->createTestTicket([
-            'title' => 'Sold Out Event',
-            'price' => 200.00,
-            'is_available' => false
+            'title'        => 'Sold Out Event',
+            'price'        => 200.00,
+            'is_available' => FALSE,
         ]);
 
         $purchaseData = [
-            'quantity' => 1,
-            'payment_method' => 'paypal',
-            'accept_terms' => true,
-            'confirm_purchase' => true
+            'quantity'         => 1,
+            'payment_method'   => 'paypal',
+            'accept_terms'     => TRUE,
+            'confirm_purchase' => TRUE,
         ];
 
         // Act
@@ -431,8 +432,8 @@ class PayPalTicketPurchaseTest extends TestCase
         // Assert
         $response->assertStatus(Response::HTTP_FORBIDDEN);
         $response->assertJson([
-            'success' => false,
-            'message' => 'Ticket is not available for purchase'
+            'success' => FALSE,
+            'message' => 'Ticket is not available for purchase',
         ]);
     }
 
@@ -441,10 +442,10 @@ class PayPalTicketPurchaseTest extends TestCase
     {
         // Arrange
         $purchaseData = [
-            'quantity' => 1,
-            'payment_method' => 'paypal',
-            'accept_terms' => true,
-            'confirm_purchase' => true
+            'quantity'         => 1,
+            'payment_method'   => 'paypal',
+            'accept_terms'     => TRUE,
+            'confirm_purchase' => TRUE,
         ];
 
         // Act
@@ -459,24 +460,24 @@ class PayPalTicketPurchaseTest extends TestCase
     {
         // Arrange
         $attempt1 = PurchaseAttempt::create([
-            'user_id' => $this->user->id,
-            'ticket_id' => $this->ticket->id,
-            'quantity' => 2,
-            'unit_price' => $this->ticket->price,
-            'total_price' => $this->ticket->price * 2,
-            'payment_method' => 'paypal',
+            'user_id'         => $this->user->id,
+            'ticket_id'       => $this->ticket->id,
+            'quantity'        => 2,
+            'unit_price'      => $this->ticket->price,
+            'total_price'     => $this->ticket->price * 2,
+            'payment_method'  => 'paypal',
             'paypal_order_id' => 'ORDER123456',
-            'status' => 'completed'
+            'status'          => 'completed',
         ]);
 
         $attempt2 = PurchaseAttempt::create([
-            'user_id' => $this->user->id,
-            'ticket_id' => $this->ticket->id,
-            'quantity' => 1,
-            'unit_price' => $this->ticket->price,
-            'total_price' => $this->ticket->price,
+            'user_id'        => $this->user->id,
+            'ticket_id'      => $this->ticket->id,
+            'quantity'       => 1,
+            'unit_price'     => $this->ticket->price,
+            'total_price'    => $this->ticket->price,
             'payment_method' => 'stripe',
-            'status' => 'completed'
+            'status'         => 'completed',
         ]);
 
         // Act
@@ -496,12 +497,12 @@ class PayPalTicketPurchaseTest extends TestCase
     {
         // This test would check subscription limits for customer users
         // For now, we'll test the basic scenario
-        
+
         $purchaseData = [
-            'quantity' => 1,
-            'payment_method' => 'paypal',
-            'accept_terms' => true,
-            'confirm_purchase' => true
+            'quantity'         => 1,
+            'payment_method'   => 'paypal',
+            'accept_terms'     => TRUE,
+            'confirm_purchase' => TRUE,
         ];
 
         // If user has no subscription and free trial is expired, purchase should fail
@@ -514,7 +515,7 @@ class PayPalTicketPurchaseTest extends TestCase
         // Assert - This might return different status based on business logic
         $this->assertTrue(in_array($response->status(), [
             Response::HTTP_FORBIDDEN,
-            Response::HTTP_UNPROCESSABLE_ENTITY
+            Response::HTTP_UNPROCESSABLE_ENTITY,
         ]));
     }
 
@@ -523,45 +524,45 @@ class PayPalTicketPurchaseTest extends TestCase
         // Mock PayPal Service
         $paypalService = Mockery::mock(PayPalService::class);
         $paypalService->shouldReceive('createOrder')->andReturn([
-            'order_id' => 'ORDER123456',
-            'status' => 'CREATED',
-            'approve_link' => 'https://sandbox.paypal.com/approve?token=ORDER123456'
+            'order_id'     => 'ORDER123456',
+            'status'       => 'CREATED',
+            'approve_link' => 'https://sandbox.paypal.com/approve?token=ORDER123456',
         ]);
         $paypalService->shouldReceive('captureOrder')->andReturn([
-            'status' => 'COMPLETED',
+            'status'     => 'COMPLETED',
             'capture_id' => 'CAPTURE123456',
-            'amount' => '103.23',
-            'currency' => 'USD'
+            'amount'     => '103.23',
+            'currency'   => 'USD',
         ]);
         $paypalService->shouldReceive('refundOrder')->andReturn([
             'refund_id' => 'REFUND123456',
-            'status' => 'COMPLETED',
-            'amount' => '50.00',
-            'currency' => 'USD'
+            'status'    => 'COMPLETED',
+            'amount'    => '50.00',
+            'currency'  => 'USD',
         ]);
-        
+
         $this->app->instance(PayPalService::class, $paypalService);
 
         // Mock Payment Service
         $paymentService = Mockery::mock(PaymentService::class);
         $paymentService->shouldReceive('processPayPalPayment')->andReturn([
-            'success' => true,
+            'success'             => TRUE,
             'purchase_attempt_id' => 1,
-            'redirect_url' => '/tickets/purchase-success'
+            'redirect_url'        => '/tickets/purchase-success',
         ]);
         $paymentService->shouldReceive('refundPayPalTransaction')->andReturn([
-            'success' => true,
-            'refund_id' => 'REFUND123456'
+            'success'   => TRUE,
+            'refund_id' => 'REFUND123456',
         ]);
-        
+
         $this->app->instance(PaymentService::class, $paymentService);
 
         // Mock Audit Service
         $auditService = Mockery::mock(AuditService::class);
-        $auditService->shouldReceive('logPayPalTransaction')->andReturn(null);
-        $auditService->shouldReceive('logPaymentAttempt')->andReturn(null);
-        $auditService->shouldReceive('logPayPalWebhook')->andReturn(null);
-        
+        $auditService->shouldReceive('logPayPalTransaction')->andReturn(NULL);
+        $auditService->shouldReceive('logPaymentAttempt')->andReturn(NULL);
+        $auditService->shouldReceive('logPayPalWebhook')->andReturn(NULL);
+
         $this->app->instance(AuditService::class, $auditService);
     }
 
@@ -569,7 +570,7 @@ class PayPalTicketPurchaseTest extends TestCase
     {
         $paypalService = Mockery::mock(PayPalService::class);
         $paypalService->shouldReceive('verifyWebhookSignature')->andReturn($isValid);
-        
+
         $this->app->instance(PayPalService::class, $paypalService);
     }
 }

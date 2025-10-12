@@ -1,4 +1,5 @@
-<?php
+<?php declare(strict_types=1);
+
 namespace Deployer;
 
 require 'recipe/laravel.php';
@@ -10,7 +11,7 @@ set('application', 'HD Tickets');
 set('repository', 'https://github.com/polascin/hdTickets.git');
 
 // Git tty
-set('git_tty', true);
+set('git_tty', TRUE);
 
 // Deployment path - adjust to your server
 set('deploy_path', '/var/www/hdtickets');
@@ -61,6 +62,7 @@ set('writable_dirs', [
 set('laravel_version', function () {
     $result = run('{{bin/php}} {{release_path}}/artisan --version');
     preg_match_all('/(\d+\.?)+/', $result, $matches);
+
     return $matches[0][0] ?? 11;
 });
 
@@ -164,16 +166,17 @@ task('horizon:restart', function () {
 task('health:check', function () {
     $url = get('url', 'https://hd-tickets.com');
     $healthUrl = rtrim($url, '/') . '/health';
-    
+
     // Wait a moment for the deployment to settle
     sleep(3);
-    
+
     $response = runLocally("curl -s -o /dev/null -w '%{http_code}' --max-time 30 --insecure $healthUrl");
-    
+
     if (trim($response) === '200') {
         writeln("<info>✓</info> Health check passed: $healthUrl");
     } else {
         writeln("<error>✗</error> Health check failed: $healthUrl (HTTP $response)");
+
         throw new \Exception('Health check failed');
     }
 })->desc('Perform application health check');
@@ -182,16 +185,16 @@ task('health:check', function () {
 task('database:backup', function () {
     $timestamp = date('Y-m-d_H-i-s');
     $filename = "hdtickets_backup_$timestamp.sql";
-    
+
     // Create backup directory if it doesn't exist
     run('mkdir -p {{deploy_path}}/backups');
-    
+
     // Create database backup
     run("mysqldump --single-transaction --routines --triggers hdtickets | gzip > {{deploy_path}}/backups/$filename.gz");
-    
+
     // Keep only last 7 backups
     run('cd {{deploy_path}}/backups && ls -t *.gz | tail -n +8 | xargs -r rm --');
-    
+
     writeln("<info>✓</info> Database backup created: $filename.gz");
 })->desc('Create database backup');
 
@@ -199,15 +202,15 @@ task('database:backup', function () {
 task('deploy:set_permissions', function () {
     // Set ownership for the entire deployment
     run('sudo chown -R deploy:www-data {{deploy_path}}');
-    
+
     // Set specific permissions for shared directories
     run('sudo chmod -R 755 {{deploy_path}}/shared/storage');
     run('sudo chmod -R 755 {{deploy_path}}/shared/bootstrap');
-    
+
     // Ensure web server can write to necessary directories
     run('sudo setfacl -R -m u:www-data:rwX {{deploy_path}}/shared/storage');
     run('sudo setfacl -R -m u:www-data:rwX {{deploy_path}}/shared/bootstrap/cache');
-    
+
     writeln('<info>✓</info> File permissions updated');
 })->desc('Set proper file permissions');
 
@@ -230,7 +233,7 @@ task('deploy', [
     'horizon:restart',
     'health:check',
     'deploy:cleanup',
-    'deploy:success'
+    'deploy:success',
 ]);
 
 // Rollback task with health check
@@ -240,37 +243,37 @@ task('rollback', [
     'artisan:cache:all',
     'artisan:horizon:terminate',
     'horizon:restart',
-    'health:check'
+    'health:check',
 ]);
 
 // Task: Deploy with quality checks
 desc('Deploy with quality assurance checks');
 task('deploy:quality', [
     'local:quality:check',
-    'deploy'
+    'deploy',
 ]);
 
 // Local quality check task
 task('local:quality:check', function () {
     writeln('<info>Running local quality checks...</info>');
-    
+
     // Check if we're in the right directory
     if (!test('[ -f composer.json ]')) {
         throw new \Exception('Not in Laravel project directory');
     }
-    
+
     // Run Laravel Pint
     runLocally('./vendor/bin/pint --test');
     writeln('<info>✓</info> Code style check passed');
-    
+
     // Run PHPStan
     runLocally('./vendor/bin/phpstan analyse --no-progress');
     writeln('<info>✓</info> Static analysis passed');
-    
+
     // Run tests
     runLocally('./vendor/bin/phpunit --stop-on-failure');
     writeln('<info>✓</info> Tests passed');
-    
+
     writeln('<info>✓</info> All quality checks passed');
 })->desc('Run quality checks locally before deployment')->local();
 

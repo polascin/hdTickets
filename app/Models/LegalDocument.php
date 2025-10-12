@@ -92,7 +92,7 @@ class LegalDocument extends Model
     public static function getActive(string $type): ?self
     {
         return static::where('type', $type)
-            ->where('is_active', true)
+            ->where('is_active', TRUE)
             ->where('effective_date', '<=', now())
             ->orderBy('effective_date', 'desc')
             ->first();
@@ -132,7 +132,7 @@ class LegalDocument extends Model
     /**
      * Generate unique slug based on title
      */
-    public static function generateSlug(string $title, ?int $excludeId = null): string
+    public static function generateSlug(string $title, ?int $excludeId = NULL): string
     {
         $baseSlug = str_replace(' ', '-', strtolower(trim($title)));
         $baseSlug = preg_replace('/[^a-z0-9\-]/', '', $baseSlug);

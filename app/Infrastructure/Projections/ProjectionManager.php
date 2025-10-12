@@ -73,7 +73,7 @@ class ProjectionManager implements ProjectionManagerInterface
      */
     public function rebuild(string $projectionName, int $fromPosition = 0): void
     {
-        if (! isset($this->projections[$projectionName])) {
+        if (!isset($this->projections[$projectionName])) {
             throw new Exception("Projection '{$projectionName}' not found");
         }
 
@@ -83,7 +83,7 @@ class ProjectionManager implements ProjectionManagerInterface
 
         try {
             // Lock the projection
-            if (! $this->lockProjection($projectionName, 'rebuild-' . getmypid())) {
+            if (!$this->lockProjection($projectionName, 'rebuild-' . getmypid())) {
                 throw new Exception("Could not acquire lock for projection '{$projectionName}'");
             }
 
@@ -131,7 +131,7 @@ class ProjectionManager implements ProjectionManagerInterface
      */
     public function getProjectionStatus(string $projectionName): array
     {
-        if (! isset($this->projections[$projectionName])) {
+        if (!isset($this->projections[$projectionName])) {
             throw new Exception("Projection '{$projectionName}' not found");
         }
 

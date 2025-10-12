@@ -100,7 +100,7 @@ return [
     ],
 
     'paypal' => [
-        'mode' => env('PAYPAL_MODE', 'sandbox'),
+        'mode'    => env('PAYPAL_MODE', 'sandbox'),
         'sandbox' => [
             'client_id'     => env('PAYPAL_SANDBOX_CLIENT_ID'),
             'client_secret' => env('PAYPAL_SANDBOX_CLIENT_SECRET'),
@@ -114,9 +114,9 @@ return [
         'monthly_plan_id' => env('PAYPAL_MONTHLY_PLAN_ID'),
         'annual_plan_id'  => env('PAYPAL_ANNUAL_PLAN_ID'),
         // Legacy config for backwards compatibility
-        'client_id'       => env('PAYPAL_CLIENT_ID', env('PAYPAL_SANDBOX_CLIENT_ID')),
-        'secret'          => env('PAYPAL_SECRET', env('PAYPAL_SANDBOX_CLIENT_SECRET')),
-        'environment'     => env('PAYPAL_ENVIRONMENT', env('PAYPAL_MODE', 'sandbox')),
+        'client_id'   => env('PAYPAL_CLIENT_ID', env('PAYPAL_SANDBOX_CLIENT_ID')),
+        'secret'      => env('PAYPAL_SECRET', env('PAYPAL_SANDBOX_CLIENT_SECRET')),
+        'environment' => env('PAYPAL_ENVIRONMENT', env('PAYPAL_MODE', 'sandbox')),
     ],
 
     /*
@@ -191,6 +191,24 @@ return [
         'account_lockout_duration'          => env('ACCOUNT_LOCKOUT_DURATION', 1800),
         'suspicious_activity_threshold'     => env('SUSPICIOUS_ACTIVITY_THRESHOLD', 10),
         'account_validation_interval'       => env('ACCOUNT_VALIDATION_INTERVAL', 3600),
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | WebPush Configuration
+    |--------------------------------------------------------------------------
+    |
+    | WebPush service configuration for browser push notifications.
+    | VAPID keys are used for application identification.
+    |
+    */
+
+    'webpush' => [
+        'vapid' => [
+            'subject'     => env('WEBPUSH_VAPID_SUBJECT', config('app.url')),
+            'public_key'  => env('WEBPUSH_VAPID_PUBLIC_KEY'),
+            'private_key' => env('WEBPUSH_VAPID_PRIVATE_KEY'),
+        ],
     ],
 
     /*

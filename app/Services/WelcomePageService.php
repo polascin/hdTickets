@@ -47,7 +47,7 @@ class WelcomePageService
         $data['security_features'] = $this->getSecurityFeatures();
 
         // Include A/B test variant specific data
-        if (! empty($options['ab_variant'])) {
+        if (!empty($options['ab_variant'])) {
             return $this->applyABTestVariant($data, $options['ab_variant']);
         }
 

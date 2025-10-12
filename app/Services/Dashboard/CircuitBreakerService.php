@@ -96,7 +96,7 @@ class CircuitBreakerService
             $keyParts = explode(':', $key);
             if (count($keyParts) >= 3) {
                 $serviceName = $keyParts[2];
-                if (! in_array($serviceName, $services, TRUE)) {
+                if (!in_array($serviceName, $services, TRUE)) {
                     $services[] = $serviceName;
                 }
             }
@@ -232,7 +232,7 @@ class CircuitBreakerService
     {
         $openedAt = Cache::get($this->getOpenedAtKey($serviceName));
 
-        if (! $openedAt) {
+        if (!$openedAt) {
             return TRUE; // No record of when it was opened, allow reset
         }
 

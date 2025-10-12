@@ -32,9 +32,9 @@ class PaymentService
             $subscription = $this->paypalSubscriptionService->createSubscription($user, $plan);
 
             Log::info('PayPal subscription created via PaymentService', [
-                'user_id' => $user->id,
+                'user_id'         => $user->id,
                 'subscription_id' => $subscription->id,
-                'plan_id' => $plan->id,
+                'plan_id'         => $plan->id,
             ]);
 
             return $subscription;
@@ -42,7 +42,7 @@ class PaymentService
             Log::error('Failed to create PayPal subscription in PaymentService', [
                 'user_id' => $user->id,
                 'plan_id' => $plan->id,
-                'error' => $e->getMessage(),
+                'error'   => $e->getMessage(),
             ]);
 
             throw $e;
@@ -59,38 +59,38 @@ class PaymentService
             $currency = $ticket->currency ?? 'USD';
 
             $order = $this->paypalService->createOrder($amount, $currency, [
-                'user_id' => $user->id,
+                'user_id'   => $user->id,
                 'ticket_id' => $ticket->id,
-                'quantity' => $quantity,
+                'quantity'  => $quantity,
                 ...$metadata,
             ]);
 
             Log::info('PayPal order created for ticket purchase', [
-                'user_id' => $user->id,
+                'user_id'   => $user->id,
                 'ticket_id' => $ticket->id,
-                'order_id' => $order['id'],
-                'amount' => $amount,
-                'currency' => $currency,
+                'order_id'  => $order['id'],
+                'amount'    => $amount,
+                'currency'  => $currency,
             ]);
 
             return [
-                'success' => true,
-                'order_id' => $order['id'],
-                'amount' => $amount,
-                'currency' => $currency,
-                'approve_url' => $order['approve_link'],
+                'success'        => TRUE,
+                'order_id'       => $order['id'],
+                'amount'         => $amount,
+                'currency'       => $currency,
+                'approve_url'    => $order['approve_link'],
                 'payment_method' => 'paypal',
             ];
         } catch (Exception $e) {
             Log::error('Failed to create PayPal order for ticket purchase', [
-                'user_id' => $user->id,
+                'user_id'   => $user->id,
                 'ticket_id' => $ticket->id,
-                'error' => $e->getMessage(),
+                'error'     => $e->getMessage(),
             ]);
 
             return [
-                'success' => false,
-                'error' => $e->getMessage(),
+                'success' => FALSE,
+                'error'   => $e->getMessage(),
             ];
         }
     }
@@ -104,28 +104,28 @@ class PaymentService
             $capture = $this->paypalService->captureOrder($orderId);
 
             Log::info('PayPal payment captured successfully', [
-                'order_id' => $orderId,
+                'order_id'   => $orderId,
                 'capture_id' => $capture['capture_id'],
-                'amount' => $capture['amount'],
+                'amount'     => $capture['amount'],
             ]);
 
             return [
-                'success' => true,
+                'success'    => TRUE,
                 'capture_id' => $capture['capture_id'],
-                'order_id' => $orderId,
-                'amount' => $capture['amount'],
-                'currency' => $capture['currency'],
-                'status' => $capture['status'],
+                'order_id'   => $orderId,
+                'amount'     => $capture['amount'],
+                'currency'   => $capture['currency'],
+                'status'     => $capture['status'],
             ];
         } catch (Exception $e) {
             Log::error('Failed to capture PayPal payment', [
                 'order_id' => $orderId,
-                'error' => $e->getMessage(),
+                'error'    => $e->getMessage(),
             ]);
 
             return [
-                'success' => false,
-                'error' => $e->getMessage(),
+                'success' => FALSE,
+                'error'   => $e->getMessage(),
             ];
         }
     }
@@ -140,26 +140,26 @@ class PaymentService
 
             Log::info('PayPal refund processed successfully', [
                 'capture_id' => $captureId,
-                'refund_id' => $refund['refund_id'],
-                'amount' => $amount,
+                'refund_id'  => $refund['refund_id'],
+                'amount'     => $amount,
             ]);
 
             return [
-                'success' => true,
+                'success'   => TRUE,
                 'refund_id' => $refund['refund_id'],
-                'amount' => $amount,
-                'currency' => $currency,
-                'status' => $refund['status'],
+                'amount'    => $amount,
+                'currency'  => $currency,
+                'status'    => $refund['status'],
             ];
         } catch (Exception $e) {
             Log::error('Failed to process PayPal refund', [
                 'capture_id' => $captureId,
-                'error' => $e->getMessage(),
+                'error'      => $e->getMessage(),
             ]);
 
             return [
-                'success' => false,
-                'error' => $e->getMessage(),
+                'success' => FALSE,
+                'error'   => $e->getMessage(),
             ];
         }
     }
@@ -174,10 +174,10 @@ class PaymentService
         } catch (Exception $e) {
             Log::error('Failed to cancel PayPal subscription in PaymentService', [
                 'subscription_id' => $subscription->id,
-                'error' => $e->getMessage(),
+                'error'           => $e->getMessage(),
             ]);
 
-            return false;
+            return FALSE;
         }
     }
 
@@ -194,8 +194,8 @@ class PaymentService
 
             // Create new Stripe customer
             $customer = Customer::create([
-                'email' => $user->email,
-                'name' => $user->name,
+                'email'    => $user->email,
+                'name'     => $user->name,
                 'metadata' => [
                     'user_id' => $user->id,
                 ],
@@ -205,7 +205,7 @@ class PaymentService
             $user->update(['stripe_customer_id' => $customer->id]);
 
             Log::info('Stripe customer created', [
-                'user_id' => $user->id,
+                'user_id'     => $user->id,
                 'customer_id' => $customer->id,
             ]);
 
@@ -213,7 +213,7 @@ class PaymentService
         } catch (Exception $e) {
             Log::error('Failed to create Stripe customer', [
                 'user_id' => $user->id,
-                'error' => $e->getMessage(),
+                'error'   => $e->getMessage(),
             ]);
 
             throw $e;
@@ -228,14 +228,14 @@ class PaymentService
         try {
             $subscription = Subscription::create([
                 'customer' => $customerId,
-                'items' => [[
+                'items'    => [[
                     'price_data' => [
-                        'currency' => 'usd',
+                        'currency'     => 'usd',
                         'product_data' => [
                             'name' => $plan->name,
                         ],
-                        'unit_amount' => (int)($plan->price * 100),
-                        'recurring' => [
+                        'unit_amount' => (int) ($plan->price * 100),
+                        'recurring'   => [
                             'interval' => $plan->billing_cycle === 'yearly' ? 'year' : 'month',
                         ],
                     ],
@@ -247,18 +247,18 @@ class PaymentService
             ]);
 
             $userSubscription = $user->subscriptions()->create([
-                'payment_plan_id' => $plan->id,
-                'status' => $subscription->status === 'active' ? 'active' : 'pending',
-                'payment_method' => 'stripe',
+                'payment_plan_id'        => $plan->id,
+                'status'                 => $subscription->status === 'active' ? 'active' : 'pending',
+                'payment_method'         => 'stripe',
                 'stripe_subscription_id' => $subscription->id,
-                'starts_at' => now(),
-                'ends_at' => $plan->billing_cycle === 'yearly' ? now()->addYear() : now()->addMonth(),
-                'amount_paid' => $plan->price,
+                'starts_at'              => now(),
+                'ends_at'                => $plan->billing_cycle === 'yearly' ? now()->addYear() : now()->addMonth(),
+                'amount_paid'            => $plan->price,
             ]);
 
             Log::info('Stripe subscription created', [
-                'user_id' => $user->id,
-                'subscription_id' => $userSubscription->id,
+                'user_id'                => $user->id,
+                'subscription_id'        => $userSubscription->id,
                 'stripe_subscription_id' => $subscription->id,
             ]);
 
@@ -267,7 +267,7 @@ class PaymentService
             Log::error('Failed to create Stripe subscription', [
                 'user_id' => $user->id,
                 'plan_id' => $plan->id,
-                'error' => $e->getMessage(),
+                'error'   => $e->getMessage(),
             ]);
 
             throw $e;
@@ -287,14 +287,14 @@ class PaymentService
                 'subscription_id' => $subscriptionId,
             ]);
 
-            return true;
+            return TRUE;
         } catch (Exception $e) {
             Log::error('Failed to cancel Stripe subscription', [
                 'subscription_id' => $subscriptionId,
-                'error' => $e->getMessage(),
+                'error'           => $e->getMessage(),
             ]);
 
-            return false;
+            return FALSE;
         }
     }
 
@@ -308,8 +308,8 @@ class PaymentService
         if (!$subscription) {
             return [
                 'monthly_limit' => 5, // Free tier limit
-                'unlimited' => false,
-                'plan_name' => 'Free',
+                'unlimited'     => FALSE,
+                'plan_name'     => 'Free',
             ];
         }
 
@@ -317,8 +317,8 @@ class PaymentService
 
         return [
             'monthly_limit' => $plan->ticket_limit ?? -1, // -1 means unlimited
-            'unlimited' => ($plan->ticket_limit ?? 0) === -1,
-            'plan_name' => $plan->name,
+            'unlimited'     => ($plan->ticket_limit ?? 0) === -1,
+            'plan_name'     => $plan->name,
         ];
     }
 
@@ -350,18 +350,18 @@ class PaymentService
     {
         // Admins and agents can always purchase
         if ($user->isAdmin() || $user->isAgent()) {
-            return true;
+            return TRUE;
         }
 
         // Scrapers cannot purchase tickets
         if ($user->isScraper()) {
-            return false;
+            return FALSE;
         }
 
         // Customers need active subscription or trial
         $subscription = $user->activeSubscription();
         if ($subscription && $subscription->status === 'active') {
-            return true;
+            return TRUE;
         }
 
         // Check if user is on trial
@@ -389,6 +389,6 @@ class PaymentService
             'transaction_id' => $transactionId,
         ]);
 
-        return true;
+        return TRUE;
     }
 }

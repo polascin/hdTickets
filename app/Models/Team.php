@@ -11,13 +11,14 @@ use Illuminate\Database\Eloquent\Relations\MorphMany;
 
 /**
  * Team Model
- * 
+ *
  * Represents sports teams in the HD Tickets system
  */
 class Team extends Model
 {
-    use HasFactory, HasUuids;
-    
+    use HasFactory;
+    use HasUuids;
+
     protected $fillable = [
         'name',
         'sport',
@@ -30,13 +31,13 @@ class Team extends Model
         'status',
         'metadata',
     ];
-    
+
     protected $casts = [
-        'followers_count' => 'integer',
+        'followers_count'  => 'integer',
         'popularity_score' => 'integer',
-        'metadata' => 'array',
+        'metadata'         => 'array',
     ];
-    
+
     /**
      * Get all following relationships for this team
      */
@@ -44,7 +45,7 @@ class Team extends Model
     {
         return $this->morphMany(Following::class, 'followable');
     }
-    
+
     /**
      * Scope for teams by sport
      */
@@ -52,7 +53,7 @@ class Team extends Model
     {
         return $query->where('sport', $sport);
     }
-    
+
     /**
      * Scope for teams by league
      */
@@ -60,7 +61,7 @@ class Team extends Model
     {
         return $query->where('league', $league);
     }
-    
+
     /**
      * Scope for popular teams
      */
@@ -69,7 +70,7 @@ class Team extends Model
         return $query->where('popularity_score', '>', 70)
                      ->orderByDesc('popularity_score');
     }
-    
+
     /**
      * Scope for most followed teams
      */

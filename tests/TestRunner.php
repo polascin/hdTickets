@@ -202,7 +202,7 @@ class TestRunner
     {
         $coverageFile = $this->coverageDir . '/clover.xml';
 
-        if (! file_exists($coverageFile)) {
+        if (!file_exists($coverageFile)) {
             return [
                 'lines'     => 0,
                 'functions' => 0,
@@ -307,7 +307,7 @@ class TestRunner
 
         $report .= sprintf("⏱️  Total Execution Time: %.2f seconds\n", $summary['total_execution_time']);
 
-        if (! empty($coverage)) {
+        if (!empty($coverage)) {
             $report .= sprintf(
                 "📈 Code Coverage: %.1f%% lines, %.1f%% methods\n",
                 $coverage['lines'] ?? 0,
@@ -403,7 +403,7 @@ class TestRunner
         ];
 
         foreach ($directories as $dir) {
-            if (! file_exists($dir)) {
+            if (!file_exists($dir)) {
                 mkdir($dir, 0o755, TRUE);
             }
         }

@@ -1,8 +1,6 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace App\Http\Controllers;
-
-use Illuminate\Http\Request;
 
 class ReactAppController extends Controller
 {
@@ -13,7 +11,7 @@ class ReactAppController extends Controller
     {
         return view('react-app');
     }
-    
+
     /**
      * Handle React routing (catch-all for SPA)
      */

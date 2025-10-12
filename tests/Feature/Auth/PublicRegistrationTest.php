@@ -16,7 +16,7 @@ use Tests\TestCase;
 
 /**
  * Public Registration Feature Tests
- * 
+ *
  * Tests the complete public registration flow including:
  * - Form validation and submission
  * - User creation with correct role assignment
@@ -27,7 +27,8 @@ use Tests\TestCase;
  */
 class PublicRegistrationTest extends TestCase
 {
-    use RefreshDatabase, WithFaker;
+    use RefreshDatabase;
+    use WithFaker;
 
     protected function setUp(): void
     {
@@ -56,27 +57,27 @@ class PublicRegistrationTest extends TestCase
     public function it_registers_a_customer_and_sends_verification_notification(): void
     {
         $userData = [
-            'first_name' => 'John',
-            'last_name' => 'Doe',
-            'email' => 'john.doe@example.com',
-            'password' => 'SecurePass123!',
+            'first_name'            => 'John',
+            'last_name'             => 'Doe',
+            'email'                 => 'john.doe@example.com',
+            'password'              => 'SecurePass123!',
             'password_confirmation' => 'SecurePass123!',
-            'phone' => '+1234567890',
-            'accept_terms' => true,
-            'accept_privacy' => true,
-            'marketing_opt_in' => true,
-            'enable_2fa' => false,
+            'phone'                 => '+1234567890',
+            'accept_terms'          => TRUE,
+            'accept_privacy'        => TRUE,
+            'marketing_opt_in'      => TRUE,
+            'enable_2fa'            => FALSE,
         ];
 
         $response = $this->post(route('register.public.store'), $userData);
 
         // Assert user was created
         $this->assertDatabaseHas('users', [
-            'first_name' => 'John',
-            'last_name' => 'Doe',
-            'email' => 'john.doe@example.com',
-            'role' => 'customer',
-            'marketing_opt_in' => true,
+            'first_name'       => 'John',
+            'last_name'        => 'Doe',
+            'email'            => 'john.doe@example.com',
+            'role'             => 'customer',
+            'marketing_opt_in' => TRUE,
         ]);
 
         // Assert user has legal acceptance timestamps
@@ -103,13 +104,13 @@ class PublicRegistrationTest extends TestCase
     public function it_requires_legal_acceptances(): void
     {
         $userData = [
-            'first_name' => 'John',
-            'last_name' => 'Doe',
-            'email' => 'john.doe@example.com',
-            'password' => 'SecurePass123!',
+            'first_name'            => 'John',
+            'last_name'             => 'Doe',
+            'email'                 => 'john.doe@example.com',
+            'password'              => 'SecurePass123!',
             'password_confirmation' => 'SecurePass123!',
-            'accept_terms' => false, // Not accepted
-            'accept_privacy' => false, // Not accepted
+            'accept_terms'          => FALSE, // Not accepted
+            'accept_privacy'        => FALSE, // Not accepted
         ];
 
         $response = $this->post(route('register.public.store'), $userData);
@@ -124,36 +125,36 @@ class PublicRegistrationTest extends TestCase
     {
         $testCases = [
             [
-                'password' => 'weak',
+                'password'              => 'weak',
                 'password_confirmation' => 'weak',
-                'expected_error' => 'password'
+                'expected_error'        => 'password',
             ],
             [
-                'password' => 'NoNumbers!',
+                'password'              => 'NoNumbers!',
                 'password_confirmation' => 'NoNumbers!',
-                'expected_error' => 'password'
+                'expected_error'        => 'password',
             ],
             [
-                'password' => 'nonumbers123',
+                'password'              => 'nonumbers123',
                 'password_confirmation' => 'nonumbers123',
-                'expected_error' => 'password'
+                'expected_error'        => 'password',
             ],
             [
-                'password' => 'SecurePass123!',
+                'password'              => 'SecurePass123!',
                 'password_confirmation' => 'DifferentPass123!',
-                'expected_error' => 'password'
-            ]
+                'expected_error'        => 'password',
+            ],
         ];
 
         foreach ($testCases as $testCase) {
             $userData = [
-                'first_name' => 'John',
-                'last_name' => 'Doe',
-                'email' => $this->faker->unique()->safeEmail,
-                'password' => $testCase['password'],
+                'first_name'            => 'John',
+                'last_name'             => 'Doe',
+                'email'                 => $this->faker->unique()->safeEmail,
+                'password'              => $testCase['password'],
                 'password_confirmation' => $testCase['password_confirmation'],
-                'accept_terms' => true,
-                'accept_privacy' => true,
+                'accept_terms'          => TRUE,
+                'accept_privacy'        => TRUE,
             ];
 
             $response = $this->post(route('register.public.store'), $userData);
@@ -170,13 +171,13 @@ class PublicRegistrationTest extends TestCase
         User::factory()->create(['email' => 'existing@example.com']);
 
         $userData = [
-            'first_name' => 'John',
-            'last_name' => 'Doe',
-            'email' => 'existing@example.com',
-            'password' => 'SecurePass123!',
+            'first_name'            => 'John',
+            'last_name'             => 'Doe',
+            'email'                 => 'existing@example.com',
+            'password'              => 'SecurePass123!',
             'password_confirmation' => 'SecurePass123!',
-            'accept_terms' => true,
-            'accept_privacy' => true,
+            'accept_terms'          => TRUE,
+            'accept_privacy'        => TRUE,
         ];
 
         $response = $this->post(route('register.public.store'), $userData);
@@ -189,13 +190,13 @@ class PublicRegistrationTest extends TestCase
     public function it_assigns_customer_role_by_default(): void
     {
         $userData = [
-            'first_name' => 'Jane',
-            'last_name' => 'Smith',
-            'email' => 'jane.smith@example.com',
-            'password' => 'SecurePass123!',
+            'first_name'            => 'Jane',
+            'last_name'             => 'Smith',
+            'email'                 => 'jane.smith@example.com',
+            'password'              => 'SecurePass123!',
             'password_confirmation' => 'SecurePass123!',
-            'accept_terms' => true,
-            'accept_privacy' => true,
+            'accept_terms'          => TRUE,
+            'accept_privacy'        => TRUE,
         ];
 
         $this->post(route('register.public.store'), $userData);
@@ -208,17 +209,17 @@ class PublicRegistrationTest extends TestCase
     public function it_redirects_to_twofactor_step_when_enabled(): void
     {
         // Enable 2FA prompt in configuration
-        config(['auth.registration.two_factor_prompt' => true]);
+        config(['auth.registration.two_factor_prompt' => TRUE]);
 
         $userData = [
-            'first_name' => 'John',
-            'last_name' => 'Doe',
-            'email' => 'john.doe@example.com',
-            'password' => 'SecurePass123!',
+            'first_name'            => 'John',
+            'last_name'             => 'Doe',
+            'email'                 => 'john.doe@example.com',
+            'password'              => 'SecurePass123!',
             'password_confirmation' => 'SecurePass123!',
-            'accept_terms' => true,
-            'accept_privacy' => true,
-            'enable_2fa' => true,
+            'accept_terms'          => TRUE,
+            'accept_privacy'        => TRUE,
+            'enable_2fa'            => TRUE,
         ];
 
         $response = $this->post(route('register.public.store'), $userData);
@@ -231,15 +232,15 @@ class PublicRegistrationTest extends TestCase
     {
         // Create and login a user
         $user = User::factory()->create([
-            'two_factor_enabled' => false,
-            'two_factor_secret' => null,
+            'two_factor_enabled' => FALSE,
+            'two_factor_secret'  => NULL,
         ]);
-        
+
         Auth::login($user);
 
         // Test showing 2FA setup page
         $response = $this->get(route('register.twofactor.show'));
-        
+
         $response->assertStatus(200);
         $response->assertViewIs('auth.twofactor-setup');
         $response->assertSee('Set up Two-Factor Authentication');
@@ -250,13 +251,13 @@ class PublicRegistrationTest extends TestCase
                 ->andReturn('JBSWY3DPEHPK3PXP');
             $mock->shouldReceive('enableTwoFactor')
                 ->with($this->isInstanceOf(User::class), 'JBSWY3DPEHPK3PXP', '123456')
-                ->andReturn(true);
+                ->andReturn(TRUE);
         });
 
         session(['2fa_temp_secret' => 'JBSWY3DPEHPK3PXP']);
 
         $response = $this->post(route('register.twofactor.enable'), [
-            'code' => '123456'
+            'code' => '123456',
         ]);
 
         $response->assertRedirect(route('verification.notice'));
@@ -279,7 +280,7 @@ class PublicRegistrationTest extends TestCase
     public function it_verifies_email_with_signed_url(): void
     {
         $user = User::factory()->create([
-            'email_verified_at' => null,
+            'email_verified_at' => NULL,
         ]);
 
         Auth::login($user);
@@ -304,20 +305,20 @@ class PublicRegistrationTest extends TestCase
     public function it_respects_rate_limiting_on_registration(): void
     {
         $userData = [
-            'first_name' => 'John',
-            'last_name' => 'Doe',
-            'email' => 'john.doe@example.com',
-            'password' => 'SecurePass123!',
+            'first_name'            => 'John',
+            'last_name'             => 'Doe',
+            'email'                 => 'john.doe@example.com',
+            'password'              => 'SecurePass123!',
             'password_confirmation' => 'SecurePass123!',
-            'accept_terms' => true,
-            'accept_privacy' => true,
+            'accept_terms'          => TRUE,
+            'accept_privacy'        => TRUE,
         ];
 
         // Make 13 rapid requests (limit is 12 per minute)
         for ($i = 0; $i < 13; $i++) {
             $userData['email'] = "test{$i}@example.com";
             $response = $this->post(route('register.public.store'), $userData);
-            
+
             if ($i < 12) {
                 // First 12 should succeed or fail due to validation
                 $this->assertNotEquals(429, $response->status());
@@ -332,14 +333,14 @@ class PublicRegistrationTest extends TestCase
     public function it_ignores_honeypot_field(): void
     {
         $userData = [
-            'first_name' => 'John',
-            'last_name' => 'Doe',
-            'email' => 'john.doe@example.com',
-            'password' => 'SecurePass123!',
+            'first_name'            => 'John',
+            'last_name'             => 'Doe',
+            'email'                 => 'john.doe@example.com',
+            'password'              => 'SecurePass123!',
             'password_confirmation' => 'SecurePass123!',
-            'accept_terms' => true,
-            'accept_privacy' => true,
-            'website_url' => '', // Honeypot field should be empty
+            'accept_terms'          => TRUE,
+            'accept_privacy'        => TRUE,
+            'website_url'           => '', // Honeypot field should be empty
         ];
 
         $response = $this->post(route('register.public.store'), $userData);
@@ -352,14 +353,14 @@ class PublicRegistrationTest extends TestCase
     public function it_rejects_filled_honeypot_field(): void
     {
         $userData = [
-            'first_name' => 'John',
-            'last_name' => 'Doe',
-            'email' => 'bot@example.com',
-            'password' => 'SecurePass123!',
+            'first_name'            => 'John',
+            'last_name'             => 'Doe',
+            'email'                 => 'bot@example.com',
+            'password'              => 'SecurePass123!',
             'password_confirmation' => 'SecurePass123!',
-            'accept_terms' => true,
-            'accept_privacy' => true,
-            'website_url' => 'http://spam-site.com', // Honeypot filled by bot
+            'accept_terms'          => TRUE,
+            'accept_privacy'        => TRUE,
+            'website_url'           => 'http://spam-site.com', // Honeypot filled by bot
         ];
 
         $response = $this->post(route('register.public.store'), $userData);
@@ -375,11 +376,11 @@ class PublicRegistrationTest extends TestCase
 
         $response->assertSessionHasErrors([
             'first_name',
-            'last_name', 
+            'last_name',
             'email',
             'password',
             'accept_terms',
-            'accept_privacy'
+            'accept_privacy',
         ]);
 
         $this->assertGuest();
@@ -390,32 +391,32 @@ class PublicRegistrationTest extends TestCase
     {
         // Test with marketing opt-in
         $userData = [
-            'first_name' => 'John',
-            'last_name' => 'Doe',
-            'email' => 'marketing@example.com',
-            'password' => 'SecurePass123!',
+            'first_name'            => 'John',
+            'last_name'             => 'Doe',
+            'email'                 => 'marketing@example.com',
+            'password'              => 'SecurePass123!',
             'password_confirmation' => 'SecurePass123!',
-            'accept_terms' => true,
-            'accept_privacy' => true,
-            'marketing_opt_in' => true,
+            'accept_terms'          => TRUE,
+            'accept_privacy'        => TRUE,
+            'marketing_opt_in'      => TRUE,
         ];
 
         $this->post(route('register.public.store'), $userData);
 
         $this->assertDatabaseHas('users', [
-            'email' => 'marketing@example.com',
-            'marketing_opt_in' => true,
+            'email'            => 'marketing@example.com',
+            'marketing_opt_in' => TRUE,
         ]);
 
         // Test without marketing opt-in
         $userData['email'] = 'no-marketing@example.com';
-        $userData['marketing_opt_in'] = false;
+        $userData['marketing_opt_in'] = FALSE;
 
         $this->post(route('register.public.store'), $userData);
 
         $this->assertDatabaseHas('users', [
-            'email' => 'no-marketing@example.com',
-            'marketing_opt_in' => false,
+            'email'            => 'no-marketing@example.com',
+            'marketing_opt_in' => FALSE,
         ]);
     }
 
@@ -434,7 +435,7 @@ class PublicRegistrationTest extends TestCase
     public function it_handles_email_verification_resend_with_throttling(): void
     {
         $user = User::factory()->create([
-            'email_verified_at' => null,
+            'email_verified_at' => NULL,
         ]);
 
         Auth::login($user);
@@ -456,19 +457,19 @@ class PublicRegistrationTest extends TestCase
     public function it_combines_first_and_last_name_into_name_field(): void
     {
         $userData = [
-            'first_name' => 'Jane',
-            'last_name' => 'Smith',
-            'email' => 'jane.smith@example.com',
-            'password' => 'SecurePass123!',
+            'first_name'            => 'Jane',
+            'last_name'             => 'Smith',
+            'email'                 => 'jane.smith@example.com',
+            'password'              => 'SecurePass123!',
             'password_confirmation' => 'SecurePass123!',
-            'accept_terms' => true,
-            'accept_privacy' => true,
+            'accept_terms'          => TRUE,
+            'accept_privacy'        => TRUE,
         ];
 
         $this->post(route('register.public.store'), $userData);
 
         $user = User::where('email', 'jane.smith@example.com')->first();
-        
+
         // Check that name field contains combined first and last name
         $this->assertEquals('Jane Smith', $user->name);
         $this->assertEquals('Jane', $user->first_name);
@@ -481,13 +482,13 @@ class PublicRegistrationTest extends TestCase
         // Attempt registration without CSRF token
         $response = $this->withoutMiddleware(\App\Http\Middleware\VerifyCsrfToken::class)
             ->post(route('register.public.store'), [
-                'first_name' => 'John',
-                'last_name' => 'Doe',
-                'email' => 'test@example.com',
-                'password' => 'SecurePass123!',
+                'first_name'            => 'John',
+                'last_name'             => 'Doe',
+                'email'                 => 'test@example.com',
+                'password'              => 'SecurePass123!',
                 'password_confirmation' => 'SecurePass123!',
-                'accept_terms' => true,
-                'accept_privacy' => true,
+                'accept_terms'          => TRUE,
+                'accept_privacy'        => TRUE,
             ]);
 
         // With CSRF middleware disabled, it should work

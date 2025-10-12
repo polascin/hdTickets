@@ -16,22 +16,23 @@ use Tests\TestCase;
 class PayPalServiceTest extends TestCase
 {
     private PayPalService $paypalService;
+
     private MockInterface $mockClient;
 
     protected function setUp(): void
     {
         parent::setUp();
-        
+
         // Mock the PayPal HTTP client
         $this->mockClient = Mockery::mock(PayPalHttpClient::class);
-        
+
         // Create service instance with mocked client
         $this->paypalService = new PayPalService();
-        
+
         // Use reflection to inject the mock client
         $reflection = new \ReflectionClass($this->paypalService);
         $clientProperty = $reflection->getProperty('client');
-        $clientProperty->setAccessible(true);
+        $clientProperty->setAccessible(TRUE);
         $clientProperty->setValue($this->paypalService, $this->mockClient);
     }
 
@@ -46,30 +47,30 @@ class PayPalServiceTest extends TestCase
     {
         // Arrange
         $orderData = [
-            'intent' => 'CAPTURE',
+            'intent'         => 'CAPTURE',
             'purchase_units' => [
                 [
                     'amount' => [
                         'currency_code' => 'USD',
-                        'value' => '100.00'
+                        'value'         => '100.00',
                     ],
-                    'description' => 'Test ticket purchase'
-                ]
-            ]
+                    'description' => 'Test ticket purchase',
+                ],
+            ],
         ];
 
         $mockResponse = (object) [
             'result' => (object) [
-                'id' => 'ORDER123456',
+                'id'     => 'ORDER123456',
                 'status' => 'CREATED',
-                'links' => [
+                'links'  => [
                     (object) [
-                        'rel' => 'approve',
-                        'href' => 'https://sandbox.paypal.com/approve?token=ORDER123456'
-                    ]
-                ]
+                        'rel'  => 'approve',
+                        'href' => 'https://sandbox.paypal.com/approve?token=ORDER123456',
+                    ],
+                ],
             ],
-            'statusCode' => 201
+            'statusCode' => 201,
         ];
 
         $this->mockClient->shouldReceive('execute')
@@ -92,8 +93,8 @@ class PayPalServiceTest extends TestCase
     {
         // Arrange
         $orderData = [
-            'intent' => 'CAPTURE',
-            'purchase_units' => []
+            'intent'         => 'CAPTURE',
+            'purchase_units' => [],
         ];
 
         $this->mockClient->shouldReceive('execute')
@@ -103,7 +104,7 @@ class PayPalServiceTest extends TestCase
         // Act & Assert
         $this->expectException(Exception::class);
         $this->expectExceptionMessage('Failed to create PayPal order');
-        
+
         $this->paypalService->createOrder($orderData);
     }
 
@@ -112,29 +113,29 @@ class PayPalServiceTest extends TestCase
     {
         // Arrange
         $orderId = 'ORDER123456';
-        
+
         $mockResponse = (object) [
             'result' => (object) [
-                'id' => $orderId,
-                'status' => 'COMPLETED',
+                'id'             => $orderId,
+                'status'         => 'COMPLETED',
                 'purchase_units' => [
                     (object) [
                         'payments' => (object) [
                             'captures' => [
                                 (object) [
-                                    'id' => 'CAPTURE123',
+                                    'id'     => 'CAPTURE123',
                                     'status' => 'COMPLETED',
                                     'amount' => (object) [
                                         'currency_code' => 'USD',
-                                        'value' => '100.00'
-                                    ]
-                                ]
-                            ]
-                        ]
-                    ]
-                ]
+                                        'value'         => '100.00',
+                                    ],
+                                ],
+                            ],
+                        ],
+                    ],
+                ],
             ],
-            'statusCode' => 201
+            'statusCode' => 201,
         ];
 
         $this->mockClient->shouldReceive('execute')
@@ -165,7 +166,7 @@ class PayPalServiceTest extends TestCase
         // Act & Assert
         $this->expectException(Exception::class);
         $this->expectExceptionMessage('Failed to capture PayPal order');
-        
+
         $this->paypalService->captureOrder($orderId);
     }
 
@@ -174,29 +175,29 @@ class PayPalServiceTest extends TestCase
     {
         // Arrange
         $orderId = 'ORDER123456';
-        
+
         $mockResponse = (object) [
             'result' => (object) [
-                'id' => $orderId,
+                'id'     => $orderId,
                 'status' => 'APPROVED',
                 'intent' => 'CAPTURE',
-                'payer' => (object) [
+                'payer'  => (object) [
                     'name' => (object) [
                         'given_name' => 'John',
-                        'surname' => 'Doe'
+                        'surname'    => 'Doe',
                     ],
-                    'email_address' => 'john.doe@example.com'
+                    'email_address' => 'john.doe@example.com',
                 ],
                 'purchase_units' => [
                     (object) [
                         'amount' => (object) [
                             'currency_code' => 'USD',
-                            'value' => '100.00'
-                        ]
-                    ]
-                ]
+                            'value'         => '100.00',
+                        ],
+                    ],
+                ],
             ],
-            'statusCode' => 200
+            'statusCode' => 200,
         ];
 
         $this->mockClient->shouldReceive('execute')
@@ -221,21 +222,21 @@ class PayPalServiceTest extends TestCase
         $refundData = [
             'amount' => [
                 'currency_code' => 'USD',
-                'value' => '50.00'
+                'value'         => '50.00',
             ],
-            'note_to_payer' => 'Partial refund for ticket cancellation'
+            'note_to_payer' => 'Partial refund for ticket cancellation',
         ];
 
         $mockResponse = (object) [
             'result' => (object) [
-                'id' => 'REFUND123',
+                'id'     => 'REFUND123',
                 'status' => 'COMPLETED',
                 'amount' => (object) [
                     'currency_code' => 'USD',
-                    'value' => '50.00'
-                ]
+                    'value'         => '50.00',
+                ],
             ],
-            'statusCode' => 201
+            'statusCode' => 201,
         ];
 
         $this->mockClient->shouldReceive('execute')
@@ -261,8 +262,8 @@ class PayPalServiceTest extends TestCase
         $refundData = [
             'amount' => [
                 'currency_code' => 'USD',
-                'value' => '50.00'
-            ]
+                'value'         => '50.00',
+            ],
         ];
 
         $this->mockClient->shouldReceive('execute')
@@ -272,7 +273,7 @@ class PayPalServiceTest extends TestCase
         // Act & Assert
         $this->expectException(Exception::class);
         $this->expectExceptionMessage('Failed to process PayPal refund');
-        
+
         $this->paypalService->refundOrder($captureId, $refundData);
     }
 
@@ -281,11 +282,11 @@ class PayPalServiceTest extends TestCase
     {
         // Arrange
         $headers = [
-            'PAYPAL-TRANSMISSION-ID' => 'test-transmission-id',
-            'PAYPAL-CERT-ID' => 'test-cert-id',
-            'PAYPAL-AUTH-ALGO' => 'SHA256withRSA',
-            'PAYPAL-TRANSMISSION-SIG' => 'test-signature',
-            'PAYPAL-TRANSMISSION-TIME' => '2023-01-01T12:00:00Z'
+            'PAYPAL-TRANSMISSION-ID'   => 'test-transmission-id',
+            'PAYPAL-CERT-ID'           => 'test-cert-id',
+            'PAYPAL-AUTH-ALGO'         => 'SHA256withRSA',
+            'PAYPAL-TRANSMISSION-SIG'  => 'test-signature',
+            'PAYPAL-TRANSMISSION-TIME' => '2023-01-01T12:00:00Z',
         ];
         $payload = '{"event_type":"PAYMENT.CAPTURE.COMPLETED"}';
         $webhookId = 'test-webhook-id';
@@ -293,7 +294,7 @@ class PayPalServiceTest extends TestCase
         // Mock the signature verification (this would normally call PayPal's verification service)
         $reflection = new \ReflectionClass($this->paypalService);
         $verifyMethod = $reflection->getMethod('verifyWebhookSignature');
-        $verifyMethod->setAccessible(true);
+        $verifyMethod->setAccessible(TRUE);
 
         // Act
         $result = $this->paypalService->verifyWebhookSignature($headers, $payload, $webhookId);
@@ -309,7 +310,7 @@ class PayPalServiceTest extends TestCase
     {
         // Arrange
         $headers = [
-            'PAYPAL-TRANSMISSION-ID' => 'invalid-transmission-id'
+            'PAYPAL-TRANSMISSION-ID' => 'invalid-transmission-id',
             // Missing required headers
         ];
         $payload = '{"event_type":"PAYMENT.CAPTURE.COMPLETED"}';
@@ -330,7 +331,7 @@ class PayPalServiceTest extends TestCase
 
         // Act & Assert - Test that service can be created without errors
         $this->assertInstanceOf(PayPalService::class, $service);
-        
+
         // Test environment configuration
         config(['services.paypal.mode' => 'sandbox']);
         $sandboxService = new PayPalService();
@@ -352,7 +353,7 @@ class PayPalServiceTest extends TestCase
         // Act & Assert
         $this->expectException(Exception::class);
         $this->expectExceptionMessage('Invalid order data provided');
-        
+
         $this->paypalService->createOrder($invalidOrderData);
     }
 
@@ -361,15 +362,15 @@ class PayPalServiceTest extends TestCase
     {
         // Arrange
         $orderData = [
-            'intent' => 'CAPTURE',
+            'intent'         => 'CAPTURE',
             'purchase_units' => [
                 [
                     'amount' => [
                         'currency_code' => 'USD',
-                        'value' => '100.00'
-                    ]
-                ]
-            ]
+                        'value'         => '100.00',
+                    ],
+                ],
+            ],
         ];
 
         $this->mockClient->shouldReceive('execute')
@@ -379,7 +380,7 @@ class PayPalServiceTest extends TestCase
         // Act & Assert
         $this->expectException(Exception::class);
         $this->expectExceptionMessage('Failed to create PayPal order');
-        
+
         $this->paypalService->createOrder($orderData);
     }
 
@@ -388,15 +389,15 @@ class PayPalServiceTest extends TestCase
     {
         // Arrange
         $orderData = [
-            'intent' => 'CAPTURE',
+            'intent'         => 'CAPTURE',
             'purchase_units' => [
                 [
                     'amount' => [
                         'currency_code' => 'INVALID',
-                        'value' => 'invalid-amount'
-                    ]
-                ]
-            ]
+                        'value'         => 'invalid-amount',
+                    ],
+                ],
+            ],
         ];
 
         $paypalError = new Exception('INVALID_REQUEST: Invalid currency code');
@@ -407,7 +408,7 @@ class PayPalServiceTest extends TestCase
         // Act & Assert
         $this->expectException(Exception::class);
         $this->expectExceptionMessage('Failed to create PayPal order');
-        
+
         $this->paypalService->createOrder($orderData);
     }
 
@@ -416,25 +417,25 @@ class PayPalServiceTest extends TestCase
     {
         // This test would verify that API interactions are properly logged
         // For now, we ensure the service handles logging without errors
-        
+
         $orderData = [
-            'intent' => 'CAPTURE',
+            'intent'         => 'CAPTURE',
             'purchase_units' => [
                 [
                     'amount' => [
                         'currency_code' => 'USD',
-                        'value' => '100.00'
-                    ]
-                ]
-            ]
+                        'value'         => '100.00',
+                    ],
+                ],
+            ],
         ];
 
         $mockResponse = (object) [
             'result' => (object) [
-                'id' => 'ORDER123456',
-                'status' => 'CREATED'
+                'id'     => 'ORDER123456',
+                'status' => 'CREATED',
             ],
-            'statusCode' => 201
+            'statusCode' => 201,
         ];
 
         $this->mockClient->shouldReceive('execute')

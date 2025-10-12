@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace App\Services;
 
@@ -17,64 +17,64 @@ class LiveMonitoringService
         return Cache::remember('monitored_platforms', 600, function () {
             return [
                 [
-                    'name' => 'Ticketmaster UK',
-                    'slug' => 'ticketmaster',
-                    'logo' => 'https://logos-world.net/wp-content/uploads/2021/03/Ticketmaster-Logo.png',
-                    'status' => $this->checkPlatformStatus('ticketmaster'),
-                    'last_scrape' => ScrapedTicket::where('platform', 'ticketmaster')->latest()->value('created_at'),
+                    'name'          => 'Ticketmaster UK',
+                    'slug'          => 'ticketmaster',
+                    'logo'          => 'https://logos-world.net/wp-content/uploads/2021/03/Ticketmaster-Logo.png',
+                    'status'        => $this->checkPlatformStatus('ticketmaster'),
+                    'last_scrape'   => ScrapedTicket::where('platform', 'ticketmaster')->latest()->value('created_at'),
                     'total_tickets' => ScrapedTicket::where('platform', 'ticketmaster')->count(),
-                    'verified' => true,
-                    'features' => ['Official', 'Verified', 'Real-time'],
+                    'verified'      => TRUE,
+                    'features'      => ['Official', 'Verified', 'Real-time'],
                 ],
                 [
-                    'name' => 'StubHub UK',
-                    'slug' => 'stubhub',
-                    'logo' => 'https://logos-world.net/wp-content/uploads/2021/03/StubHub-Logo.png',
-                    'status' => $this->checkPlatformStatus('stubhub'),
-                    'last_scrape' => ScrapedTicket::where('platform', 'stubhub')->latest()->value('created_at'),
+                    'name'          => 'StubHub UK',
+                    'slug'          => 'stubhub',
+                    'logo'          => 'https://logos-world.net/wp-content/uploads/2021/03/StubHub-Logo.png',
+                    'status'        => $this->checkPlatformStatus('stubhub'),
+                    'last_scrape'   => ScrapedTicket::where('platform', 'stubhub')->latest()->value('created_at'),
                     'total_tickets' => ScrapedTicket::where('platform', 'stubhub')->count(),
-                    'verified' => true,
-                    'features' => ['Secondary Market', 'Instant Download'],
+                    'verified'      => TRUE,
+                    'features'      => ['Secondary Market', 'Instant Download'],
                 ],
                 [
-                    'name' => 'Viagogo',
-                    'slug' => 'viagogo',
-                    'logo' => 'https://logos-world.net/wp-content/uploads/2021/03/Viagogo-Logo.png',
-                    'status' => $this->checkPlatformStatus('viagogo'),
-                    'last_scrape' => ScrapedTicket::where('platform', 'viagogo')->latest()->value('created_at'),
+                    'name'          => 'Viagogo',
+                    'slug'          => 'viagogo',
+                    'logo'          => 'https://logos-world.net/wp-content/uploads/2021/03/Viagogo-Logo.png',
+                    'status'        => $this->checkPlatformStatus('viagogo'),
+                    'last_scrape'   => ScrapedTicket::where('platform', 'viagogo')->latest()->value('created_at'),
                     'total_tickets' => ScrapedTicket::where('platform', 'viagogo')->count(),
-                    'verified' => true,
-                    'features' => ['Global Platform', '24/7 Support'],
+                    'verified'      => TRUE,
+                    'features'      => ['Global Platform', '24/7 Support'],
                 ],
                 [
-                    'name' => 'See Tickets',
-                    'slug' => 'seetickets',
-                    'logo' => '/images/platforms/seetickets-logo.png',
-                    'status' => $this->checkPlatformStatus('seetickets'),
-                    'last_scrape' => ScrapedTicket::where('platform', 'seetickets')->latest()->value('created_at'),
+                    'name'          => 'See Tickets',
+                    'slug'          => 'seetickets',
+                    'logo'          => '/images/platforms/seetickets-logo.png',
+                    'status'        => $this->checkPlatformStatus('seetickets'),
+                    'last_scrape'   => ScrapedTicket::where('platform', 'seetickets')->latest()->value('created_at'),
                     'total_tickets' => ScrapedTicket::where('platform', 'seetickets')->count(),
-                    'verified' => true,
-                    'features' => ['UK Focused', 'Official Distributor'],
+                    'verified'      => TRUE,
+                    'features'      => ['UK Focused', 'Official Distributor'],
                 ],
                 [
-                    'name' => 'Eventim UK',
-                    'slug' => 'eventim',
-                    'logo' => '/images/platforms/eventim-logo.png',
-                    'status' => $this->checkPlatformStatus('eventim'),
-                    'last_scrape' => ScrapedTicket::where('platform', 'eventim')->latest()->value('created_at'),
+                    'name'          => 'Eventim UK',
+                    'slug'          => 'eventim',
+                    'logo'          => '/images/platforms/eventim-logo.png',
+                    'status'        => $this->checkPlatformStatus('eventim'),
+                    'last_scrape'   => ScrapedTicket::where('platform', 'eventim')->latest()->value('created_at'),
                     'total_tickets' => ScrapedTicket::where('platform', 'eventim')->count(),
-                    'verified' => true,
-                    'features' => ['European Coverage', 'Mobile Tickets'],
+                    'verified'      => TRUE,
+                    'features'      => ['European Coverage', 'Mobile Tickets'],
                 ],
                 [
-                    'name' => 'Live Nation UK',
-                    'slug' => 'livenation',
-                    'logo' => '/images/platforms/livenation-logo.png',
-                    'status' => $this->checkPlatformStatus('livenation'),
-                    'last_scrape' => ScrapedTicket::where('platform', 'livenation')->latest()->value('created_at'),
+                    'name'          => 'Live Nation UK',
+                    'slug'          => 'livenation',
+                    'logo'          => '/images/platforms/livenation-logo.png',
+                    'status'        => $this->checkPlatformStatus('livenation'),
+                    'last_scrape'   => ScrapedTicket::where('platform', 'livenation')->latest()->value('created_at'),
                     'total_tickets' => ScrapedTicket::where('platform', 'livenation')->count(),
-                    'verified' => true,
-                    'features' => ['Major Venues', 'VIP Packages'],
+                    'verified'      => TRUE,
+                    'features'      => ['Major Venues', 'VIP Packages'],
                 ],
             ];
         });
@@ -94,11 +94,11 @@ class LiveMonitoringService
                 ->get()
                 ->map(function ($league) {
                     return [
-                        'name' => $this->formatLeagueName($league->sport_type),
-                        'slug' => $league->sport_type,
+                        'name'         => $this->formatLeagueName($league->sport_type),
+                        'slug'         => $league->sport_type,
                         'ticket_count' => $league->ticket_count,
-                        'logo' => $this->getLeagueLogo($league->sport_type),
-                        'category' => $this->getLeagueCategory($league->sport_type),
+                        'logo'         => $this->getLeagueLogo($league->sport_type),
+                        'category'     => $this->getLeagueCategory($league->sport_type),
                     ];
                 })
                 ->toArray();
@@ -106,32 +106,32 @@ class LiveMonitoringService
             // Add predefined leagues with logos
             $predefinedLeagues = [
                 [
-                    'name' => 'Premier League',
-                    'slug' => 'premier_league',
+                    'name'         => 'Premier League',
+                    'slug'         => 'premier_league',
                     'ticket_count' => ScrapedTicket::where('sport_type', 'premier_league')->count(),
-                    'logo' => '/images/leagues/premier-league.png',
-                    'category' => 'Football',
+                    'logo'         => '/images/leagues/premier-league.png',
+                    'category'     => 'Football',
                 ],
                 [
-                    'name' => 'Champions League',
-                    'slug' => 'champions_league',
+                    'name'         => 'Champions League',
+                    'slug'         => 'champions_league',
                     'ticket_count' => ScrapedTicket::where('sport_type', 'champions_league')->count(),
-                    'logo' => '/images/leagues/champions-league.png',
-                    'category' => 'Football',
+                    'logo'         => '/images/leagues/champions-league.png',
+                    'category'     => 'Football',
                 ],
                 [
-                    'name' => 'Europa League',
-                    'slug' => 'europa_league',
+                    'name'         => 'Europa League',
+                    'slug'         => 'europa_league',
                     'ticket_count' => ScrapedTicket::where('sport_type', 'europa_league')->count(),
-                    'logo' => '/images/leagues/europa-league.png',
-                    'category' => 'Football',
+                    'logo'         => '/images/leagues/europa-league.png',
+                    'category'     => 'Football',
                 ],
                 [
-                    'name' => 'FA Cup',
-                    'slug' => 'fa_cup',
+                    'name'         => 'FA Cup',
+                    'slug'         => 'fa_cup',
                     'ticket_count' => ScrapedTicket::where('sport_type', 'fa_cup')->count(),
-                    'logo' => '/images/leagues/fa-cup.png',
-                    'category' => 'Football',
+                    'logo'         => '/images/leagues/fa-cup.png',
+                    'category'     => 'Football',
                 ],
             ];
 
@@ -152,49 +152,48 @@ class LiveMonitoringService
     private function checkPlatformStatus(string $platform): array
     {
         $cacheKey = "platform_status_{$platform}";
-        
+
         return Cache::remember($cacheKey, 300, function () use ($platform) {
             try {
                 $urls = [
                     'ticketmaster' => 'https://www.ticketmaster.co.uk',
-                    'stubhub' => 'https://www.stubhub.co.uk',
-                    'viagogo' => 'https://www.viagogo.com',
-                    'seetickets' => 'https://www.seetickets.com',
-                    'eventim' => 'https://www.eventim.co.uk',
-                    'livenation' => 'https://www.livenation.co.uk',
+                    'stubhub'      => 'https://www.stubhub.co.uk',
+                    'viagogo'      => 'https://www.viagogo.com',
+                    'seetickets'   => 'https://www.seetickets.com',
+                    'eventim'      => 'https://www.eventim.co.uk',
+                    'livenation'   => 'https://www.livenation.co.uk',
                 ];
 
                 if (!isset($urls[$platform])) {
-                    return ['status' => 'unknown', 'response_time' => null];
+                    return ['status' => 'unknown', 'response_time' => NULL];
                 }
 
-                $start = microtime(true);
+                $start = microtime(TRUE);
                 $response = Http::timeout(10)->get($urls[$platform]);
-                $responseTime = round((microtime(true) - $start) * 1000);
+                $responseTime = round((microtime(TRUE) - $start) * 1000);
 
                 if ($response->successful()) {
                     return [
-                        'status' => 'online',
+                        'status'        => 'online',
                         'response_time' => $responseTime,
-                        'checked_at' => now()->toISOString(),
+                        'checked_at'    => now()->toISOString(),
                     ];
                 }
 
                 return [
-                    'status' => 'error',
+                    'status'        => 'error',
                     'response_time' => $responseTime,
-                    'error_code' => $response->status(),
-                    'checked_at' => now()->toISOString(),
+                    'error_code'    => $response->status(),
+                    'checked_at'    => now()->toISOString(),
                 ];
-
             } catch (\Exception $e) {
                 Log::warning("Platform status check failed for {$platform}: " . $e->getMessage());
-                
+
                 return [
-                    'status' => 'offline',
-                    'response_time' => null,
-                    'error' => $e->getMessage(),
-                    'checked_at' => now()->toISOString(),
+                    'status'        => 'offline',
+                    'response_time' => NULL,
+                    'error'         => $e->getMessage(),
+                    'checked_at'    => now()->toISOString(),
                 ];
             }
         });
@@ -206,15 +205,15 @@ class LiveMonitoringService
     public function getPlatformStatus(): array
     {
         $platforms = $this->getMonitoredPlatforms();
-        
+
         return [
             'summary' => [
                 'total_platforms' => count($platforms),
-                'online' => collect($platforms)->where('status.status', 'online')->count(),
-                'offline' => collect($platforms)->where('status.status', 'offline')->count(),
-                'error' => collect($platforms)->where('status.status', 'error')->count(),
+                'online'          => collect($platforms)->where('status.status', 'online')->count(),
+                'offline'         => collect($platforms)->where('status.status', 'offline')->count(),
+                'error'           => collect($platforms)->where('status.status', 'error')->count(),
             ],
-            'platforms' => $platforms,
+            'platforms'    => $platforms,
             'last_updated' => now()->toISOString(),
         ];
     }
@@ -224,18 +223,18 @@ class LiveMonitoringService
      */
     private function formatLeagueName(string $leagueSlug): string
     {
-        return match($leagueSlug) {
-            'premier_league' => 'Premier League',
+        return match ($leagueSlug) {
+            'premier_league'   => 'Premier League',
             'champions_league' => 'Champions League',
-            'europa_league' => 'Europa League',
-            'fa_cup' => 'FA Cup',
-            'carabao_cup' => 'Carabao Cup',
-            'championship' => 'Championship',
-            'league_one' => 'League One',
-            'league_two' => 'League Two',
-            'world_cup' => 'World Cup',
-            'euros' => 'European Championship',
-            default => ucwords(str_replace('_', ' ', $leagueSlug)),
+            'europa_league'    => 'Europa League',
+            'fa_cup'           => 'FA Cup',
+            'carabao_cup'      => 'Carabao Cup',
+            'championship'     => 'Championship',
+            'league_one'       => 'League One',
+            'league_two'       => 'League Two',
+            'world_cup'        => 'World Cup',
+            'euros'            => 'European Championship',
+            default            => ucwords(str_replace('_', ' ', $leagueSlug)),
         };
     }
 
@@ -245,12 +244,12 @@ class LiveMonitoringService
     private function getLeagueLogo(string $leagueSlug): string
     {
         $logos = [
-            'premier_league' => '/images/leagues/premier-league.png',
+            'premier_league'   => '/images/leagues/premier-league.png',
             'champions_league' => '/images/leagues/champions-league.png',
-            'europa_league' => '/images/leagues/europa-league.png',
-            'fa_cup' => '/images/leagues/fa-cup.png',
-            'carabao_cup' => '/images/leagues/carabao-cup.png',
-            'championship' => '/images/leagues/championship.png',
+            'europa_league'    => '/images/leagues/europa-league.png',
+            'fa_cup'           => '/images/leagues/fa-cup.png',
+            'carabao_cup'      => '/images/leagues/carabao-cup.png',
+            'championship'     => '/images/leagues/championship.png',
         ];
 
         return $logos[$leagueSlug] ?? '/images/leagues/default.png';
@@ -263,7 +262,7 @@ class LiveMonitoringService
     {
         $footballLeagues = [
             'premier_league', 'champions_league', 'europa_league', 'fa_cup',
-            'carabao_cup', 'championship', 'league_one', 'league_two'
+            'carabao_cup', 'championship', 'league_one', 'league_two',
         ];
 
         if (in_array($leagueSlug, $footballLeagues)) {
@@ -281,21 +280,21 @@ class LiveMonitoringService
         return Cache::remember('system_monitoring_stats', 60, function () {
             return [
                 'monitoring' => [
-                    'active_alerts' => \App\Models\TicketAlert::active()->count(),
-                    'total_users' => \App\Models\User::count(),
+                    'active_alerts'            => \App\Models\TicketAlert::active()->count(),
+                    'total_users'              => \App\Models\User::count(),
                     'notifications_sent_today' => $this->getNotificationsSentToday(),
-                    'avg_response_time' => $this->getAverageResponseTime(),
+                    'avg_response_time'        => $this->getAverageResponseTime(),
                 ],
                 'tickets' => [
-                    'total_monitored' => ScrapedTicket::count(),
-                    'available_now' => ScrapedTicket::where('is_available', true)->count(),
-                    'high_demand' => ScrapedTicket::where('is_high_demand', true)->count(),
+                    'total_monitored'   => ScrapedTicket::count(),
+                    'available_now'     => ScrapedTicket::where('is_available', TRUE)->count(),
+                    'high_demand'       => ScrapedTicket::where('is_high_demand', TRUE)->count(),
                     'price_drops_today' => ScrapedTicket::where('price_changed_at', '>=', today())->count(),
                 ],
                 'platforms' => [
-                    'total_platforms' => count($this->getMonitoredPlatforms()),
+                    'total_platforms'  => count($this->getMonitoredPlatforms()),
                     'active_platforms' => $this->getActivePlatformsCount(),
-                    'last_scrape' => ScrapedTicket::latest()->value('created_at'),
+                    'last_scrape'      => ScrapedTicket::latest()->value('created_at'),
                 ],
             ];
         });

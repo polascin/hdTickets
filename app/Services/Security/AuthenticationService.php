@@ -42,7 +42,7 @@ class AuthenticationService
         // Find user
         $user = User::where('email', $email)->first();
 
-        if (! $user) {
+        if (!$user) {
             $this->logFailedAttempt($request, $email, 'user_not_found');
 
             return ['success' => FALSE, 'reason' => 'invalid_credentials'];
@@ -54,7 +54,7 @@ class AuthenticationService
         }
 
         // Verify password
-        if (! Hash::check($password, $user->password)) {
+        if (!Hash::check($password, $user->password)) {
             $this->handleFailedLogin($user, $request, 'invalid_password');
 
             return ['success' => FALSE, 'reason' => 'invalid_credentials'];
@@ -151,13 +151,13 @@ class AuthenticationService
 
             // Check if token is revoked
             $tokenData = Cache::get("jwt_token:{$decoded->jti}");
-            if (! $tokenData) {
+            if (!$tokenData) {
                 return NULL;
             }
 
             // Get user
             $user = User::find($decoded->sub);
-            if (! $user || ! $user->is_active) {
+            if (!$user || !$user->is_active) {
                 return NULL;
             }
 
@@ -214,7 +214,7 @@ class AuthenticationService
     {
         $codeData = Cache::get("oauth_code:{$code}");
 
-        if (! $codeData
+        if (!$codeData
             || $codeData['client_id'] !== $clientId
             || $codeData['redirect_uri'] !== $redirectUri
             || $codeData['expires_at'] < time()) {
@@ -225,7 +225,7 @@ class AuthenticationService
         Cache::forget("oauth_code:{$code}");
 
         $user = User::find($codeData['user_id']);
-        if (! $user) {
+        if (!$user) {
             return NULL;
         }
 
@@ -286,7 +286,7 @@ class AuthenticationService
     {
         $challengeData = Cache::get("biometric_challenge:{$user->id}");
 
-        if (! $challengeData
+        if (!$challengeData
             || $challengeData['challenge'] !== $challenge
             || $challengeData['expires_at'] < time()
             || $challengeData['device_fingerprint'] !== $this->generateDeviceFingerprint($request)) {
@@ -359,7 +359,7 @@ class AuthenticationService
                 ->where('success', TRUE)
                 ->exists();
 
-            if (! $hasLoginFromCountry) {
+            if (!$hasLoginFromCountry) {
                 $anomalies[] = 'new_location';
             }
         }
@@ -431,7 +431,7 @@ class AuthenticationService
     {
         $sessionData = Cache::get("session:{$sessionId}");
 
-        if (! $sessionData || $sessionData['expires_at'] < time()) {
+        if (!$sessionData || $sessionData['expires_at'] < time()) {
             return NULL;
         }
 
@@ -701,8 +701,8 @@ class AuthenticationService
     protected function hasBackupMethods(User $user): array
     {
         return [
-            'sms'            => ! empty($user->phone),
-            'email'          => ! empty($user->email),
+            'sms'            => !empty($user->phone),
+            'email'          => !empty($user->email),
             'recovery_codes' => $user->two_factor_recovery_codes !== NULL,
         ];
     }

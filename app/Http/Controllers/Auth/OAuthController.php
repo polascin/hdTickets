@@ -15,7 +15,8 @@ class OAuthController extends Controller
 {
     public function __construct(
         protected OAuthUserService $oauthUserService
-    ) {}
+    ) {
+    }
 
     /**
      * Redirect to OAuth provider
@@ -38,8 +39,8 @@ class OAuthController extends Controller
         } catch (Throwable $e) {
             logger()->error('OAuth redirect failed', [
                 'provider' => $provider,
-                'error' => $e->getMessage(),
-                'trace' => $e->getTraceAsString(),
+                'error'    => $e->getMessage(),
+                'trace'    => $e->getTraceAsString(),
             ]);
 
             return redirect()->route('login')
@@ -63,10 +64,10 @@ class OAuthController extends Controller
             if ($request->has('error')) {
                 $error = $request->get('error');
                 $errorDescription = $request->get('error_description', 'OAuth authentication failed');
-                
+
                 logger()->warning('OAuth callback error', [
-                    'provider' => $provider,
-                    'error' => $error,
+                    'provider'    => $provider,
+                    'error'       => $error,
                     'description' => $errorDescription,
                 ]);
 
@@ -95,30 +96,29 @@ class OAuthController extends Controller
             $this->oauthUserService->trackOAuthActivity($user, $provider, 'login');
 
             // Log the user in
-            Auth::login($user, true); // Remember the user
+            Auth::login($user, TRUE); // Remember the user
 
             // Log successful OAuth login
             logger()->info('OAuth login successful', [
-                'user_id' => $user->id,
+                'user_id'  => $user->id,
                 'provider' => $provider,
-                'email' => $user->email,
+                'email'    => $user->email,
             ]);
 
             // Redirect to intended URL or dashboard
             $redirectUrl = session()->pull('url.intended', $this->getPostLoginRedirectUrl($user));
-            
+
             return redirect($redirectUrl)
                 ->with('success', 'Successfully logged in with ' . ucfirst($provider) . '!');
-
         } catch (Throwable $e) {
             logger()->error('OAuth callback failed', [
                 'provider' => $provider,
-                'error' => $e->getMessage(),
-                'trace' => $e->getTraceAsString(),
+                'error'    => $e->getMessage(),
+                'trace'    => $e->getTraceAsString(),
             ]);
 
             $errorMessage = 'OAuth authentication failed. Please try again.';
-            
+
             // Provide more specific error messages for common issues
             if (str_contains($e->getMessage(), 'email')) {
                 $errorMessage = 'Unable to retrieve email from ' . ucfirst($provider) . '. Please ensure your account has a verified email address.';
@@ -139,6 +139,7 @@ class OAuthController extends Controller
     protected function isProviderSupported(string $provider): bool
     {
         $supportedProviders = array_keys($this->oauthUserService->getSupportedProviders());
+
         return in_array($provider, $supportedProviders);
     }
 
@@ -213,10 +214,10 @@ class OAuthController extends Controller
 
             // Link the account
             $currentUser->update([
-                'provider' => $provider,
-                'provider_id' => $socialiteUser->getId(),
+                'provider'             => $provider,
+                'provider_id'          => $socialiteUser->getId(),
                 'provider_verified_at' => now(),
-                'avatar' => $currentUser->avatar ?: $socialiteUser->getAvatar(),
+                'avatar'               => $currentUser->avatar ?: $socialiteUser->getAvatar(),
             ]);
 
             // Add Google ID for backwards compatibility
@@ -225,18 +226,17 @@ class OAuthController extends Controller
             }
 
             logger()->info('OAuth account linked', [
-                'user_id' => $currentUser->id,
+                'user_id'  => $currentUser->id,
                 'provider' => $provider,
             ]);
 
             return redirect()->route('profile.security')
                 ->with('success', ucfirst($provider) . ' account linked successfully!');
-
         } catch (Throwable $e) {
             logger()->error('OAuth account linking failed', [
                 'provider' => $provider,
-                'user_id' => Auth::id(),
-                'error' => $e->getMessage(),
+                'user_id'  => Auth::id(),
+                'error'    => $e->getMessage(),
             ]);
 
             return redirect()->route('profile.security')
@@ -264,31 +264,30 @@ class OAuthController extends Controller
 
             // Remove OAuth provider information
             $updates = [
-                'provider' => null,
-                'provider_id' => null,
-                'provider_verified_at' => null,
+                'provider'             => NULL,
+                'provider_id'          => NULL,
+                'provider_verified_at' => NULL,
             ];
 
             // Remove Google ID for backwards compatibility
             if ($provider === 'google') {
-                $updates['google_id'] = null;
+                $updates['google_id'] = NULL;
             }
 
             $user->update($updates);
 
             logger()->info('OAuth account unlinked', [
-                'user_id' => $user->id,
+                'user_id'  => $user->id,
                 'provider' => $provider,
             ]);
 
             return redirect()->route('profile.security')
                 ->with('success', ucfirst($provider) . ' account unlinked successfully!');
-
         } catch (Throwable $e) {
             logger()->error('OAuth account unlinking failed', [
                 'provider' => $provider,
-                'user_id' => Auth::id(),
-                'error' => $e->getMessage(),
+                'user_id'  => Auth::id(),
+                'error'    => $e->getMessage(),
             ]);
 
             return redirect()->route('profile.security')

@@ -53,7 +53,7 @@ class PlatformOrderingService
 
         // Exclude specific platforms if specified
         if ($excludePlatforms !== []) {
-            $platforms = $platforms->filter(fn ($platform): bool => ! in_array($platform['key'], $excludePlatforms, TRUE));
+            $platforms = $platforms->filter(fn ($platform): bool => !in_array($platform['key'], $excludePlatforms, TRUE));
         }
 
         return $platforms->values()->toArray();
@@ -95,7 +95,7 @@ class PlatformOrderingService
 
         return collect($platformKeys)
             ->filter(fn ($key): bool => in_array($key, $orderedKeys, TRUE))
-            ->sortBy(fn ($key): int|string|false => array_search($key, $orderedKeys, TRUE))
+            ->sortBy(fn ($key): int|string|FALSE => array_search($key, $orderedKeys, TRUE))
             ->values()
             ->toArray();
     }

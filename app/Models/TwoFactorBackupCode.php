@@ -29,7 +29,7 @@ class TwoFactorBackupCode extends Model
      */
     public function isUsed(): bool
     {
-        return $this->used_at !== null;
+        return $this->used_at !== NULL;
     }
 
     /**

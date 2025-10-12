@@ -7,18 +7,19 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 /**
  * Event Model
- * 
+ *
  * Represents sports events in the HD Tickets system
  */
 class Event extends Model
 {
-    use HasFactory, HasUuids;
-    
+    use HasFactory;
+    use HasUuids;
+
     protected $fillable = [
         'name',
         'description',
@@ -34,13 +35,13 @@ class Event extends Model
         'external_id',
         'metadata',
     ];
-    
+
     protected $casts = [
-        'date' => 'datetime',
+        'date'             => 'datetime',
         'popularity_score' => 'integer',
-        'metadata' => 'array',
+        'metadata'         => 'array',
     ];
-    
+
     /**
      * Get the tickets for this event
      */
@@ -48,7 +49,7 @@ class Event extends Model
     {
         return $this->hasMany(Ticket::class);
     }
-    
+
     /**
      * Get the venue for this event
      */
@@ -56,7 +57,7 @@ class Event extends Model
     {
         return $this->belongsTo(Venue::class, 'venue_id');
     }
-    
+
     /**
      * Scope for upcoming events
      */
@@ -64,7 +65,7 @@ class Event extends Model
     {
         return $query->where('date', '>=', now());
     }
-    
+
     /**
      * Scope for events by sport
      */
@@ -72,7 +73,7 @@ class Event extends Model
     {
         return $query->where('sport', $sport);
     }
-    
+
     /**
      * Scope for high demand events
      */

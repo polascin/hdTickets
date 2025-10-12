@@ -46,7 +46,7 @@ class AvailabilityChanged implements ShouldBroadcast
 
                 return $settings
                        && $settings->availability_alerts_enabled
-                       && (! $settings->snoozed_until || $settings->snoozed_until <= now());
+                       && (!$settings->snoozed_until || $settings->snoozed_until <= now());
             });
 
         // Create notifications for watching users
@@ -201,7 +201,7 @@ class AvailabilityChanged implements ShouldBroadcast
     {
         $settings = $user->notificationSettings;
 
-        if (! $settings || ! $settings->availability_alerts_enabled) {
+        if (!$settings || !$settings->availability_alerts_enabled) {
             return FALSE;
         }
 

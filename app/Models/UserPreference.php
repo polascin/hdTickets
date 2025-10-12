@@ -60,14 +60,14 @@ class UserPreference extends Model
      *
      * @param mixed|null $default
      */
-    public static function getValue(int $userId, string $category, string $key, $default = null)
+    public static function getValue(int $userId, string $category, string $key, $default = NULL)
     {
         $preference = static::where('user_id', $userId)
             ->where('category', $category)
             ->where('key', $key)
             ->first();
 
-        if (! $preference) {
+        if (!$preference) {
             return $default;
         }
 
@@ -150,14 +150,14 @@ class UserPreference extends Model
                 'price_alert_threshold'       => 10,
             ],
             'ml_settings' => [
-                'enable_predictions'              => true,
+                'enable_predictions'              => TRUE,
                 'prediction_confidence_threshold' => 0.7,
-                'enable_recommendations'          => true,
+                'enable_recommendations'          => TRUE,
             ],
             'escalation_settings' => [
-                'enable_escalation'        => true,
-                'emergency_contact_phone'  => null,
-                'emergency_contact_email'  => null,
+                'enable_escalation'        => TRUE,
+                'emergency_contact_phone'  => NULL,
+                'emergency_contact_email'  => NULL,
                 'escalation_delay_minutes' => 5,
             ],
         ];
@@ -208,7 +208,7 @@ class UserPreference extends Model
             'escalation_settings' => is_array($value)
                    && isset($value['enable_escalation'])
                    && is_bool($value['enable_escalation']),
-            default => true,
+            default => TRUE,
         };
     }
 
@@ -276,7 +276,7 @@ class UserPreference extends Model
     /**
      * ResetToDefaults
      */
-    public static function resetToDefaults(int $userId, ?array $keys = null): void
+    public static function resetToDefaults(int $userId, ?array $keys = NULL): void
     {
         $defaults = static::getDefaultPreferences();
         $keysToReset = $keys ?? array_keys($defaults);
@@ -385,13 +385,13 @@ class UserPreference extends Model
     {
         switch ($dataType) {
             case 'boolean':
-                return filter_var($value, FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE) !== null && (bool) $value;
+                return filter_var($value, FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE) !== NULL && (bool) $value;
             case 'integer':
                 return is_numeric($value) ? (int) $value : 0;
             case 'array':
             case 'json':
                 if (is_string($value)) {
-                    $decoded = json_decode($value, true);
+                    $decoded = json_decode($value, TRUE);
 
                     return json_last_error() === JSON_ERROR_NONE ? json_encode($decoded) : $value;
                 }
@@ -413,7 +413,7 @@ class UserPreference extends Model
         return match ($dataType) {
             'boolean' => (bool) $value,
             'integer' => (int) $value,
-            'array', 'json' => json_decode((string) $value, true),
+            'array', 'json' => json_decode((string) $value, TRUE),
             default => (string) $value,
         };
     }
