@@ -104,7 +104,7 @@
       </div>
 
       <div class="mt-8 sm:mx-auto sm:w-full sm:max-w-md animate-slide-up">
-        {{ $slot }}
+        @yield('content')
       </div>
 
       <!-- Security Info -->
