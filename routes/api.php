@@ -72,6 +72,9 @@ use App\Http\Controllers\HealthController;
 use App\Http\Controllers\RecommendationController;
 use App\Http\Controllers\TicketApiController;
 use App\Http\Controllers\UserPreferencesController;
+// Marketing Dashboard Controllers
+use App\Http\Controllers\MarketingDashboardController;
+use App\Http\Controllers\CampaignManagementController;
 use App\Http\Middleware\Api\ApiRateLimit;
 use App\Http\Middleware\Api\CheckApiRole;
 use Illuminate\Http\Request;
@@ -1041,6 +1044,41 @@ Route::prefix('webhooks/v1')->group(function () {
     Route::post('/monitoring-update', [WebhooksController::class, 'receiveMonitoringUpdate']);
     Route::post('/purchase-complete', [WebhooksController::class, 'receivePurchaseComplete']);
     Route::post('/system-notification', [WebhooksController::class, 'receiveSystemNotification']);
+});
+
+// Marketing Dashboard and Campaign Management Routes
+Route::middleware(['auth:sanctum', CheckApiRole::class . ':admin,agent'])->prefix('v1/marketing')->group(function () {
+    // Marketing Dashboard
+    Route::get('/dashboard', [MarketingDashboardController::class, 'getDashboard']);
+    Route::get('/dashboard/admin', [MarketingDashboardController::class, 'getAdminDashboard'])
+        ->middleware(CheckApiRole::class . ':admin');
+    Route::get('/dashboard/analytics', [MarketingDashboardController::class, 'getRealTimeAnalytics']);
+    Route::get('/dashboard/engagement', [MarketingDashboardController::class, 'getUserEngagementReport']);
+    Route::get('/dashboard/revenue', [MarketingDashboardController::class, 'getRevenueReport']);
+    Route::get('/dashboard/campaigns', [MarketingDashboardController::class, 'getCampaignAnalytics']);
+    Route::get('/dashboard/performance', [MarketingDashboardController::class, 'getPerformanceMetrics']);
+    Route::get('/dashboard/activity/{userId}', [MarketingDashboardController::class, 'getUserActivityTimeline']);
+    Route::post('/dashboard/export', [MarketingDashboardController::class, 'exportDashboardData']);
+
+    // Campaign Management
+    Route::apiResource('/campaigns', CampaignManagementController::class);
+    Route::post('/campaigns/{campaign}/launch', [CampaignManagementController::class, 'launch']);
+    Route::post('/campaigns/{campaign}/pause', [CampaignManagementController::class, 'pause']);
+    Route::post('/campaigns/{campaign}/resume', [CampaignManagementController::class, 'resume']);
+    Route::post('/campaigns/{campaign}/cancel', [CampaignManagementController::class, 'cancel']);
+    Route::get('/campaigns/{campaign}/analytics', [CampaignManagementController::class, 'analytics']);
+    
+    // Campaign Processing (for scheduled execution)
+    Route::post('/campaigns/process-scheduled', [CampaignManagementController::class, 'processScheduled'])
+        ->middleware(CheckApiRole::class . ':admin');
+});
+
+// Public Campaign Tracking Routes (no authentication required)
+Route::prefix('v1/campaigns')->group(function () {
+    Route::get('/{campaign}/track/open/{user}', [CampaignManagementController::class, 'trackOpen'])
+        ->name('campaign.track.open');
+    Route::post('/{campaign}/track/click/{user}', [CampaignManagementController::class, 'trackClick'])
+        ->name('campaign.track.click');
 });
 
 // Backwards compatibility aliases for API Access Layer
