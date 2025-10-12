@@ -6,12 +6,11 @@ use App\Http\Controllers\Auth\ConfirmablePasswordController;
 use App\Http\Controllers\Auth\EmailVerificationNotificationController;
 use App\Http\Controllers\Auth\EmailVerificationPromptController;
 use App\Http\Controllers\Auth\LoginEnhancementController;
+use App\Http\Controllers\Auth\ModernRegistrationController;
 use App\Http\Controllers\Auth\NewPasswordController;
 use App\Http\Controllers\Auth\OAuthController;
 use App\Http\Controllers\Auth\PasswordController;
 use App\Http\Controllers\Auth\PasswordResetLinkController;
-use App\Http\Controllers\Auth\PublicRegistrationController;
-use App\Http\Controllers\Auth\PublicRegistrationValidationController;
 use App\Http\Controllers\Auth\RegisteredUserController;
 use App\Http\Controllers\Auth\TwoFactorController;
 use App\Http\Controllers\Auth\TwoFactorSetupController;
@@ -47,59 +46,41 @@ Route::middleware(['guest', EnhancedLoginSecurity::class])->group(function (): v
     Route::post('reset-password', [NewPasswordController::class, 'store'])
         ->name('password.store');
 
-    // Registration routes - redirect to public registration
-    Route::redirect('register', 'register/public', 301)->name('register');
+    // Modern Registration System
+    Route::get('register', [ModernRegistrationController::class, 'create'])
+        ->name('register');
 
-    // Admin-only registration
-    Route::get('register/admin', [RegisteredUserController::class, 'create'])
-        ->name('register.admin');
+    Route::post('register', [ModernRegistrationController::class, 'store'])
+        ->name('register.store')
+        ->middleware('throttle:5,1');
 
-    Route::post('register/admin', [RegisteredUserController::class, 'store'])
-        ->name('register.admin.store');
-
-    // Comprehensive registration routes (recommended)
-    Route::get('register/comprehensive', [ComprehensiveRegistrationController::class, 'create'])
-        ->name('register.comprehensive');
-
-    Route::post('register/comprehensive', [ComprehensiveRegistrationController::class, 'store']);
-
-    // Comprehensive registration AJAX endpoints
-    Route::post('register/comprehensive/check-email', [ComprehensiveRegistrationController::class, 'checkEmailAvailability'])
-        ->name('register.comprehensive.check-email')
+    // Real-time validation endpoints
+    Route::post('register/check-email', [ModernRegistrationController::class, 'checkEmail'])
+        ->name('register.check-email')
         ->middleware('throttle:30,1');
 
-    Route::post('register/comprehensive/check-username', [ComprehensiveRegistrationController::class, 'checkUsernameAvailability'])
-        ->name('register.comprehensive.check-username')
-        ->middleware('throttle:30,1');
-
-    Route::post('register/comprehensive/validate-password', [ComprehensiveRegistrationController::class, 'validatePasswordStrength'])
-        ->name('register.comprehensive.validate-password')
+    Route::post('register/check-password', [ModernRegistrationController::class, 'checkPassword'])
+        ->name('register.check-password')
         ->middleware('throttle:60,1');
 
-    Route::post('register/comprehensive/validate-step', [ComprehensiveRegistrationController::class, 'validateStep'])
-        ->name('register.comprehensive.validate-step')
+    Route::post('register/validate-field', [ModernRegistrationController::class, 'validateField'])
+        ->name('register.validate-field')
         ->middleware('throttle:60,1');
 
-    // Public registration routes (alternative path)
-    Route::get('register/public', [PublicRegistrationController::class, 'create'])
-        ->name('register.public.create');
+    // Legacy registration routes (deprecated - keep for backward compatibility)
+    Route::prefix('register')->name('register.')->group(function () {
+        // Admin-only registration
+        Route::get('admin', [RegisteredUserController::class, 'create'])
+            ->name('admin');
+        Route::post('admin', [RegisteredUserController::class, 'store'])
+            ->name('admin.store');
 
-    Route::post('register/public', [PublicRegistrationController::class, 'store'])
-        ->name('register.public.store')
-        ->middleware('throttle:12,1');
-
-    // Progressive enhancement validation endpoints
-    Route::post('register/public/validate', [PublicRegistrationValidationController::class, 'validateRegistration'])
-        ->name('register.public.validate')
-        ->middleware('throttle:60,1');
-
-    Route::post('register/public/check-email', [PublicRegistrationValidationController::class, 'checkEmailAvailability'])
-        ->name('register.public.check-email')
-        ->middleware('throttle:30,1');
-
-    Route::post('register/public/check-password', [PublicRegistrationValidationController::class, 'checkPasswordStrength'])
-        ->name('register.public.check-password')
-        ->middleware('throttle:60,1');
+        // Comprehensive registration (deprecated)
+        Route::get('comprehensive', [ComprehensiveRegistrationController::class, 'create'])
+            ->name('comprehensive');
+        Route::post('comprehensive', [ComprehensiveRegistrationController::class, 'store'])
+            ->name('comprehensive.store');
+    });
 
     // Two-Factor Authentication routes (guest access)
     Route::get('2fa/challenge', [TwoFactorController::class, 'challenge'])->name('2fa.challenge');
