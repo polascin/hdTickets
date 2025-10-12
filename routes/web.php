@@ -376,6 +376,48 @@ Route::middleware(['auth', 'verified'])->prefix('dashboard')->name('dashboard.')
     });
 });
 
+/*
+|--------------------------------------------------------------------------
+| Live Monitoring Routes (Inspired by TicketScoutie)
+|--------------------------------------------------------------------------
+|
+| Real-time ticket monitoring dashboard with live updates, platform status,
+| and availability tracking. Features multi-channel alerts and comprehensive
+| monitoring capabilities similar to TicketScoutie's platform.
+|
+*/
+Route::middleware(['auth', 'verified'])->prefix('live-monitoring')->name('live-monitoring.')->group(function (): void {
+    // Main live monitoring dashboard
+    Route::get('/', [App\Http\Controllers\LiveMonitoringController::class, 'index'])->name('index');
+    
+    // API endpoints for real-time data
+    Route::get('/data', [App\Http\Controllers\LiveMonitoringController::class, 'getLiveData'])->name('data');
+    Route::get('/availability-updates', [App\Http\Controllers\LiveMonitoringController::class, 'getAvailabilityUpdates'])->name('availability-updates');
+    Route::get('/platform-status', [App\Http\Controllers\LiveMonitoringController::class, 'getPlatformStatus'])->name('platform-status');
+    Route::get('/system-stats', [App\Http\Controllers\LiveMonitoringController::class, 'getSystemStats'])->name('system-stats');
+    
+    // User preferences management
+    Route::get('/preferences', [App\Http\Controllers\LiveMonitoringController::class, 'getPreferences'])->name('preferences.get');
+    Route::post('/preferences', [App\Http\Controllers\LiveMonitoringController::class, 'updatePreferences'])->name('preferences.update');
+    
+    // Smart alerts management (inspired by TicketScoutie alerts)
+    Route::prefix('alerts')->name('alerts.')->group(function (): void {
+        Route::get('/', [App\Http\Controllers\SmartAlertsController::class, 'index'])->name('index');
+        Route::post('/', [App\Http\Controllers\SmartAlertsController::class, 'store'])->name('store');
+        Route::get('/{alert}', [App\Http\Controllers\SmartAlertsController::class, 'show'])->name('show');
+        Route::put('/{alert}', [App\Http\Controllers\SmartAlertsController::class, 'update'])->name('update');
+        Route::delete('/{alert}', [App\Http\Controllers\SmartAlertsController::class, 'destroy'])->name('destroy');
+        Route::post('/{alert}/toggle', [App\Http\Controllers\SmartAlertsController::class, 'toggle'])->name('toggle');
+    });
+    
+    // Push notification subscription management
+    Route::prefix('push')->name('push.')->group(function (): void {
+        Route::post('/subscribe', [App\Http\Controllers\PushNotificationController::class, 'subscribe'])->name('subscribe');
+        Route::post('/unsubscribe', [App\Http\Controllers\PushNotificationController::class, 'unsubscribe'])->name('unsubscribe');
+        Route::get('/vapid-key', [App\Http\Controllers\PushNotificationController::class, 'getVapidKey'])->name('vapid-key');
+    });
+});
+
 // Scraper dashboard API routes - consistent role middleware application
 // Route::middleware(['auth', 'verified', 'role:scraper,admin'])->group(function () {
 //     Route::prefix('scraper/api')->name('scraper.api.')->group(function () {
