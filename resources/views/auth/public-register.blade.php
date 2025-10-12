@@ -1,7 +1,8 @@
 @extends('layouts.guest-v3')
 
 @section('title', 'Create Account - HD Tickets')
-@section('description', 'Register for HD Tickets - Professional sports event ticket monitoring platform. 7-day free
+@section('description',
+  'Register for HD Tickets - Professional sports event ticket monitoring platform. 7-day free
   trial, subscription-based access.')
 
 @section('content')
@@ -360,7 +361,7 @@
           <div class="branding-inner">
             <!-- Logo -->
             <div class="logo-section">
-              <img src="{{ asset('assets/images/hdTicketsLogo.png') }}" alt="HD Tickets" class="logo-image">
+              <x-application-logo size="xl" class="logo-image" alt="HD Tickets" />
               <h1 class="logo-text">HD Tickets</h1>
             </div>
 

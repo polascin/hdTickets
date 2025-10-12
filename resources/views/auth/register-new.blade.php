@@ -26,8 +26,7 @@
         <div class="flex items-center justify-between mb-4">
           <div class="flex items-center space-x-3">
             <picture>
-              <source srcset="{{ asset('assets/images/hdTicketsLogo.webp') }}" type="image/webp">
-              <img src="{{ asset('assets/images/hdTicketsLogo.png') }}" alt="HD Tickets" class="h-8 w-auto rounded">
+              <x-application-logo size="default" class="rounded" alt="HD Tickets" />
             </picture>
             <div>
               <h1 class="text-2xl font-bold text-gray-900">Create Your Account</h1>

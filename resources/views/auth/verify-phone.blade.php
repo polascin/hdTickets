@@ -60,8 +60,7 @@
         <div class="w-full max-w-md mb-6 px-6">
           <div class="flex justify-center">
             <a href="{{ route('home') }}" class="flex items-center space-x-3">
-              <img src="{{ asset('assets/images/hdTicketsLogo.png') }}" alt="HD Tickets Logo"
-                class="w-12 h-12 rounded-lg">
+              <x-application-logo size="large" class="rounded-lg" alt="HD Tickets Logo" />
               <span class="text-2xl font-bold text-white">HD Tickets</span>
             </a>
           </div>
