@@ -3,7 +3,6 @@
 namespace App\Providers;
 
 use Illuminate\Support\ServiceProvider;
-use Laravel\Passport\Passport;
 use Override;
 
 class AppServiceProvider extends ServiceProvider
@@ -17,10 +16,7 @@ class AppServiceProvider extends ServiceProvider
     #[Override]
     public function register(): void
     {
-        // Prevent running vendor Passport migrations as we maintain project-specific ones
-        if (class_exists(Passport::class) && method_exists(Passport::class, 'ignoreMigrations')) {
-            Passport::ignoreMigrations();
-        }
+        // Application service registration
     }
 
     /**
