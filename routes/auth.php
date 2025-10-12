@@ -48,7 +48,7 @@ Route::middleware(['guest', EnhancedLoginSecurity::class])->group(function (): v
         ->name('password.store');
 
     // Registration routes - redirect to public registration
-    Route::redirect('register', 'register/public', 301);
+    Route::redirect('register', 'register/public', 301)->name('register');
     
     // Admin-only registration
     Route::get('register/admin', [RegisteredUserController::class, 'create'])
@@ -89,7 +89,7 @@ Route::middleware(['guest', EnhancedLoginSecurity::class])->group(function (): v
         ->middleware('throttle:12,1');
 
     // Progressive enhancement validation endpoints
-    Route::post('register/public/validate', [PublicRegistrationValidationController::class, 'validate'])
+    Route::post('register/public/validate', [PublicRegistrationValidationController::class, 'validateRegistration'])
         ->name('register.public.validate')
         ->middleware('throttle:60,1');
 
