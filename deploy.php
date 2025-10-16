@@ -66,18 +66,24 @@ set('laravel_version', function () {
     return $matches[0][0] ?? 11;
 });
 
+// Allow host level configuration via environment for CI/CD flexibility.
+$productionHost = getenv('DEPLOY_HOST') ?: 'hd-tickets.com';
+$productionUser = getenv('DEPLOY_USER') ?: 'deploy';
+$productionPath = getenv('DEPLOY_PATH') ?: '/var/www/hdtickets';
+$productionPhpBinary = getenv('DEPLOY_PHP_BINARY') ?: '/usr/bin/php8.3';
+
 // Production host configuration
 host('production')
-    ->setHostname('hdtickets-production.polascin.net')
-    ->setRemoteUser('deploy')
-    ->setDeployPath('/var/www/hdtickets')
+    ->setHostname($productionHost)
+    ->setRemoteUser($productionUser)
+    ->setDeployPath($productionPath)
     ->set('labels', ['stage' => 'production'])
     ->set('branch', 'main')
     ->set('http_user', 'www-data')
     ->set('composer_options', '--no-dev --prefer-dist --no-interaction --optimize-autoloader')
     ->addSshOption('UserKnownHostsFile', '/dev/null')
     ->addSshOption('StrictHostKeyChecking', 'no')
-    ->set('bin/php', '/usr/bin/php8.3');
+    ->set('bin/php', $productionPhpBinary);
 
 // Custom tasks for Laravel deployment
 

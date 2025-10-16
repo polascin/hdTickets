@@ -282,6 +282,8 @@ QUEUE_CONNECTION=redis
 HORIZON_BALANCE=auto
 ```
 
+Automated deployments run via GitHub Actions (`.github/workflows/deploy.yml`) once the required secrets are configured. The production host is the DigitalOcean droplet at `hd-tickets.com`. See `docs/DEPLOYMENT_AUTOMATION.md` for setup details.
+
 ## 🔧 Development & Testing
 
 ### Code Quality Standards

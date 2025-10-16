@@ -1,0 +1,68 @@
+name: Deploy Production
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+concurrency:
+  group: deploy-production
+  cancel-in-progress: false
+
+env:
+  DEPLOY_HOST: ${{ secrets.DEPLOY_HOST }}
+  DEPLOY_USER: ${{ secrets.DEPLOY_USER }}
+  DEPLOY_PATH: ${{ secrets.DEPLOY_PATH }}
+  DEPLOY_PHP_BINARY: ${{ secrets.DEPLOY_PHP_BINARY }}
+
+jobs:
+  deploy:
+    name: Run Deployer
+    runs-on: ubuntu-24.04
+    environment:
+      name: production
+      url: https://hd-tickets.com
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+          extensions: mbstring, intl, bcmath, curl, pcntl, zip
+          coverage: none
+          tools: composer
+
+      - name: Install Deployer
+        run: composer global require deployer/deployer:^7
+
+      - name: Add Composer global bin to PATH
+        run: |
+          if [ -d "$HOME/.composer/vendor/bin" ]; then
+            echo "$HOME/.composer/vendor/bin" >> $GITHUB_PATH
+          fi
+          if [ -d "$HOME/.config/composer/vendor/bin" ]; then
+            echo "$HOME/.config/composer/vendor/bin" >> $GITHUB_PATH
+          fi
+
+      - name: Configure SSH Agent
+        uses: webfactory/ssh-agent@v0.9.0
+        with:
+          ssh-private-key: ${{ secrets.DEPLOY_SSH_PRIVATE_KEY }}
+
+      - name: Add server to known_hosts
+        run: |
+          mkdir -p ~/.ssh
+          if [ -z "$DEPLOY_HOST" ]; then
+            echo "DEPLOY_HOST secret is not configured" >&2
+            exit 1
+          fi
+          ssh-keyscan -H "$DEPLOY_HOST" >> ~/.ssh/known_hosts
+
+      - name: Show Deployer version
+        run: dep --version
+
+      - name: Deploy to production
+        run: dep deploy production
