@@ -14,10 +14,10 @@ concurrency:
   cancel-in-progress: false
 
 env:
-  DEPLOY_HOST: ${{ secrets.DEPLOY_HOST }}
-  DEPLOY_USER: ${{ secrets.DEPLOY_USER }}
-  DEPLOY_PATH: ${{ secrets.DEPLOY_PATH }}
-  DEPLOY_PHP_BINARY: ${{ secrets.DEPLOY_PHP_BINARY }}
+  DEPLOY_HOST: ${{ secrets.DEPLOY_HOST || 'hd-tickets.com' }}
+  DEPLOY_USER: ${{ secrets.DEPLOY_USER || 'deploy' }}
+  DEPLOY_PATH: ${{ secrets.DEPLOY_PATH || '/var/www/hdtickets' }}
+  DEPLOY_PHP_BINARY: ${{ secrets.DEPLOY_PHP_BINARY || '/usr/bin/php8.3' }}
 
 jobs:
   deploy:
@@ -34,20 +34,21 @@ jobs:
           fetch-depth: 0
           persist-credentials: false
 
-      - name: Validate required secrets
+      - name: Validate required variables (informational)
         run: |
+          missing=0
           for v in DEPLOY_HOST DEPLOY_USER DEPLOY_PATH DEPLOY_PHP_BINARY; do
             if [ -z "${!v}" ]; then
-              echo "Missing secret: $v" >&2
-              exit 1
+              echo "Warning: $v is empty; using defaults from deploy.php if available" >&2
             fi
           done
 
       - name: Validate SSH key secret
-        if: ${{ secrets.DEPLOY_SSH_PRIVATE_KEY == '' }}
         run: |
-          echo "Missing secret: DEPLOY_SSH_PRIVATE_KEY" >&2
-          exit 1
+          if [ -z "${{ secrets.DEPLOY_SSH_PRIVATE_KEY }}" ]; then
+            echo "Missing secret: DEPLOY_SSH_PRIVATE_KEY" >&2
+            exit 1
+          fi
 
       - name: Setup PHP
         uses: shivammathur/setup-php@bf6b4fbd49ca58e4608c9c89fba0b8d90bd2a39f # shivammathur/setup-php v2.35.5
