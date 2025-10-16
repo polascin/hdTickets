@@ -6,6 +6,9 @@ on:
       - main
   workflow_dispatch:
 
+permissions:
+  contents: read
+
 concurrency:
   group: deploy-production
   cancel-in-progress: false
@@ -20,12 +23,24 @@ jobs:
   deploy:
     name: Run Deployer
     runs-on: ubuntu-24.04
+    timeout-minutes: 45
     environment:
       name: production
       url: https://hd-tickets.com
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Validate required secrets
+        run: |
+          for v in DEPLOY_HOST DEPLOY_USER DEPLOY_PATH DEPLOY_PHP_BINARY; do
+            if [ -z "${!v}" ]; then
+              echo "Missing secret: $v" >&2
+              exit 1
+            fi
+          done
 
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
@@ -55,6 +70,9 @@ jobs:
       - name: Add server to known_hosts
         run: |
           mkdir -p ~/.ssh
+          chmod 700 ~/.ssh
+          touch ~/.ssh/known_hosts
+          chmod 600 ~/.ssh/known_hosts
           if [ -z "$DEPLOY_HOST" ]; then
             echo "DEPLOY_HOST secret is not configured" >&2
             exit 1

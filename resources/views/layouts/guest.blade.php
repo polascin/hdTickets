@@ -29,6 +29,8 @@
     <link rel="preconnect" href="https://fonts.bunny.net" crossorigin>
     <link href="https://fonts.bunny.net/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
+    @stack('styles')
+
     <!-- Tailwind CDN removed: styles now served via compiled app CSS -->
 
     <!-- Alpine.js -->
@@ -79,47 +81,51 @@
         opacity-40"></div>
     </div>
 
-    <!-- Main Content (semantic auth container) -->
-    <x-layout.auth-container>
-      <div class="sm:mx-auto sm:w-full sm:max-w-md">
-        <!-- Logo -->
-        <div class="flex justify-center animate-fade-in">
-          <picture>
-            <source srcset="{{ asset('assets/images/hdTicketsLogo.webp') }}" type="image/webp" width="80"
-              height="80">
-            <img src="{{ asset('assets/images/hdTicketsLogo.png') }}"
-              alt="HD Tickets - Sports Events Entry Tickets Monitoring System"
-              class="h-20 w-20 rounded-2xl shadow-lg ring-4 ring-white/20 transition-transform duration-300 hover:scale-105"
-              width="80" height="80" loading="eager">
-          </picture>
+    @if (trim($__env->yieldContent('full-content')))
+      @yield('full-content')
+    @else
+      <!-- Main Content (semantic auth container) -->
+      <x-layout.auth-container>
+        <div class="sm:mx-auto sm:w-full sm:max-w-md">
+          <!-- Logo -->
+          <div class="flex justify-center animate-fade-in">
+            <picture>
+              <source srcset="{{ asset('assets/images/hdTicketsLogo.webp') }}" type="image/webp" width="80"
+                height="80">
+              <img src="{{ asset('assets/images/hdTicketsLogo.png') }}"
+                alt="HD Tickets - Sports Events Entry Tickets Monitoring System"
+                class="h-20 w-20 rounded-2xl shadow-lg ring-4 ring-white/20 transition-transform duration-300 hover:scale-105"
+                width="80" height="80" loading="eager">
+            </picture>
+          </div>
+
+          <!-- Brand Title -->
+          <h1 class="mt-6 text-center text-3xl font-bold tracking-tight text-gray-900 animate-slide-up">
+            HD Tickets
+          </h1>
+          <p class="mt-2 text-center text-sm text-gray-600 animate-slide-up">
+            Sports Events Entry Tickets System
+          </p>
         </div>
 
-        <!-- Brand Title -->
-        <h1 class="mt-6 text-center text-3xl font-bold tracking-tight text-gray-900 animate-slide-up">
-          HD Tickets
-        </h1>
-        <p class="mt-2 text-center text-sm text-gray-600 animate-slide-up">
-          Sports Events Entry Tickets System
-        </p>
-      </div>
+        <div class="mt-8 sm:mx-auto sm:w-full sm:max-w-md animate-slide-up">
+          @yield('content')
+        </div>
 
-      <div class="mt-8 sm:mx-auto sm:w-full sm:max-w-md animate-slide-up">
-        @yield('content')
-      </div>
-
-      <!-- Security Info -->
-      <div class="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
-        <div class="text-center">
-          <div class="inline-flex items-center px-4 py-2 rounded-full bg-green-50 border border-green-200">
-            <svg class="h-4 w-4 text-green-600 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
-            </svg>
-            <span class="text-sm font-medium text-green-800">Secure & Encrypted</span>
+        <!-- Security Info -->
+        <div class="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
+          <div class="text-center">
+            <div class="inline-flex items-center px-4 py-2 rounded-full bg-green-50 border border-green-200">
+              <svg class="h-4 w-4 text-green-600 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+              </svg>
+              <span class="text-sm font-medium text-green-800">Secure & Encrypted</span>
+            </div>
           </div>
         </div>
-      </div>
-    </x-layout.auth-container>
+      </x-layout.auth-container>
+    @endif
 
     <!-- Footer -->
     <div class="fixed bottom-0 left-0 right-0 bg-white/80 backdrop-blur-sm border-t border-gray-200">
@@ -142,6 +148,8 @@
         </div>
       </div>
     </div>
+
+    @stack('scripts')
 
   </body>
 

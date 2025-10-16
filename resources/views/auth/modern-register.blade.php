@@ -358,7 +358,7 @@
     </style>
   @endpush
 
-@section('content')
+@section('full-content')
   <div class="registration-page">
     <div class="registration-card">
       <!-- Branding Section -->
@@ -479,7 +479,8 @@
 
           <!-- Terms acceptance -->
           <div class="checkbox-field">
-            <input type="checkbox" id="accept_terms" name="accept_terms" class="checkbox-input" required>
+            <input type="checkbox" id="accept_terms" name="accept_terms" class="checkbox-input" required
+              {{ old('accept_terms') ? 'checked' : '' }}>
             <label for="accept_terms" class="checkbox-label">
               I agree to the <a href="{{ route('legal.terms-of-service') }}" target="_blank">Terms of Service</a> and
               <a href="{{ route('legal.privacy-policy') }}" target="_blank">Privacy Policy</a>
@@ -492,7 +493,7 @@
           <!-- Marketing opt-in -->
           <div class="checkbox-field">
             <input type="checkbox" id="marketing_opt_in" name="marketing_opt_in" class="checkbox-input"
-              value="1">
+              value="1" {{ old('marketing_opt_in') ? 'checked' : '' }}>
             <label for="marketing_opt_in" class="checkbox-label">
               Send me updates about new features and ticket alerts
             </label>
