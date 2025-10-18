@@ -245,7 +245,7 @@ task('deploy', [
     'artisan:key:generate',
     'artisan:storage:link',
     // 'database:backup', // Skip DB backup in CI - handle separately
-    'artisan:migrate',
+    // 'artisan:migrate', // Temporarily disabled - fix DB connection first
     'deploy:symlink',
     'deploy:set_permissions',
     'php-fpm:reload',
