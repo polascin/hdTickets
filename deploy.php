@@ -87,32 +87,29 @@ host('production')
 
 // Custom tasks for Laravel deployment
 
-// Task: Install/update Node dependencies
-task('npm:install', function () {
-    if (test('[ -f {{release_path}}/package.json ]')) {
-        within('{{release_path}}', function () {
-            run('{{bin/npm}} ci --production');
-        });
+// Task: Upload built assets from CI
+task('deploy:upload-assets', function () {
+    if (test('[ -d public/build ]')) {
+        upload('public/build/', '{{release_path}}/public/build/');
+        writeln('<info>✓</info> Built assets uploaded from CI');
+    } else {
+        writeln('<comment>!</comment> No built assets found - assets should be built in CI');
     }
-})->desc('Install npm dependencies');
-
-// Task: Build assets with Vite
-task('npm:build', function () {
-    if (test('[ -f {{release_path}}/package.json ]')) {
-        within('{{release_path}}', function () {
-            run('{{bin/npm}} run build');
-        });
-    }
-})->desc('Build frontend assets');
+})->desc('Upload pre-built assets from CI');
 
 // Task: Generate app key if it doesn't exist
 task('artisan:key:generate', function () {
-    $output = run('{{bin/php}} {{release_path}}/artisan tinker --execute="echo config(\'app.key\');"');
-    if (empty(trim($output)) || trim($output) === 'null') {
-        run('{{bin/php}} {{release_path}}/artisan key:generate --force');
-        writeln('<info>✓</info> Application key generated');
+    // Check if .env exists and has APP_KEY
+    if (test('[ -f {{deploy_path}}/shared/.env ]')) {
+        $hasKey = run('grep -q "^APP_KEY=.\+" {{deploy_path}}/shared/.env && echo "yes" || echo "no"');
+        if (trim($hasKey) === 'no') {
+            run('{{bin/php}} {{release_path}}/artisan key:generate --force');
+            writeln('<info>✓</info> Application key generated');
+        } else {
+            writeln('<info>✓</info> Application key already exists');
+        }
     } else {
-        writeln('<info>✓</info> Application key already exists');
+        writeln('<comment>!</comment> .env file not found, skipping key generation');
     }
 })->desc('Generate application key');
 
@@ -139,11 +136,12 @@ task('artisan:storage:link', function () {
 // Task: Cache Laravel configuration
 task('artisan:cache:all', function () {
     run('{{bin/php}} {{release_path}}/artisan config:cache');
-    run('{{bin/php}} {{release_path}}/artisan route:cache');
+    // Skip route:cache due to closure routes in web.php
+    // run('{{bin/php}} {{release_path}}/artisan route:cache');
     run('{{bin/php}} {{release_path}}/artisan view:cache');
     run('{{bin/php}} {{release_path}}/artisan event:cache');
-    writeln('<info>✓</info> All caches updated');
-})->desc('Cache configurations, routes, views, and events');
+    writeln('<info>✓</info> Caches updated (routes skipped)');
+})->desc('Cache configurations, views, and events');
 
 // Task: Gracefully restart Horizon
 task('artisan:horizon:terminate', function () {
@@ -155,6 +153,12 @@ task('artisan:horizon:terminate', function () {
         writeln('<comment>!</comment> Horizon service not running');
     }
 })->desc('Gracefully terminate Horizon workers');
+
+// Task: Reload PHP-FPM
+task('php-fpm:reload', function () {
+    run('sudo systemctl reload php8.3-fpm');
+    writeln('<info>✓</info> PHP-FPM reloaded');
+})->desc('Reload PHP-FPM service');
 
 // Task: Restart Horizon service
 task('horizon:restart', function () {
@@ -225,20 +229,21 @@ desc('Deploy HD Tickets to production');
 task('deploy', [
     'deploy:prepare',
     'deploy:vendors',
-    'npm:install',
-    'npm:build',
+    'deploy:upload-assets',
     'artisan:key:generate',
     'artisan:passport:keys',
     'artisan:storage:link',
-    'database:backup',
+    // 'database:backup', // Skip DB backup in CI - handle separately
     'artisan:migrate',
     'artisan:cache:all',
     'deploy:symlink',
     'deploy:set_permissions',
+    'php-fpm:reload',
     'artisan:horizon:terminate',
     'horizon:restart',
     'health:check',
     'deploy:cleanup',
+    'artisan:up',
     'deploy:success',
 ]);
 

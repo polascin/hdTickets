@@ -13,20 +13,15 @@ concurrency:
   group: deploy-production
   cancel-in-progress: false
 
-env:
-  DEPLOY_HOST: ${{ secrets.DEPLOY_HOST }}
-  DEPLOY_USER: ${{ secrets.DEPLOY_USER }}
-  DEPLOY_PATH: ${{ secrets.DEPLOY_PATH }}
-  DEPLOY_PHP_BINARY: ${{ secrets.DEPLOY_PHP_BINARY }}
-
 jobs:
   deploy:
-    name: Run Deployer
+    name: Build and Deploy
     runs-on: ubuntu-24.04
     timeout-minutes: 45
     environment:
       name: production
       url: https://hd-tickets.com
+    
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -34,13 +29,32 @@ jobs:
           fetch-depth: 0
 
       - name: Validate required secrets
+        env:
+          DEPLOY_HOST: ${{ secrets.DEPLOY_HOST }}
+          DEPLOY_USER: ${{ secrets.DEPLOY_USER }}
+          DEPLOY_PATH: ${{ secrets.DEPLOY_PATH }}
+          DEPLOY_PHP_BINARY: ${{ secrets.DEPLOY_PHP_BINARY }}
+          DEPLOY_SSH_PRIVATE_KEY: ${{ secrets.DEPLOY_SSH_PRIVATE_KEY }}
         run: |
-          for v in DEPLOY_HOST DEPLOY_USER DEPLOY_PATH DEPLOY_PHP_BINARY; do
+          for v in DEPLOY_HOST DEPLOY_USER DEPLOY_PATH DEPLOY_PHP_BINARY DEPLOY_SSH_PRIVATE_KEY; do
             if [ -z "${!v}" ]; then
               echo "Missing secret: $v" >&2
               exit 1
             fi
           done
+          echo "All required secrets are configured"
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install Node dependencies
+        run: npm ci
+
+      - name: Build frontend assets
+        run: npm run build
 
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
@@ -51,16 +65,10 @@ jobs:
           tools: composer
 
       - name: Install Deployer
-        run: composer global require deployer/deployer:^7
-
-      - name: Add Composer global bin to PATH
         run: |
-          if [ -d "$HOME/.composer/vendor/bin" ]; then
-            echo "$HOME/.composer/vendor/bin" >> $GITHUB_PATH
-          fi
-          if [ -d "$HOME/.config/composer/vendor/bin" ]; then
-            echo "$HOME/.config/composer/vendor/bin" >> $GITHUB_PATH
-          fi
+          curl -LO https://deployer.org/deployer.phar
+          chmod +x deployer.phar
+          ./deployer.phar --version
 
       - name: Configure SSH Agent
         uses: webfactory/ssh-agent@v0.9.0
@@ -68,19 +76,17 @@ jobs:
           ssh-private-key: ${{ secrets.DEPLOY_SSH_PRIVATE_KEY }}
 
       - name: Add server to known_hosts
+        env:
+          DEPLOY_HOST: ${{ secrets.DEPLOY_HOST }}
         run: |
           mkdir -p ~/.ssh
           chmod 700 ~/.ssh
-          touch ~/.ssh/known_hosts
-          chmod 600 ~/.ssh/known_hosts
-          if [ -z "$DEPLOY_HOST" ]; then
-            echo "DEPLOY_HOST secret is not configured" >&2
-            exit 1
-          fi
-          ssh-keyscan -H "$DEPLOY_HOST" >> ~/.ssh/known_hosts
-
-      - name: Show Deployer version
-        run: dep --version
+          ssh-keyscan -t ed25519,rsa "$DEPLOY_HOST" >> ~/.ssh/known_hosts
 
       - name: Deploy to production
-        run: dep deploy production
+        env:
+          DEPLOY_HOST: ${{ secrets.DEPLOY_HOST }}
+          DEPLOY_USER: ${{ secrets.DEPLOY_USER }}
+          DEPLOY_PATH: ${{ secrets.DEPLOY_PATH }}
+          DEPLOY_PHP_BINARY: ${{ secrets.DEPLOY_PHP_BINARY }}
+        run: ./deployer.phar deploy production -vvv
