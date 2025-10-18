@@ -292,20 +292,26 @@ task('local:quality:check', function () {
 before('deploy:vendors', 'artisan:down');
 after('deploy:failed', 'artisan:up');
 
-// Success message
-after('success', function () {
+// Success message task
+task('deploy:success:message', function () {
     writeln('');
     writeln('<info>🚀 HD Tickets deployed successfully!</info>');
     writeln('<info>📊 Sport Events Entry Tickets Monitoring System is now live</info>');
     writeln('<comment>🔗 https://hd-tickets.com</comment>');
     writeln('');
-});
+})->desc('Show success message');
 
-// Failure message
-fail('deploy', 'deploy:failed');
-after('deploy:failed', function () {
+// Failure message task
+task('deploy:failed:message', function () {
     writeln('');
     writeln('<error>❌ Deployment failed!</error>');
-    writeln('<comment>🔄 Consider running: dep rollback production</comment>');
+    writeln('<comment>🔔 Consider running: dep rollback production</comment>');
     writeln('');
-});
+})->desc('Show failure message');
+
+// Hook success message after success
+after('success', 'deploy:success:message');
+
+// Set up failure handling
+fail('deploy', 'deploy:failed');
+after('deploy:failed', 'deploy:failed:message');
