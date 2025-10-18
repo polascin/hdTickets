@@ -2,7 +2,34 @@
 
 namespace Deployer;
 
-require 'recipe/laravel.php';
+require 'recipe/common.php';
+
+// Add some Laravel-specific settings
+set('shared_files', [
+    '.env',
+    'storage/oauth-private.key',
+    'storage/oauth-public.key',
+]);
+
+set('shared_dirs', [
+    'storage',
+    'bootstrap/cache',
+]);
+
+set('writable_dirs', [
+    'bootstrap/cache',
+    'storage',
+    'storage/app',
+    'storage/app/public',
+    'storage/framework',
+    'storage/framework/cache',
+    'storage/framework/cache/data',
+    'storage/framework/sessions',
+    'storage/framework/testing',
+    'storage/framework/views',
+    'storage/logs',
+    'storage/quality',
+]);
 
 // Project name
 set('application', 'HD Tickets');
@@ -29,34 +56,13 @@ set('composer_options', '--verbose --prefer-dist --no-progress --no-interaction 
 set('bin/npm', 'npm');
 set('bin/node', 'node');
 
-// Shared files/folders between releases
-set('shared_files', [
-    '.env',
-    'storage/oauth-private.key',
-    'storage/oauth-public.key',
-]);
+// Laravel artisan binary
+set('bin/php', 'php');
 
-set('shared_dirs', [
-    'storage',
-    'bootstrap/cache',
-    'node_modules',
-]);
-
-// Writable directories
-set('writable_dirs', [
-    'bootstrap/cache',
-    'storage',
-    'storage/app',
-    'storage/app/public',
-    'storage/framework',
-    'storage/framework/cache',
-    'storage/framework/cache/data',
-    'storage/framework/sessions',
-    'storage/framework/testing',
-    'storage/framework/views',
-    'storage/logs',
-    'storage/quality',
-]);
+// Composer task
+task('deploy:vendors', function () {
+    run('cd {{release_path}} && composer install --no-dev --prefer-dist --no-interaction --optimize-autoloader');
+})->desc('Install composer dependencies');
 
 // Laravel specific settings
 set('laravel_version', function () {
