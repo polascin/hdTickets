@@ -242,7 +242,7 @@ task('deploy', [
     'artisan:horizon:terminate',
     'horizon:restart',
     'health:check',
-    'deploy:cleanup',
+    'cleanup',
     'artisan:up',
     'success',
 ]);
@@ -250,7 +250,7 @@ task('deploy', [
 // Rollback task with health check
 desc('Rollback to previous release');
 task('rollback', [
-    'rollback:rollback',
+    'rollback',
     'artisan:cache:all',
     'artisan:horizon:terminate',
     'horizon:restart',
