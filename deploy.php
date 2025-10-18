@@ -74,9 +74,9 @@ $productionPhpBinary = getenv('DEPLOY_PHP_BINARY') ?: '/usr/bin/php8.3';
 
 // Production host configuration
 host('production')
-    ->setHostname($productionHost)
-    ->setRemoteUser($productionUser)
-    ->setDeployPath($productionPath)
+    ->hostname($productionHost)
+    ->user($productionUser)
+    ->set('deploy_path', $productionPath)
     ->set('labels', ['stage' => 'production'])
     ->set('branch', 'main')
     ->set('http_user', 'www-data')
