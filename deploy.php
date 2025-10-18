@@ -69,6 +69,20 @@ task('artisan:migrate', function () {
     run('{{bin/php}} {{release_path}}/artisan migrate --force');
 })->desc('Run database migrations');
 
+// Custom symlink task that works without release symlink
+task('custom:symlink', function () {
+    $releasePath = get('release_path');
+    $deployPath = get('deploy_path');
+    
+    // Get just the release directory name from the full path
+    $releaseName = basename($releasePath);
+    
+    // Create new current symlink pointing to the new release
+    run("cd {{deploy_path}} && ln -sf releases/$releaseName current");
+    
+    writeln("<info>✓</info> Symlink updated to point to $releaseName");
+})->desc('Create current symlink to new release');
+
 // Laravel specific settings
 set('laravel_version', function () {
     $result = run('{{bin/php}} {{release_path}}/artisan --version');
@@ -246,7 +260,7 @@ task('deploy', [
     'artisan:storage:link',
     // 'database:backup', // Skip DB backup in CI - handle separately
     // 'artisan:migrate', // Temporarily disabled - fix DB connection first
-    'deploy:symlink',
+    'custom:symlink',
     'deploy:set_permissions',
     'php-fpm:reload',
     'horizon:restart',
