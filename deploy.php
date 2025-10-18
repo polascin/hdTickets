@@ -147,7 +147,8 @@ task('artisan:cache:all', function () {
 task('artisan:horizon:terminate', function () {
     $horizonStatus = run('sudo systemctl is-active hdtickets-horizon || echo "inactive"');
     if (trim($horizonStatus) === 'active') {
-        run('{{bin/php}} {{current_path}}/artisan horizon:terminate');
+        // Use release_path since current_path doesn't exist yet during first deployment
+        run('{{bin/php}} {{release_path}}/artisan horizon:terminate');
         writeln('<info>✓</info> Horizon workers terminated gracefully');
     } else {
         writeln('<comment>!</comment> Horizon service not running');
