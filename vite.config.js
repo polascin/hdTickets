@@ -65,62 +65,21 @@ export default defineConfig({
 
     rollupOptions: {
       output: {
-        // Advanced chunk splitting strategy
+        // Simplified chunk splitting to avoid build issues
         manualChunks: (id) => {
           // Core vendor libraries
           if (id.includes('node_modules')) {
+            if (id.includes('vue') || id.includes('@vue')) {
+              return 'vue';
+            }
+            if (id.includes('react')) {
+              return 'react';
+            }
             if (id.includes('alpinejs')) {
               return 'alpine';
             }
-            if (id.includes('react') || id.includes('react-dom')) {
-              return 'react-framework';
-            }
-            if (id.includes('vue') || id.includes('@vue')) {
-              return 'vue-framework';
-            }
-            if (id.includes('@angular') || id.includes('rxjs') || id.includes('zone.js')) {
-              return 'angular-framework';
-            }
-            if (id.includes('axios')) {
-              return 'http';
-            }
-            if (id.includes('chart.js') || id.includes('chartjs')) {
-              return 'charts';
-            }
-            if (id.includes('laravel-echo') || id.includes('pusher-js')) {
-              return 'realtime';
-            }
-            if (id.includes('lodash') || id.includes('moment') || id.includes('dayjs')) {
-              return 'utils';
-            }
-            // Other vendor libraries
+            // All other vendor libraries
             return 'vendor';
-          }
-
-          // Application chunks
-          if (id.includes('/resources/js/components/')) {
-            return 'components';
-          }
-          if (id.includes('/resources/js/utils/')) {
-            return 'app-utils';
-          }
-          if (id.includes('/resources/js/tickets/')) {
-            return 'tickets';
-          }
-          if (id.includes('/resources/js/frameworks/react/')) {
-            return 'react-components';
-          }
-          if (id.includes('/resources/js/frameworks/vue/')) {
-            return 'vue-components';
-          }
-          if (id.includes('/resources/js/frameworks/angular/')) {
-            return 'angular-components';
-          }
-          if (id.includes('/resources/js/frameworks/shared/')) {
-            return 'shared-components';
-          }
-          if (id.includes('/resources/css/components/')) {
-            return 'component-styles';
           }
         },
 
@@ -219,20 +178,6 @@ export default defineConfig({
       'axios',
       '@alpinejs/persist',
       '@alpinejs/focus',
-      'chart.js',
-      'laravel-echo',
-      'pusher-js',
-      'react',
-      'react-dom',
-      'react-router-dom',
-      'vue',
-      '@vue/runtime-dom',
-      'vue-router',
-      'pinia',
-      '@angular/core',
-      '@angular/common',
-      '@angular/platform-browser',
-      'rxjs',
     ],
     // Exclude from optimization
     exclude: [

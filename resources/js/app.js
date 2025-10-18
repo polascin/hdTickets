@@ -173,18 +173,9 @@ function setupEventHandlers(
 // Make Alpine available globally
 window.Alpine = Alpine;
 
-// Framework initialization (conditional loading)
-if (document.querySelector('[data-react-component]')) {
-  import('./frameworks/react/index.tsx');
-}
-
-if (document.querySelector('[data-vue-component]')) {
-  import('./frameworks/vue/index.ts');
-}
-
-if (document.querySelector('[data-angular-component]')) {
-  import('./frameworks/angular/index.ts');
-}
+// Framework initialization (conditional loading - build time)
+// Only load frameworks that are actually needed during build
+// The frameworks will auto-initialize when their components are detected
 
 // Initialize shared utilities for all frameworks
 import('./frameworks/shared/index.ts').then(({ initSharedUtils }) => {

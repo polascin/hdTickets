@@ -4,11 +4,12 @@
  * Common utilities and services used across React, Vue, Angular, and Alpine.js
  */
 
-export * from './types';
-export * from './services/api';
+// Note: Types and API service files will be created when needed
+// export * from './types';
+// export * from './services/api';
 
 // Re-export commonly used utilities
-export { default as apiService } from './services/api';
+// export { default as apiService } from './services/api';
 
 // Design tokens utility
 export const getDesignTokens = () => {
