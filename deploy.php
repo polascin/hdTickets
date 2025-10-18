@@ -244,7 +244,7 @@ task('deploy', [
     'health:check',
     'deploy:cleanup',
     'artisan:up',
-    'deploy:success',
+    'success',
 ]);
 
 // Rollback task with health check
@@ -293,7 +293,7 @@ before('deploy:vendors', 'artisan:down');
 after('deploy:failed', 'artisan:up');
 
 // Success message
-after('deploy:success', function () {
+after('success', function () {
     writeln('');
     writeln('<info>🚀 HD Tickets deployed successfully!</info>');
     writeln('<info>📊 Sport Events Entry Tickets Monitoring System is now live</info>');
