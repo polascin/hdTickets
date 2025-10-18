@@ -1,13 +1,11 @@
 import laravel from 'laravel-vite-plugin';
 import react from '@vitejs/plugin-react';
-import vue from '@vitejs/plugin-vue';
 import { resolve } from 'path';
 import { defineConfig } from 'vite';
 
 export default defineConfig({
   plugins: [
     react(),
-    vue(),
     laravel({
       input: [
         // Tailwind CSS - Main utility-first CSS framework
@@ -50,7 +48,7 @@ export default defineConfig({
       '@tickets': resolve(__dirname, 'resources/js/tickets'),
       '@frameworks': resolve(__dirname, 'resources/js/frameworks'),
       '@react': resolve(__dirname, 'resources/js/frameworks/react'),
-      '@vue': resolve(__dirname, 'resources/js/frameworks/vue'),
+      // '@vue': resolve(__dirname, 'resources/js/frameworks/vue'), // Removed to avoid conflicts
       '@angular': resolve(__dirname, 'resources/js/frameworks/angular'),
       '@shared': resolve(__dirname, 'resources/js/frameworks/shared'),
     },
@@ -65,20 +63,17 @@ export default defineConfig({
 
     rollupOptions: {
       output: {
-        // Simplified chunk splitting to avoid build issues
+        // Basic chunk splitting - no Vue to avoid conflicts
         manualChunks: (id) => {
           // Core vendor libraries
           if (id.includes('node_modules')) {
-            if (id.includes('vue') || id.includes('@vue')) {
-              return 'vue';
-            }
             if (id.includes('react')) {
               return 'react';
             }
             if (id.includes('alpinejs')) {
               return 'alpine';
             }
-            // All other vendor libraries
+            // All other vendor libraries (including Vue)
             return 'vendor';
           }
         },

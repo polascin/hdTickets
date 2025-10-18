@@ -9,7 +9,7 @@ import { createApp, App as VueApp } from 'vue';
 import { createPinia } from 'pinia';
 import { createRouter, createWebHistory } from 'vue-router';
 import { VueBridge } from './bridge/VueBridge';
-import { initSharedUtils, globalEventBus } from '@shared';
+import { initSharedUtils, globalEventBus } from '../shared';
 
 // Component imports
 import TicketPurchaseFlow from './components/purchase/TicketPurchaseFlow.vue';
