@@ -36,6 +36,13 @@ class RouteServiceProvider extends ServiceProvider
             return Limit::perMinute(120)->by($request->user()?->id ?: $request->ip());
         });
 
+        // Registration limiter: allow up to 12 attempts per minute, keyed by IP+email when available
+        RateLimiter::for('register', function (Request $request) {
+            $key = $request->ip() . '|' . (string) $request->input('email');
+
+            return Limit::perMinute(12)->by($key);
+        });
+
         $this->routes(function (): void {
             Route::middleware('api')
                 ->prefix('api')
