@@ -64,6 +64,11 @@ task('deploy:vendors', function () {
     run('cd {{release_path}} && composer install --no-dev --prefer-dist --no-interaction --optimize-autoloader');
 })->desc('Install composer dependencies');
 
+// Essential Laravel artisan tasks
+task('artisan:migrate', function () {
+    run('{{bin/php}} {{release_path}}/artisan migrate --force');
+})->desc('Run database migrations');
+
 // Laravel specific settings
 set('laravel_version', function () {
     $result = run('{{bin/php}} {{release_path}}/artisan --version');
@@ -238,19 +243,13 @@ task('deploy', [
     'deploy:vendors',
     'deploy:upload-assets',
     'artisan:key:generate',
-    'artisan:passport:keys',
     'artisan:storage:link',
     // 'database:backup', // Skip DB backup in CI - handle separately
     'artisan:migrate',
-    'artisan:cache:all',
     'deploy:symlink',
     'deploy:set_permissions',
     'php-fpm:reload',
-    'artisan:horizon:terminate',
     'horizon:restart',
-    'health:check',
-    'cleanup',
-    'artisan:up',
     'success',
 ]);
 
@@ -258,10 +257,7 @@ task('deploy', [
 desc('Rollback to previous release');
 task('rollback', [
     'rollback',
-    'artisan:cache:all',
-    'artisan:horizon:terminate',
     'horizon:restart',
-    'health:check',
 ]);
 
 // Task: Deploy with quality checks
@@ -295,9 +291,7 @@ task('local:quality:check', function () {
     writeln('<info>✓</info> All quality checks passed');
 })->desc('Run quality checks locally before deployment')->local();
 
-// Deployment hooks
-before('deploy:vendors', 'artisan:down');
-after('deploy:failed', 'artisan:up');
+// Deployment hooks - removed artisan tasks since we're using common recipe
 
 // Success message task
 task('deploy:success:message', function () {
