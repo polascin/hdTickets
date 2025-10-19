@@ -149,4 +149,18 @@ return [
 
     // Comprehensive Login Configuration
     'comprehensive_login' => env('AUTH_COMPREHENSIVE_LOGIN', TRUE),
+
+    /*
+    |--------------------------------------------------------------------------
+    | Registration Features
+    |--------------------------------------------------------------------------
+    |
+    | Configuration for registration features including 2FA prompts,
+    | phone verification, and legal document acceptance.
+    |
+    */
+
+    'registration' => [
+        'two_factor_prompt' => env('AUTH_REGISTRATION_TWO_FACTOR_PROMPT', TRUE),
+    ],
 ];

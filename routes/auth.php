@@ -15,6 +15,8 @@ use App\Http\Controllers\Auth\RegisteredUserController;
 use App\Http\Controllers\Auth\TwoFactorController;
 use App\Http\Controllers\Auth\TwoFactorSetupController;
 use App\Http\Controllers\Auth\VerifyEmailController;
+use App\Http\Controllers\Auth\PublicRegistrationController;
+use App\Http\Controllers\Auth\PublicRegistrationValidationController;
 use App\Http\Middleware\EnhancedLoginSecurity;
 use Illuminate\Support\Facades\Route;
 
@@ -27,7 +29,9 @@ Route::middleware(['guest', EnhancedLoginSecurity::class])->group(function (): v
         return view('auth.login-comprehensive');
     })->name('login.comprehensive');
 
-    Route::post('login', [AuthenticatedSessionController::class, 'store']);
+    Route::post('login', [AuthenticatedSessionController::class, 'store'])
+        ->middleware('throttle:login')
+        ->middleware('recaptcha:login');
 
     // Login enhancement endpoints
     Route::post('login/check-email', [LoginEnhancementController::class, 'checkEmail'])
@@ -52,7 +56,7 @@ Route::middleware(['guest', EnhancedLoginSecurity::class])->group(function (): v
 
     Route::post('register', [ModernRegistrationController::class, 'store'])
             ->name('register.store')
-            ->middleware('throttle:register');
+            ->middleware(['throttle:register', 'recaptcha:register']);
 
     // Real-time validation endpoints
     Route::post('register/check-email', [ModernRegistrationController::class, 'checkEmail'])
@@ -85,6 +89,40 @@ Route::middleware(['guest', EnhancedLoginSecurity::class])->group(function (): v
     // Two-Factor Authentication routes (guest access)
     Route::get('2fa/challenge', [TwoFactorController::class, 'challenge'])->name('2fa.challenge');
     Route::post('2fa/verify', [TwoFactorController::class, 'verify'])->name('2fa.verify');
+
+    // Public Registration System (with phone verification)
+    Route::prefix('register/public')->name('register.public.')->group(function () {
+        Route::get('/', [PublicRegistrationController::class, 'create'])->name('form');
+
+        Route::post('/', [PublicRegistrationController::class, 'store'])
+            ->name('store')
+            ->middleware(['throttle:register', 'recaptcha:register']);
+
+        Route::post('phone-verification', [PublicRegistrationController::class, 'phoneVerification'])
+            ->name('phone.verify')
+            ->middleware(['throttle:5,1', 'recaptcha:phone-verification']);
+
+        Route::post('resend-phone-verification', [PublicRegistrationController::class, 'resendPhoneVerification'])
+            ->name('phone.resend')
+            ->middleware('throttle:3,1');
+
+        // Validation endpoints for public registration
+        Route::post('validation/check-email', [PublicRegistrationValidationController::class, 'checkEmail'])
+            ->name('validation.email')
+            ->middleware('throttle:30,1');
+
+        Route::post('validation/check-phone', [PublicRegistrationValidationController::class, 'checkPhone'])
+            ->name('validation.phone')
+            ->middleware('throttle:30,1');
+
+        Route::post('validation/check-password', [PublicRegistrationValidationController::class, 'checkPassword'])
+            ->name('validation.password')
+            ->middleware('throttle:60,1');
+
+        Route::post('validation/validate-field', [PublicRegistrationValidationController::class, 'validateField'])
+            ->name('validation.field')
+            ->middleware('throttle:60,1');
+    });
 });
 
 /*

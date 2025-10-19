@@ -9,8 +9,8 @@ return new class() extends Migration {
     {
         Schema::create('event_group_events', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('event_group_id')->constrained()->cascadeOnDelete();
-            $table->foreignId('event_id')->constrained()->cascadeOnDelete();
+            $table->unsignedBigInteger('event_group_id');
+            $table->unsignedBigInteger('event_id');
             $table->timestamp('added_at');
             $table->integer('priority')->default(5);
             $table->json('custom_settings')->nullable();
@@ -20,6 +20,16 @@ return new class() extends Migration {
             $table->unique(['event_group_id', 'event_id']);
             $table->index(['event_group_id', 'is_active']);
             $table->index(['priority']);
+        });
+
+        // Add foreign keys only if referenced tables exist (useful in testing when loading partial schema dumps)
+        Schema::table('event_group_events', function (Blueprint $table) {
+            if (Schema::hasTable('event_groups')) {
+                $table->foreign('event_group_id')->references('id')->on('event_groups')->cascadeOnDelete();
+            }
+            if (Schema::hasTable('events')) {
+                $table->foreign('event_id')->references('id')->on('events')->cascadeOnDelete();
+            }
         });
     }
 

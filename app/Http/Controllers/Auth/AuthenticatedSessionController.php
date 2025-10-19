@@ -22,11 +22,18 @@ class AuthenticatedSessionController extends Controller
      */
     public function create(): View
     {
+        // Check for enhanced login first (tests expect this)
+        if (config('auth.enhanced_login', FALSE)) {
+            return view('auth.login-enhanced');
+        }
+        
         // Check if comprehensive login is enabled
-        $useComprehensiveLogin = config('auth.comprehensive_login', TRUE);
-
-        // Use the comprehensive login page by default
-        return view($useComprehensiveLogin ? 'auth.login-comprehensive' : 'auth.login');
+        if (config('auth.comprehensive_login', TRUE)) {
+            return view('auth.login-comprehensive');
+        }
+        
+        // Fallback to basic login
+        return view('auth.login');
     }
 
     /**

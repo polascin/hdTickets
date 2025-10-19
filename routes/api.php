@@ -903,11 +903,11 @@ Route::prefix('v1')->middleware(['auth:sanctum', ApiRateLimit::class . ':api,120
 */
 
 // Add API Access Layer import statements
-use App\Http\Controllers\API\MultiEventController;
-use App\Http\Controllers\API\V1\AuthController as V1AuthController;
-use App\Http\Controllers\API\V1\DocumentationController;
-use App\Http\Controllers\API\V1\EventsController as V1EventsController;
-use App\Http\Controllers\API\V1\WebhooksController;
+use App\Http\Controllers\Api\MultiEventController;
+use App\Http\Controllers\Api\V1\AuthController as V1AuthController;
+use App\Http\Controllers\Api\V1\DocumentationController;
+use App\Http\Controllers\Api\V1\EventsController as V1EventsController;
+use App\Http\Controllers\Api\V1\WebhooksController;
 use App\Http\Middleware\ApiKeyAuth;
 
 // API Access Layer - V1 Routes

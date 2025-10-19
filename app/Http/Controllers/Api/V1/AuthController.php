@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Http\Controllers\API\V1;
+namespace App\Http\Controllers\Api\V1;
 
 use App\Http\Controllers\Controller;
 use App\Models\ApiKey;
@@ -14,8 +14,6 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
-use Laravel\Passport\RefreshTokenRepository;
-use Laravel\Passport\TokenRepository;
 
 /**
  * API Authentication Controller
@@ -28,10 +26,8 @@ use Laravel\Passport\TokenRepository;
  */
 class AuthController extends Controller
 {
-    public function __construct(
-        private TokenRepository $tokenRepository,
-        private RefreshTokenRepository $refreshTokenRepository
-    ) {
+    public function __construct()
+    {
         $this->middleware('auth:api')->except(['login', 'register', 'refresh']);
         $this->middleware('throttle:auth')->only(['login', 'register']);
     }
