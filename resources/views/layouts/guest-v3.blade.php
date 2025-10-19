@@ -82,13 +82,19 @@
   </head>
 
   <body
-    class="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 antialiased flex flex-col">
+    class="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 antialiased flex flex-col"
+    @hasSection('suppress-chrome') data-suppress-a11y-skip-links="true" @endif>
+    @hasSection('suppress-chrome')
+    @else
     <!-- Skip to main content for accessibility -->
     <a href="#main-content"
       class="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 bg-blue-600 text-white px-4 py-2 rounded-md z-50 transition-all duration-200 hover:bg-blue-700">
       Skip to main content
     </a>
+    @endif
 
+    @hasSection('suppress-chrome')
+    @else
     <!-- Enhanced Navigation -->
     <nav
       class="bg-white/90 dark:bg-gray-900/90 backdrop-blur-md border-b border-gray-200/30 dark:border-gray-700/30 sticky top-0 z-40 shadow-sm">
@@ -136,12 +142,15 @@
         </div>
       </div>
     </nav>
+    @endif
 
     <!-- Main Content -->
     <main id="main-content" class="flex-1">
       @yield('content')
     </main>
 
+    @hasSection('suppress-chrome')
+    @else
     <!-- Enhanced Footer -->
     <footer class="bg-gray-900 text-white border-t border-gray-800" role="contentinfo">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
@@ -206,6 +215,7 @@
         </div>
       </div>
     </footer>
+    @endif
 
     <!-- Global scripts -->
     @stack('scripts')

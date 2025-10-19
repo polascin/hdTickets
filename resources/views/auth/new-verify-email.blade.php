@@ -2,6 +2,7 @@
 
 @section('title', 'Verify your email address')
 @section('description', 'Please confirm your email to start tracking your favourite events.')
+@section('suppress-chrome', true)
 
 @section('content')
   <div class="max-w-md mx-auto px-4 sm:px-6 py-8">
@@ -11,13 +12,19 @@
       </div>
     @endif
 
+    @if (session('error'))
+      <div class="mb-4 rounded-md bg-red-50 p-4 text-sm text-red-700" role="alert" aria-live="assertive">
+        {{ session('error') }}
+      </div>
+    @endif
+
     <div class="bg-white shadow rounded-lg p-6 sm:p-8">
       <h1 class="text-xl font-semibold text-gray-900">
         Verify your email address
       </h1>
 
       <p class="mt-2 text-sm text-gray-600">
-        We've sent a verification link to
+        We’ve sent a verification link to
         <span class="font-medium text-gray-900">{{ auth()->user()->email }}</span>.
         Please confirm to start tracking your favourite events.
       </p>
@@ -30,11 +37,7 @@
           </button>
         </form>
 
-        <div class="flex items-center justify-between text-sm">
-          <a href="{{ route('profile.edit') }}" class="font-medium text-purple-600 hover:text-purple-700">
-            Update email address
-          </a>
-
+        <div class="text-center text-sm">
           <form method="POST" action="{{ route('logout') }}" class="inline">
             @csrf
             <button type="submit" class="font-medium text-gray-600 hover:text-gray-700">
@@ -42,10 +45,6 @@
             </button>
           </form>
         </div>
-
-        <p class="text-center text-xs text-gray-500">
-          Need help? <a href="mailto:support@hd-tickets.com" class="font-medium text-purple-600 hover:text-purple-700">Contact support</a>
-        </p>
       </div>
     </div>
   </div>

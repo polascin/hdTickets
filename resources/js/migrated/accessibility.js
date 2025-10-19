@@ -90,6 +90,16 @@ class AccessibilityManager {
     createSkipLinks() {
         if (!this.options.enableSkipLinks) return;
 
+        // Suppress skip links when requested (e.g., minimal auth pages)
+        const suppress = document.body && (
+            document.body.dataset.suppressA11ySkipLinks === 'true' ||
+            document.body.classList.contains('suppress-skip-links') ||
+            document.querySelector('meta[name="suppress-skip-links"][content="true"]')
+        );
+        if (suppress) {
+            return;
+        }
+
         this.skipLinksContainer = document.createElement('nav');
         this.skipLinksContainer.className = 'skip-links';
         this.skipLinksContainer.setAttribute('aria-label', 'Skip navigation');

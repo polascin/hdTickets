@@ -49,6 +49,14 @@ class AccessibilityManager {
    * Create skip to main content link
    */
   createSkipLink() {
+    // Suppress skip link if requested
+    const suppress = document.body && (
+      document.body.dataset.suppressA11ySkipLinks === 'true' ||
+      document.body.classList.contains('suppress-skip-links') ||
+      document.querySelector('meta[name="suppress-skip-links"][content="true"]')
+    );
+    if (suppress) return;
+
     const skipLink = document.createElement('a');
     skipLink.href = '#main-content';
     skipLink.textContent = 'Skip to main content';
