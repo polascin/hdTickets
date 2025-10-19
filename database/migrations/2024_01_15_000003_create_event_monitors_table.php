@@ -9,14 +9,14 @@ return new class() extends Migration {
     {
         Schema::create('event_monitors', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('user_id')->constrained()->cascadeOnDelete();
-            $table->foreignId('event_id')->constrained()->cascadeOnDelete();
-            $table->foreignId('event_group_id')->nullable()->constrained()->nullOnDelete();
+            $table->unsignedBigInteger('user_id');
+            $table->unsignedBigInteger('event_id');
+            $table->unsignedBigInteger('event_group_id')->nullable();
             $table->boolean('is_active')->default(TRUE);
             $table->integer('priority')->default(5);
             $table->integer('check_interval')->default(300); // seconds
-            $table->json('platforms')->default('["ticketmaster"]');
-            $table->json('notification_preferences')->default('["email"]');
+            $table->json('platforms');
+            $table->json('notification_preferences');
             $table->json('custom_settings')->nullable();
             $table->timestamp('last_check_at')->nullable();
             $table->decimal('last_response_time', 8, 2)->nullable();
@@ -32,6 +32,18 @@ return new class() extends Migration {
             $table->index(['event_group_id']);
             $table->index(['priority']);
             $table->index(['last_check_at']);
+        });
+
+        Schema::table('event_monitors', function (Blueprint $table) {
+            if (Schema::hasTable('users')) {
+                $table->foreign('user_id')->references('id')->on('users')->cascadeOnDelete();
+            }
+            if (Schema::hasTable('events')) {
+                $table->foreign('event_id')->references('id')->on('events')->cascadeOnDelete();
+            }
+            if (Schema::hasTable('event_groups')) {
+                $table->foreign('event_group_id')->references('id')->on('event_groups')->nullOnDelete();
+            }
         });
     }
 

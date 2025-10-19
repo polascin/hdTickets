@@ -185,7 +185,7 @@
                 <div x-show="isSubmitting" class="animate-spin h-5 w-5 border-2 border-white border-t-transparent rounded-full"></div>
             </span>
             
-            <span x-text="isSubmitting ? 'Signing in...' : 'Sign In'"></span>
+            <span x-text="isSubmitting ? 'Signing in...' : 'Sign In'">Sign In</span>
         </button>
         
         <!-- OAuth Login Options -->

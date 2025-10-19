@@ -25,7 +25,7 @@ return new class() extends Migration {
             $table->timestamps();
 
             $table->index(['user_id', 'resource_type']);
-            $table->index(['user_id', 'billing_period_start', 'billing_period_end']);
+            $table->index(['user_id', 'billing_period_start', 'billing_period_end'], 'usage_records_user_billing_period_idx');
             $table->index('subscription_id');
             $table->index('resource_type');
             $table->index('recorded_at');
