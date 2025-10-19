@@ -67,14 +67,14 @@ use App\Http\Controllers\Api\ViagogoController;
 use App\Http\Controllers\Api\WelcomeStatsController;
 use App\Http\Controllers\Auth\LoginEnhancementController;
 use App\Http\Controllers\AutomatedPurchaseController;
+use App\Http\Controllers\CampaignManagementController;
 use App\Http\Controllers\EnhancedDashboardController;
 use App\Http\Controllers\HealthController;
+use App\Http\Controllers\MarketingDashboardController;
 use App\Http\Controllers\RecommendationController;
+// Marketing Dashboard Controllers
 use App\Http\Controllers\TicketApiController;
 use App\Http\Controllers\UserPreferencesController;
-// Marketing Dashboard Controllers
-use App\Http\Controllers\MarketingDashboardController;
-use App\Http\Controllers\CampaignManagementController;
 use App\Http\Middleware\Api\ApiRateLimit;
 use App\Http\Middleware\Api\CheckApiRole;
 use Illuminate\Http\Request;
@@ -897,33 +897,32 @@ Route::prefix('v1')->middleware(['auth:sanctum', ApiRateLimit::class . ':api,120
 |--------------------------------------------------------------------------
 |
 | Comprehensive RESTful API routes for third-party integrations and mobile apps
-| Features: API Key Authentication, Rate Limiting, Webhook Support, 
+| Features: API Key Authentication, Rate Limiting, Webhook Support,
 | Developer Documentation, and complete CRUD operations
 |
 */
 
 // Add API Access Layer import statements
-use App\Http\Controllers\API\V1\AuthController as V1AuthController;
-use App\Http\Controllers\API\V1\EventsController as V1EventsController;
 use App\Http\Controllers\API\MultiEventController;
-use App\Http\Controllers\API\V1\WebhooksController;
+use App\Http\Controllers\API\V1\AuthController as V1AuthController;
 use App\Http\Controllers\API\V1\DocumentationController;
+use App\Http\Controllers\API\V1\EventsController as V1EventsController;
+use App\Http\Controllers\API\V1\WebhooksController;
 use App\Http\Middleware\ApiKeyAuth;
 
 // API Access Layer - V1 Routes
 Route::prefix('api-access/v1')->group(function () {
-    
     // Public endpoints (no authentication required)
     Route::get('/', [DocumentationController::class, 'index']);
     Route::get('/health', [DocumentationController::class, 'health']);
     Route::get('/docs', [DocumentationController::class, 'documentation']);
     Route::get('/openapi', [DocumentationController::class, 'openApiSpec']);
-    
+
     // Authentication endpoints
     Route::prefix('auth')->group(function () {
         Route::post('/login', [V1AuthController::class, 'login']);
         Route::post('/register', [V1AuthController::class, 'register']);
-        
+
         // Authenticated auth endpoints
         Route::middleware([ApiKeyAuth::class])->group(function () {
             Route::post('/logout', [V1AuthController::class, 'logout']);
@@ -942,7 +941,6 @@ Route::prefix('api-access/v1')->group(function () {
 
     // Events API - Core functionality
     Route::middleware([ApiKeyAuth::class])->prefix('events')->group(function () {
-        
         // Event discovery and search
         Route::get('/', [V1EventsController::class, 'index'])
             ->middleware('throttle:100,60'); // 100 requests per hour
@@ -978,7 +976,6 @@ Route::prefix('api-access/v1')->group(function () {
 
     // Multi-Event Management API
     Route::middleware([ApiKeyAuth::class])->prefix('multi-event')->group(function () {
-        
         // Portfolio overview
         Route::get('/portfolio', [MultiEventController::class, 'portfolio']);
         Route::get('/dashboard', [MultiEventController::class, 'dashboard']);
@@ -993,7 +990,7 @@ Route::prefix('api-access/v1')->group(function () {
                 ->middleware(ApiKeyAuth::class . ':write');
             Route::delete('/{group}', [MultiEventController::class, 'deleteGroup'])
                 ->middleware(ApiKeyAuth::class . ':write');
-            
+
             // Group event management
             Route::post('/{group}/events', [MultiEventController::class, 'addEventsToGroup'])
                 ->middleware(ApiKeyAuth::class . ':write');
@@ -1067,7 +1064,7 @@ Route::middleware(['auth:sanctum', CheckApiRole::class . ':admin,agent'])->prefi
     Route::post('/campaigns/{campaign}/resume', [CampaignManagementController::class, 'resume']);
     Route::post('/campaigns/{campaign}/cancel', [CampaignManagementController::class, 'cancel']);
     Route::get('/campaigns/{campaign}/analytics', [CampaignManagementController::class, 'analytics']);
-    
+
     // Campaign Processing (for scheduled execution)
     Route::post('/campaigns/process-scheduled', [CampaignManagementController::class, 'processScheduled'])
         ->middleware(CheckApiRole::class . ':admin');

@@ -5,7 +5,6 @@ declare(strict_types=1);
 use Laravel\Sanctum\Sanctum;
 
 return [
-
     /*
     |--------------------------------------------------------------------------
     | Stateful Domains
@@ -48,7 +47,7 @@ return [
     |
     */
 
-    'expiration' => env('SANCTUM_TOKEN_EXPIRATION', null),
+    'expiration' => env('SANCTUM_TOKEN_EXPIRATION', NULL),
 
     /*
     |--------------------------------------------------------------------------
@@ -78,8 +77,8 @@ return [
 
     'middleware' => [
         'authenticate_session' => Laravel\Sanctum\Http\Middleware\AuthenticateSession::class,
-        'encrypt_cookies' => App\Http\Middleware\EncryptCookies::class,
-        'validate_csrf_token' => App\Http\Middleware\VerifyCsrfToken::class,
+        'encrypt_cookies'      => App\Http\Middleware\EncryptCookies::class,
+        'validate_csrf_token'  => App\Http\Middleware\VerifyCsrfToken::class,
     ],
 
     /*
@@ -107,21 +106,20 @@ return [
     */
 
     'api_tokens' => [
-        'default_abilities' => ['*'],
+        'default_abilities'  => ['*'],
         'expiration_minutes' => env('SANCTUM_API_TOKEN_EXPIRATION', 525600), // 1 year
-        'refresh_threshold' => env('SANCTUM_REFRESH_THRESHOLD', 43200), // 30 days
+        'refresh_threshold'  => env('SANCTUM_REFRESH_THRESHOLD', 43200), // 30 days
     ],
 
     'rate_limiting' => [
-        'enabled' => env('SANCTUM_RATE_LIMITING', true),
-        'max_attempts' => env('SANCTUM_MAX_ATTEMPTS', 60),
+        'enabled'       => env('SANCTUM_RATE_LIMITING', TRUE),
+        'max_attempts'  => env('SANCTUM_MAX_ATTEMPTS', 60),
         'decay_minutes' => env('SANCTUM_DECAY_MINUTES', 1),
     ],
 
     'security' => [
         'secure_cookies' => env('SANCTUM_SECURE_COOKIES', env('APP_ENV') === 'production'),
-        'same_site' => env('SANCTUM_SAME_SITE', 'lax'),
-        'domain' => env('SANCTUM_DOMAIN', null),
+        'same_site'      => env('SANCTUM_SAME_SITE', 'lax'),
+        'domain'         => env('SANCTUM_DOMAIN', NULL),
     ],
-
 ];

@@ -10,7 +10,7 @@ use Illuminate\Support\Facades\Log;
 
 /**
  * Enhanced Event Monitoring Command
- * 
+ *
  * Runs sub-second monitoring for all active events
  * Usage: php artisan monitor:enhanced
  */
@@ -34,13 +34,13 @@ class EnhancedMonitoringCommand extends Command
         $interval = (float) $this->option('interval');
         $maxDuration = (int) $this->option('max-duration');
         $verbose = $this->option('verbose');
-        
-        $this->info("🚀 Starting Enhanced Event Monitoring");
+
+        $this->info('🚀 Starting Enhanced Event Monitoring');
         $this->info("⏱️  Interval: {$interval} seconds");
         $this->info("⏰ Max Duration: {$maxDuration} seconds");
-        
+
         if ($verbose) {
-            $this->info("📊 Verbose mode enabled");
+            $this->info('📊 Verbose mode enabled');
         }
 
         $startTime = time();
@@ -48,49 +48,48 @@ class EnhancedMonitoringCommand extends Command
         $totalResponseTime = 0;
 
         Log::info('Enhanced monitoring started', [
-            'interval' => $interval,
+            'interval'     => $interval,
             'max_duration' => $maxDuration,
-            'start_time' => now()
+            'start_time'   => now(),
         ]);
 
         while ((time() - $startTime) < $maxDuration) {
-            $cycleStart = microtime(true);
-            
+            $cycleStart = microtime(TRUE);
+
             try {
                 $this->monitoringService->startSubSecondMonitoring();
                 $cycles++;
-                
-                $cycleTime = (microtime(true) - $cycleStart) * 1000; // Convert to ms
+
+                $cycleTime = (microtime(TRUE) - $cycleStart) * 1000; // Convert to ms
                 $totalResponseTime += $cycleTime;
-                
+
                 if ($verbose) {
                     $this->line(sprintf(
-                        "✅ Cycle %d completed in %.2fms | Avg: %.2fms",
+                        '✅ Cycle %d completed in %.2fms | Avg: %.2fms',
                         $cycles,
                         $cycleTime,
                         $totalResponseTime / $cycles
                     ));
                 }
-                
+
                 // Update progress bar every 10 cycles
                 if ($cycles % 10 === 0) {
                     $elapsed = time() - $startTime;
                     $progress = ($elapsed / $maxDuration) * 100;
                     $this->info(sprintf(
-                        "📈 Progress: %.1f%% | Cycles: %d | Elapsed: %ds | Avg Response: %.2fms",
+                        '📈 Progress: %.1f%% | Cycles: %d | Elapsed: %ds | Avg Response: %.2fms',
                         $progress,
                         $cycles,
                         $elapsed,
                         $totalResponseTime / $cycles
                     ));
                 }
-                
             } catch (\Exception $e) {
-                $this->error("❌ Monitoring cycle failed: " . $e->getMessage());
+                $this->error('❌ Monitoring cycle failed: ' . $e->getMessage());
                 Log::error('Enhanced monitoring cycle failed', [
                     'error' => $e->getMessage(),
                     'cycle' => $cycles,
-                    'trace' => $e->getTraceAsString()
+                    'trace' => $e->getTraceAsString(),
                 ]);
             }
 
@@ -103,19 +102,19 @@ class EnhancedMonitoringCommand extends Command
         $totalTime = time() - $startTime;
         $avgResponseTime = $cycles > 0 ? $totalResponseTime / $cycles : 0;
 
-        $this->info("🏁 Enhanced monitoring completed!");
-        $this->info("📊 Final Statistics:");
+        $this->info('🏁 Enhanced monitoring completed!');
+        $this->info('📊 Final Statistics:');
         $this->info("   • Total Cycles: {$cycles}");
         $this->info("   • Total Time: {$totalTime}s");
-        $this->info("   • Average Response Time: " . round($avgResponseTime, 2) . "ms");
-        $this->info("   • Cycles per Second: " . round($cycles / $totalTime, 2));
+        $this->info('   • Average Response Time: ' . round($avgResponseTime, 2) . 'ms');
+        $this->info('   • Cycles per Second: ' . round($cycles / $totalTime, 2));
 
         Log::info('Enhanced monitoring completed', [
-            'total_cycles' => $cycles,
-            'total_time' => $totalTime,
+            'total_cycles'          => $cycles,
+            'total_time'            => $totalTime,
             'average_response_time' => $avgResponseTime,
-            'cycles_per_second' => $cycles / $totalTime,
-            'end_time' => now()
+            'cycles_per_second'     => $cycles / $totalTime,
+            'end_time'              => now(),
         ]);
 
         return self::SUCCESS;

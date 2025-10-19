@@ -15,7 +15,7 @@ use Illuminate\Queue\SerializesModels;
 
 /**
  * Campaign Email Mailable
- * 
+ *
  * Handles sending marketing campaign emails with:
  * - Personalized content and tracking
  * - Professional HTML templates
@@ -24,13 +24,15 @@ use Illuminate\Queue\SerializesModels;
  */
 class CampaignEmail extends Mailable implements ShouldQueue
 {
-    use Queueable, SerializesModels;
+    use Queueable;
+    use SerializesModels;
 
     public function __construct(
         public MarketingCampaign $campaign,
         public User $user,
         public array $content
-    ) {}
+    ) {
+    }
 
     /**
      * Get the message envelope
@@ -53,12 +55,12 @@ class CampaignEmail extends Mailable implements ShouldQueue
             html: 'emails.campaign.template',
             text: 'emails.campaign.template-text',
             with: [
-                'campaign' => $this->campaign,
-                'user' => $this->user,
-                'content' => $this->content,
+                'campaign'         => $this->campaign,
+                'user'             => $this->user,
+                'content'          => $this->content,
                 'trackingPixelUrl' => $this->generateTrackingPixelUrl(),
-                'unsubscribeUrl' => $this->generateUnsubscribeUrl(),
-                'clickTrackingUrl' => $this->generateClickTrackingUrl()
+                'unsubscribeUrl'   => $this->generateUnsubscribeUrl(),
+                'clickTrackingUrl' => $this->generateClickTrackingUrl(),
             ]
         );
     }
@@ -70,7 +72,7 @@ class CampaignEmail extends Mailable implements ShouldQueue
     {
         return route('campaign.track.open', [
             'campaign' => $this->campaign->id,
-            'user' => $this->user->id
+            'user'     => $this->user->id,
         ]);
     }
 
@@ -89,7 +91,7 @@ class CampaignEmail extends Mailable implements ShouldQueue
     {
         return route('campaign.track.click', [
             'campaign' => $this->campaign->id,
-            'user' => $this->user->id
+            'user'     => $this->user->id,
         ]);
     }
 }

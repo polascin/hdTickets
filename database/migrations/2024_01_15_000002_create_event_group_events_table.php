@@ -1,11 +1,10 @@
-<?php
+<?php declare(strict_types=1);
 
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-return new class extends Migration
-{
+return new class() extends Migration {
     public function up(): void
     {
         Schema::create('event_group_events', function (Blueprint $table) {
@@ -15,7 +14,7 @@ return new class extends Migration
             $table->timestamp('added_at');
             $table->integer('priority')->default(5);
             $table->json('custom_settings')->nullable();
-            $table->boolean('is_active')->default(true);
+            $table->boolean('is_active')->default(TRUE);
             $table->timestamps();
 
             $table->unique(['event_group_id', 'event_id']);

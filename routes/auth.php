@@ -50,9 +50,9 @@ Route::middleware(['guest', EnhancedLoginSecurity::class])->group(function (): v
     Route::get('register', [ModernRegistrationController::class, 'create'])
         ->name('register');
 
-Route::post('register', [ModernRegistrationController::class, 'store'])
-        ->name('register.store')
-        ->middleware('throttle:register');
+    Route::post('register', [ModernRegistrationController::class, 'store'])
+            ->name('register.store')
+            ->middleware('throttle:register');
 
     // Real-time validation endpoints
     Route::post('register/check-email', [ModernRegistrationController::class, 'checkEmail'])

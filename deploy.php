@@ -73,13 +73,13 @@ task('artisan:migrate', function () {
 task('custom:symlink', function () {
     $releasePath = get('release_path');
     $deployPath = get('deploy_path');
-    
+
     // Get just the release directory name from the full path
     $releaseName = basename($releasePath);
-    
+
     // Create new current symlink pointing to the new release
     run("cd {{deploy_path}} && ln -sf releases/$releaseName current");
-    
+
     writeln("<info>✓</info> Symlink updated to point to $releaseName");
 })->desc('Create current symlink to new release');
 

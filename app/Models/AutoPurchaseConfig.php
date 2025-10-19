@@ -11,7 +11,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 /**
  * Auto Purchase Configuration Model
- * 
+ *
  * Stores user preferences for automated ticket purchasing
  */
 class AutoPurchaseConfig extends Model
@@ -34,22 +34,22 @@ class AutoPurchaseConfig extends Model
         'retry_attempts',
         'fallback_enabled',
         'notification_preferences',
-        'advanced_settings'
+        'advanced_settings',
     ];
 
     protected $casts = [
-        'is_active' => 'boolean',
-        'max_price' => 'decimal:2',
-        'desired_quantity' => 'integer',
-        'preferred_sections' => 'array',
-        'preferred_platforms' => 'array',
-        'purchase_window_start' => 'datetime',
-        'purchase_window_end' => 'datetime',
-        'priority_score' => 'integer',
-        'retry_attempts' => 'integer',
-        'fallback_enabled' => 'boolean',
+        'is_active'                => 'boolean',
+        'max_price'                => 'decimal:2',
+        'desired_quantity'         => 'integer',
+        'preferred_sections'       => 'array',
+        'preferred_platforms'      => 'array',
+        'purchase_window_start'    => 'datetime',
+        'purchase_window_end'      => 'datetime',
+        'priority_score'           => 'integer',
+        'retry_attempts'           => 'integer',
+        'fallback_enabled'         => 'boolean',
         'notification_preferences' => 'array',
-        'advanced_settings' => 'array'
+        'advanced_settings'        => 'array',
     ];
 
     /**
@@ -82,16 +82,16 @@ class AutoPurchaseConfig extends Model
     public function isWithinPurchaseWindow(): bool
     {
         $now = now();
-        
+
         if ($this->purchase_window_start && $now->lt($this->purchase_window_start)) {
-            return false;
+            return FALSE;
         }
-        
+
         if ($this->purchase_window_end && $now->gt($this->purchase_window_end)) {
-            return false;
+            return FALSE;
         }
-        
-        return true;
+
+        return TRUE;
     }
 
     /**
@@ -100,19 +100,19 @@ class AutoPurchaseConfig extends Model
     public function canAttemptPurchase(): bool
     {
         if (!$this->is_active) {
-            return false;
+            return FALSE;
         }
-        
+
         if (!$this->isWithinPurchaseWindow()) {
-            return false;
+            return FALSE;
         }
-        
+
         $todayAttempts = $this->purchaseAttempts()
             ->whereDate('created_at', today())
             ->count();
-        
+
         $maxDailyAttempts = $this->advanced_settings['max_daily_attempts'] ?? 10;
-        
+
         return $todayAttempts < $maxDailyAttempts;
     }
 
@@ -123,7 +123,7 @@ class AutoPurchaseConfig extends Model
     {
         return $this->purchaseAttempts()
             ->where('status', 'completed')
-            ->whereJsonContains('result_data->success', true)
+            ->whereJsonContains('result_data->success', TRUE)
             ->get();
     }
 
@@ -133,13 +133,13 @@ class AutoPurchaseConfig extends Model
     public function getSuccessRate(): float
     {
         $totalAttempts = $this->purchaseAttempts()->count();
-        
+
         if ($totalAttempts === 0) {
             return 0.0;
         }
-        
+
         $successfulAttempts = $this->getSuccessfulPurchases()->count();
-        
+
         return round(($successfulAttempts / $totalAttempts) * 100, 2);
     }
 
@@ -151,12 +151,13 @@ class AutoPurchaseConfig extends Model
         $attempts = $this->purchaseAttempts()
             ->whereNotNull('execution_time_ms')
             ->get();
-        
+
         if ($attempts->isEmpty()) {
-            return null;
+            return NULL;
         }
-        
+
         $totalTime = $attempts->sum('execution_time_ms');
+
         return round($totalTime / $attempts->count(), 2);
     }
 
@@ -165,7 +166,7 @@ class AutoPurchaseConfig extends Model
      */
     public function scopeActive($query)
     {
-        return $query->where('is_active', true);
+        return $query->where('is_active', TRUE);
     }
 
     /**
@@ -174,7 +175,7 @@ class AutoPurchaseConfig extends Model
     public function scopeWithinWindow($query)
     {
         $now = now();
-        
+
         return $query->where(function ($q) use ($now) {
             $q->whereNull('purchase_window_start')
               ->orWhere('purchase_window_start', '<=', $now);
@@ -198,29 +199,29 @@ class AutoPurchaseConfig extends Model
     public static function getDefaults(): array
     {
         return [
-            'is_active' => true,
-            'max_price' => 500.00,
-            'desired_quantity' => 2,
-            'preferred_sections' => [],
-            'preferred_platforms' => ['ticketmaster', 'seatgeek'],
-            'payment_method' => 'stripe',
-            'priority_score' => 5,
-            'retry_attempts' => 3,
-            'fallback_enabled' => true,
+            'is_active'                => TRUE,
+            'max_price'                => 500.00,
+            'desired_quantity'         => 2,
+            'preferred_sections'       => [],
+            'preferred_platforms'      => ['ticketmaster', 'seatgeek'],
+            'payment_method'           => 'stripe',
+            'priority_score'           => 5,
+            'retry_attempts'           => 3,
+            'fallback_enabled'         => TRUE,
             'notification_preferences' => [
                 'success_notifications' => ['push', 'email', 'sms'],
                 'failure_notifications' => ['push', 'email'],
-                'attempt_notifications' => ['push']
+                'attempt_notifications' => ['push'],
             ],
             'advanced_settings' => [
-                'max_daily_attempts' => 10,
-                'auto_preload_context' => true,
-                'use_anti_bot_bypass' => true,
-                'parallel_purchase_attempts' => true,
-                'fallback_strategies' => ['relaxed_criteria', 'alternative_platforms'],
-                'execution_timeout' => 30,
-                'retry_delay_seconds' => 60
-            ]
+                'max_daily_attempts'         => 10,
+                'auto_preload_context'       => TRUE,
+                'use_anti_bot_bypass'        => TRUE,
+                'parallel_purchase_attempts' => TRUE,
+                'fallback_strategies'        => ['relaxed_criteria', 'alternative_platforms'],
+                'execution_timeout'          => 30,
+                'retry_delay_seconds'        => 60,
+            ],
         ];
     }
 
@@ -239,9 +240,9 @@ class AutoPurchaseConfig extends Model
     {
         $successRate = $this->getSuccessRate();
         $avgExecutionTime = $this->getAverageExecutionTime();
-        
+
         $newScore = 5; // Base score
-        
+
         // Adjust based on success rate
         if ($successRate >= 80) {
             $newScore += 3;
@@ -252,14 +253,14 @@ class AutoPurchaseConfig extends Model
         } elseif ($successRate < 20) {
             $newScore -= 2;
         }
-        
+
         // Adjust based on execution time (faster is better)
         if ($avgExecutionTime && $avgExecutionTime < 5000) { // Less than 5 seconds
             $newScore += 1;
         } elseif ($avgExecutionTime && $avgExecutionTime > 15000) { // More than 15 seconds
             $newScore -= 1;
         }
-        
+
         // Keep score within bounds
         $this->update(['priority_score' => max(1, min(10, $newScore))]);
     }
@@ -269,23 +270,23 @@ class AutoPurchaseConfig extends Model
      */
     public function needsContextPreloading(): bool
     {
-        if (!($this->advanced_settings['auto_preload_context'] ?? true)) {
-            return false;
+        if (!($this->advanced_settings['auto_preload_context'] ?? TRUE)) {
+            return FALSE;
         }
-        
+
         $cacheKey = "auto_purchase_preload_{$this->id}";
         $preloadData = \Illuminate\Support\Facades\Cache::get($cacheKey);
-        
+
         if (!$preloadData) {
-            return true;
+            return TRUE;
         }
-        
+
         // Check if preload data is older than 30 minutes
-        $preloadedAt = $preloadData['preloaded_at'] ?? null;
+        $preloadedAt = $preloadData['preloaded_at'] ?? NULL;
         if (!$preloadedAt || now()->diffInMinutes($preloadedAt) > 30) {
-            return true;
+            return TRUE;
         }
-        
-        return false;
+
+        return FALSE;
     }
 }

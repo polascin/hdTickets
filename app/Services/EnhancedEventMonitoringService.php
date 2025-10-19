@@ -17,7 +17,7 @@ use Illuminate\Support\Facades\Mail;
 
 /**
  * Enhanced Event Monitoring Service
- * 
+ *
  * Inspired by TicketScoutie's platform features:
  * - Sub-second monitoring updates
  * - Multi-platform ticket tracking
@@ -28,11 +28,11 @@ class EnhancedEventMonitoringService
 {
     private array $platforms = [
         'ticketmaster',
-        'stubhub', 
+        'stubhub',
         'seatgeek',
         'vivid_seats',
         'tickpick',
-        'gametime'
+        'gametime',
     ];
 
     public function __construct(
@@ -49,7 +49,7 @@ class EnhancedEventMonitoringService
         Log::info('Starting enhanced sub-second monitoring');
 
         $activeMonitors = EventMonitor::with(['event', 'user'])
-            ->where('is_active', true)
+            ->where('is_active', TRUE)
             ->where('next_check_at', '<=', now())
             ->orderBy('priority', 'desc')
             ->limit(50) // Process high-priority monitors first
@@ -67,25 +67,25 @@ class EnhancedEventMonitoringService
      */
     public function monitorEventWithSubSecondUpdates(EventMonitor $monitor): void
     {
-        $startTime = microtime(true);
+        $startTime = microtime(TRUE);
 
         try {
             // Parallel platform monitoring for speed
             $platformData = $this->fetchFromAllPlatformsParallel($monitor->event);
-            
+
             if (empty($platformData)) {
                 $this->handleMonitoringError($monitor, 'No data from any platform');
+
                 return;
             }
 
             $changes = $this->detectInstantChanges($monitor, $platformData);
-            
+
             if (!empty($changes)) {
                 $this->processInstantAlerts($monitor, $changes, $platformData);
             }
 
             $this->updateMonitorWithSubSecondData($monitor, $platformData, $startTime);
-            
         } catch (\Exception $e) {
             $this->handleMonitoringError($monitor, $e->getMessage());
         }
@@ -129,7 +129,7 @@ class EnhancedEventMonitoringService
     {
         return function () use ($platform, $event) {
             $config = config("platforms.{$platform}");
-            
+
             return Http::timeout(2) // Fast timeout for sub-second responses
                 ->withHeaders($config['headers'] ?? [])
                 ->get($config['base_url'] . $this->buildEventUrl($platform, $event));
@@ -142,7 +142,8 @@ class EnhancedEventMonitoringService
     private function isPlatformEnabled(string $platform): bool
     {
         $config = config("platforms.{$platform}");
-        return $config && ($config['enabled'] ?? false);
+
+        return $config && ($config['enabled'] ?? FALSE);
     }
 
     /**
@@ -151,13 +152,13 @@ class EnhancedEventMonitoringService
     private function buildEventUrl(string $platform, Event $event): string
     {
         return match ($platform) {
-            'ticketmaster' => "/discovery/v2/events.json?keyword=" . urlencode($event->name) . "&city=" . urlencode($event->city ?? ''),
-            'stubhub' => "/catalog/events/v3?name=" . urlencode($event->name),
-            'seatgeek' => "/2/events?q=" . urlencode($event->name) . "&venue.city=" . urlencode($event->city ?? ''),
-            'vivid_seats' => "/listings?q=" . urlencode($event->name),
-            'tickpick' => "/api/events/search?q=" . urlencode($event->name),
-            'gametime' => "/api/search?query=" . urlencode($event->name),
-            default => "/search?q=" . urlencode($event->name)
+            'ticketmaster' => '/discovery/v2/events.json?keyword=' . urlencode($event->name) . '&city=' . urlencode($event->city ?? ''),
+            'stubhub'      => '/catalog/events/v3?name=' . urlencode($event->name),
+            'seatgeek'     => '/2/events?q=' . urlencode($event->name) . '&venue.city=' . urlencode($event->city ?? ''),
+            'vivid_seats'  => '/listings?q=' . urlencode($event->name),
+            'tickpick'     => '/api/events/search?q=' . urlencode($event->name),
+            'gametime'     => '/api/search?query=' . urlencode($event->name),
+            default        => '/search?q=' . urlencode($event->name)
         };
     }
 
@@ -168,12 +169,12 @@ class EnhancedEventMonitoringService
     {
         return match ($platform) {
             'ticketmaster' => $this->parseTicketmasterDataEnhanced($data),
-            'stubhub' => $this->parseStubHubDataEnhanced($data),
-            'seatgeek' => $this->parseSeatGeekDataEnhanced($data),
-            'vivid_seats' => $this->parseVividSeatsDataEnhanced($data),
-            'tickpick' => $this->parseTickPickDataEnhanced($data),
-            'gametime' => $this->parseGametimeDataEnhanced($data),
-            default => $this->parseGenericDataEnhanced($data)
+            'stubhub'      => $this->parseStubHubDataEnhanced($data),
+            'seatgeek'     => $this->parseSeatGeekDataEnhanced($data),
+            'vivid_seats'  => $this->parseVividSeatsDataEnhanced($data),
+            'tickpick'     => $this->parseTickPickDataEnhanced($data),
+            'gametime'     => $this->parseGametimeDataEnhanced($data),
+            default        => $this->parseGenericDataEnhanced($data)
         };
     }
 
@@ -187,21 +188,21 @@ class EnhancedEventMonitoringService
 
         foreach ($events as $event) {
             $parsed[] = [
-                'platform' => 'ticketmaster',
-                'external_id' => $event['id'],
-                'name' => $event['name'],
-                'date' => $event['dates']['start']['dateTime'] ?? null,
-                'venue' => $event['_embedded']['venues'][0]['name'] ?? 'Unknown',
-                'city' => $event['_embedded']['venues'][0]['city']['name'] ?? 'Unknown',
-                'price_min' => $event['priceRanges'][0]['min'] ?? null,
-                'price_max' => $event['priceRanges'][0]['max'] ?? null,
-                'currency' => $event['priceRanges'][0]['currency'] ?? 'USD',
-                'available' => $event['dates']['status']['code'] === 'onsale',
+                'platform'      => 'ticketmaster',
+                'external_id'   => $event['id'],
+                'name'          => $event['name'],
+                'date'          => $event['dates']['start']['dateTime'] ?? NULL,
+                'venue'         => $event['_embedded']['venues'][0]['name'] ?? 'Unknown',
+                'city'          => $event['_embedded']['venues'][0]['city']['name'] ?? 'Unknown',
+                'price_min'     => $event['priceRanges'][0]['min'] ?? NULL,
+                'price_max'     => $event['priceRanges'][0]['max'] ?? NULL,
+                'currency'      => $event['priceRanges'][0]['currency'] ?? 'USD',
+                'available'     => $event['dates']['status']['code'] === 'onsale',
                 'total_tickets' => $event['ticketLimit']['info'] ?? 'Unknown',
-                'presale_info' => $this->extractPresaleInfo($event),
-                'url' => $event['url'],
-                'last_updated' => now(),
-                'response_time' => microtime(true)
+                'presale_info'  => $this->extractPresaleInfo($event),
+                'url'           => $event['url'],
+                'last_updated'  => now(),
+                'response_time' => microtime(TRUE),
             ];
         }
 
@@ -218,21 +219,21 @@ class EnhancedEventMonitoringService
 
         foreach ($events as $event) {
             $parsed[] = [
-                'platform' => 'stubhub',
-                'external_id' => $event['id'],
-                'name' => $event['name'],
-                'date' => $event['eventDateUTC'] ?? null,
-                'venue' => $event['venue']['name'] ?? 'Unknown',
-                'city' => $event['venue']['city'] ?? 'Unknown',
-                'price_min' => $event['ticketInfo']['minPrice'] ?? null,
-                'price_max' => $event['ticketInfo']['maxPrice'] ?? null,
-                'currency' => $event['ticketInfo']['currencyCode'] ?? 'USD',
-                'available' => ($event['ticketInfo']['totalTickets'] ?? 0) > 0,
+                'platform'      => 'stubhub',
+                'external_id'   => $event['id'],
+                'name'          => $event['name'],
+                'date'          => $event['eventDateUTC'] ?? NULL,
+                'venue'         => $event['venue']['name'] ?? 'Unknown',
+                'city'          => $event['venue']['city'] ?? 'Unknown',
+                'price_min'     => $event['ticketInfo']['minPrice'] ?? NULL,
+                'price_max'     => $event['ticketInfo']['maxPrice'] ?? NULL,
+                'currency'      => $event['ticketInfo']['currencyCode'] ?? 'USD',
+                'available'     => ($event['ticketInfo']['totalTickets'] ?? 0) > 0,
                 'total_tickets' => $event['ticketInfo']['totalTickets'] ?? 0,
                 'listing_count' => $event['ticketInfo']['totalListings'] ?? 0,
-                'url' => "https://www.stubhub.com/event/{$event['id']}",
-                'last_updated' => now(),
-                'response_time' => microtime(true)
+                'url'           => "https://www.stubhub.com/event/{$event['id']}",
+                'last_updated'  => now(),
+                'response_time' => microtime(TRUE),
             ];
         }
 
@@ -249,22 +250,22 @@ class EnhancedEventMonitoringService
 
         foreach ($events as $event) {
             $parsed[] = [
-                'platform' => 'seatgeek',
-                'external_id' => $event['id'],
-                'name' => $event['title'],
-                'date' => $event['datetime_utc'] ?? null,
-                'venue' => $event['venue']['name'] ?? 'Unknown',
-                'city' => $event['venue']['city'] ?? 'Unknown',
-                'price_min' => $event['stats']['lowest_price'] ?? null,
-                'price_max' => $event['stats']['highest_price'] ?? null,
-                'average_price' => $event['stats']['average_price'] ?? null,
-                'currency' => 'USD',
-                'available' => ($event['stats']['listing_count'] ?? 0) > 0,
-                'total_tickets' => $event['stats']['listing_count'] ?? 0,
+                'platform'         => 'seatgeek',
+                'external_id'      => $event['id'],
+                'name'             => $event['title'],
+                'date'             => $event['datetime_utc'] ?? NULL,
+                'venue'            => $event['venue']['name'] ?? 'Unknown',
+                'city'             => $event['venue']['city'] ?? 'Unknown',
+                'price_min'        => $event['stats']['lowest_price'] ?? NULL,
+                'price_max'        => $event['stats']['highest_price'] ?? NULL,
+                'average_price'    => $event['stats']['average_price'] ?? NULL,
+                'currency'         => 'USD',
+                'available'        => ($event['stats']['listing_count'] ?? 0) > 0,
+                'total_tickets'    => $event['stats']['listing_count'] ?? 0,
                 'popularity_score' => $event['popularity'] ?? 0,
-                'url' => $event['url'],
-                'last_updated' => now(),
-                'response_time' => microtime(true)
+                'url'              => $event['url'],
+                'last_updated'     => now(),
+                'response_time'    => microtime(TRUE),
             ];
         }
 
@@ -281,22 +282,22 @@ class EnhancedEventMonitoringService
 
         foreach ($listings as $listing) {
             $parsed[] = [
-                'platform' => 'vivid_seats',
-                'external_id' => $listing['id'],
-                'name' => $listing['event']['name'] ?? 'Unknown Event',
-                'date' => $listing['event']['date'] ?? null,
-                'venue' => $listing['event']['venue'] ?? 'Unknown',
-                'city' => $listing['event']['city'] ?? 'Unknown',
-                'price_min' => $listing['price'] ?? null,
-                'price_max' => $listing['price'] ?? null,
-                'currency' => $listing['currency'] ?? 'USD',
-                'available' => true,
-                'section' => $listing['section'] ?? 'General',
-                'row' => $listing['row'] ?? 'Unknown',
-                'quantity' => $listing['quantity'] ?? 1,
-                'url' => $listing['url'] ?? '#',
-                'last_updated' => now(),
-                'response_time' => microtime(true)
+                'platform'      => 'vivid_seats',
+                'external_id'   => $listing['id'],
+                'name'          => $listing['event']['name'] ?? 'Unknown Event',
+                'date'          => $listing['event']['date'] ?? NULL,
+                'venue'         => $listing['event']['venue'] ?? 'Unknown',
+                'city'          => $listing['event']['city'] ?? 'Unknown',
+                'price_min'     => $listing['price'] ?? NULL,
+                'price_max'     => $listing['price'] ?? NULL,
+                'currency'      => $listing['currency'] ?? 'USD',
+                'available'     => TRUE,
+                'section'       => $listing['section'] ?? 'General',
+                'row'           => $listing['row'] ?? 'Unknown',
+                'quantity'      => $listing['quantity'] ?? 1,
+                'url'           => $listing['url'] ?? '#',
+                'last_updated'  => now(),
+                'response_time' => microtime(TRUE),
             ];
         }
 
@@ -313,21 +314,21 @@ class EnhancedEventMonitoringService
 
         foreach ($events as $event) {
             $parsed[] = [
-                'platform' => 'tickpick',
-                'external_id' => $event['id'],
-                'name' => $event['name'],
-                'date' => $event['datetime'] ?? null,
-                'venue' => $event['venue']['name'] ?? 'Unknown',
-                'city' => $event['venue']['city'] ?? 'Unknown',
-                'price_min' => $event['min_price'] ?? null,
-                'price_max' => $event['max_price'] ?? null,
-                'currency' => 'USD',
-                'available' => ($event['ticket_count'] ?? 0) > 0,
+                'platform'      => 'tickpick',
+                'external_id'   => $event['id'],
+                'name'          => $event['name'],
+                'date'          => $event['datetime'] ?? NULL,
+                'venue'         => $event['venue']['name'] ?? 'Unknown',
+                'city'          => $event['venue']['city'] ?? 'Unknown',
+                'price_min'     => $event['min_price'] ?? NULL,
+                'price_max'     => $event['max_price'] ?? NULL,
+                'currency'      => 'USD',
+                'available'     => ($event['ticket_count'] ?? 0) > 0,
                 'total_tickets' => $event['ticket_count'] ?? 0,
-                'no_fees' => true, // TickPick's selling point
-                'url' => $event['url'] ?? '#',
-                'last_updated' => now(),
-                'response_time' => microtime(true)
+                'no_fees'       => TRUE, // TickPick's selling point
+                'url'           => $event['url'] ?? '#',
+                'last_updated'  => now(),
+                'response_time' => microtime(TRUE),
             ];
         }
 
@@ -344,21 +345,21 @@ class EnhancedEventMonitoringService
 
         foreach ($events as $event) {
             $parsed[] = [
-                'platform' => 'gametime',
-                'external_id' => $event['id'],
-                'name' => $event['title'],
-                'date' => $event['start_time'] ?? null,
-                'venue' => $event['venue']['name'] ?? 'Unknown',
-                'city' => $event['venue']['location'] ?? 'Unknown',
-                'price_min' => $event['lowest_price'] ?? null,
-                'price_max' => $event['highest_price'] ?? null,
-                'currency' => 'USD',
-                'available' => ($event['available_tickets'] ?? 0) > 0,
-                'total_tickets' => $event['available_tickets'] ?? 0,
-                'last_minute_deals' => $event['deals'] ?? false,
-                'url' => $event['deep_link'] ?? '#',
-                'last_updated' => now(),
-                'response_time' => microtime(true)
+                'platform'          => 'gametime',
+                'external_id'       => $event['id'],
+                'name'              => $event['title'],
+                'date'              => $event['start_time'] ?? NULL,
+                'venue'             => $event['venue']['name'] ?? 'Unknown',
+                'city'              => $event['venue']['location'] ?? 'Unknown',
+                'price_min'         => $event['lowest_price'] ?? NULL,
+                'price_max'         => $event['highest_price'] ?? NULL,
+                'currency'          => 'USD',
+                'available'         => ($event['available_tickets'] ?? 0) > 0,
+                'total_tickets'     => $event['available_tickets'] ?? 0,
+                'last_minute_deals' => $event['deals'] ?? FALSE,
+                'url'               => $event['deep_link'] ?? '#',
+                'last_updated'      => now(),
+                'response_time'     => microtime(TRUE),
             ];
         }
 
@@ -372,21 +373,21 @@ class EnhancedEventMonitoringService
     {
         return [
             [
-                'platform' => 'unknown',
-                'external_id' => $data['id'] ?? uniqid(),
-                'name' => $data['name'] ?? 'Unknown Event',
-                'date' => $data['date'] ?? null,
-                'venue' => $data['venue'] ?? 'Unknown',
-                'city' => $data['city'] ?? 'Unknown',
-                'price_min' => $data['price_min'] ?? null,
-                'price_max' => $data['price_max'] ?? null,
-                'currency' => $data['currency'] ?? 'USD',
-                'available' => $data['available'] ?? false,
+                'platform'      => 'unknown',
+                'external_id'   => $data['id'] ?? uniqid(),
+                'name'          => $data['name'] ?? 'Unknown Event',
+                'date'          => $data['date'] ?? NULL,
+                'venue'         => $data['venue'] ?? 'Unknown',
+                'city'          => $data['city'] ?? 'Unknown',
+                'price_min'     => $data['price_min'] ?? NULL,
+                'price_max'     => $data['price_max'] ?? NULL,
+                'currency'      => $data['currency'] ?? 'USD',
+                'available'     => $data['available'] ?? FALSE,
                 'total_tickets' => $data['total_tickets'] ?? 0,
-                'url' => $data['url'] ?? '#',
-                'last_updated' => now(),
-                'response_time' => microtime(true)
-            ]
+                'url'           => $data['url'] ?? '#',
+                'last_updated'  => now(),
+                'response_time' => microtime(TRUE),
+            ],
         ];
     }
 
@@ -400,10 +401,10 @@ class EnhancedEventMonitoringService
 
         foreach ($presales as $presale) {
             $info[] = [
-                'name' => $presale['name'] ?? 'Presale',
-                'start' => $presale['startDateTime'] ?? null,
-                'end' => $presale['endDateTime'] ?? null,
-                'url' => $presale['url'] ?? null
+                'name'  => $presale['name'] ?? 'Presale',
+                'start' => $presale['startDateTime'] ?? NULL,
+                'end'   => $presale['endDateTime'] ?? NULL,
+                'url'   => $presale['url'] ?? NULL,
             ];
         }
 
@@ -415,59 +416,60 @@ class EnhancedEventMonitoringService
      */
     private function detectInstantChanges(EventMonitor $monitor, array $newData): array
     {
-        $lastData = $monitor->last_data ? json_decode($monitor->last_data, true) : [];
+        $lastData = $monitor->last_data ? json_decode($monitor->last_data, TRUE) : [];
         $changes = [];
         $threshold = $monitor->price_threshold ?? 0;
 
         foreach ($newData as $platform => $platformData) {
             $lastPlatformData = $lastData[$platform] ?? [];
-            
+
             foreach ($platformData as $event) {
                 $lastEvent = collect($lastPlatformData)->firstWhere('external_id', $event['external_id']);
-                
+
                 // New listing detected
                 if (!$lastEvent) {
                     $changes[] = [
-                        'type' => 'new_listing',
+                        'type'     => 'new_listing',
                         'platform' => $platform,
-                        'event' => $event,
-                        'urgency' => 'high',
-                        'message' => "🚨 NEW: {$event['name']} tickets found on " . ucfirst($platform) . "!"
+                        'event'    => $event,
+                        'urgency'  => 'high',
+                        'message'  => "🚨 NEW: {$event['name']} tickets found on " . ucfirst($platform) . '!',
                     ];
+
                     continue;
                 }
 
                 // Availability change
                 if ($event['available'] && !$lastEvent['available']) {
                     $changes[] = [
-                        'type' => 'availability_restored',
+                        'type'     => 'availability_restored',
                         'platform' => $platform,
-                        'event' => $event,
-                        'urgency' => 'high',
-                        'message' => "✅ BACK IN STOCK: {$event['name']} on " . ucfirst($platform) . "!"
+                        'event'    => $event,
+                        'urgency'  => 'high',
+                        'message'  => "✅ BACK IN STOCK: {$event['name']} on " . ucfirst($platform) . '!',
                     ];
                 }
 
                 // Significant price drop
                 if ($this->hasSignificantPriceChange($event, $lastEvent, $threshold)) {
                     $changes[] = [
-                        'type' => 'price_drop',
-                        'platform' => $platform,
-                        'event' => $event,
+                        'type'      => 'price_drop',
+                        'platform'  => $platform,
+                        'event'     => $event,
                         'old_event' => $lastEvent,
-                        'urgency' => 'medium',
-                        'message' => "💰 PRICE DROP: {$event['name']} now ${event['price_min']} (was ${lastEvent['price_min']})"
+                        'urgency'   => 'medium',
+                        'message'   => "💰 PRICE DROP: {$event['name']} now ${event['price_min']} (was ${lastEvent['price_min']})",
                     ];
                 }
 
                 // Low inventory alert
                 if ($this->isLowInventory($event)) {
                     $changes[] = [
-                        'type' => 'low_inventory',
+                        'type'     => 'low_inventory',
                         'platform' => $platform,
-                        'event' => $event,
-                        'urgency' => 'medium',
-                        'message' => "⚠️ LOW STOCK: Only {$event['total_tickets']} tickets left for {$event['name']}"
+                        'event'    => $event,
+                        'urgency'  => 'medium',
+                        'message'  => "⚠️ LOW STOCK: Only {$event['total_tickets']} tickets left for {$event['name']}",
                     ];
                 }
             }
@@ -483,14 +485,14 @@ class EnhancedEventMonitoringService
     {
         $newPrice = $newEvent['price_min'] ?? 0;
         $oldPrice = $oldEvent['price_min'] ?? 0;
-        
+
         if ($newPrice === 0 || $oldPrice === 0) {
-            return false;
+            return FALSE;
         }
 
         $priceDrop = $oldPrice - $newPrice;
         $percentageDrop = ($priceDrop / $oldPrice) * 100;
-        
+
         return $priceDrop > $threshold || $percentageDrop >= 10; // 10% drop or threshold amount
     }
 
@@ -500,6 +502,7 @@ class EnhancedEventMonitoringService
     private function isLowInventory(array $event): bool
     {
         $totalTickets = $event['total_tickets'] ?? 0;
+
         return $totalTickets > 0 && $totalTickets <= 5; // 5 or fewer tickets
     }
 
@@ -515,7 +518,7 @@ class EnhancedEventMonitoringService
 
         // Update real-time cache immediately
         $this->updateInstantCache($monitor->event, $eventData);
-        
+
         // Broadcast to WebSocket for real-time dashboard updates
         $this->broadcastInstantUpdate($monitor->event, $changes);
     }
@@ -533,19 +536,19 @@ class EnhancedEventMonitoringService
             try {
                 match ($channel) {
                     'push' => $this->pushService->send($user, [
-                        'title' => 'HD Tickets Alert!',
-                        'body' => $message,
+                        'title'   => 'HD Tickets Alert!',
+                        'body'    => $message,
                         'urgency' => $change['urgency'],
-                        'data' => $change
+                        'data'    => $change,
                     ]),
-                    'sms' => $this->smsService->send($user->phone, $message),
+                    'sms'   => $this->smsService->send($user->phone, $message),
                     'email' => $this->sendInstantEmail($user, $message, $change),
-                    default => null
+                    default => NULL
                 };
             } catch (\Exception $e) {
                 Log::error("Failed to send urgent {$channel} notification", [
                     'user_id' => $user->id,
-                    'error' => $e->getMessage()
+                    'error'   => $e->getMessage(),
                 ]);
             }
         }
@@ -557,12 +560,12 @@ class EnhancedEventMonitoringService
     private function getNotificationChannels(EventMonitor $monitor, string $urgency): array
     {
         $channels = $monitor->notification_channels ?? ['email'];
-        
+
         // High urgency gets all channels
         if ($urgency === 'high') {
             return array_unique(array_merge($channels, ['push', 'sms']));
         }
-        
+
         return $channels;
     }
 
@@ -585,16 +588,16 @@ class EnhancedEventMonitoringService
     {
         $cacheKey = "instant_event_{$event->id}";
         $cacheData = [
-            'event_id' => $event->id,
-            'last_updated' => now()->toISOString(),
-            'microsecond_timestamp' => microtime(true),
-            'platforms' => $eventData,
-            'summary' => $this->generateEventSummary($eventData),
-            'alerts' => Cache::get("recent_alerts_{$event->id}", [])
+            'event_id'              => $event->id,
+            'last_updated'          => now()->toISOString(),
+            'microsecond_timestamp' => microtime(TRUE),
+            'platforms'             => $eventData,
+            'summary'               => $this->generateEventSummary($eventData),
+            'alerts'                => Cache::get("recent_alerts_{$event->id}", []),
         ];
 
         Cache::put($cacheKey, $cacheData, 60); // Cache for 1 minute
-        
+
         // Update global instant feed
         $this->updateGlobalInstantFeed($cacheData);
     }
@@ -613,17 +616,17 @@ class EnhancedEventMonitoringService
             return [];
         }
 
-        $availableEvents = array_filter($allEvents, fn($e) => $e['available']);
-        $prices = array_filter(array_column($availableEvents, 'price_min'), fn($p) => $p > 0);
+        $availableEvents = array_filter($allEvents, fn ($e) => $e['available']);
+        $prices = array_filter(array_column($availableEvents, 'price_min'), fn ($p) => $p > 0);
 
         return [
-            'total_listings' => count($allEvents),
+            'total_listings'     => count($allEvents),
             'available_listings' => count($availableEvents),
-            'platforms_count' => count($eventData),
-            'lowest_price' => !empty($prices) ? min($prices) : null,
-            'highest_price' => !empty($prices) ? max($prices) : null,
-            'average_price' => !empty($prices) ? round(array_sum($prices) / count($prices), 2) : null,
-            'total_tickets' => array_sum(array_column($availableEvents, 'total_tickets'))
+            'platforms_count'    => count($eventData),
+            'lowest_price'       => !empty($prices) ? min($prices) : NULL,
+            'highest_price'      => !empty($prices) ? max($prices) : NULL,
+            'average_price'      => !empty($prices) ? round(array_sum($prices) / count($prices), 2) : NULL,
+            'total_tickets'      => array_sum(array_column($availableEvents, 'total_tickets')),
         ];
     }
 
@@ -641,15 +644,15 @@ class EnhancedEventMonitoringService
      */
     private function updateMonitorWithSubSecondData(EventMonitor $monitor, array $eventData, float $startTime): void
     {
-        $responseTime = (microtime(true) - $startTime) * 1000; // Convert to milliseconds
+        $responseTime = (microtime(TRUE) - $startTime) * 1000; // Convert to milliseconds
 
         $monitor->update([
-            'last_checked_at' => now(),
-            'last_data' => json_encode($eventData),
-            'check_count' => $monitor->check_count + 1,
+            'last_checked_at'    => now(),
+            'last_data'          => json_encode($eventData),
+            'check_count'        => $monitor->check_count + 1,
             'last_response_time' => $responseTime,
-            'next_check_at' => $this->calculateSubSecondNextCheck($monitor),
-            'status' => 'active'
+            'next_check_at'      => $this->calculateSubSecondNextCheck($monitor),
+            'status'             => 'active',
         ]);
 
         // Log performance metrics
@@ -663,10 +666,10 @@ class EnhancedEventMonitoringService
     {
         $interval = match ($monitor->priority) {
             'critical' => 0.5, // 500ms for critical events
-            'high' => 1,       // 1 second
-            'medium' => 5,     // 5 seconds
-            'low' => 30,       // 30 seconds
-            default => 10      // 10 seconds
+            'high'     => 1,       // 1 second
+            'medium'   => 5,     // 5 seconds
+            'low'      => 30,       // 30 seconds
+            default    => 10      // 10 seconds
         };
 
         return now()->addSeconds($interval);
@@ -678,7 +681,7 @@ class EnhancedEventMonitoringService
     public function getEnhancedRealtimeData(User $user): array
     {
         $userMonitors = EventMonitor::where('user_id', $user->id)
-            ->where('is_active', true)
+            ->where('is_active', TRUE)
             ->with('event')
             ->orderBy('priority', 'desc')
             ->get();
@@ -686,15 +689,15 @@ class EnhancedEventMonitoringService
         $realtimeData = [];
         $totalResponseTime = 0;
         $platformStats = [];
-        
+
         foreach ($userMonitors as $monitor) {
             $cacheKey = "instant_event_{$monitor->event->id}";
             $eventData = Cache::get($cacheKey);
-            
+
             if ($eventData) {
                 $realtimeData[] = $eventData;
                 $totalResponseTime += $monitor->last_response_time ?? 0;
-                
+
                 // Count platform statistics
                 foreach ($eventData['platforms'] as $platform => $data) {
                     $platformStats[$platform] = ($platformStats[$platform] ?? 0) + count($data);
@@ -703,21 +706,21 @@ class EnhancedEventMonitoringService
         }
 
         return [
-            'events' => $realtimeData,
+            'events'   => $realtimeData,
             'monitors' => [
-                'total' => $userMonitors->count(),
-                'active' => $userMonitors->where('status', 'active')->count(),
+                'total'    => $userMonitors->count(),
+                'active'   => $userMonitors->where('status', 'active')->count(),
                 'critical' => $userMonitors->where('priority', 'critical')->count(),
-                'high' => $userMonitors->where('priority', 'high')->count()
+                'high'     => $userMonitors->where('priority', 'high')->count(),
             ],
             'performance' => [
                 'average_response_time' => $userMonitors->count() > 0 ? round($totalResponseTime / $userMonitors->count(), 2) : 0,
-                'uptime_percentage' => $this->calculateUptimePercentage($user),
-                'alerts_sent_today' => $this->getAlertsCountToday($user),
-                'last_updated' => now()->toISOString()
+                'uptime_percentage'     => $this->calculateUptimePercentage($user),
+                'alerts_sent_today'     => $this->getAlertsCountToday($user),
+                'last_updated'          => now()->toISOString(),
             ],
             'platform_stats' => $platformStats,
-            'global_feed' => Cache::get('instant_global_feed', [])
+            'global_feed'    => Cache::get('instant_global_feed', []),
         ];
     }
 
@@ -731,7 +734,7 @@ class EnhancedEventMonitoringService
             ->where('last_checked_at', '>=', now()->subDay())
             ->where('status', 'active')
             ->sum('check_count');
-            
+
         $totalChecks = EventMonitor::where('user_id', $user->id)
             ->where('last_checked_at', '>=', now()->subDay())
             ->sum('check_count');
@@ -753,11 +756,11 @@ class EnhancedEventMonitoringService
     private function updateMonitoringStats(): void
     {
         $stats = [
-            'total_monitors' => EventMonitor::where('is_active', true)->count(),
-            'checks_last_minute' => EventMonitor::where('last_checked_at', '>=', now()->subMinute())->count(),
+            'total_monitors'        => EventMonitor::where('is_active', TRUE)->count(),
+            'checks_last_minute'    => EventMonitor::where('last_checked_at', '>=', now()->subMinute())->count(),
             'average_response_time' => EventMonitor::whereNotNull('last_response_time')->avg('last_response_time'),
-            'platform_health' => $this->getPlatformHealthStatus(),
-            'last_updated' => now()->toISOString()
+            'platform_health'       => $this->getPlatformHealthStatus(),
+            'last_updated'          => now()->toISOString(),
         ];
 
         Cache::put('enhanced_monitoring_stats', $stats, 300); // Cache for 5 minutes
@@ -769,16 +772,16 @@ class EnhancedEventMonitoringService
     private function getPlatformHealthStatus(): array
     {
         $health = [];
-        
+
         foreach ($this->platforms as $platform) {
             $recentChecks = Cache::get("platform_checks_{$platform}", []);
             $successRate = $this->calculatePlatformSuccessRate($recentChecks);
-            
+
             $health[$platform] = [
-                'status' => $successRate >= 95 ? 'healthy' : ($successRate >= 80 ? 'degraded' : 'unhealthy'),
-                'success_rate' => $successRate,
-                'last_check' => Cache::get("platform_last_check_{$platform}"),
-                'response_time' => Cache::get("platform_response_time_{$platform}", 0)
+                'status'        => $successRate >= 95 ? 'healthy' : ($successRate >= 80 ? 'degraded' : 'unhealthy'),
+                'success_rate'  => $successRate,
+                'last_check'    => Cache::get("platform_last_check_{$platform}"),
+                'response_time' => Cache::get("platform_response_time_{$platform}", 0),
             ];
         }
 
@@ -794,7 +797,8 @@ class EnhancedEventMonitoringService
             return 100.0;
         }
 
-        $successful = array_filter($checks, fn($check) => $check['success'] ?? false);
+        $successful = array_filter($checks, fn ($check) => $check['success'] ?? FALSE);
+
         return round((count($successful) / count($checks)) * 100, 2);
     }
 
@@ -805,19 +809,19 @@ class EnhancedEventMonitoringService
     {
         $monitor->update([
             'last_checked_at' => now(),
-            'error_count' => $monitor->error_count + 1,
-            'last_error' => $error,
-            'next_check_at' => $this->calculateErrorRetryTime($monitor),
-            'status' => $monitor->error_count >= 3 ? 'error' : 'active'
+            'error_count'     => $monitor->error_count + 1,
+            'last_error'      => $error,
+            'next_check_at'   => $this->calculateErrorRetryTime($monitor),
+            'status'          => $monitor->error_count >= 3 ? 'error' : 'active',
         ]);
 
         Log::error('Enhanced event monitoring error', [
-            'monitor_id' => $monitor->id,
-            'event_id' => $monitor->event->id,
-            'user_id' => $monitor->user->id,
-            'error' => $error,
+            'monitor_id'  => $monitor->id,
+            'event_id'    => $monitor->event->id,
+            'user_id'     => $monitor->user->id,
+            'error'       => $error,
             'error_count' => $monitor->error_count,
-            'priority' => $monitor->priority
+            'priority'    => $monitor->priority,
         ]);
     }
 
@@ -827,6 +831,7 @@ class EnhancedEventMonitoringService
     private function calculateErrorRetryTime(EventMonitor $monitor): Carbon
     {
         $backoffSeconds = min(pow(2, $monitor->error_count), 300); // Max 5 minutes
+
         return now()->addSeconds($backoffSeconds);
     }
 
@@ -836,14 +841,14 @@ class EnhancedEventMonitoringService
     private function logInstantChange(EventMonitor $monitor, array $change): void
     {
         Log::info('Instant event change detected', [
-            'monitor_id' => $monitor->id,
-            'event_id' => $monitor->event->id,
-            'user_id' => $monitor->user->id,
-            'change_type' => $change['type'],
-            'platform' => $change['platform'],
-            'urgency' => $change['urgency'],
-            'timestamp' => now(),
-            'microsecond_timestamp' => microtime(true)
+            'monitor_id'            => $monitor->id,
+            'event_id'              => $monitor->event->id,
+            'user_id'               => $monitor->user->id,
+            'change_type'           => $change['type'],
+            'platform'              => $change['platform'],
+            'urgency'               => $change['urgency'],
+            'timestamp'             => now(),
+            'microsecond_timestamp' => microtime(TRUE),
         ]);
 
         // Increment alerts counter
@@ -859,19 +864,19 @@ class EnhancedEventMonitoringService
     private function logPerformanceMetrics(EventMonitor $monitor, float $responseTime, int $platformCount): void
     {
         $metrics = [
-            'monitor_id' => $monitor->id,
-            'response_time' => $responseTime,
-            'platforms_checked' => $platformCount,
-            'priority' => $monitor->priority,
-            'timestamp' => now(),
-            'microsecond_timestamp' => microtime(true)
+            'monitor_id'            => $monitor->id,
+            'response_time'         => $responseTime,
+            'platforms_checked'     => $platformCount,
+            'priority'              => $monitor->priority,
+            'timestamp'             => now(),
+            'microsecond_timestamp' => microtime(TRUE),
         ];
 
         // Store in cache for real-time metrics
         $metricsKey = "performance_metrics_{$monitor->id}";
         $existingMetrics = Cache::get($metricsKey, []);
         array_unshift($existingMetrics, $metrics);
-        
+
         // Keep only last 100 metrics
         $existingMetrics = array_slice($existingMetrics, 0, 100);
         Cache::put($metricsKey, $existingMetrics, 3600); // Cache for 1 hour
@@ -884,11 +889,11 @@ class EnhancedEventMonitoringService
     {
         $feedKey = 'instant_global_feed';
         $currentFeed = Cache::get($feedKey, []);
-        
+
         // Add to feed and keep last 50 updates for performance
         array_unshift($currentFeed, $eventData);
         $currentFeed = array_slice($currentFeed, 0, 50);
-        
+
         Cache::put($feedKey, $currentFeed, 1800); // Cache for 30 minutes
     }
 }

@@ -4,16 +4,16 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers;
 
-use App\Services\CampaignManagementService;
 use App\Models\MarketingCampaign;
-use Illuminate\Http\Request;
+use App\Services\CampaignManagementService;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Support\Facades\Validator;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Validator;
 
 /**
  * Campaign Management Controller
- * 
+ *
  * Handles marketing campaign operations including:
  * - Campaign creation and management
  * - Campaign execution and scheduling
@@ -38,24 +38,23 @@ class CampaignManagementController extends Controller
             $campaigns = $this->campaignService->getAllCampaignsWithAnalytics();
 
             return response()->json([
-                'success' => true,
-                'data' => $campaigns,
-                'meta' => [
-                    'total' => count($campaigns),
-                    'timestamp' => now()->toISOString()
-                ]
+                'success' => TRUE,
+                'data'    => $campaigns,
+                'meta'    => [
+                    'total'     => count($campaigns),
+                    'timestamp' => now()->toISOString(),
+                ],
             ]);
-
         } catch (\Exception $e) {
             Log::error('Failed to fetch campaigns', [
-                'error' => $e->getMessage(),
-                'user_id' => auth()->id()
+                'error'   => $e->getMessage(),
+                'user_id' => auth()->id(),
             ]);
 
             return response()->json([
-                'success' => false,
+                'success' => FALSE,
                 'message' => 'Failed to fetch campaigns',
-                'error' => $e->getMessage()
+                'error'   => $e->getMessage(),
             ], 500);
         }
     }
@@ -66,28 +65,28 @@ class CampaignManagementController extends Controller
     public function store(Request $request): JsonResponse
     {
         $validator = Validator::make($request->all(), [
-            'name' => 'required|string|max:255',
-            'description' => 'nullable|string|max:1000',
-            'type' => 'required|in:email,push,in_app,sms',
+            'name'            => 'required|string|max:255',
+            'description'     => 'nullable|string|max:1000',
+            'type'            => 'required|in:email,push,in_app,sms',
             'target_audience' => 'nullable|string|in:all,subscribers,active_users,inactive_users',
-            'schedule_type' => 'nullable|in:immediate,scheduled,recurring',
-            'scheduled_at' => 'nullable|date|after:now',
-            'content' => 'required|array',
+            'schedule_type'   => 'nullable|in:immediate,scheduled,recurring',
+            'scheduled_at'    => 'nullable|date|after:now',
+            'content'         => 'required|array',
             'content.subject' => 'required_if:type,email|string|max:255',
-            'content.body' => 'required|string',
-            'content.title' => 'required_if:type,push,in_app|string|max:255',
+            'content.body'    => 'required|string',
+            'content.title'   => 'required_if:type,push,in_app|string|max:255',
             'content.message' => 'required_if:type,push,in_app,sms|string',
             'target_criteria' => 'nullable|array',
-            'settings' => 'nullable|array',
-            'ab_test' => 'nullable|boolean',
-            'variants' => 'nullable|array'
+            'settings'        => 'nullable|array',
+            'ab_test'         => 'nullable|boolean',
+            'variants'        => 'nullable|array',
         ]);
 
         if ($validator->fails()) {
             return response()->json([
-                'success' => false,
+                'success' => FALSE,
                 'message' => 'Validation failed',
-                'errors' => $validator->errors()
+                'errors'  => $validator->errors(),
             ], 422);
         }
 
@@ -95,28 +94,27 @@ class CampaignManagementController extends Controller
             $campaign = $this->campaignService->createCampaign($request->all());
 
             return response()->json([
-                'success' => true,
+                'success' => TRUE,
                 'message' => 'Campaign created successfully',
-                'data' => [
-                    'id' => $campaign->id,
-                    'name' => $campaign->name,
-                    'type' => $campaign->type,
-                    'status' => $campaign->status,
-                    'created_at' => $campaign->created_at
-                ]
+                'data'    => [
+                    'id'         => $campaign->id,
+                    'name'       => $campaign->name,
+                    'type'       => $campaign->type,
+                    'status'     => $campaign->status,
+                    'created_at' => $campaign->created_at,
+                ],
             ], 201);
-
         } catch (\Exception $e) {
             Log::error('Failed to create campaign', [
-                'error' => $e->getMessage(),
+                'error'        => $e->getMessage(),
                 'request_data' => $request->all(),
-                'user_id' => auth()->id()
+                'user_id'      => auth()->id(),
             ]);
 
             return response()->json([
-                'success' => false,
+                'success' => FALSE,
                 'message' => 'Failed to create campaign',
-                'error' => $e->getMessage()
+                'error'   => $e->getMessage(),
             ], 500);
         }
     }
@@ -130,24 +128,23 @@ class CampaignManagementController extends Controller
             $analytics = $this->campaignService->getCampaignAnalytics($campaign);
 
             return response()->json([
-                'success' => true,
-                'data' => [
-                    'campaign' => $campaign->load(['creator', 'targets.user', 'analytics']),
-                    'analytics' => $analytics
-                ]
+                'success' => TRUE,
+                'data'    => [
+                    'campaign'  => $campaign->load(['creator', 'targets.user', 'analytics']),
+                    'analytics' => $analytics,
+                ],
             ]);
-
         } catch (\Exception $e) {
             Log::error('Failed to fetch campaign details', [
                 'campaign_id' => $campaign->id,
-                'error' => $e->getMessage(),
-                'user_id' => auth()->id()
+                'error'       => $e->getMessage(),
+                'user_id'     => auth()->id(),
             ]);
 
             return response()->json([
-                'success' => false,
+                'success' => FALSE,
                 'message' => 'Failed to fetch campaign details',
-                'error' => $e->getMessage()
+                'error'   => $e->getMessage(),
             ], 500);
         }
     }
@@ -159,26 +156,26 @@ class CampaignManagementController extends Controller
     {
         if (!$campaign->isEditable()) {
             return response()->json([
-                'success' => false,
-                'message' => 'Campaign cannot be edited in current status'
+                'success' => FALSE,
+                'message' => 'Campaign cannot be edited in current status',
             ], 422);
         }
 
         $validator = Validator::make($request->all(), [
-            'name' => 'nullable|string|max:255',
-            'description' => 'nullable|string|max:1000',
-            'type' => 'nullable|in:email,push,in_app,sms',
+            'name'          => 'nullable|string|max:255',
+            'description'   => 'nullable|string|max:1000',
+            'type'          => 'nullable|in:email,push,in_app,sms',
             'schedule_type' => 'nullable|in:immediate,scheduled,recurring',
-            'scheduled_at' => 'nullable|date|after:now',
-            'content' => 'nullable|array',
-            'settings' => 'nullable|array'
+            'scheduled_at'  => 'nullable|date|after:now',
+            'content'       => 'nullable|array',
+            'settings'      => 'nullable|array',
         ]);
 
         if ($validator->fails()) {
             return response()->json([
-                'success' => false,
+                'success' => FALSE,
                 'message' => 'Validation failed',
-                'errors' => $validator->errors()
+                'errors'  => $validator->errors(),
             ], 422);
         }
 
@@ -186,22 +183,21 @@ class CampaignManagementController extends Controller
             $campaign->update(array_filter($request->all()));
 
             return response()->json([
-                'success' => true,
+                'success' => TRUE,
                 'message' => 'Campaign updated successfully',
-                'data' => $campaign->fresh()
+                'data'    => $campaign->fresh(),
             ]);
-
         } catch (\Exception $e) {
             Log::error('Failed to update campaign', [
                 'campaign_id' => $campaign->id,
-                'error' => $e->getMessage(),
-                'user_id' => auth()->id()
+                'error'       => $e->getMessage(),
+                'user_id'     => auth()->id(),
             ]);
 
             return response()->json([
-                'success' => false,
+                'success' => FALSE,
                 'message' => 'Failed to update campaign',
-                'error' => $e->getMessage()
+                'error'   => $e->getMessage(),
             ], 500);
         }
     }
@@ -213,8 +209,8 @@ class CampaignManagementController extends Controller
     {
         if (!$campaign->canBeLaunched()) {
             return response()->json([
-                'success' => false,
-                'message' => 'Campaign cannot be launched in current status'
+                'success' => FALSE,
+                'message' => 'Campaign cannot be launched in current status',
             ], 422);
         }
 
@@ -222,22 +218,21 @@ class CampaignManagementController extends Controller
             $result = $this->campaignService->launchCampaign($campaign);
 
             return response()->json([
-                'success' => true,
+                'success' => TRUE,
                 'message' => 'Campaign launched successfully',
-                'data' => $result
+                'data'    => $result,
             ]);
-
         } catch (\Exception $e) {
             Log::error('Failed to launch campaign', [
                 'campaign_id' => $campaign->id,
-                'error' => $e->getMessage(),
-                'user_id' => auth()->id()
+                'error'       => $e->getMessage(),
+                'user_id'     => auth()->id(),
             ]);
 
             return response()->json([
-                'success' => false,
+                'success' => FALSE,
                 'message' => 'Failed to launch campaign',
-                'error' => $e->getMessage()
+                'error'   => $e->getMessage(),
             ], 500);
         }
     }
@@ -249,8 +244,8 @@ class CampaignManagementController extends Controller
     {
         if (!$campaign->canBePaused()) {
             return response()->json([
-                'success' => false,
-                'message' => 'Campaign cannot be paused in current status'
+                'success' => FALSE,
+                'message' => 'Campaign cannot be paused in current status',
             ], 422);
         }
 
@@ -258,22 +253,21 @@ class CampaignManagementController extends Controller
             $campaign->update(['status' => MarketingCampaign::STATUS_PAUSED]);
 
             return response()->json([
-                'success' => true,
+                'success' => TRUE,
                 'message' => 'Campaign paused successfully',
-                'data' => $campaign->fresh()
+                'data'    => $campaign->fresh(),
             ]);
-
         } catch (\Exception $e) {
             Log::error('Failed to pause campaign', [
                 'campaign_id' => $campaign->id,
-                'error' => $e->getMessage(),
-                'user_id' => auth()->id()
+                'error'       => $e->getMessage(),
+                'user_id'     => auth()->id(),
             ]);
 
             return response()->json([
-                'success' => false,
+                'success' => FALSE,
                 'message' => 'Failed to pause campaign',
-                'error' => $e->getMessage()
+                'error'   => $e->getMessage(),
             ], 500);
         }
     }
@@ -285,8 +279,8 @@ class CampaignManagementController extends Controller
     {
         if ($campaign->status !== MarketingCampaign::STATUS_PAUSED) {
             return response()->json([
-                'success' => false,
-                'message' => 'Only paused campaigns can be resumed'
+                'success' => FALSE,
+                'message' => 'Only paused campaigns can be resumed',
             ], 422);
         }
 
@@ -294,22 +288,21 @@ class CampaignManagementController extends Controller
             $campaign->update(['status' => MarketingCampaign::STATUS_ACTIVE]);
 
             return response()->json([
-                'success' => true,
+                'success' => TRUE,
                 'message' => 'Campaign resumed successfully',
-                'data' => $campaign->fresh()
+                'data'    => $campaign->fresh(),
             ]);
-
         } catch (\Exception $e) {
             Log::error('Failed to resume campaign', [
                 'campaign_id' => $campaign->id,
-                'error' => $e->getMessage(),
-                'user_id' => auth()->id()
+                'error'       => $e->getMessage(),
+                'user_id'     => auth()->id(),
             ]);
 
             return response()->json([
-                'success' => false,
+                'success' => FALSE,
                 'message' => 'Failed to resume campaign',
-                'error' => $e->getMessage()
+                'error'   => $e->getMessage(),
             ], 500);
         }
     }
@@ -321,8 +314,8 @@ class CampaignManagementController extends Controller
     {
         if ($campaign->status === MarketingCampaign::STATUS_COMPLETED) {
             return response()->json([
-                'success' => false,
-                'message' => 'Completed campaigns cannot be cancelled'
+                'success' => FALSE,
+                'message' => 'Completed campaigns cannot be cancelled',
             ], 422);
         }
 
@@ -330,22 +323,21 @@ class CampaignManagementController extends Controller
             $campaign->update(['status' => MarketingCampaign::STATUS_CANCELLED]);
 
             return response()->json([
-                'success' => true,
+                'success' => TRUE,
                 'message' => 'Campaign cancelled successfully',
-                'data' => $campaign->fresh()
+                'data'    => $campaign->fresh(),
             ]);
-
         } catch (\Exception $e) {
             Log::error('Failed to cancel campaign', [
                 'campaign_id' => $campaign->id,
-                'error' => $e->getMessage(),
-                'user_id' => auth()->id()
+                'error'       => $e->getMessage(),
+                'user_id'     => auth()->id(),
             ]);
 
             return response()->json([
-                'success' => false,
+                'success' => FALSE,
                 'message' => 'Failed to cancel campaign',
-                'error' => $e->getMessage()
+                'error'   => $e->getMessage(),
             ], 500);
         }
     }
@@ -357,8 +349,8 @@ class CampaignManagementController extends Controller
     {
         if (!in_array($campaign->status, [MarketingCampaign::STATUS_DRAFT, MarketingCampaign::STATUS_CANCELLED])) {
             return response()->json([
-                'success' => false,
-                'message' => 'Only draft or cancelled campaigns can be deleted'
+                'success' => FALSE,
+                'message' => 'Only draft or cancelled campaigns can be deleted',
             ], 422);
         }
 
@@ -366,21 +358,20 @@ class CampaignManagementController extends Controller
             $campaign->delete();
 
             return response()->json([
-                'success' => true,
-                'message' => 'Campaign deleted successfully'
+                'success' => TRUE,
+                'message' => 'Campaign deleted successfully',
             ]);
-
         } catch (\Exception $e) {
             Log::error('Failed to delete campaign', [
                 'campaign_id' => $campaign->id,
-                'error' => $e->getMessage(),
-                'user_id' => auth()->id()
+                'error'       => $e->getMessage(),
+                'user_id'     => auth()->id(),
             ]);
 
             return response()->json([
-                'success' => false,
+                'success' => FALSE,
                 'message' => 'Failed to delete campaign',
-                'error' => $e->getMessage()
+                'error'   => $e->getMessage(),
             ], 500);
         }
     }
@@ -394,21 +385,20 @@ class CampaignManagementController extends Controller
             $analytics = $this->campaignService->getCampaignAnalytics($campaign);
 
             return response()->json([
-                'success' => true,
-                'data' => $analytics
+                'success' => TRUE,
+                'data'    => $analytics,
             ]);
-
         } catch (\Exception $e) {
             Log::error('Failed to fetch campaign analytics', [
                 'campaign_id' => $campaign->id,
-                'error' => $e->getMessage(),
-                'user_id' => auth()->id()
+                'error'       => $e->getMessage(),
+                'user_id'     => auth()->id(),
             ]);
 
             return response()->json([
-                'success' => false,
+                'success' => FALSE,
                 'message' => 'Failed to fetch campaign analytics',
-                'error' => $e->getMessage()
+                'error'   => $e->getMessage(),
             ], 500);
         }
     }
@@ -426,32 +416,31 @@ class CampaignManagementController extends Controller
 
             if ($email) {
                 $email->markAsOpened();
-                
+
                 // Record interaction
                 $campaign->interactions()->create([
-                    'user_id' => $userId,
-                    'action' => 'open',
+                    'user_id'   => $userId,
+                    'action'    => 'open',
                     'timestamp' => now(),
-                    'metadata' => [
+                    'metadata'  => [
                         'user_agent' => $request->userAgent(),
-                        'ip_address' => $request->ip()
-                    ]
+                        'ip_address' => $request->ip(),
+                    ],
                 ]);
             }
 
             // Return 1x1 transparent pixel
-            return response()->json(['success' => true], 200, [
-                'Content-Type' => 'image/gif'
+            return response()->json(['success' => TRUE], 200, [
+                'Content-Type' => 'image/gif',
             ]);
-
         } catch (\Exception $e) {
             Log::error('Failed to track email open', [
                 'campaign_id' => $campaignId,
-                'user_id' => $userId,
-                'error' => $e->getMessage()
+                'user_id'     => $userId,
+                'error'       => $e->getMessage(),
             ]);
 
-            return response()->json(['success' => false], 500);
+            return response()->json(['success' => FALSE], 500);
         }
     }
 
@@ -468,30 +457,29 @@ class CampaignManagementController extends Controller
 
             if ($email) {
                 $email->markAsClicked();
-                
+
                 // Record interaction
                 $campaign->interactions()->create([
-                    'user_id' => $userId,
-                    'action' => 'click',
+                    'user_id'   => $userId,
+                    'action'    => 'click',
                     'timestamp' => now(),
-                    'metadata' => [
-                        'url' => $request->get('url'),
+                    'metadata'  => [
+                        'url'        => $request->get('url'),
                         'user_agent' => $request->userAgent(),
-                        'ip_address' => $request->ip()
-                    ]
+                        'ip_address' => $request->ip(),
+                    ],
                 ]);
             }
 
-            return response()->json(['success' => true]);
-
+            return response()->json(['success' => TRUE]);
         } catch (\Exception $e) {
             Log::error('Failed to track email click', [
                 'campaign_id' => $campaignId,
-                'user_id' => $userId,
-                'error' => $e->getMessage()
+                'user_id'     => $userId,
+                'error'       => $e->getMessage(),
             ]);
 
-            return response()->json(['success' => false], 500);
+            return response()->json(['success' => FALSE], 500);
         }
     }
 
@@ -514,25 +502,24 @@ class CampaignManagementController extends Controller
                 } catch (\Exception $e) {
                     Log::error('Failed to process scheduled campaign', [
                         'campaign_id' => $campaign->id,
-                        'error' => $e->getMessage()
+                        'error'       => $e->getMessage(),
                     ]);
                 }
             }
 
             return response()->json([
-                'success' => true,
-                'message' => "Processed {$processed} scheduled campaigns"
+                'success' => TRUE,
+                'message' => "Processed {$processed} scheduled campaigns",
             ]);
-
         } catch (\Exception $e) {
             Log::error('Failed to process scheduled campaigns', [
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ]);
 
             return response()->json([
-                'success' => false,
+                'success' => FALSE,
                 'message' => 'Failed to process scheduled campaigns',
-                'error' => $e->getMessage()
+                'error'   => $e->getMessage(),
             ], 500);
         }
     }

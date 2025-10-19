@@ -4,19 +4,18 @@ declare(strict_types=1);
 
 namespace App\Services;
 
-use App\Models\User;
-use App\Models\MarketingCampaign;
-use App\Models\CampaignTarget;
-use App\Models\CampaignEmail;
 use App\Models\CampaignAnalytics;
-use Illuminate\Support\Facades\Mail;
-use Illuminate\Support\Facades\Log;
+use App\Models\CampaignEmail;
+use App\Models\CampaignTarget;
+use App\Models\MarketingCampaign;
+use App\Models\User;
 use Illuminate\Support\Facades\DB;
-use Carbon\Carbon;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
 
 /**
  * Campaign Management Service
- * 
+ *
  * Comprehensive marketing automation service providing:
  * - Campaign creation and management
  * - Audience segmentation and targeting
@@ -32,19 +31,19 @@ class CampaignManagementService
     public function createCampaign(array $campaignData): MarketingCampaign
     {
         DB::beginTransaction();
-        
+
         try {
             $campaign = MarketingCampaign::create([
-                'name' => $campaignData['name'],
-                'description' => $campaignData['description'] ?? null,
-                'type' => $campaignData['type'], // email, push, in_app, sms
-                'status' => 'draft',
+                'name'            => $campaignData['name'],
+                'description'     => $campaignData['description'] ?? NULL,
+                'type'            => $campaignData['type'], // email, push, in_app, sms
+                'status'          => 'draft',
                 'target_audience' => $campaignData['target_audience'] ?? 'all',
-                'schedule_type' => $campaignData['schedule_type'] ?? 'immediate', // immediate, scheduled, recurring
-                'scheduled_at' => $campaignData['scheduled_at'] ?? null,
-                'content' => $campaignData['content'],
-                'settings' => $campaignData['settings'] ?? [],
-                'created_by' => auth()->id()
+                'schedule_type'   => $campaignData['schedule_type'] ?? 'immediate', // immediate, scheduled, recurring
+                'scheduled_at'    => $campaignData['scheduled_at'] ?? NULL,
+                'content'         => $campaignData['content'],
+                'settings'        => $campaignData['settings'] ?? [],
+                'created_by'      => auth()->id(),
             ]);
 
             // Create campaign targets based on audience criteria
@@ -59,19 +58,18 @@ class CampaignManagementService
 
             Log::info('Marketing campaign created', [
                 'campaign_id' => $campaign->id,
-                'name' => $campaign->name,
-                'type' => $campaign->type,
-                'created_by' => auth()->id()
+                'name'        => $campaign->name,
+                'type'        => $campaign->type,
+                'created_by'  => auth()->id(),
             ]);
 
             return $campaign;
-
         } catch (\Exception $e) {
             DB::rollBack();
-            
+
             Log::error('Failed to create campaign', [
-                'error' => $e->getMessage(),
-                'campaign_data' => $campaignData
+                'error'         => $e->getMessage(),
+                'campaign_data' => $campaignData,
             ]);
 
             throw $e;
@@ -88,12 +86,12 @@ class CampaignManagementService
         }
 
         DB::beginTransaction();
-        
+
         try {
             // Update campaign status
             $campaign->update([
-                'status' => $campaign->schedule_type === 'immediate' ? 'active' : 'scheduled',
-                'launched_at' => now()
+                'status'      => $campaign->schedule_type === 'immediate' ? 'active' : 'scheduled',
+                'launched_at' => now(),
             ]);
 
             // Process immediate campaigns
@@ -107,19 +105,18 @@ class CampaignManagementService
             DB::commit();
 
             Log::info('Campaign launched', [
-                'campaign_id' => $campaign->id,
-                'name' => $campaign->name,
-                'schedule_type' => $campaign->schedule_type
+                'campaign_id'   => $campaign->id,
+                'name'          => $campaign->name,
+                'schedule_type' => $campaign->schedule_type,
             ]);
 
             return $result;
-
         } catch (\Exception $e) {
             DB::rollBack();
-            
+
             Log::error('Failed to launch campaign', [
                 'campaign_id' => $campaign->id,
-                'error' => $e->getMessage()
+                'error'       => $e->getMessage(),
             ]);
 
             throw $e;
@@ -134,33 +131,32 @@ class CampaignManagementService
         $targets = $campaign->targets()->with('user')->get();
         $results = [
             'total_targets' => $targets->count(),
-            'sent' => 0,
-            'failed' => 0,
-            'errors' => []
+            'sent'          => 0,
+            'failed'        => 0,
+            'errors'        => [],
         ];
 
         foreach ($targets as $target) {
             try {
                 $sent = $this->sendCampaignMessage($campaign, $target->user);
-                
+
                 if ($sent) {
                     $results['sent']++;
                     $this->recordCampaignInteraction($campaign, $target->user, 'sent');
                 } else {
                     $results['failed']++;
                 }
-
             } catch (\Exception $e) {
                 $results['failed']++;
                 $results['errors'][] = [
                     'user_id' => $target->user_id,
-                    'error' => $e->getMessage()
+                    'error'   => $e->getMessage(),
                 ];
 
                 Log::error('Campaign message failed', [
                     'campaign_id' => $campaign->id,
-                    'user_id' => $target->user_id,
-                    'error' => $e->getMessage()
+                    'user_id'     => $target->user_id,
+                    'error'       => $e->getMessage(),
                 ]);
             }
         }
@@ -177,11 +173,11 @@ class CampaignManagementService
     private function sendCampaignMessage(MarketingCampaign $campaign, User $user): bool
     {
         return match ($campaign->type) {
-            'email' => $this->sendEmailCampaign($campaign, $user),
-            'push' => $this->sendPushNotification($campaign, $user),
+            'email'  => $this->sendEmailCampaign($campaign, $user),
+            'push'   => $this->sendPushNotification($campaign, $user),
             'in_app' => $this->sendInAppNotification($campaign, $user),
-            'sms' => $this->sendSMSCampaign($campaign, $user),
-            default => false
+            'sms'    => $this->sendSMSCampaign($campaign, $user),
+            default  => FALSE
         };
     }
 
@@ -192,34 +188,33 @@ class CampaignManagementService
     {
         try {
             $content = $this->personalizeContent($campaign->content, $user);
-            
+
             // Create email record
             $email = CampaignEmail::create([
                 'campaign_id' => $campaign->id,
-                'user_id' => $user->id,
-                'subject' => $content['subject'],
-                'body' => $content['body'],
-                'status' => 'pending'
+                'user_id'     => $user->id,
+                'subject'     => $content['subject'],
+                'body'        => $content['body'],
+                'status'      => 'pending',
             ]);
 
             // Send email using Laravel Mail
             Mail::to($user->email)->send(new \App\Mail\CampaignEmail($campaign, $user, $content));
 
             $email->update([
-                'status' => 'sent',
-                'sent_at' => now()
+                'status'  => 'sent',
+                'sent_at' => now(),
             ]);
 
-            return true;
-
+            return TRUE;
         } catch (\Exception $e) {
             Log::error('Email campaign failed', [
                 'campaign_id' => $campaign->id,
-                'user_id' => $user->id,
-                'error' => $e->getMessage()
+                'user_id'     => $user->id,
+                'error'       => $e->getMessage(),
             ]);
 
-            return false;
+            return FALSE;
         }
     }
 
@@ -233,13 +228,12 @@ class CampaignManagementService
             // For now, just log the action
             Log::info('Push notification sent', [
                 'campaign_id' => $campaign->id,
-                'user_id' => $user->id
+                'user_id'     => $user->id,
             ]);
 
-            return true;
-
+            return TRUE;
         } catch (\Exception $e) {
-            return false;
+            return FALSE;
         }
     }
 
@@ -254,16 +248,15 @@ class CampaignManagementService
                 'type' => 'campaign',
                 'data' => [
                     'campaign_id' => $campaign->id,
-                    'title' => $campaign->content['title'] ?? 'Notification',
-                    'message' => $campaign->content['message'] ?? '',
-                    'action_url' => $campaign->content['action_url'] ?? null
-                ]
+                    'title'       => $campaign->content['title'] ?? 'Notification',
+                    'message'     => $campaign->content['message'] ?? '',
+                    'action_url'  => $campaign->content['action_url'] ?? NULL,
+                ],
             ]);
 
-            return true;
-
+            return TRUE;
         } catch (\Exception $e) {
-            return false;
+            return FALSE;
         }
     }
 
@@ -276,14 +269,13 @@ class CampaignManagementService
             // Implementation would integrate with SMS service
             Log::info('SMS sent', [
                 'campaign_id' => $campaign->id,
-                'user_id' => $user->id,
-                'phone' => $user->phone
+                'user_id'     => $user->id,
+                'phone'       => $user->phone,
             ]);
 
-            return true;
-
+            return TRUE;
         } catch (\Exception $e) {
-            return false;
+            return FALSE;
         }
     }
 
@@ -296,11 +288,11 @@ class CampaignManagementService
 
         // Replace placeholders with user data
         $placeholders = [
-            '{{user_name}}' => $user->name,
-            '{{first_name}}' => $user->first_name ?? $user->name,
-            '{{email}}' => $user->email,
+            '{{user_name}}'         => $user->name,
+            '{{first_name}}'        => $user->first_name ?? $user->name,
+            '{{email}}'             => $user->email,
             '{{subscription_plan}}' => $user->subscription_plan ?? 'Free',
-            '{{member_since}}' => $user->created_at->format('M Y')
+            '{{member_since}}'      => $user->created_at->format('M Y'),
         ];
 
         foreach ($personalizedContent as $key => $value) {
@@ -335,7 +327,7 @@ class CampaignManagementService
         if (isset($criteria['registration_date'])) {
             $query->whereBetween('created_at', [
                 $criteria['registration_date']['start'],
-                $criteria['registration_date']['end']
+                $criteria['registration_date']['end'],
             ]);
         }
 
@@ -356,9 +348,9 @@ class CampaignManagementService
         foreach ($users as $user) {
             CampaignTarget::create([
                 'campaign_id' => $campaign->id,
-                'user_id' => $user->id,
+                'user_id'     => $user->id,
                 'target_type' => 'user',
-                'status' => 'pending'
+                'status'      => 'pending',
             ]);
         }
     }
@@ -370,10 +362,10 @@ class CampaignManagementService
     {
         CampaignAnalytics::create([
             'campaign_id' => $campaign->id,
-            'user_id' => $user->id,
-            'action' => $action,
-            'timestamp' => now(),
-            'metadata' => []
+            'user_id'     => $user->id,
+            'action'      => $action,
+            'timestamp'   => now(),
+            'metadata'    => [],
         ]);
     }
 
@@ -385,12 +377,12 @@ class CampaignManagementService
         $campaign->analytics()->updateOrCreate(
             ['campaign_id' => $campaign->id],
             [
-                'total_targets' => $results['total_targets'],
-                'messages_sent' => $results['sent'],
+                'total_targets'   => $results['total_targets'],
+                'messages_sent'   => $results['sent'],
                 'messages_failed' => $results['failed'],
-                'delivery_rate' => $results['total_targets'] > 0 ? 
+                'delivery_rate'   => $results['total_targets'] > 0 ?
                     round(($results['sent'] / $results['total_targets']) * 100, 2) : 0,
-                'last_updated' => now()
+                'last_updated' => now(),
             ]
         );
     }
@@ -409,30 +401,30 @@ class CampaignManagementService
 
         return [
             'campaign_info' => [
-                'id' => $campaign->id,
-                'name' => $campaign->name,
-                'type' => $campaign->type,
-                'status' => $campaign->status,
-                'created_at' => $campaign->created_at,
-                'launched_at' => $campaign->launched_at
+                'id'          => $campaign->id,
+                'name'        => $campaign->name,
+                'type'        => $campaign->type,
+                'status'      => $campaign->status,
+                'created_at'  => $campaign->created_at,
+                'launched_at' => $campaign->launched_at,
             ],
             'delivery_metrics' => [
-                'total_targets' => $analytics->total_targets ?? 0,
-                'messages_sent' => $analytics->messages_sent ?? 0,
+                'total_targets'   => $analytics->total_targets ?? 0,
+                'messages_sent'   => $analytics->messages_sent ?? 0,
                 'messages_failed' => $analytics->messages_failed ?? 0,
-                'delivery_rate' => $analytics->delivery_rate ?? 0
+                'delivery_rate'   => $analytics->delivery_rate ?? 0,
             ],
             'engagement_metrics' => [
-                'opens' => $interactions['open'] ?? 0,
-                'clicks' => $interactions['click'] ?? 0,
-                'conversions' => $interactions['conversion'] ?? 0,
-                'unsubscribes' => $interactions['unsubscribe'] ?? 0,
-                'open_rate' => $this->calculateRate($interactions['open'] ?? 0, $analytics->messages_sent ?? 0),
-                'click_rate' => $this->calculateRate($interactions['click'] ?? 0, $analytics->messages_sent ?? 0),
-                'conversion_rate' => $this->calculateRate($interactions['conversion'] ?? 0, $analytics->messages_sent ?? 0)
+                'opens'           => $interactions['open'] ?? 0,
+                'clicks'          => $interactions['click'] ?? 0,
+                'conversions'     => $interactions['conversion'] ?? 0,
+                'unsubscribes'    => $interactions['unsubscribe'] ?? 0,
+                'open_rate'       => $this->calculateRate($interactions['open'] ?? 0, $analytics->messages_sent ?? 0),
+                'click_rate'      => $this->calculateRate($interactions['click'] ?? 0, $analytics->messages_sent ?? 0),
+                'conversion_rate' => $this->calculateRate($interactions['conversion'] ?? 0, $analytics->messages_sent ?? 0),
             ],
-            'revenue_impact' => $this->calculateRevenueImpact($campaign),
-            'performance_trends' => $this->getPerformanceTrends($campaign)
+            'revenue_impact'     => $this->calculateRevenueImpact($campaign),
+            'performance_trends' => $this->getPerformanceTrends($campaign),
         ];
     }
 
@@ -447,21 +439,21 @@ class CampaignManagementService
 
         return $campaigns->map(function ($campaign) {
             $analytics = $campaign->analytics;
-            
+
             return [
-                'id' => $campaign->id,
-                'name' => $campaign->name,
-                'type' => $campaign->type,
-                'status' => $campaign->status,
-                'created_at' => $campaign->created_at,
+                'id'          => $campaign->id,
+                'name'        => $campaign->name,
+                'type'        => $campaign->type,
+                'status'      => $campaign->status,
+                'created_at'  => $campaign->created_at,
                 'launched_at' => $campaign->launched_at,
-                'created_by' => $campaign->creator->name ?? 'Unknown',
-                'metrics' => [
-                    'targets' => $analytics->total_targets ?? 0,
-                    'sent' => $analytics->messages_sent ?? 0,
-                    'delivery_rate' => $analytics->delivery_rate ?? 0,
-                    'engagement_score' => $this->calculateEngagementScore($campaign)
-                ]
+                'created_by'  => $campaign->creator->name ?? 'Unknown',
+                'metrics'     => [
+                    'targets'          => $analytics->total_targets ?? 0,
+                    'sent'             => $analytics->messages_sent ?? 0,
+                    'delivery_rate'    => $analytics->delivery_rate ?? 0,
+                    'engagement_score' => $this->calculateEngagementScore($campaign),
+                ],
             ];
         })->toArray();
     }
@@ -485,9 +477,9 @@ class CampaignManagementService
         // Implementation would integrate with job scheduling system
         // For now, just return scheduled status
         return [
-            'status' => 'scheduled',
+            'status'       => 'scheduled',
             'scheduled_at' => $campaign->scheduled_at,
-            'message' => 'Campaign scheduled successfully'
+            'message'      => 'Campaign scheduled successfully',
         ];
     }
 
@@ -507,9 +499,9 @@ class CampaignManagementService
         // This would track conversions and revenue attributed to the campaign
         return [
             'attributed_revenue' => 0,
-            'new_subscriptions' => 0,
-            'upgrades' => 0,
-            'roi' => 0
+            'new_subscriptions'  => 0,
+            'upgrades'           => 0,
+            'roi'                => 0,
         ];
     }
 
@@ -520,17 +512,17 @@ class CampaignManagementService
     {
         $trends = [];
         $days = 7;
-        
+
         for ($i = 0; $i < $days; $i++) {
             $date = now()->subDays($i)->format('Y-m-d');
             $dayInteractions = $campaign->interactions()
                 ->whereDate('timestamp', $date)
                 ->count();
-            
+
             $trends[$date] = $dayInteractions;
         }
 
-        return array_reverse($trends, true);
+        return array_reverse($trends, TRUE);
     }
 
     /**

@@ -4,15 +4,15 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use Carbon\Carbon;
 
 /**
  * API Key Model
- * 
+ *
  * Manages API keys for external integrations with:
  * - Secure key storage and validation
  * - Permission-based access control
@@ -21,7 +21,8 @@ use Carbon\Carbon;
  */
 class ApiKey extends Model
 {
-    use HasFactory, SoftDeletes;
+    use HasFactory;
+    use SoftDeletes;
 
     protected $fillable = [
         'user_id',
@@ -34,21 +35,21 @@ class ApiKey extends Model
         'rate_limit',
         'usage_count',
         'last_ip',
-        'revoked_at'
+        'revoked_at',
     ];
 
     protected $casts = [
-        'permissions' => 'array',
+        'permissions'  => 'array',
         'last_used_at' => 'datetime',
-        'expires_at' => 'datetime',
-        'is_active' => 'boolean',
-        'rate_limit' => 'integer',
-        'usage_count' => 'integer',
-        'revoked_at' => 'datetime'
+        'expires_at'   => 'datetime',
+        'is_active'    => 'boolean',
+        'rate_limit'   => 'integer',
+        'usage_count'  => 'integer',
+        'revoked_at'   => 'datetime',
     ];
 
     protected $hidden = [
-        'key_hash'
+        'key_hash',
     ];
 
     // Relationships
@@ -63,13 +64,14 @@ class ApiKey extends Model
     public function validateKey(string $providedKey): bool
     {
         $hashedProvidedKey = hash('sha256', $providedKey);
+
         return hash_equals($this->key_hash, $hashedProvidedKey);
     }
 
     public function isValid(): bool
     {
-        return $this->is_active 
-            && !$this->isExpired() 
+        return $this->is_active
+            && !$this->isExpired()
             && !$this->isRevoked();
     }
 
@@ -85,28 +87,28 @@ class ApiKey extends Model
 
     public function hasPermission(string $permission): bool
     {
-        return in_array($permission, $this->permissions ?? []) 
+        return in_array($permission, $this->permissions ?? [])
             || in_array('admin', $this->permissions ?? []);
     }
 
     public function hasAnyPermission(array $permissions): bool
     {
-        return !empty(array_intersect($permissions, $this->permissions ?? [])) 
+        return !empty(array_intersect($permissions, $this->permissions ?? []))
             || in_array('admin', $this->permissions ?? []);
     }
 
     // Usage Tracking
 
-    public function recordUsage(?string $ipAddress = null): void
+    public function recordUsage(?string $ipAddress = NULL): void
     {
         $this->update([
             'last_used_at' => now(),
-            'usage_count' => $this->usage_count + 1,
-            'last_ip' => $ipAddress
+            'usage_count'  => $this->usage_count + 1,
+            'last_ip'      => $ipAddress,
         ]);
     }
 
-    public function getDailyUsage(Carbon $date = null): int
+    public function getDailyUsage(Carbon $date = NULL): int
     {
         $date = $date ?? now();
         $startOfDay = $date->copy()->startOfDay();
@@ -117,7 +119,7 @@ class ApiKey extends Model
         return 0;
     }
 
-    public function getHourlyUsage(Carbon $hour = null): int
+    public function getHourlyUsage(Carbon $hour = NULL): int
     {
         $hour = $hour ?? now();
         $startOfHour = $hour->copy()->startOfHour();
@@ -131,10 +133,11 @@ class ApiKey extends Model
     public function isRateLimited(): bool
     {
         if (!$this->rate_limit) {
-            return false;
+            return FALSE;
         }
 
         $currentUsage = $this->getHourlyUsage();
+
         return $currentUsage >= $this->rate_limit;
     }
 
@@ -145,6 +148,7 @@ class ApiKey extends Model
         }
 
         $currentUsage = $this->getHourlyUsage();
+
         return max(0, $this->rate_limit - $currentUsage);
     }
 
@@ -155,19 +159,19 @@ class ApiKey extends Model
         if ($this->isRevoked()) {
             return 'revoked';
         }
-        
+
         if ($this->isExpired()) {
             return 'expired';
         }
-        
+
         if (!$this->is_active) {
             return 'inactive';
         }
-        
+
         if ($this->isRateLimited()) {
             return 'rate_limited';
         }
-        
+
         return 'active';
     }
 
@@ -178,7 +182,7 @@ class ApiKey extends Model
         }
 
         $score = 100.0;
-        
+
         // Deduct points for high usage relative to limit
         if ($this->rate_limit) {
             $usageRatio = $this->getHourlyUsage() / $this->rate_limit;
@@ -189,7 +193,7 @@ class ApiKey extends Model
 
         // Deduct points for approaching expiration
         if ($this->expires_at) {
-            $daysUntilExpiry = now()->diffInDays($this->expires_at, false);
+            $daysUntilExpiry = now()->diffInDays($this->expires_at, FALSE);
             if ($daysUntilExpiry <= 7) {
                 $score -= (7 - $daysUntilExpiry) * 5; // Up to 35 points deduction
             }
@@ -201,10 +205,10 @@ class ApiKey extends Model
     public function getUsageStats(int $days = 30): array
     {
         $stats = [
-            'total_requests' => $this->usage_count,
-            'daily_average' => 0,
-            'peak_day' => null,
-            'recent_activity' => []
+            'total_requests'  => $this->usage_count,
+            'daily_average'   => 0,
+            'peak_day'        => NULL,
+            'recent_activity' => [],
         ];
 
         // This would be implemented with proper usage logging
@@ -219,24 +223,24 @@ class ApiKey extends Model
 
     // Management Operations
 
-    public function revoke(string $reason = null): bool
+    public function revoke(string $reason = NULL): bool
     {
         return $this->update([
-            'is_active' => false,
-            'revoked_at' => now(),
-            'revocation_reason' => $reason
+            'is_active'         => FALSE,
+            'revoked_at'        => now(),
+            'revocation_reason' => $reason,
         ]);
     }
 
     public function activate(): bool
     {
         if ($this->isExpired()) {
-            return false;
+            return FALSE;
         }
 
         return $this->update([
-            'is_active' => true,
-            'revoked_at' => null
+            'is_active'  => TRUE,
+            'revoked_at' => NULL,
         ]);
     }
 
@@ -244,8 +248,8 @@ class ApiKey extends Model
     {
         $validPermissions = ['read', 'write', 'admin'];
         $filteredPermissions = array_filter(
-            $permissions, 
-            fn($perm) => in_array($perm, $validPermissions)
+            $permissions,
+            fn ($perm) => in_array($perm, $validPermissions)
         );
 
         return $this->update(['permissions' => array_unique($filteredPermissions)]);
@@ -253,7 +257,7 @@ class ApiKey extends Model
 
     public function extendExpiration(int $days): bool
     {
-        $newExpiration = $this->expires_at 
+        $newExpiration = $this->expires_at
             ? $this->expires_at->addDays($days)
             : now()->addDays($days);
 
@@ -269,7 +273,7 @@ class ApiKey extends Model
 
     public function scopeActive($query)
     {
-        return $query->where('is_active', true)
+        return $query->where('is_active', TRUE)
             ->where(function ($q) {
                 $q->whereNull('expires_at')
                   ->orWhere('expires_at', '>', now());
@@ -315,13 +319,13 @@ class ApiKey extends Model
     public function getPermissionLabelsAttribute(): array
     {
         $labels = [
-            'read' => 'Read Access',
-            'write' => 'Write Access', 
-            'admin' => 'Admin Access'
+            'read'  => 'Read Access',
+            'write' => 'Write Access',
+            'admin' => 'Admin Access',
         ];
 
         return array_map(
-            fn($perm) => $labels[$perm] ?? $perm,
+            fn ($perm) => $labels[$perm] ?? $perm,
             $this->permissions ?? []
         );
     }

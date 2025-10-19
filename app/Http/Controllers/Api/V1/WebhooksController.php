@@ -7,16 +7,16 @@ namespace App\Http\Controllers\API\V1;
 use App\Http\Controllers\Controller;
 use App\Models\Webhook;
 use App\Models\WebhookLog;
-use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
 
 /**
  * Webhooks API Controller
- * 
+ *
  * Manages webhook endpoints for real-time notifications:
  * - Webhook CRUD operations
  * - Event subscription management
@@ -37,7 +37,7 @@ class WebhooksController extends Controller
     {
         try {
             $user = Auth::user();
-            
+
             $webhooks = Webhook::where('user_id', $user->id)
                 ->when($request->filled('is_active'), function ($query) use ($request) {
                     $query->where('is_active', $request->boolean('is_active'));
@@ -54,26 +54,25 @@ class WebhooksController extends Controller
             return $this->successResponse([
                 'webhooks' => $webhooks->map(function ($webhook) {
                     return [
-                        'id' => $webhook->id,
-                        'name' => $webhook->name,
-                        'url' => $webhook->url,
-                        'events' => $webhook->events,
-                        'is_active' => $webhook->is_active,
-                        'last_delivery' => $webhook->last_delivery_at,
-                        'success_rate' => $webhook->getSuccessRate(),
-                        'total_deliveries' => $webhook->total_deliveries,
+                        'id'                => $webhook->id,
+                        'name'              => $webhook->name,
+                        'url'               => $webhook->url,
+                        'events'            => $webhook->events,
+                        'is_active'         => $webhook->is_active,
+                        'last_delivery'     => $webhook->last_delivery_at,
+                        'success_rate'      => $webhook->getSuccessRate(),
+                        'total_deliveries'  => $webhook->total_deliveries,
                         'failed_deliveries' => $webhook->failed_deliveries,
-                        'created_at' => $webhook->created_at,
-                        'status' => $webhook->getStatus()
+                        'created_at'        => $webhook->created_at,
+                        'status'            => $webhook->getStatus(),
                     ];
                 }),
                 'summary' => [
-                    'total_webhooks' => $webhooks->count(),
-                    'active_webhooks' => $webhooks->where('is_active', true)->count(),
-                    'healthy_webhooks' => $webhooks->filter(fn($w) => $w->getSuccessRate() > 95)->count()
-                ]
+                    'total_webhooks'   => $webhooks->count(),
+                    'active_webhooks'  => $webhooks->where('is_active', TRUE)->count(),
+                    'healthy_webhooks' => $webhooks->filter(fn ($w) => $w->getSuccessRate() > 95)->count(),
+                ],
             ]);
-
         } catch (\Exception $e) {
             return $this->errorResponse('Failed to retrieve webhooks', ['error' => $e->getMessage()]);
         }
@@ -85,17 +84,17 @@ class WebhooksController extends Controller
     public function create(Request $request): JsonResponse
     {
         $validator = Validator::make($request->all(), [
-            'name' => 'required|string|max:255',
-            'url' => 'required|url|max:255',
-            'events' => 'required|array|min:1',
-            'events.*' => 'string|in:price_alert,monitoring_update,purchase_complete,system_notification,ticket_available,price_drop',
-            'secret' => 'nullable|string|min:16|max:255',
-            'is_active' => 'boolean',
-            'retry_policy' => 'array',
-            'retry_policy.max_attempts' => 'integer|min:1|max:10',
+            'name'                          => 'required|string|max:255',
+            'url'                           => 'required|url|max:255',
+            'events'                        => 'required|array|min:1',
+            'events.*'                      => 'string|in:price_alert,monitoring_update,purchase_complete,system_notification,ticket_available,price_drop',
+            'secret'                        => 'nullable|string|min:16|max:255',
+            'is_active'                     => 'boolean',
+            'retry_policy'                  => 'array',
+            'retry_policy.max_attempts'     => 'integer|min:1|max:10',
             'retry_policy.backoff_strategy' => 'string|in:linear,exponential',
-            'headers' => 'array',
-            'timeout' => 'integer|min:1|max:30'
+            'headers'                       => 'array',
+            'timeout'                       => 'integer|min:1|max:30',
         ]);
 
         if ($validator->fails()) {
@@ -104,13 +103,13 @@ class WebhooksController extends Controller
 
         try {
             $user = Auth::user();
-            
+
             // Check webhook limit based on subscription
             $maxWebhooks = $this->getMaxWebhooks($user);
             if ($user->webhooks()->count() >= $maxWebhooks) {
                 return $this->errorResponse('Webhook limit reached', [
                     'max_webhooks' => $maxWebhooks,
-                    'current_plan' => $user->subscription_plan
+                    'current_plan' => $user->subscription_plan,
                 ], 403);
             }
 
@@ -118,40 +117,39 @@ class WebhooksController extends Controller
             $secret = $request->input('secret') ?: Str::random(32);
 
             $webhook = Webhook::create([
-                'user_id' => $user->id,
-                'name' => $request->input('name'),
-                'url' => $request->input('url'),
-                'events' => $request->input('events'),
-                'secret' => $secret,
-                'is_active' => $request->input('is_active', true),
+                'user_id'      => $user->id,
+                'name'         => $request->input('name'),
+                'url'          => $request->input('url'),
+                'events'       => $request->input('events'),
+                'secret'       => $secret,
+                'is_active'    => $request->input('is_active', TRUE),
                 'retry_policy' => $request->input('retry_policy', [
-                    'max_attempts' => 3,
-                    'backoff_strategy' => 'exponential'
+                    'max_attempts'     => 3,
+                    'backoff_strategy' => 'exponential',
                 ]),
                 'custom_headers' => $request->input('headers', []),
-                'timeout' => $request->input('timeout', 10)
+                'timeout'        => $request->input('timeout', 10),
             ]);
 
             // Test webhook if requested
-            $testResult = null;
-            if ($request->boolean('test_on_create', false)) {
+            $testResult = NULL;
+            if ($request->boolean('test_on_create', FALSE)) {
                 $testResult = $this->performWebhookTest($webhook);
             }
 
             return $this->successResponse([
                 'message' => 'Webhook created successfully',
                 'webhook' => [
-                    'id' => $webhook->id,
-                    'name' => $webhook->name,
-                    'url' => $webhook->url,
-                    'events' => $webhook->events,
-                    'secret' => $webhook->secret,
-                    'is_active' => $webhook->is_active,
-                    'created_at' => $webhook->created_at
+                    'id'         => $webhook->id,
+                    'name'       => $webhook->name,
+                    'url'        => $webhook->url,
+                    'events'     => $webhook->events,
+                    'secret'     => $webhook->secret,
+                    'is_active'  => $webhook->is_active,
+                    'created_at' => $webhook->created_at,
                 ],
-                'test_result' => $testResult
+                'test_result' => $testResult,
             ], 201);
-
         } catch (\Exception $e) {
             return $this->errorResponse('Failed to create webhook', ['error' => $e->getMessage()], 500);
         }
@@ -174,42 +172,41 @@ class WebhooksController extends Controller
 
             return $this->successResponse([
                 'webhook' => [
-                    'id' => $webhook->id,
-                    'name' => $webhook->name,
-                    'url' => $webhook->url,
-                    'events' => $webhook->events,
-                    'is_active' => $webhook->is_active,
-                    'secret' => $webhook->secret,
-                    'retry_policy' => $webhook->retry_policy,
+                    'id'             => $webhook->id,
+                    'name'           => $webhook->name,
+                    'url'            => $webhook->url,
+                    'events'         => $webhook->events,
+                    'is_active'      => $webhook->is_active,
+                    'secret'         => $webhook->secret,
+                    'retry_policy'   => $webhook->retry_policy,
                     'custom_headers' => $webhook->custom_headers,
-                    'timeout' => $webhook->timeout,
-                    'statistics' => [
-                        'total_deliveries' => $webhook->total_deliveries,
-                        'successful_deliveries' => $webhook->successful_deliveries,
-                        'failed_deliveries' => $webhook->failed_deliveries,
-                        'success_rate' => $webhook->getSuccessRate(),
-                        'avg_response_time' => $webhook->getAverageResponseTime(),
-                        'last_delivery' => $webhook->last_delivery_at,
+                    'timeout'        => $webhook->timeout,
+                    'statistics'     => [
+                        'total_deliveries'         => $webhook->total_deliveries,
+                        'successful_deliveries'    => $webhook->successful_deliveries,
+                        'failed_deliveries'        => $webhook->failed_deliveries,
+                        'success_rate'             => $webhook->getSuccessRate(),
+                        'avg_response_time'        => $webhook->getAverageResponseTime(),
+                        'last_delivery'            => $webhook->last_delivery_at,
                         'last_successful_delivery' => $webhook->last_successful_delivery_at,
-                        'status' => $webhook->getStatus()
+                        'status'                   => $webhook->getStatus(),
                     ],
                     'recent_logs' => $webhook->logs->map(function ($log) {
                         return [
-                            'id' => $log->id,
-                            'event_type' => $log->event_type,
-                            'status' => $log->status,
-                            'response_code' => $log->response_code,
-                            'response_time' => $log->response_time,
-                            'error_message' => $log->error_message,
+                            'id'             => $log->id,
+                            'event_type'     => $log->event_type,
+                            'status'         => $log->status,
+                            'response_code'  => $log->response_code,
+                            'response_time'  => $log->response_time,
+                            'error_message'  => $log->error_message,
                             'attempt_number' => $log->attempt_number,
-                            'delivered_at' => $log->delivered_at
+                            'delivered_at'   => $log->delivered_at,
                         ];
                     }),
                     'created_at' => $webhook->created_at,
-                    'updated_at' => $webhook->updated_at
-                ]
+                    'updated_at' => $webhook->updated_at,
+                ],
             ]);
-
         } catch (\Exception $e) {
             return $this->errorResponse('Failed to retrieve webhook details', ['error' => $e->getMessage()]);
         }
@@ -226,15 +223,15 @@ class WebhooksController extends Controller
         }
 
         $validator = Validator::make($request->all(), [
-            'name' => 'string|max:255',
-            'url' => 'url|max:255',
-            'events' => 'array',
-            'events.*' => 'string|in:price_alert,monitoring_update,purchase_complete,system_notification,ticket_available,price_drop',
-            'secret' => 'nullable|string|min:16|max:255',
-            'is_active' => 'boolean',
+            'name'         => 'string|max:255',
+            'url'          => 'url|max:255',
+            'events'       => 'array',
+            'events.*'     => 'string|in:price_alert,monitoring_update,purchase_complete,system_notification,ticket_available,price_drop',
+            'secret'       => 'nullable|string|min:16|max:255',
+            'is_active'    => 'boolean',
             'retry_policy' => 'array',
-            'headers' => 'array',
-            'timeout' => 'integer|min:1|max:30'
+            'headers'      => 'array',
+            'timeout'      => 'integer|min:1|max:30',
         ]);
 
         if ($validator->fails()) {
@@ -243,13 +240,13 @@ class WebhooksController extends Controller
 
         try {
             $updateData = $request->only([
-                'name', 'url', 'events', 'secret', 'is_active', 
-                'retry_policy', 'custom_headers', 'timeout'
+                'name', 'url', 'events', 'secret', 'is_active',
+                'retry_policy', 'custom_headers', 'timeout',
             ]);
 
             // Filter out null values
             $updateData = array_filter($updateData, function ($value) {
-                return $value !== null;
+                return $value !== NULL;
             });
 
             $webhook->update($updateData);
@@ -257,15 +254,14 @@ class WebhooksController extends Controller
             return $this->successResponse([
                 'message' => 'Webhook updated successfully',
                 'webhook' => [
-                    'id' => $webhook->id,
-                    'name' => $webhook->name,
-                    'url' => $webhook->url,
-                    'events' => $webhook->events,
-                    'is_active' => $webhook->is_active,
-                    'updated_at' => $webhook->updated_at
-                ]
+                    'id'         => $webhook->id,
+                    'name'       => $webhook->name,
+                    'url'        => $webhook->url,
+                    'events'     => $webhook->events,
+                    'is_active'  => $webhook->is_active,
+                    'updated_at' => $webhook->updated_at,
+                ],
             ]);
-
         } catch (\Exception $e) {
             return $this->errorResponse('Failed to update webhook', ['error' => $e->getMessage()], 500);
         }
@@ -286,9 +282,8 @@ class WebhooksController extends Controller
             $webhook->delete();
 
             return $this->successResponse([
-                'message' => 'Webhook deleted successfully'
+                'message' => 'Webhook deleted successfully',
             ]);
-
         } catch (\Exception $e) {
             return $this->errorResponse('Failed to delete webhook', ['error' => $e->getMessage()], 500);
         }
@@ -309,9 +304,8 @@ class WebhooksController extends Controller
 
             return $this->successResponse([
                 'test_result' => $testResult,
-                'message' => $testResult['success'] ? 'Webhook test successful' : 'Webhook test failed'
+                'message'     => $testResult['success'] ? 'Webhook test successful' : 'Webhook test failed',
             ]);
-
         } catch (\Exception $e) {
             return $this->errorResponse('Failed to test webhook', ['error' => $e->getMessage()], 500);
         }
@@ -328,11 +322,11 @@ class WebhooksController extends Controller
         }
 
         $validator = Validator::make($request->all(), [
-            'status' => 'string|in:success,failed,pending',
+            'status'     => 'string|in:success,failed,pending',
             'event_type' => 'string',
-            'from_date' => 'date',
-            'to_date' => 'date|after_or_equal:from_date',
-            'per_page' => 'integer|min:1|max:100'
+            'from_date'  => 'date',
+            'to_date'    => 'date|after_or_equal:from_date',
+            'per_page'   => 'integer|min:1|max:100',
         ]);
 
         if ($validator->fails()) {
@@ -363,20 +357,19 @@ class WebhooksController extends Controller
             $logs = $query->orderByDesc('delivered_at')->paginate($perPage);
 
             return $this->successResponse([
-                'logs' => $logs->items(),
+                'logs'       => $logs->items(),
                 'pagination' => [
                     'current_page' => $logs->currentPage(),
-                    'total_pages' => $logs->lastPage(),
-                    'total_items' => $logs->total(),
-                    'per_page' => $logs->perPage()
+                    'total_pages'  => $logs->lastPage(),
+                    'total_items'  => $logs->total(),
+                    'per_page'     => $logs->perPage(),
                 ],
                 'summary' => [
-                    'total_deliveries' => $webhook->total_deliveries,
-                    'success_rate' => $webhook->getSuccessRate(),
-                    'avg_response_time' => $webhook->getAverageResponseTime()
-                ]
+                    'total_deliveries'  => $webhook->total_deliveries,
+                    'success_rate'      => $webhook->getSuccessRate(),
+                    'avg_response_time' => $webhook->getAverageResponseTime(),
+                ],
             ]);
-
         } catch (\Exception $e) {
             return $this->errorResponse('Failed to retrieve webhook logs', ['error' => $e->getMessage()]);
         }
@@ -421,29 +414,29 @@ class WebhooksController extends Controller
     protected function successResponse(array $data, int $statusCode = 200): JsonResponse
     {
         return response()->json([
-            'success' => true,
-            'data' => $data,
-            'timestamp' => now()->toISOString()
+            'success'   => TRUE,
+            'data'      => $data,
+            'timestamp' => now()->toISOString(),
         ], $statusCode);
     }
 
     protected function errorResponse(string $message, array $errors = [], int $statusCode = 500): JsonResponse
     {
         return response()->json([
-            'success' => false,
-            'message' => $message,
-            'errors' => $errors,
-            'timestamp' => now()->toISOString()
+            'success'   => FALSE,
+            'message'   => $message,
+            'errors'    => $errors,
+            'timestamp' => now()->toISOString(),
         ], $statusCode);
     }
 
     private function getMaxWebhooks($user): int
     {
         return match ($user->subscription_plan) {
-            'starter' => 1,
-            'pro' => 5,
+            'starter'    => 1,
+            'pro'        => 5,
             'enterprise' => 25,
-            default => 0
+            default      => 0
         };
     }
 
@@ -451,64 +444,63 @@ class WebhooksController extends Controller
     {
         $testPayload = [
             'event_type' => $eventType,
-            'test' => true,
+            'test'       => TRUE,
             'webhook_id' => $webhook->id,
-            'timestamp' => now()->toISOString(),
-            'data' => [
+            'timestamp'  => now()->toISOString(),
+            'data'       => [
                 'message' => 'This is a test webhook delivery',
-                'test_id' => Str::uuid()
-            ]
+                'test_id' => Str::uuid(),
+            ],
         ];
 
         try {
-            $startTime = microtime(true);
-            
+            $startTime = microtime(TRUE);
+
             $response = Http::withHeaders($webhook->custom_headers ?? [])
                 ->timeout($webhook->timeout)
                 ->post($webhook->url, [
-                    'payload' => $testPayload,
-                    'signature' => $this->generateSignature($testPayload, $webhook->secret)
+                    'payload'   => $testPayload,
+                    'signature' => $this->generateSignature($testPayload, $webhook->secret),
                 ]);
 
-            $responseTime = round((microtime(true) - $startTime) * 1000);
+            $responseTime = round((microtime(TRUE) - $startTime) * 1000);
 
             // Log the test
             WebhookLog::create([
-                'webhook_id' => $webhook->id,
-                'event_type' => $eventType,
-                'payload' => $testPayload,
-                'status' => $response->successful() ? 'success' : 'failed',
-                'response_code' => $response->status(),
-                'response_body' => $response->body(),
-                'response_time' => $responseTime,
+                'webhook_id'     => $webhook->id,
+                'event_type'     => $eventType,
+                'payload'        => $testPayload,
+                'status'         => $response->successful() ? 'success' : 'failed',
+                'response_code'  => $response->status(),
+                'response_body'  => $response->body(),
+                'response_time'  => $responseTime,
                 'attempt_number' => 1,
-                'delivered_at' => now()
+                'delivered_at'   => now(),
             ]);
 
             return [
-                'success' => $response->successful(),
-                'status_code' => $response->status(),
+                'success'       => $response->successful(),
+                'status_code'   => $response->status(),
                 'response_time' => $responseTime,
                 'response_body' => $response->body(),
-                'test_payload' => $testPayload
+                'test_payload'  => $testPayload,
             ];
-
         } catch (\Exception $e) {
             // Log the failed test
             WebhookLog::create([
-                'webhook_id' => $webhook->id,
-                'event_type' => $eventType,
-                'payload' => $testPayload,
-                'status' => 'failed',
-                'error_message' => $e->getMessage(),
+                'webhook_id'     => $webhook->id,
+                'event_type'     => $eventType,
+                'payload'        => $testPayload,
+                'status'         => 'failed',
+                'error_message'  => $e->getMessage(),
                 'attempt_number' => 1,
-                'delivered_at' => now()
+                'delivered_at'   => now(),
             ]);
 
             return [
-                'success' => false,
-                'error' => $e->getMessage(),
-                'test_payload' => $testPayload
+                'success'      => FALSE,
+                'error'        => $e->getMessage(),
+                'test_payload' => $testPayload,
             ];
         }
     }
@@ -523,29 +515,28 @@ class WebhooksController extends Controller
         try {
             // Validate incoming webhook signature if needed
             $signature = $request->header('X-Signature');
-            
+
             // Process the webhook data
             $data = $request->all();
-            
+
             // Log receipt for debugging/analytics
             \Log::info("Received {$eventType} webhook", [
-                'data' => $data,
+                'data'      => $data,
                 'signature' => $signature,
-                'ip' => $request->ip()
+                'ip'        => $request->ip(),
             ]);
 
             return response()->json([
-                'success' => true,
-                'message' => 'Webhook received successfully',
-                'event_type' => $eventType,
-                'received_at' => now()->toISOString()
+                'success'     => TRUE,
+                'message'     => 'Webhook received successfully',
+                'event_type'  => $eventType,
+                'received_at' => now()->toISOString(),
             ]);
-
         } catch (\Exception $e) {
             return response()->json([
-                'success' => false,
+                'success' => FALSE,
                 'message' => 'Failed to process webhook',
-                'error' => $e->getMessage()
+                'error'   => $e->getMessage(),
             ], 500);
         }
     }

@@ -5,22 +5,22 @@ declare(strict_types=1);
 namespace App\Http\Controllers\API\V1;
 
 use App\Http\Controllers\Controller;
-use App\Services\EnhancedEventMonitoringService;
-use App\Services\PriceTrackingAnalyticsService;
-use App\Services\AutomatedPurchasingService;
-use App\Services\MultiEventManagementService;
 use App\Models\Event;
 use App\Models\EventMonitor;
 use App\Models\PriceAlert;
-use Illuminate\Http\Request;
+use App\Services\AutomatedPurchasingService;
+use App\Services\EnhancedEventMonitoringService;
+use App\Services\MultiEventManagementService;
+use App\Services\PriceTrackingAnalyticsService;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\RateLimiter;
+use Illuminate\Support\Facades\Validator;
 
 /**
  * Events API Controller
- * 
+ *
  * Provides comprehensive RESTful API endpoints for:
  * - Event discovery and search
  * - Real-time monitoring management
@@ -47,18 +47,18 @@ class EventsController extends Controller
     public function index(Request $request): JsonResponse
     {
         $validator = Validator::make($request->all(), [
-            'page' => 'integer|min:1',
-            'per_page' => 'integer|min:1|max:100',
-            'category' => 'string|max:100',
-            'venue' => 'string|max:255',
-            'date_from' => 'date',
-            'date_to' => 'date|after_or_equal:date_from',
-            'location' => 'string|max:255',
-            'min_price' => 'numeric|min:0',
-            'max_price' => 'numeric|min:0|gte:min_price',
-            'sort_by' => 'string|in:name,date,price,popularity,created_at',
+            'page'       => 'integer|min:1',
+            'per_page'   => 'integer|min:1|max:100',
+            'category'   => 'string|max:100',
+            'venue'      => 'string|max:255',
+            'date_from'  => 'date',
+            'date_to'    => 'date|after_or_equal:date_from',
+            'location'   => 'string|max:255',
+            'min_price'  => 'numeric|min:0',
+            'max_price'  => 'numeric|min:0|gte:min_price',
+            'sort_by'    => 'string|in:name,date,price,popularity,created_at',
             'sort_order' => 'string|in:asc,desc',
-            'search' => 'string|max:255'
+            'search'     => 'string|max:255',
         ]);
 
         if ($validator->fails()) {
@@ -66,7 +66,7 @@ class EventsController extends Controller
         }
 
         try {
-            $query = Event::query()->where('is_active', true);
+            $query = Event::query()->where('is_active', TRUE);
 
             // Apply filters
             if ($request->filled('category')) {
@@ -115,20 +115,19 @@ class EventsController extends Controller
             }])->paginate($perPage);
 
             return $this->successResponse([
-                'events' => $events->items(),
+                'events'     => $events->items(),
                 'pagination' => [
                     'current_page' => $events->currentPage(),
-                    'total_pages' => $events->lastPage(),
-                    'total_items' => $events->total(),
-                    'per_page' => $events->perPage(),
-                    'has_more' => $events->hasMorePages()
+                    'total_pages'  => $events->lastPage(),
+                    'total_items'  => $events->total(),
+                    'per_page'     => $events->perPage(),
+                    'has_more'     => $events->hasMorePages(),
                 ],
                 'applied_filters' => $request->only([
-                    'category', 'venue', 'date_from', 'date_to', 
-                    'location', 'min_price', 'max_price', 'search'
-                ])
+                    'category', 'venue', 'date_from', 'date_to',
+                    'location', 'min_price', 'max_price', 'search',
+                ]),
             ]);
-
         } catch (\Exception $e) {
             return $this->errorResponse('Failed to retrieve events', ['error' => $e->getMessage()]);
         }
@@ -141,7 +140,7 @@ class EventsController extends Controller
     {
         try {
             $user = Auth::user();
-            
+
             // Load relationships
             $event->load([
                 'monitors' => function ($q) use ($user) {
@@ -149,7 +148,7 @@ class EventsController extends Controller
                 },
                 'priceHistories' => function ($q) {
                     $q->orderByDesc('recorded_at')->limit(50);
-                }
+                },
             ]);
 
             // Get additional analytics
@@ -158,14 +157,13 @@ class EventsController extends Controller
             $purchaseConfig = $this->purchasingService->getUserPurchaseConfig($user, $event);
 
             return $this->successResponse([
-                'event' => $event,
-                'price_analytics' => $priceAnalytics,
-                'monitoring_status' => $monitoringStatus,
-                'purchase_config' => $purchaseConfig,
+                'event'                 => $event,
+                'price_analytics'       => $priceAnalytics,
+                'monitoring_status'     => $monitoringStatus,
+                'purchase_config'       => $purchaseConfig,
                 'current_opportunities' => $this->identifyCurrentOpportunities($event),
-                'recommendations' => $this->generateEventRecommendations($event, $user)
+                'recommendations'       => $this->generateEventRecommendations($event, $user),
             ]);
-
         } catch (\Exception $e) {
             return $this->errorResponse('Failed to retrieve event details', ['error' => $e->getMessage()]);
         }
@@ -177,12 +175,12 @@ class EventsController extends Controller
     public function startMonitoring(Request $request, Event $event): JsonResponse
     {
         $validator = Validator::make($request->all(), [
-            'platforms' => 'array|min:1',
-            'platforms.*' => 'string|in:ticketmaster,seatgeek,stubhub,vivid_seats',
-            'check_interval' => 'integer|min:60|max:3600',
-            'priority' => 'integer|min:1|max:10',
-            'notification_preferences' => 'array',
-            'notification_preferences.*' => 'string|in:email,sms,push,webhook'
+            'platforms'                  => 'array|min:1',
+            'platforms.*'                => 'string|in:ticketmaster,seatgeek,stubhub,vivid_seats',
+            'check_interval'             => 'integer|min:60|max:3600',
+            'priority'                   => 'integer|min:1|max:10',
+            'notification_preferences'   => 'array',
+            'notification_preferences.*' => 'string|in:email,sms,push,webhook',
         ]);
 
         if ($validator->fails()) {
@@ -191,33 +189,33 @@ class EventsController extends Controller
 
         try {
             $user = Auth::user();
-            
+
             // Check rate limiting for monitoring operations
             $rateLimitKey = "monitor_event:{$user->id}";
             if (RateLimiter::tooManyAttempts($rateLimitKey, 10)) {
                 $seconds = RateLimiter::availableIn($rateLimitKey);
+
                 return $this->errorResponse('Too many monitoring requests', [
-                    'retry_after' => $seconds
+                    'retry_after' => $seconds,
                 ], 429);
             }
 
             RateLimiter::hit($rateLimitKey, 3600); // 1 hour decay
 
             $config = [
-                'platforms' => $request->input('platforms', ['ticketmaster']),
-                'check_interval' => $request->input('check_interval', 300),
-                'priority' => $request->input('priority', 5),
-                'notification_preferences' => $request->input('notification_preferences', ['email'])
+                'platforms'                => $request->input('platforms', ['ticketmaster']),
+                'check_interval'           => $request->input('check_interval', 300),
+                'priority'                 => $request->input('priority', 5),
+                'notification_preferences' => $request->input('notification_preferences', ['email']),
             ];
 
             $monitor = $this->monitoringService->startMonitoring($user, $event, $config);
 
             return $this->successResponse([
-                'message' => 'Event monitoring started successfully',
-                'monitor' => $monitor,
-                'estimated_first_check' => now()->addSeconds($config['check_interval'])
+                'message'               => 'Event monitoring started successfully',
+                'monitor'               => $monitor,
+                'estimated_first_check' => now()->addSeconds($config['check_interval']),
             ]);
-
         } catch (\Exception $e) {
             return $this->errorResponse('Failed to start monitoring', ['error' => $e->getMessage()]);
         }
@@ -234,12 +232,11 @@ class EventsController extends Controller
 
             if ($result) {
                 return $this->successResponse([
-                    'message' => 'Event monitoring stopped successfully'
+                    'message' => 'Event monitoring stopped successfully',
                 ]);
             } else {
                 return $this->errorResponse('No active monitoring found for this event', [], 404);
             }
-
         } catch (\Exception $e) {
             return $this->errorResponse('Failed to stop monitoring', ['error' => $e->getMessage()]);
         }
@@ -261,27 +258,26 @@ class EventsController extends Controller
             }
 
             $status = [
-                'is_active' => $monitor->is_active,
-                'priority' => $monitor->priority,
-                'platforms' => $monitor->platforms,
-                'check_interval' => $monitor->check_interval,
-                'last_check_at' => $monitor->last_check_at,
-                'next_check_at' => $monitor->getNextCheckTime(),
+                'is_active'           => $monitor->is_active,
+                'priority'            => $monitor->priority,
+                'platforms'           => $monitor->platforms,
+                'check_interval'      => $monitor->check_interval,
+                'last_check_at'       => $monitor->last_check_at,
+                'next_check_at'       => $monitor->getNextCheckTime(),
                 'performance_metrics' => [
-                    'success_rate' => $monitor->getSuccessRate(),
+                    'success_rate'      => $monitor->getSuccessRate(),
                     'avg_response_time' => $monitor->getAverageResponseTime(),
-                    'uptime' => $monitor->getUptime(),
-                    'total_checks' => $monitor->total_checks
+                    'uptime'            => $monitor->getUptime(),
+                    'total_checks'      => $monitor->total_checks,
                 ],
-                'health_status' => $monitor->getHealthStatus(),
+                'health_status'   => $monitor->getHealthStatus(),
                 'recent_activity' => $monitor->monitoringLogs()
                     ->orderByDesc('checked_at')
                     ->limit(10)
-                    ->get()
+                    ->get(),
             ];
 
             return $this->successResponse($status);
-
         } catch (\Exception $e) {
             return $this->errorResponse('Failed to retrieve monitoring status', ['error' => $e->getMessage()]);
         }
@@ -293,12 +289,12 @@ class EventsController extends Controller
     public function updateMonitoring(Request $request, Event $event): JsonResponse
     {
         $validator = Validator::make($request->all(), [
-            'platforms' => 'array',
-            'platforms.*' => 'string|in:ticketmaster,seatgeek,stubhub,vivid_seats',
-            'check_interval' => 'integer|min:60|max:3600',
-            'priority' => 'integer|min:1|max:10',
-            'notification_preferences' => 'array',
-            'notification_preferences.*' => 'string|in:email,sms,push,webhook'
+            'platforms'                  => 'array',
+            'platforms.*'                => 'string|in:ticketmaster,seatgeek,stubhub,vivid_seats',
+            'check_interval'             => 'integer|min:60|max:3600',
+            'priority'                   => 'integer|min:1|max:10',
+            'notification_preferences'   => 'array',
+            'notification_preferences.*' => 'string|in:email,sms,push,webhook',
         ]);
 
         if ($validator->fails()) {
@@ -333,9 +329,8 @@ class EventsController extends Controller
 
             return $this->successResponse([
                 'message' => 'Monitoring configuration updated successfully',
-                'monitor' => $monitor->fresh()
+                'monitor' => $monitor->fresh(),
             ]);
-
         } catch (\Exception $e) {
             return $this->errorResponse('Failed to update monitoring configuration', ['error' => $e->getMessage()]);
         }
@@ -347,9 +342,9 @@ class EventsController extends Controller
     public function priceAnalytics(Request $request, Event $event): JsonResponse
     {
         $validator = Validator::make($request->all(), [
-            'period' => 'string|in:24h,7d,30d,90d,all',
+            'period'              => 'string|in:24h,7d,30d,90d,all',
             'include_predictions' => 'boolean',
-            'include_comparisons' => 'boolean'
+            'include_comparisons' => 'boolean',
         ]);
 
         if ($validator->fails()) {
@@ -359,19 +354,18 @@ class EventsController extends Controller
         try {
             $user = Auth::user();
             $period = $request->input('period', '7d');
-            $includePredictions = $request->boolean('include_predictions', true);
-            $includeComparisons = $request->boolean('include_comparisons', true);
+            $includePredictions = $request->boolean('include_predictions', TRUE);
+            $includeComparisons = $request->boolean('include_comparisons', TRUE);
 
             $analytics = $this->priceAnalyticsService->getComprehensiveAnalytics(
-                $event, 
-                $user, 
-                $period, 
-                $includePredictions, 
+                $event,
+                $user,
+                $period,
+                $includePredictions,
                 $includeComparisons
             );
 
             return $this->successResponse($analytics);
-
         } catch (\Exception $e) {
             return $this->errorResponse('Failed to retrieve price analytics', ['error' => $e->getMessage()]);
         }
@@ -383,13 +377,13 @@ class EventsController extends Controller
     public function createPriceAlert(Request $request, Event $event): JsonResponse
     {
         $validator = Validator::make($request->all(), [
-            'target_price' => 'required|numeric|min:1',
-            'alert_type' => 'required|string|in:below,above,percentage_drop,significant_change',
-            'percentage_threshold' => 'nullable|numeric|min:1|max:100',
-            'notification_channels' => 'required|array|min:1',
+            'target_price'            => 'required|numeric|min:1',
+            'alert_type'              => 'required|string|in:below,above,percentage_drop,significant_change',
+            'percentage_threshold'    => 'nullable|numeric|min:1|max:100',
+            'notification_channels'   => 'required|array|min:1',
             'notification_channels.*' => 'string|in:email,sms,push,webhook',
-            'is_active' => 'boolean',
-            'expiry_date' => 'nullable|date|after:now'
+            'is_active'               => 'boolean',
+            'expiry_date'             => 'nullable|date|after:now',
         ]);
 
         if ($validator->fails()) {
@@ -398,7 +392,7 @@ class EventsController extends Controller
 
         try {
             $user = Auth::user();
-            
+
             // Check for existing alert
             $existingAlert = PriceAlert::where('user_id', $user->id)
                 ->where('event_id', $event->id)
@@ -409,31 +403,30 @@ class EventsController extends Controller
                 // Update existing alert
                 $existingAlert->update($request->only([
                     'target_price', 'percentage_threshold', 'notification_channels',
-                    'is_active', 'expiry_date'
+                    'is_active', 'expiry_date',
                 ]));
                 $alert = $existingAlert;
                 $message = 'Price alert updated successfully';
             } else {
                 // Create new alert
                 $alert = PriceAlert::create([
-                    'user_id' => $user->id,
-                    'event_id' => $event->id,
-                    'target_price' => $request->input('target_price'),
-                    'alert_type' => $request->input('alert_type'),
-                    'percentage_threshold' => $request->input('percentage_threshold'),
+                    'user_id'               => $user->id,
+                    'event_id'              => $event->id,
+                    'target_price'          => $request->input('target_price'),
+                    'alert_type'            => $request->input('alert_type'),
+                    'percentage_threshold'  => $request->input('percentage_threshold'),
                     'notification_channels' => $request->input('notification_channels'),
-                    'is_active' => $request->input('is_active', true),
-                    'expiry_date' => $request->input('expiry_date')
+                    'is_active'             => $request->input('is_active', TRUE),
+                    'expiry_date'           => $request->input('expiry_date'),
                 ]);
                 $message = 'Price alert created successfully';
             }
 
             return $this->successResponse([
-                'message' => $message,
-                'alert' => $alert,
-                'estimated_trigger_probability' => $this->calculateTriggerProbability($alert, $event)
+                'message'                       => $message,
+                'alert'                         => $alert,
+                'estimated_trigger_probability' => $this->calculateTriggerProbability($alert, $event),
             ]);
-
         } catch (\Exception $e) {
             return $this->errorResponse('Failed to create price alert', ['error' => $e->getMessage()]);
         }
@@ -445,15 +438,15 @@ class EventsController extends Controller
     public function configureAutoPurchase(Request $request, Event $event): JsonResponse
     {
         $validator = Validator::make($request->all(), [
-            'max_price' => 'required|numeric|min:1',
-            'quantity' => 'required|integer|min:1|max:10',
-            'section_preferences' => 'array',
+            'max_price'             => 'required|numeric|min:1',
+            'quantity'              => 'required|integer|min:1|max:10',
+            'section_preferences'   => 'array',
             'section_preferences.*' => 'string',
-            'payment_method_id' => 'required|string',
-            'is_active' => 'boolean',
-            'purchase_window' => 'array',
+            'payment_method_id'     => 'required|string',
+            'is_active'             => 'boolean',
+            'purchase_window'       => 'array',
             'purchase_window.start' => 'nullable|date',
-            'purchase_window.end' => 'nullable|date|after:purchase_window.start'
+            'purchase_window.end'   => 'nullable|date|after:purchase_window.start',
         ]);
 
         if ($validator->fails()) {
@@ -462,22 +455,21 @@ class EventsController extends Controller
 
         try {
             $user = Auth::user();
-            
+
             $config = $this->purchasingService->configureAutoPurchase($user, $event, [
-                'max_price' => $request->input('max_price'),
-                'quantity' => $request->input('quantity'),
+                'max_price'           => $request->input('max_price'),
+                'quantity'            => $request->input('quantity'),
                 'section_preferences' => $request->input('section_preferences', []),
-                'payment_method_id' => $request->input('payment_method_id'),
-                'is_active' => $request->input('is_active', true),
-                'purchase_window' => $request->input('purchase_window', [])
+                'payment_method_id'   => $request->input('payment_method_id'),
+                'is_active'           => $request->input('is_active', TRUE),
+                'purchase_window'     => $request->input('purchase_window', []),
             ]);
 
             return $this->successResponse([
-                'message' => 'Auto-purchase configuration saved successfully',
-                'config' => $config,
-                'estimated_success_probability' => $this->calculatePurchaseSuccessProbability($config, $event)
+                'message'                       => 'Auto-purchase configuration saved successfully',
+                'config'                        => $config,
+                'estimated_success_probability' => $this->calculatePurchaseSuccessProbability($config, $event),
             ]);
-
         } catch (\Exception $e) {
             return $this->errorResponse('Failed to configure auto-purchase', ['error' => $e->getMessage()]);
         }
@@ -489,19 +481,19 @@ class EventsController extends Controller
     public function search(Request $request): JsonResponse
     {
         $validator = Validator::make($request->all(), [
-            'query' => 'required|string|min:2|max:255',
-            'filters' => 'array',
-            'location' => 'string|max:255',
-            'date_range' => 'array',
+            'query'            => 'required|string|min:2|max:255',
+            'filters'          => 'array',
+            'location'         => 'string|max:255',
+            'date_range'       => 'array',
             'date_range.start' => 'date',
-            'date_range.end' => 'date|after_or_equal:date_range.start',
-            'price_range' => 'array',
-            'price_range.min' => 'numeric|min:0',
-            'price_range.max' => 'numeric|min:0',
-            'categories' => 'array',
-            'categories.*' => 'string',
-            'sort_by' => 'string|in:relevance,date,price,popularity',
-            'limit' => 'integer|min:1|max:50'
+            'date_range.end'   => 'date|after_or_equal:date_range.start',
+            'price_range'      => 'array',
+            'price_range.min'  => 'numeric|min:0',
+            'price_range.max'  => 'numeric|min:0',
+            'categories'       => 'array',
+            'categories.*'     => 'string',
+            'sort_by'          => 'string|in:relevance,date,price,popularity',
+            'limit'            => 'integer|min:1|max:50',
         ]);
 
         if ($validator->fails()) {
@@ -514,8 +506,9 @@ class EventsController extends Controller
             $rateLimitKey = "search_events:{$user->id}";
             if (RateLimiter::tooManyAttempts($rateLimitKey, 20)) {
                 $seconds = RateLimiter::availableIn($rateLimitKey);
+
                 return $this->errorResponse('Search rate limit exceeded', [
-                    'retry_after' => $seconds
+                    'retry_after' => $seconds,
                 ], 429);
             }
 
@@ -524,14 +517,13 @@ class EventsController extends Controller
             $searchResults = $this->performAdvancedSearch($request);
 
             return $this->successResponse([
-                'query' => $request->input('query'),
-                'results' => $searchResults['events'],
+                'query'       => $request->input('query'),
+                'results'     => $searchResults['events'],
                 'total_found' => $searchResults['total'],
                 'search_time' => $searchResults['search_time'],
                 'suggestions' => $searchResults['suggestions'],
-                'facets' => $searchResults['facets']
+                'facets'      => $searchResults['facets'],
             ]);
-
         } catch (\Exception $e) {
             return $this->errorResponse('Search failed', ['error' => $e->getMessage()]);
         }
@@ -542,19 +534,19 @@ class EventsController extends Controller
     protected function successResponse(array $data, int $statusCode = 200): JsonResponse
     {
         return response()->json([
-            'success' => true,
-            'data' => $data,
-            'timestamp' => now()->toISOString()
+            'success'   => TRUE,
+            'data'      => $data,
+            'timestamp' => now()->toISOString(),
         ], $statusCode);
     }
 
     protected function errorResponse(string $message, array $errors = [], int $statusCode = 500): JsonResponse
     {
         return response()->json([
-            'success' => false,
-            'message' => $message,
-            'errors' => $errors,
-            'timestamp' => now()->toISOString()
+            'success'   => FALSE,
+            'message'   => $message,
+            'errors'    => $errors,
+            'timestamp' => now()->toISOString(),
         ], $statusCode);
     }
 
@@ -569,12 +561,12 @@ class EventsController extends Controller
         }
 
         return [
-            'status' => 'monitored',
-            'is_active' => $monitor->is_active,
-            'priority' => $monitor->priority,
-            'platforms' => $monitor->platforms,
-            'last_check' => $monitor->last_check_at,
-            'success_rate' => $monitor->getSuccessRate()
+            'status'       => 'monitored',
+            'is_active'    => $monitor->is_active,
+            'priority'     => $monitor->priority,
+            'platforms'    => $monitor->platforms,
+            'last_check'   => $monitor->last_check_at,
+            'success_rate' => $monitor->getSuccessRate(),
         ];
     }
 
@@ -606,11 +598,11 @@ class EventsController extends Controller
     {
         // Implementation would perform sophisticated search with ML ranking
         return [
-            'events' => [],
-            'total' => 0,
+            'events'      => [],
+            'total'       => 0,
             'search_time' => 0.25,
             'suggestions' => [],
-            'facets' => []
+            'facets'      => [],
         ];
     }
 }

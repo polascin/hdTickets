@@ -10,7 +10,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 /**
  * Notification Preference Model
- * 
+ *
  * Stores user preferences for smart alerts system
  */
 class NotificationPreference extends Model
@@ -26,18 +26,18 @@ class NotificationPreference extends Model
         'event_type_preferences',
         'intelligent_delivery',
         'delivery_confirmations',
-        'channel_priorities'
+        'channel_priorities',
     ];
 
     protected $casts = [
-        'enabled_channels' => 'array',
-        'urgency_settings' => 'array',
-        'quiet_hours' => 'array',
-        'rate_limits' => 'array',
+        'enabled_channels'       => 'array',
+        'urgency_settings'       => 'array',
+        'quiet_hours'            => 'array',
+        'rate_limits'            => 'array',
         'event_type_preferences' => 'array',
-        'intelligent_delivery' => 'array',
+        'intelligent_delivery'   => 'array',
         'delivery_confirmations' => 'array',
-        'channel_priorities' => 'array'
+        'channel_priorities'     => 'array',
     ];
 
     /**
@@ -57,57 +57,57 @@ class NotificationPreference extends Model
             'enabled_channels' => ['email', 'push'],
             'urgency_settings' => [
                 'critical' => ['push', 'sms', 'email'],
-                'high' => ['push', 'email'],
-                'medium' => ['push'],
-                'low' => ['email'],
-                'info' => ['email']
+                'high'     => ['push', 'email'],
+                'medium'   => ['push'],
+                'low'      => ['email'],
+                'info'     => ['email'],
             ],
             'quiet_hours' => [
-                'enabled' => true,
-                'start' => '22:00',
-                'end' => '08:00',
-                'timezone' => 'UTC'
+                'enabled'  => TRUE,
+                'start'    => '22:00',
+                'end'      => '08:00',
+                'timezone' => 'UTC',
             ],
             'rate_limits' => [
-                'max_per_hour' => 20,
-                'max_per_day' => 100,
-                'sms_max_per_day' => 10
+                'max_per_hour'    => 20,
+                'max_per_day'     => 100,
+                'sms_max_per_day' => 10,
             ],
             'event_type_preferences' => [
                 'price_drop' => [
-                    'channels' => ['push', 'email'],
-                    'threshold' => 10.0,
-                    'instant_sms' => false
+                    'channels'    => ['push', 'email'],
+                    'threshold'   => 10.0,
+                    'instant_sms' => FALSE,
                 ],
                 'new_listing' => [
-                    'channels' => ['push', 'email'],
-                    'priority_push' => true
+                    'channels'      => ['push', 'email'],
+                    'priority_push' => TRUE,
                 ],
                 'availability_restored' => [
-                    'channels' => ['push', 'sms', 'email'],
-                    'instant_delivery' => true
+                    'channels'         => ['push', 'sms', 'email'],
+                    'instant_delivery' => TRUE,
                 ],
                 'low_inventory' => [
-                    'channels' => ['push'],
-                    'threshold' => 5
-                ]
+                    'channels'  => ['push'],
+                    'threshold' => 5,
+                ],
             ],
             'intelligent_delivery' => [
-                'learn_preferences' => true,
-                'auto_escalate' => true,
-                'response_tracking' => true
+                'learn_preferences' => TRUE,
+                'auto_escalate'     => TRUE,
+                'response_tracking' => TRUE,
             ],
             'delivery_confirmations' => [
-                'track_opens' => true,
-                'track_clicks' => true,
-                'track_responses' => true
+                'track_opens'     => TRUE,
+                'track_clicks'    => TRUE,
+                'track_responses' => TRUE,
             ],
             'channel_priorities' => [
                 'critical' => ['push', 'sms', 'email'],
-                'high' => ['push', 'email'],
-                'medium' => ['push'],
-                'low' => ['email']
-            ]
+                'high'     => ['push', 'email'],
+                'medium'   => ['push'],
+                'low'      => ['email'],
+            ],
         ];
     }
 
@@ -118,7 +118,7 @@ class NotificationPreference extends Model
     {
         return self::create([
             'user_id' => $user->id,
-            ...self::getDefaults()
+            ...self::getDefaults(),
         ]);
     }
 
@@ -129,7 +129,7 @@ class NotificationPreference extends Model
     {
         $urgencySettings = $this->urgency_settings ?? [];
         $enabledChannels = $urgencySettings[$urgency] ?? [];
-        
+
         return in_array($channel, $enabledChannels);
     }
 
@@ -139,23 +139,23 @@ class NotificationPreference extends Model
     public function isInQuietHours(): bool
     {
         $quietHours = $this->quiet_hours ?? [];
-        
-        if (!($quietHours['enabled'] ?? false)) {
-            return false;
+
+        if (!($quietHours['enabled'] ?? FALSE)) {
+            return FALSE;
         }
-        
+
         $timezone = $quietHours['timezone'] ?? 'UTC';
         $userTime = now()->setTimezone($timezone);
         $currentTime = $userTime->format('H:i');
-        
+
         $startTime = $quietHours['start'] ?? '22:00';
         $endTime = $quietHours['end'] ?? '08:00';
-        
+
         // Handle overnight quiet hours
         if ($startTime > $endTime) {
             return $currentTime >= $startTime || $currentTime <= $endTime;
         }
-        
+
         return $currentTime >= $startTime && $currentTime <= $endTime;
     }
 
@@ -165,12 +165,12 @@ class NotificationPreference extends Model
     public function getRateLimit(string $period): int
     {
         $limits = $this->rate_limits ?? [];
-        
+
         return match ($period) {
-            'hour' => $limits['max_per_hour'] ?? 20,
-            'day' => $limits['max_per_day'] ?? 100,
+            'hour'    => $limits['max_per_hour'] ?? 20,
+            'day'     => $limits['max_per_day'] ?? 100,
             'sms_day' => $limits['sms_max_per_day'] ?? 10,
-            default => 20
+            default   => 20
         };
     }
 
@@ -180,6 +180,7 @@ class NotificationPreference extends Model
     public function getChannelsForEventType(string $eventType): array
     {
         $eventPrefs = $this->event_type_preferences ?? [];
+
         return $eventPrefs[$eventType]['channels'] ?? ['email'];
     }
 
@@ -188,13 +189,13 @@ class NotificationPreference extends Model
      */
     public function updateLearningPreferences(array $behaviorData): void
     {
-        if (!($this->intelligent_delivery['learn_preferences'] ?? false)) {
+        if (!($this->intelligent_delivery['learn_preferences'] ?? FALSE)) {
             return;
         }
-        
+
         // Update preferences based on user behavior
         $currentPrefs = $this->event_type_preferences ?? [];
-        
+
         foreach ($behaviorData as $eventType => $data) {
             if (isset($currentPrefs[$eventType])) {
                 // Adjust based on engagement
@@ -207,7 +208,7 @@ class NotificationPreference extends Model
                 }
             }
         }
-        
+
         $this->update(['event_type_preferences' => $currentPrefs]);
     }
 }

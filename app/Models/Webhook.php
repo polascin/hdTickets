@@ -4,16 +4,16 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use Carbon\Carbon;
 
 /**
  * Webhook Model
- * 
+ *
  * Manages webhook endpoints for real-time notifications with:
  * - Event subscription management
  * - Delivery tracking and analytics
@@ -22,7 +22,8 @@ use Carbon\Carbon;
  */
 class Webhook extends Model
 {
-    use HasFactory, SoftDeletes;
+    use HasFactory;
+    use SoftDeletes;
 
     protected $fillable = [
         'user_id',
@@ -38,32 +39,32 @@ class Webhook extends Model
         'successful_deliveries',
         'failed_deliveries',
         'last_delivery_at',
-        'last_successful_delivery_at'
+        'last_successful_delivery_at',
     ];
 
     protected $casts = [
-        'events' => 'array',
-        'retry_policy' => 'array',
-        'custom_headers' => 'array',
-        'is_active' => 'boolean',
-        'timeout' => 'integer',
-        'total_deliveries' => 'integer',
-        'successful_deliveries' => 'integer',
-        'failed_deliveries' => 'integer',
-        'last_delivery_at' => 'datetime',
-        'last_successful_delivery_at' => 'datetime'
+        'events'                      => 'array',
+        'retry_policy'                => 'array',
+        'custom_headers'              => 'array',
+        'is_active'                   => 'boolean',
+        'timeout'                     => 'integer',
+        'total_deliveries'            => 'integer',
+        'successful_deliveries'       => 'integer',
+        'failed_deliveries'           => 'integer',
+        'last_delivery_at'            => 'datetime',
+        'last_successful_delivery_at' => 'datetime',
     ];
 
     protected $hidden = [
-        'secret'
+        'secret',
     ];
 
     protected $attributes = [
-        'is_active' => true,
-        'timeout' => 10,
-        'total_deliveries' => 0,
+        'is_active'             => TRUE,
+        'timeout'               => 10,
+        'total_deliveries'      => 0,
         'successful_deliveries' => 0,
-        'failed_deliveries' => 0
+        'failed_deliveries'     => 0,
     ];
 
     // Relationships
@@ -116,6 +117,7 @@ class Webhook extends Model
         }
 
         $successCount = $recentLogs->where('status', 'success')->count();
+
         return round(($successCount / $recentLogs->count()) * 100, 2);
     }
 
@@ -130,7 +132,7 @@ class Webhook extends Model
         }
 
         $recentSuccessRate = $this->getRecentSuccessRate(24);
-        
+
         if ($recentSuccessRate >= 95) {
             return 'healthy';
         } elseif ($recentSuccessRate >= 80) {
@@ -147,7 +149,7 @@ class Webhook extends Model
         }
 
         $score = 100.0;
-        
+
         // Deduct points for low success rate
         $successRate = $this->getSuccessRate();
         if ($successRate < 95) {
@@ -181,15 +183,18 @@ class Webhook extends Model
         $events = $this->events ?? [];
         if (!in_array($eventType, $events)) {
             $events[] = $eventType;
+
             return $this->update(['events' => $events]);
         }
-        return true;
+
+        return TRUE;
     }
 
     public function removeEvent(string $eventType): bool
     {
         $events = $this->events ?? [];
-        $filteredEvents = array_filter($events, fn($event) => $event !== $eventType);
+        $filteredEvents = array_filter($events, fn ($event) => $event !== $eventType);
+
         return $this->update(['events' => array_values($filteredEvents)]);
     }
 
@@ -197,10 +202,11 @@ class Webhook extends Model
     {
         $validEvents = [
             'price_alert', 'monitoring_update', 'purchase_complete',
-            'system_notification', 'ticket_available', 'price_drop'
+            'system_notification', 'ticket_available', 'price_drop',
         ];
-        
-        $filteredEvents = array_filter($events, fn($event) => in_array($event, $validEvents));
+
+        $filteredEvents = array_filter($events, fn ($event) => in_array($event, $validEvents));
+
         return $this->update(['events' => array_values(array_unique($filteredEvents))]);
     }
 
@@ -209,20 +215,21 @@ class Webhook extends Model
     public function recordDelivery(string $status, array $details = []): void
     {
         $this->increment('total_deliveries');
-        
+
         if ($status === 'success') {
             $this->increment('successful_deliveries');
             $this->update(['last_successful_delivery_at' => now()]);
         } else {
             $this->increment('failed_deliveries');
         }
-        
+
         $this->update(['last_delivery_at' => now()]);
     }
 
     public function shouldRetry(int $attemptNumber): bool
     {
         $maxAttempts = $this->retry_policy['max_attempts'] ?? 3;
+
         return $attemptNumber < $maxAttempts;
     }
 
@@ -230,11 +237,11 @@ class Webhook extends Model
     {
         $strategy = $this->retry_policy['backoff_strategy'] ?? 'exponential';
         $baseDelay = $this->retry_policy['base_delay'] ?? 60; // 1 minute
-        
+
         return match ($strategy) {
-            'linear' => $baseDelay * $attemptNumber,
+            'linear'      => $baseDelay * $attemptNumber,
             'exponential' => $baseDelay * (2 ** ($attemptNumber - 1)),
-            default => $baseDelay
+            default       => $baseDelay
         };
     }
 
@@ -243,12 +250,13 @@ class Webhook extends Model
     public function updateRetryPolicy(array $policy): bool
     {
         $defaultPolicy = [
-            'max_attempts' => 3,
+            'max_attempts'     => 3,
             'backoff_strategy' => 'exponential',
-            'base_delay' => 60
+            'base_delay'       => 60,
         ];
-        
+
         $mergedPolicy = array_merge($defaultPolicy, $policy);
+
         return $this->update(['retry_policy' => $mergedPolicy]);
     }
 
@@ -259,13 +267,14 @@ class Webhook extends Model
         $filteredHeaders = array_filter($headers, function ($key) use ($forbiddenHeaders) {
             return !in_array(strtolower($key), $forbiddenHeaders);
         }, ARRAY_FILTER_USE_KEY);
-        
+
         return $this->update(['custom_headers' => $filteredHeaders]);
     }
 
     public function updateTimeout(int $timeout): bool
     {
         $timeout = max(1, min(30, $timeout)); // Clamp between 1-30 seconds
+
         return $this->update(['timeout' => $timeout]);
     }
 
@@ -275,12 +284,14 @@ class Webhook extends Model
     {
         $newSecret = \Str::random(32);
         $this->update(['secret' => $newSecret]);
+
         return $newSecret;
     }
 
     public function validateSignature(string $payload, string $signature): bool
     {
         $expectedSignature = hash_hmac('sha256', $payload, $this->secret);
+
         return hash_equals($expectedSignature, $signature);
     }
 
@@ -296,12 +307,12 @@ class Webhook extends Model
             ->get();
 
         return [
-            'date' => $date->toDateString(),
-            'total_deliveries' => $logs->count(),
+            'date'                  => $date->toDateString(),
+            'total_deliveries'      => $logs->count(),
             'successful_deliveries' => $logs->where('status', 'success')->count(),
-            'failed_deliveries' => $logs->where('status', 'failed')->count(),
-            'avg_response_time' => $logs->where('response_time', '>', 0)->avg('response_time'),
-            'events_breakdown' => $logs->countBy('event_type')->toArray()
+            'failed_deliveries'     => $logs->where('status', 'failed')->count(),
+            'avg_response_time'     => $logs->where('response_time', '>', 0)->avg('response_time'),
+            'events_breakdown'      => $logs->countBy('event_type')->toArray(),
         ];
     }
 
@@ -316,16 +327,16 @@ class Webhook extends Model
         return [
             'period' => [
                 'start' => now()->subDays(6)->toDateString(),
-                'end' => now()->toDateString()
+                'end'   => now()->toDateString(),
             ],
-            'daily_stats' => $days,
+            'daily_stats'   => $days,
             'weekly_totals' => [
-                'total_deliveries' => array_sum(array_column($days, 'total_deliveries')),
+                'total_deliveries'      => array_sum(array_column($days, 'total_deliveries')),
                 'successful_deliveries' => array_sum(array_column($days, 'successful_deliveries')),
-                'failed_deliveries' => array_sum(array_column($days, 'failed_deliveries'))
+                'failed_deliveries'     => array_sum(array_column($days, 'failed_deliveries')),
             ],
             'success_rate' => $this->getSuccessRate(),
-            'health_score' => $this->getHealthScore()
+            'health_score' => $this->getHealthScore(),
         ];
     }
 
@@ -338,11 +349,11 @@ class Webhook extends Model
             ->get()
             ->map(function ($log) {
                 return [
-                    'event_type' => $log->event_type,
-                    'error_message' => $log->error_message,
-                    'response_code' => $log->response_code,
+                    'event_type'     => $log->event_type,
+                    'error_message'  => $log->error_message,
+                    'response_code'  => $log->response_code,
                     'attempt_number' => $log->attempt_number,
-                    'delivered_at' => $log->delivered_at
+                    'delivered_at'   => $log->delivered_at,
                 ];
             })
             ->toArray();
@@ -352,7 +363,7 @@ class Webhook extends Model
 
     public function scopeActive($query)
     {
-        return $query->where('is_active', true);
+        return $query->where('is_active', TRUE);
     }
 
     public function scopeForEvent($query, string $eventType)
@@ -385,16 +396,16 @@ class Webhook extends Model
     public function getEventLabelsAttribute(): array
     {
         $labels = [
-            'price_alert' => 'Price Alerts',
-            'monitoring_update' => 'Monitoring Updates',
-            'purchase_complete' => 'Purchase Completions',
+            'price_alert'         => 'Price Alerts',
+            'monitoring_update'   => 'Monitoring Updates',
+            'purchase_complete'   => 'Purchase Completions',
             'system_notification' => 'System Notifications',
-            'ticket_available' => 'Ticket Availability',
-            'price_drop' => 'Price Drops'
+            'ticket_available'    => 'Ticket Availability',
+            'price_drop'          => 'Price Drops',
         ];
 
         return array_map(
-            fn($event) => $labels[$event] ?? $event,
+            fn ($event) => $labels[$event] ?? $event,
             $this->events ?? []
         );
     }

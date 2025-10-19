@@ -12,21 +12,21 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
 
 /**
  * Marketing Campaign Model
- * 
- * @property int $id
- * @property string $name
- * @property string|null $description
- * @property string $type
- * @property string $status
- * @property string $target_audience
- * @property string $schedule_type
+ *
+ * @property int                 $id
+ * @property string              $name
+ * @property string|null         $description
+ * @property string              $type
+ * @property string              $status
+ * @property string              $target_audience
+ * @property string              $schedule_type
  * @property \Carbon\Carbon|null $scheduled_at
  * @property \Carbon\Carbon|null $launched_at
- * @property array $content
- * @property array $settings
- * @property int $created_by
- * @property \Carbon\Carbon $created_at
- * @property \Carbon\Carbon $updated_at
+ * @property array               $content
+ * @property array               $settings
+ * @property int                 $created_by
+ * @property \Carbon\Carbon      $created_at
+ * @property \Carbon\Carbon      $updated_at
  */
 class MarketingCampaign extends Model
 {
@@ -43,39 +43,49 @@ class MarketingCampaign extends Model
         'launched_at',
         'content',
         'settings',
-        'created_by'
+        'created_by',
     ];
 
     protected $casts = [
-        'content' => 'array',
-        'settings' => 'array',
+        'content'      => 'array',
+        'settings'     => 'array',
         'scheduled_at' => 'datetime',
-        'launched_at' => 'datetime'
+        'launched_at'  => 'datetime',
     ];
 
     /**
      * Campaign types
      */
     public const TYPE_EMAIL = 'email';
+
     public const TYPE_PUSH = 'push';
+
     public const TYPE_IN_APP = 'in_app';
+
     public const TYPE_SMS = 'sms';
 
     /**
      * Campaign statuses
      */
     public const STATUS_DRAFT = 'draft';
+
     public const STATUS_SCHEDULED = 'scheduled';
+
     public const STATUS_ACTIVE = 'active';
+
     public const STATUS_COMPLETED = 'completed';
+
     public const STATUS_PAUSED = 'paused';
+
     public const STATUS_CANCELLED = 'cancelled';
 
     /**
      * Schedule types
      */
     public const SCHEDULE_IMMEDIATE = 'immediate';
+
     public const SCHEDULE_SCHEDULED = 'scheduled';
+
     public const SCHEDULE_RECURRING = 'recurring';
 
     /**

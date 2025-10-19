@@ -7,7 +7,6 @@ namespace App\Events;
 use App\Models\Event;
 use Illuminate\Broadcasting\Channel;
 use Illuminate\Broadcasting\InteractsWithSockets;
-use Illuminate\Broadcasting\PresenceChannel;
 use Illuminate\Broadcasting\PrivateChannel;
 use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
 use Illuminate\Foundation\Events\Dispatchable;
@@ -18,12 +17,14 @@ use Illuminate\Queue\SerializesModels;
  */
 class InstantTicketUpdate implements ShouldBroadcast
 {
-    use Dispatchable, InteractsWithSockets, SerializesModels;
+    use Dispatchable;
+    use InteractsWithSockets;
+    use SerializesModels;
 
     public function __construct(
         public Event $event,
         public array $changes,
-        public ?int $userId = null
+        public ?int $userId = NULL
     ) {
     }
 
@@ -34,7 +35,7 @@ class InstantTicketUpdate implements ShouldBroadcast
     {
         $channels = [
             new Channel('instant-tickets'),
-            new Channel("event.{$this->event->id}")
+            new Channel("event.{$this->event->id}"),
         ];
 
         // Add user-specific channel if user ID provided
@@ -51,12 +52,12 @@ class InstantTicketUpdate implements ShouldBroadcast
     public function broadcastWith(): array
     {
         return [
-            'event_id' => $this->event->id,
-            'event_name' => $this->event->name,
-            'changes' => $this->changes,
-            'timestamp' => now()->toISOString(),
-            'microsecond_timestamp' => microtime(true),
-            'summary' => $this->generateChangeSummary()
+            'event_id'              => $this->event->id,
+            'event_name'            => $this->event->name,
+            'changes'               => $this->changes,
+            'timestamp'             => now()->toISOString(),
+            'microsecond_timestamp' => microtime(TRUE),
+            'summary'               => $this->generateChangeSummary(),
         ];
     }
 
@@ -75,16 +76,16 @@ class InstantTicketUpdate implements ShouldBroadcast
     {
         $types = array_column($this->changes, 'type');
         $platforms = array_unique(array_column($this->changes, 'platform'));
-        $urgentCount = count(array_filter($this->changes, fn($c) => $c['urgency'] === 'high'));
+        $urgentCount = count(array_filter($this->changes, fn ($c) => $c['urgency'] === 'high'));
 
         return [
-            'total_changes' => count($this->changes),
-            'change_types' => array_count_values($types),
-            'platforms_affected' => $platforms,
-            'urgent_alerts' => $urgentCount,
-            'has_new_listings' => in_array('new_listing', $types),
-            'has_price_drops' => in_array('price_drop', $types),
-            'has_availability_restored' => in_array('availability_restored', $types)
+            'total_changes'             => count($this->changes),
+            'change_types'              => array_count_values($types),
+            'platforms_affected'        => $platforms,
+            'urgent_alerts'             => $urgentCount,
+            'has_new_listings'          => in_array('new_listing', $types),
+            'has_price_drops'           => in_array('price_drop', $types),
+            'has_availability_restored' => in_array('availability_restored', $types),
         ];
     }
 }

@@ -10,13 +10,13 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 /**
  * Campaign Interaction Model
- * 
- * @property int $id
- * @property int $campaign_id
- * @property int $user_id
- * @property string $action
+ *
+ * @property int            $id
+ * @property int            $campaign_id
+ * @property int            $user_id
+ * @property string         $action
  * @property \Carbon\Carbon $timestamp
- * @property array|null $metadata
+ * @property array|null     $metadata
  * @property \Carbon\Carbon $created_at
  * @property \Carbon\Carbon $updated_at
  */
@@ -29,24 +29,31 @@ class CampaignInteraction extends Model
         'user_id',
         'action',
         'timestamp',
-        'metadata'
+        'metadata',
     ];
 
     protected $casts = [
         'timestamp' => 'datetime',
-        'metadata' => 'array'
+        'metadata'  => 'array',
     ];
 
     /**
      * Interaction actions
      */
     public const ACTION_SENT = 'sent';
+
     public const ACTION_DELIVERED = 'delivered';
+
     public const ACTION_OPENED = 'opened';
+
     public const ACTION_CLICKED = 'clicked';
+
     public const ACTION_CONVERTED = 'converted';
+
     public const ACTION_UNSUBSCRIBED = 'unsubscribed';
+
     public const ACTION_BOUNCED = 'bounced';
+
     public const ACTION_FAILED = 'failed';
 
     /**

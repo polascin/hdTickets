@@ -4,24 +4,22 @@ declare(strict_types=1);
 
 namespace App\Services;
 
-use App\Models\User;
-use App\Models\Subscription;
-use App\Models\Plan;
-use App\Models\PaymentMethod;
+use App\Events\SubscriptionCancelled;
 use App\Events\SubscriptionCreated;
 use App\Events\SubscriptionUpdated;
-use App\Events\SubscriptionCancelled;
+use App\Models\Plan;
+use App\Models\Subscription;
+use App\Models\User;
+use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
-use Carbon\Carbon;
-use Stripe\Stripe;
 use Stripe\Customer;
-use Stripe\PaymentIntent;
+use Stripe\Stripe;
 use Stripe\Subscription as StripeSubscription;
 
 /**
  * Subscription Management Service
- * 
+ *
  * Comprehensive subscription system with:
  * - Tiered plan management (Starter, Pro, Enterprise)
  * - Stripe payment processing integration
@@ -33,40 +31,40 @@ class SubscriptionService
 {
     private const PLANS = [
         'starter' => [
-            'name' => 'Starter',
-            'price' => 19.00,
+            'name'     => 'Starter',
+            'price'    => 19.00,
             'interval' => 'month',
             'features' => [
-                'events_limit' => 5,
-                'monitors_limit' => 10,
+                'events_limit'          => 5,
+                'monitors_limit'        => 10,
                 'api_requests_per_hour' => 100,
-                'price_alerts_limit' => 20,
-                'webhook_endpoints' => 1,
+                'price_alerts_limit'    => 20,
+                'webhook_endpoints'     => 1,
                 'auto_purchase_configs' => 1,
-                'data_retention_days' => 30,
-                'support_level' => 'email',
-                'features' => [
+                'data_retention_days'   => 30,
+                'support_level'         => 'email',
+                'features'              => [
                     'real_time_monitoring',
                     'basic_price_alerts',
                     'email_notifications',
-                    'basic_analytics'
-                ]
-            ]
+                    'basic_analytics',
+                ],
+            ],
         ],
         'pro' => [
-            'name' => 'Pro',
-            'price' => 49.00,
+            'name'     => 'Pro',
+            'price'    => 49.00,
             'interval' => 'month',
             'features' => [
-                'events_limit' => 25,
-                'monitors_limit' => 50,
+                'events_limit'          => 25,
+                'monitors_limit'        => 50,
                 'api_requests_per_hour' => 1000,
-                'price_alerts_limit' => 100,
-                'webhook_endpoints' => 5,
+                'price_alerts_limit'    => 100,
+                'webhook_endpoints'     => 5,
                 'auto_purchase_configs' => 5,
-                'data_retention_days' => 90,
-                'support_level' => 'priority_email',
-                'features' => [
+                'data_retention_days'   => 90,
+                'support_level'         => 'priority_email',
+                'features'              => [
                     'real_time_monitoring',
                     'advanced_price_alerts',
                     'smart_notifications',
@@ -75,24 +73,24 @@ class SubscriptionService
                     'multi_event_management',
                     'api_access',
                     'bulk_operations',
-                    'price_predictions'
-                ]
-            ]
+                    'price_predictions',
+                ],
+            ],
         ],
         'enterprise' => [
-            'name' => 'Enterprise',
-            'price' => 199.00,
+            'name'     => 'Enterprise',
+            'price'    => 199.00,
             'interval' => 'month',
             'features' => [
-                'events_limit' => 100,
-                'monitors_limit' => 250,
+                'events_limit'          => 100,
+                'monitors_limit'        => 250,
                 'api_requests_per_hour' => 10000,
-                'price_alerts_limit' => 500,
-                'webhook_endpoints' => 25,
+                'price_alerts_limit'    => 500,
+                'webhook_endpoints'     => 25,
                 'auto_purchase_configs' => 25,
-                'data_retention_days' => 365,
-                'support_level' => 'phone_and_email',
-                'features' => [
+                'data_retention_days'   => 365,
+                'support_level'         => 'phone_and_email',
+                'features'              => [
                     'real_time_monitoring',
                     'advanced_price_alerts',
                     'intelligent_notifications',
@@ -106,10 +104,10 @@ class SubscriptionService
                     'priority_support',
                     'dedicated_account_manager',
                     'custom_reporting',
-                    'white_label_options'
-                ]
-            ]
-        ]
+                    'white_label_options',
+                ],
+            ],
+        ],
     ];
 
     public function __construct()
@@ -130,15 +128,15 @@ class SubscriptionService
      */
     public function getPlan(string $planName): ?array
     {
-        return self::PLANS[$planName] ?? null;
+        return self::PLANS[$planName] ?? NULL;
     }
 
     /**
      * Create new subscription for user
      */
     public function createSubscription(
-        User $user, 
-        string $planName, 
+        User $user,
+        string $planName,
         string $paymentMethodId,
         array $options = []
     ): array {
@@ -148,13 +146,14 @@ class SubscriptionService
         }
 
         DB::beginTransaction();
+
         try {
             // Create or get Stripe customer
             $stripeCustomer = $this->getOrCreateStripeCustomer($user);
-            
+
             // Attach payment method to customer
             $this->attachPaymentMethod($stripeCustomer->id, $paymentMethodId);
-            
+
             // Create Stripe subscription
             $stripeSubscription = $this->createStripeSubscription(
                 $stripeCustomer->id,
@@ -173,9 +172,9 @@ class SubscriptionService
 
             // Update user subscription status
             $user->update([
-                'subscription_plan' => $planName,
+                'subscription_plan'   => $planName,
                 'subscription_status' => 'active',
-                'stripe_customer_id' => $stripeCustomer->id
+                'stripe_customer_id'  => $stripeCustomer->id,
             ]);
 
             DB::commit();
@@ -184,26 +183,25 @@ class SubscriptionService
             event(new SubscriptionCreated($subscription));
 
             Log::info('Subscription created successfully', [
-                'user_id' => $user->id,
-                'plan' => $planName,
-                'subscription_id' => $subscription->id,
-                'stripe_subscription_id' => $stripeSubscription->id
+                'user_id'                => $user->id,
+                'plan'                   => $planName,
+                'subscription_id'        => $subscription->id,
+                'stripe_subscription_id' => $stripeSubscription->id,
             ]);
 
             return [
-                'success' => true,
-                'subscription' => $subscription,
+                'success'             => TRUE,
+                'subscription'        => $subscription,
                 'stripe_subscription' => $stripeSubscription,
-                'message' => "Successfully subscribed to {$plan['name']} plan"
+                'message'             => "Successfully subscribed to {$plan['name']} plan",
             ];
-
         } catch (\Exception $e) {
             DB::rollBack();
-            
+
             Log::error('Failed to create subscription', [
                 'user_id' => $user->id,
-                'plan' => $planName,
-                'error' => $e->getMessage()
+                'plan'    => $planName,
+                'error'   => $e->getMessage(),
             ]);
 
             throw $e;
@@ -229,6 +227,7 @@ class SubscriptionService
         }
 
         DB::beginTransaction();
+
         try {
             // Update Stripe subscription
             $stripeSubscription = StripeSubscription::update(
@@ -236,19 +235,19 @@ class SubscriptionService
                 [
                     'items' => [
                         [
-                            'id' => $currentSubscription->stripe_subscription_item_id,
-                            'price' => $this->getStripePriceId($newPlanName)
-                        ]
+                            'id'    => $currentSubscription->stripe_subscription_item_id,
+                            'price' => $this->getStripePriceId($newPlanName),
+                        ],
                     ],
-                    'proration_behavior' => $options['prorate'] ?? 'create_prorations'
+                    'proration_behavior' => $options['prorate'] ?? 'create_prorations',
                 ]
             );
 
             // Update local subscription
             $currentSubscription->update([
-                'plan_name' => $newPlanName,
-                'price' => $newPlan['price'],
-                'updated_at' => now()
+                'plan_name'  => $newPlanName,
+                'price'      => $newPlan['price'],
+                'updated_at' => now(),
             ]);
 
             // Update user plan
@@ -260,25 +259,24 @@ class SubscriptionService
             event(new SubscriptionUpdated($currentSubscription, $newPlanName));
 
             Log::info('Subscription updated successfully', [
-                'user_id' => $user->id,
-                'old_plan' => $currentSubscription->plan_name,
-                'new_plan' => $newPlanName,
-                'subscription_id' => $currentSubscription->id
+                'user_id'         => $user->id,
+                'old_plan'        => $currentSubscription->plan_name,
+                'new_plan'        => $newPlanName,
+                'subscription_id' => $currentSubscription->id,
             ]);
 
             return [
-                'success' => true,
+                'success'      => TRUE,
                 'subscription' => $currentSubscription->fresh(),
-                'message' => "Successfully upgraded to {$newPlan['name']} plan"
+                'message'      => "Successfully upgraded to {$newPlan['name']} plan",
             ];
-
         } catch (\Exception $e) {
             DB::rollBack();
-            
+
             Log::error('Failed to update subscription', [
-                'user_id' => $user->id,
+                'user_id'  => $user->id,
                 'new_plan' => $newPlanName,
-                'error' => $e->getMessage()
+                'error'    => $e->getMessage(),
             ]);
 
             throw $e;
@@ -290,8 +288,8 @@ class SubscriptionService
      */
     public function cancelSubscription(
         User $user,
-        bool $immediately = false,
-        string $reason = null
+        bool $immediately = FALSE,
+        string $reason = NULL
     ): array {
         $subscription = $user->activeSubscription();
         if (!$subscription) {
@@ -299,25 +297,26 @@ class SubscriptionService
         }
 
         DB::beginTransaction();
+
         try {
             if ($immediately) {
                 // Cancel immediately
                 $stripeSubscription = StripeSubscription::update(
                     $subscription->stripe_subscription_id,
-                    ['cancel_at_period_end' => false]
+                    ['cancel_at_period_end' => FALSE]
                 );
-                
+
                 StripeSubscription::retrieve($subscription->stripe_subscription_id)->cancel();
 
                 $subscription->update([
-                    'status' => 'cancelled',
-                    'cancelled_at' => now(),
-                    'cancellation_reason' => $reason
+                    'status'              => 'cancelled',
+                    'cancelled_at'        => now(),
+                    'cancellation_reason' => $reason,
                 ]);
 
                 $user->update([
-                    'subscription_plan' => 'free',
-                    'subscription_status' => 'cancelled'
+                    'subscription_plan'   => 'free',
+                    'subscription_status' => 'cancelled',
                 ]);
 
                 $message = 'Subscription cancelled immediately';
@@ -325,13 +324,13 @@ class SubscriptionService
                 // Cancel at period end
                 StripeSubscription::update(
                     $subscription->stripe_subscription_id,
-                    ['cancel_at_period_end' => true]
+                    ['cancel_at_period_end' => TRUE]
                 );
 
                 $subscription->update([
-                    'status' => 'cancel_at_period_end',
-                    'cancel_at' => $subscription->current_period_end,
-                    'cancellation_reason' => $reason
+                    'status'              => 'cancel_at_period_end',
+                    'cancel_at'           => $subscription->current_period_end,
+                    'cancellation_reason' => $reason,
                 ]);
 
                 $message = 'Subscription will cancel at the end of the current billing period';
@@ -343,24 +342,23 @@ class SubscriptionService
             event(new SubscriptionCancelled($subscription, $immediately));
 
             Log::info('Subscription cancelled', [
-                'user_id' => $user->id,
+                'user_id'         => $user->id,
                 'subscription_id' => $subscription->id,
-                'immediately' => $immediately,
-                'reason' => $reason
+                'immediately'     => $immediately,
+                'reason'          => $reason,
             ]);
 
             return [
-                'success' => true,
+                'success'      => TRUE,
                 'subscription' => $subscription->fresh(),
-                'message' => $message
+                'message'      => $message,
             ];
-
         } catch (\Exception $e) {
             DB::rollBack();
-            
+
             Log::error('Failed to cancel subscription', [
                 'user_id' => $user->id,
-                'error' => $e->getMessage()
+                'error'   => $e->getMessage(),
             ]);
 
             throw $e;
@@ -381,31 +379,30 @@ class SubscriptionService
             // Resume in Stripe
             StripeSubscription::update(
                 $subscription->stripe_subscription_id,
-                ['cancel_at_period_end' => false]
+                ['cancel_at_period_end' => FALSE]
             );
 
             // Update local subscription
             $subscription->update([
-                'status' => 'active',
-                'cancel_at' => null,
-                'cancellation_reason' => null
+                'status'              => 'active',
+                'cancel_at'           => NULL,
+                'cancellation_reason' => NULL,
             ]);
 
             Log::info('Subscription resumed', [
-                'user_id' => $user->id,
-                'subscription_id' => $subscription->id
+                'user_id'         => $user->id,
+                'subscription_id' => $subscription->id,
             ]);
 
             return [
-                'success' => true,
+                'success'      => TRUE,
                 'subscription' => $subscription->fresh(),
-                'message' => 'Subscription resumed successfully'
+                'message'      => 'Subscription resumed successfully',
             ];
-
         } catch (\Exception $e) {
             Log::error('Failed to resume subscription', [
                 'user_id' => $user->id,
-                'error' => $e->getMessage()
+                'error'   => $e->getMessage(),
             ]);
 
             throw $e;
@@ -418,9 +415,9 @@ class SubscriptionService
     public function hasFeatureAccess(User $user, string $feature): bool
     {
         $plan = $this->getPlan($user->subscription_plan ?? 'free');
-        
+
         if (!$plan) {
-            return false;
+            return FALSE;
         }
 
         return in_array($feature, $plan['features']['features'] ?? []);
@@ -432,7 +429,7 @@ class SubscriptionService
     public function getUserLimits(User $user): array
     {
         $plan = $this->getPlan($user->subscription_plan ?? 'free');
-        
+
         if (!$plan) {
             return $this->getFreePlanLimits();
         }
@@ -447,12 +444,13 @@ class SubscriptionService
     {
         $limits = $this->getUserLimits($user);
         $limitKey = $resource . '_limit';
-        
+
         if (!isset($limits[$limitKey])) {
-            return false;
+            return FALSE;
         }
 
         $currentUsage = $this->getCurrentUsage($user, $resource);
+
         return $currentUsage >= $limits[$limitKey];
     }
 
@@ -462,28 +460,28 @@ class SubscriptionService
     public function getBillingSummary(User $user): array
     {
         $subscription = $user->activeSubscription();
-        
+
         if (!$subscription) {
             return [
-                'plan' => 'Free',
-                'status' => 'free',
-                'next_billing_date' => null,
-                'amount' => 0,
-                'features' => $this->getFreePlanLimits()
+                'plan'              => 'Free',
+                'status'            => 'free',
+                'next_billing_date' => NULL,
+                'amount'            => 0,
+                'features'          => $this->getFreePlanLimits(),
             ];
         }
 
         $plan = $this->getPlan($subscription->plan_name);
-        
+
         return [
-            'plan' => $plan['name'],
-            'status' => $subscription->status,
+            'plan'              => $plan['name'],
+            'status'            => $subscription->status,
             'next_billing_date' => $subscription->current_period_end,
-            'amount' => $subscription->price,
-            'currency' => $subscription->currency,
-            'features' => $plan['features'],
-            'usage' => $this->getUsageSummary($user),
-            'payment_method' => $this->getCurrentPaymentMethod($user)
+            'amount'            => $subscription->price,
+            'currency'          => $subscription->currency,
+            'features'          => $plan['features'],
+            'usage'             => $this->getUsageSummary($user),
+            'payment_method'    => $this->getCurrentPaymentMethod($user),
         ];
     }
 
@@ -493,15 +491,16 @@ class SubscriptionService
     public function handleFailedPayment(string $stripeSubscriptionId, array $data): void
     {
         $subscription = Subscription::where('stripe_subscription_id', $stripeSubscriptionId)->first();
-        
+
         if (!$subscription) {
             Log::warning('Failed payment for unknown subscription', ['stripe_id' => $stripeSubscriptionId]);
+
             return;
         }
 
         $subscription->update([
-            'status' => 'past_due',
-            'last_payment_failed_at' => now()
+            'status'                 => 'past_due',
+            'last_payment_failed_at' => now(),
         ]);
 
         // Notify user about failed payment
@@ -509,7 +508,7 @@ class SubscriptionService
 
         Log::info('Processed failed payment', [
             'subscription_id' => $subscription->id,
-            'user_id' => $subscription->user_id
+            'user_id'         => $subscription->user_id,
         ]);
     }
 
@@ -526,11 +525,11 @@ class SubscriptionService
         }
 
         $customer = Customer::create([
-            'email' => $user->email,
-            'name' => $user->name,
+            'email'    => $user->email,
+            'name'     => $user->name,
             'metadata' => [
-                'user_id' => $user->id
-            ]
+                'user_id' => $user->id,
+            ],
         ]);
 
         $user->update(['stripe_customer_id' => $customer->id]);
@@ -551,16 +550,16 @@ class SubscriptionService
         array $options
     ): StripeSubscription {
         $priceId = $this->getStripePriceId($planName);
-        
+
         return StripeSubscription::create([
-            'customer' => $customerId,
-            'items' => [['price' => $priceId]],
+            'customer'               => $customerId,
+            'items'                  => [['price' => $priceId]],
             'default_payment_method' => $paymentMethodId,
-            'expand' => ['latest_invoice.payment_intent'],
-            'trial_period_days' => $options['trial_days'] ?? null,
-            'metadata' => [
-                'plan_name' => $planName
-            ]
+            'expand'                 => ['latest_invoice.payment_intent'],
+            'trial_period_days'      => $options['trial_days'] ?? NULL,
+            'metadata'               => [
+                'plan_name' => $planName,
+            ],
         ]);
     }
 
@@ -571,19 +570,19 @@ class SubscriptionService
         array $options
     ): Subscription {
         $plan = $this->getPlan($planName);
-        
+
         return Subscription::create([
-            'user_id' => $user->id,
-            'plan_name' => $planName,
-            'stripe_subscription_id' => $stripeSubscription->id,
+            'user_id'                     => $user->id,
+            'plan_name'                   => $planName,
+            'stripe_subscription_id'      => $stripeSubscription->id,
             'stripe_subscription_item_id' => $stripeSubscription->items->data[0]->id,
-            'status' => $stripeSubscription->status,
-            'price' => $plan['price'],
-            'currency' => 'usd',
-            'current_period_start' => Carbon::createFromTimestamp($stripeSubscription->current_period_start),
-            'current_period_end' => Carbon::createFromTimestamp($stripeSubscription->current_period_end),
-            'trial_ends_at' => $stripeSubscription->trial_end ? 
-                Carbon::createFromTimestamp($stripeSubscription->trial_end) : null
+            'status'                      => $stripeSubscription->status,
+            'price'                       => $plan['price'],
+            'currency'                    => 'usd',
+            'current_period_start'        => Carbon::createFromTimestamp($stripeSubscription->current_period_start),
+            'current_period_end'          => Carbon::createFromTimestamp($stripeSubscription->current_period_end),
+            'trial_ends_at'               => $stripeSubscription->trial_end ?
+                Carbon::createFromTimestamp($stripeSubscription->trial_end) : NULL,
         ]);
     }
 
@@ -591,68 +590,68 @@ class SubscriptionService
     {
         // In production, these would be actual Stripe price IDs
         return match ($planName) {
-            'starter' => config('stripe.prices.starter'),
-            'pro' => config('stripe.prices.pro'),
+            'starter'    => config('stripe.prices.starter'),
+            'pro'        => config('stripe.prices.pro'),
             'enterprise' => config('stripe.prices.enterprise'),
-            default => throw new \InvalidArgumentException("No Stripe price ID for plan: {$planName}")
+            default      => throw new \InvalidArgumentException("No Stripe price ID for plan: {$planName}")
         };
     }
 
     private function getFreePlanLimits(): array
     {
         return [
-            'events_limit' => 1,
-            'monitors_limit' => 2,
+            'events_limit'          => 1,
+            'monitors_limit'        => 2,
             'api_requests_per_hour' => 20,
-            'price_alerts_limit' => 5,
-            'webhook_endpoints' => 0,
+            'price_alerts_limit'    => 5,
+            'webhook_endpoints'     => 0,
             'auto_purchase_configs' => 0,
-            'data_retention_days' => 7,
-            'support_level' => 'community',
-            'features' => ['basic_monitoring']
+            'data_retention_days'   => 7,
+            'support_level'         => 'community',
+            'features'              => ['basic_monitoring'],
         ];
     }
 
     private function getCurrentUsage(User $user, string $resource): int
     {
         return match ($resource) {
-            'events' => $user->events()->count(),
-            'monitors' => $user->eventMonitors()->count(),
-            'price_alerts' => $user->priceAlerts()->count(),
-            'webhook_endpoints' => $user->webhooks()->count(),
+            'events'                => $user->events()->count(),
+            'monitors'              => $user->eventMonitors()->count(),
+            'price_alerts'          => $user->priceAlerts()->count(),
+            'webhook_endpoints'     => $user->webhooks()->count(),
             'auto_purchase_configs' => $user->autoPurchaseConfigs()->count(),
-            default => 0
+            default                 => 0
         };
     }
 
     private function getUsageSummary(User $user): array
     {
         $limits = $this->getUserLimits($user);
-        
+
         return [
             'events' => [
-                'used' => $this->getCurrentUsage($user, 'events'),
-                'limit' => $limits['events_limit'] ?? 0
+                'used'  => $this->getCurrentUsage($user, 'events'),
+                'limit' => $limits['events_limit'] ?? 0,
             ],
             'monitors' => [
-                'used' => $this->getCurrentUsage($user, 'monitors'),
-                'limit' => $limits['monitors_limit'] ?? 0
+                'used'  => $this->getCurrentUsage($user, 'monitors'),
+                'limit' => $limits['monitors_limit'] ?? 0,
             ],
             'price_alerts' => [
-                'used' => $this->getCurrentUsage($user, 'price_alerts'),
-                'limit' => $limits['price_alerts_limit'] ?? 0
+                'used'  => $this->getCurrentUsage($user, 'price_alerts'),
+                'limit' => $limits['price_alerts_limit'] ?? 0,
             ],
             'api_requests_this_hour' => [
-                'used' => $this->getApiUsageThisHour($user),
-                'limit' => $limits['api_requests_per_hour'] ?? 0
-            ]
+                'used'  => $this->getApiUsageThisHour($user),
+                'limit' => $limits['api_requests_per_hour'] ?? 0,
+            ],
         ];
     }
 
     private function getCurrentPaymentMethod(User $user): ?array
     {
         // Implementation would fetch current payment method from Stripe
-        return null;
+        return NULL;
     }
 
     private function notifyFailedPayment(User $user, array $data): void

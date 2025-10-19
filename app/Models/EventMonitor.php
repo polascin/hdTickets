@@ -4,16 +4,16 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use Carbon\Carbon;
 
 /**
  * EventMonitor Model
- * 
+ *
  * Manages individual event monitoring configurations with:
  * - Real-time monitoring settings
  * - Performance tracking and analytics
@@ -23,7 +23,8 @@ use Carbon\Carbon;
  */
 class EventMonitor extends Model
 {
-    use HasFactory, SoftDeletes;
+    use HasFactory;
+    use SoftDeletes;
 
     protected $fillable = [
         'user_id',
@@ -42,33 +43,33 @@ class EventMonitor extends Model
         'total_checks',
         'last_error',
         'created_at',
-        'updated_at'
+        'updated_at',
     ];
 
     protected $casts = [
-        'is_active' => 'boolean',
-        'priority' => 'integer',
-        'check_interval' => 'integer',
-        'platforms' => 'array',
+        'is_active'                => 'boolean',
+        'priority'                 => 'integer',
+        'check_interval'           => 'integer',
+        'platforms'                => 'array',
         'notification_preferences' => 'array',
-        'custom_settings' => 'array',
-        'last_check_at' => 'datetime',
-        'last_response_time' => 'float',
-        'success_count' => 'integer',
-        'failure_count' => 'integer',
-        'total_checks' => 'integer'
+        'custom_settings'          => 'array',
+        'last_check_at'            => 'datetime',
+        'last_response_time'       => 'float',
+        'success_count'            => 'integer',
+        'failure_count'            => 'integer',
+        'total_checks'             => 'integer',
     ];
 
     protected $attributes = [
-        'is_active' => true,
-        'priority' => 5,
-        'check_interval' => 300, // 5 minutes
-        'platforms' => '["ticketmaster"]',
+        'is_active'                => TRUE,
+        'priority'                 => 5,
+        'check_interval'           => 300, // 5 minutes
+        'platforms'                => '["ticketmaster"]',
         'notification_preferences' => '["email"]',
-        'custom_settings' => '{}',
-        'success_count' => 0,
-        'failure_count' => 0,
-        'total_checks' => 0
+        'custom_settings'          => '{}',
+        'success_count'            => 0,
+        'failure_count'            => 0,
+        'total_checks'             => 0,
     ];
 
     // Relationships
@@ -144,6 +145,7 @@ class EventMonitor extends Model
         }
 
         $uptimePercentage = (($totalPeriod - $downtimeMinutes) / $totalPeriod) * 100;
+
         return round(max(0, min(100, $uptimePercentage)), 2);
     }
 
@@ -155,8 +157,8 @@ class EventMonitor extends Model
         }
 
         $accurateAlerts = $this->priceAlerts()
-            ->where('is_triggered', true)
-            ->where('accuracy_verified', true)
+            ->where('is_triggered', TRUE)
+            ->where('accuracy_verified', TRUE)
             ->count();
 
         return round(($accurateAlerts / $totalAlerts) * 100, 2);
@@ -177,9 +179,10 @@ class EventMonitor extends Model
     {
         try {
             $this->update(['check_interval' => max(60, $intervalSeconds)]); // Minimum 1 minute
-            return true;
+
+            return TRUE;
         } catch (\Exception $e) {
-            return false;
+            return FALSE;
         }
     }
 
@@ -191,9 +194,10 @@ class EventMonitor extends Model
                 $platforms[] = $platform;
                 $this->update(['platforms' => $platforms]);
             }
-            return true;
+
+            return TRUE;
         } catch (\Exception $e) {
-            return false;
+            return FALSE;
         }
     }
 
@@ -201,11 +205,12 @@ class EventMonitor extends Model
     {
         try {
             $platforms = $this->platforms ?? [];
-            $platforms = array_filter($platforms, fn($p) => $p !== $platform);
+            $platforms = array_filter($platforms, fn ($p) => $p !== $platform);
             $this->update(['platforms' => array_values($platforms)]);
-            return true;
+
+            return TRUE;
         } catch (\Exception $e) {
-            return false;
+            return FALSE;
         }
     }
 
@@ -214,14 +219,15 @@ class EventMonitor extends Model
         try {
             $validPreferences = ['email', 'sms', 'push', 'webhook'];
             $filteredPreferences = array_filter(
-                $preferences, 
-                fn($pref) => in_array($pref, $validPreferences)
+                $preferences,
+                fn ($pref) => in_array($pref, $validPreferences)
             );
-            
+
             $this->update(['notification_preferences' => $filteredPreferences]);
-            return true;
+
+            return TRUE;
         } catch (\Exception $e) {
-            return false;
+            return FALSE;
         }
     }
 
@@ -230,56 +236,58 @@ class EventMonitor extends Model
         try {
             $priority = max(1, min(10, $priority)); // Clamp between 1-10
             $this->update(['priority' => $priority]);
-            return true;
+
+            return TRUE;
         } catch (\Exception $e) {
-            return false;
+            return FALSE;
         }
     }
 
     // Monitoring Operations
 
-    public function recordCheck(bool $success, float $responseTime = 0.0, ?string $error = null): void
+    public function recordCheck(bool $success, float $responseTime = 0.0, ?string $error = NULL): void
     {
         $this->increment('total_checks');
-        
+
         if ($success) {
             $this->increment('success_count');
             $this->update([
-                'last_check_at' => now(),
+                'last_check_at'      => now(),
                 'last_response_time' => $responseTime,
-                'last_error' => null
+                'last_error'         => NULL,
             ]);
         } else {
             $this->increment('failure_count');
             $this->update([
                 'last_check_at' => now(),
-                'last_error' => $error
+                'last_error'    => $error,
             ]);
         }
 
         // Log the monitoring attempt
         $this->monitoringLogs()->create([
-            'status' => $success ? 'success' : 'failed',
+            'status'        => $success ? 'success' : 'failed',
             'response_time' => $responseTime,
             'error_message' => $error,
-            'checked_at' => now()
+            'checked_at'    => now(),
         ]);
     }
 
     public function isOverdue(): bool
     {
         if (!$this->is_active || !$this->last_check_at) {
-            return false;
+            return FALSE;
         }
 
         $nextCheckDue = $this->last_check_at->addSeconds($this->check_interval);
+
         return now()->greaterThan($nextCheckDue);
     }
 
     public function getNextCheckTime(): ?Carbon
     {
         if (!$this->is_active || !$this->last_check_at) {
-            return null;
+            return NULL;
         }
 
         return $this->last_check_at->addSeconds($this->check_interval);
@@ -288,12 +296,12 @@ class EventMonitor extends Model
     public function shouldBeChecked(): bool
     {
         if (!$this->is_active) {
-            return false;
+            return FALSE;
         }
 
         // If never checked, should be checked
         if (!$this->last_check_at) {
-            return true;
+            return TRUE;
         }
 
         // Check if interval has passed
@@ -308,8 +316,8 @@ class EventMonitor extends Model
             ->where('recorded_at', '>=', now()->subDays(7))
             ->count();
 
-        $eventDateProximity = $this->event->event_date 
-            ? now()->diffInDays($this->event->event_date, false)
+        $eventDateProximity = $this->event->event_date
+            ? now()->diffInDays($this->event->event_date, FALSE)
             : 365;
 
         // Base interval calculation
@@ -364,7 +372,7 @@ class EventMonitor extends Model
         // Check if overdue
         if ($this->isOverdue()) {
             $status = 'warning';
-            $issues[] = "Check overdue by " . now()->diffForHumans($this->getNextCheckTime());
+            $issues[] = 'Check overdue by ' . now()->diffForHumans($this->getNextCheckTime());
         }
 
         // Check recent failures
@@ -379,24 +387,24 @@ class EventMonitor extends Model
         }
 
         return [
-            'status' => $status,
-            'issues' => $issues,
+            'status'  => $status,
+            'issues'  => $issues,
             'metrics' => [
-                'success_rate' => $successRate,
+                'success_rate'      => $successRate,
                 'avg_response_time' => $avgResponseTime,
-                'uptime' => $this->getUptime(),
-                'check_frequency' => $this->getCheckFrequency()
-            ]
+                'uptime'            => $this->getUptime(),
+                'check_frequency'   => $this->getCheckFrequency(),
+            ],
         ];
     }
 
     public function getPerformanceInsights(): array
     {
         return [
-            'efficiency_score' => $this->calculateEfficiencyScore(),
+            'efficiency_score'         => $this->calculateEfficiencyScore(),
             'optimization_suggestions' => $this->getOptimizationSuggestions(),
-            'comparison_to_similar' => $this->compareToSimilarMonitors(),
-            'trend_analysis' => $this->analyzeTrends()
+            'comparison_to_similar'    => $this->compareToSimilarMonitors(),
+            'trend_analysis'           => $this->analyzeTrends(),
         ];
     }
 
@@ -412,14 +420,14 @@ class EventMonitor extends Model
             ->get();
 
         return [
-            'date' => $date->toDateString(),
-            'total_checks' => $logs->count(),
+            'date'              => $date->toDateString(),
+            'total_checks'      => $logs->count(),
             'successful_checks' => $logs->where('status', 'success')->count(),
-            'failed_checks' => $logs->where('status', 'failed')->count(),
+            'failed_checks'     => $logs->where('status', 'failed')->count(),
             'avg_response_time' => $logs->where('response_time', '>', 0)->avg('response_time'),
             'min_response_time' => $logs->where('response_time', '>', 0)->min('response_time'),
             'max_response_time' => $logs->where('response_time', '>', 0)->max('response_time'),
-            'errors' => $logs->where('status', 'failed')->pluck('error_message')->unique()->values()
+            'errors'            => $logs->where('status', 'failed')->pluck('error_message')->unique()->values(),
         ];
     }
 
@@ -430,29 +438,29 @@ class EventMonitor extends Model
         $successRate = $this->getSuccessRate();
         $responseTime = $this->getAverageResponseTime();
         $uptime = $this->getUptime();
-        
+
         // Normalize response time (5000ms = 0 points, 500ms = 100 points)
         $responseScore = max(0, 100 - (($responseTime - 500) / 45));
-        
+
         return round(($successRate * 0.4) + ($responseScore * 0.3) + ($uptime * 0.3), 2);
     }
 
     private function getOptimizationSuggestions(): array
     {
         $suggestions = [];
-        
+
         if ($this->getAverageResponseTime() > 3000) {
             $suggestions[] = 'Consider reducing the number of platforms being monitored simultaneously';
         }
-        
+
         if ($this->getSuccessRate() < 85) {
             $suggestions[] = 'Review platform configurations and network connectivity';
         }
-        
+
         if ($this->check_interval < 120 && $this->event->event_date && now()->diffInDays($this->event->event_date) > 30) {
             $suggestions[] = 'Consider increasing check interval for events far in the future';
         }
-        
+
         return $suggestions;
     }
 
@@ -460,27 +468,27 @@ class EventMonitor extends Model
     {
         $similarMonitors = self::where('user_id', $this->user_id)
             ->where('id', '!=', $this->id)
-            ->where('is_active', true)
+            ->where('is_active', TRUE)
             ->get();
 
         if ($similarMonitors->isEmpty()) {
             return ['message' => 'No similar monitors for comparison'];
         }
 
-        $avgSuccessRate = $similarMonitors->avg(fn($m) => $m->getSuccessRate());
-        $avgResponseTime = $similarMonitors->avg(fn($m) => $m->getAverageResponseTime());
+        $avgSuccessRate = $similarMonitors->avg(fn ($m) => $m->getSuccessRate());
+        $avgResponseTime = $similarMonitors->avg(fn ($m) => $m->getAverageResponseTime());
 
         return [
             'success_rate_comparison' => [
-                'yours' => $this->getSuccessRate(),
-                'average' => round($avgSuccessRate, 2),
-                'percentile' => $this->calculatePercentile($similarMonitors, 'getSuccessRate')
+                'yours'      => $this->getSuccessRate(),
+                'average'    => round($avgSuccessRate, 2),
+                'percentile' => $this->calculatePercentile($similarMonitors, 'getSuccessRate'),
             ],
             'response_time_comparison' => [
-                'yours' => $this->getAverageResponseTime(),
-                'average' => round($avgResponseTime, 2),
-                'percentile' => $this->calculatePercentile($similarMonitors, 'getAverageResponseTime', false)
-            ]
+                'yours'      => $this->getAverageResponseTime(),
+                'average'    => round($avgResponseTime, 2),
+                'percentile' => $this->calculatePercentile($similarMonitors, 'getAverageResponseTime', FALSE),
+            ],
         ];
     }
 
@@ -494,23 +502,23 @@ class EventMonitor extends Model
             ->get();
 
         return [
-            'response_time_trend' => $this->calculateTrend($last7Days->pluck('avg_response_time')),
+            'response_time_trend'   => $this->calculateTrend($last7Days->pluck('avg_response_time')),
             'check_frequency_trend' => $this->calculateTrend($last7Days->pluck('total_checks')),
-            'daily_data' => $last7Days->toArray()
+            'daily_data'            => $last7Days->toArray(),
         ];
     }
 
-    private function calculatePercentile($collection, string $method, bool $higherIsBetter = true): int
+    private function calculatePercentile($collection, string $method, bool $higherIsBetter = TRUE): int
     {
-        $values = $collection->map(fn($item) => $item->{$method}())->sort();
+        $values = $collection->map(fn ($item) => $item->{$method}())->sort();
         $myValue = $this->{$method}();
-        
+
         $count = $values->count();
         $position = $values->search(function ($value) use ($myValue, $higherIsBetter) {
             return $higherIsBetter ? $value >= $myValue : $value <= $myValue;
         });
 
-        return $position !== false ? (int) round(($position / $count) * 100) : 50;
+        return $position !== FALSE ? (int) round(($position / $count) * 100) : 50;
     }
 
     private function calculateTrend($values): string
@@ -521,13 +529,13 @@ class EventMonitor extends Model
 
         $first = $values->take(3)->avg();
         $last = $values->reverse()->take(3)->avg();
-        
+
         $change = (($last - $first) / $first) * 100;
-        
+
         if (abs($change) < 5) {
             return 'stable';
         }
-        
+
         return $change > 0 ? 'increasing' : 'decreasing';
     }
 
@@ -535,7 +543,7 @@ class EventMonitor extends Model
 
     public function scopeActive($query)
     {
-        return $query->where('is_active', true);
+        return $query->where('is_active', TRUE);
     }
 
     public function scopeByUser($query, User $user)
@@ -550,14 +558,14 @@ class EventMonitor extends Model
 
     public function scopeOverdue($query)
     {
-        return $query->where('is_active', true)
+        return $query->where('is_active', TRUE)
             ->whereNotNull('last_check_at')
             ->whereRaw('DATE_ADD(last_check_at, INTERVAL check_interval SECOND) < NOW()');
     }
 
     public function scopeNeedsCheck($query)
     {
-        return $query->where('is_active', true)
+        return $query->where('is_active', TRUE)
             ->where(function ($query) {
                 $query->whereNull('last_check_at')
                     ->orWhereRaw('DATE_ADD(last_check_at, INTERVAL check_interval SECOND) < NOW()');

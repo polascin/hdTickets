@@ -10,7 +10,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 /**
  * MonitoringLog Model
- * 
+ *
  * Stores detailed logs of monitoring attempts for analytics and debugging
  */
 class MonitoringLog extends Model
@@ -25,14 +25,14 @@ class MonitoringLog extends Model
         'platform',
         'data_found',
         'checked_at',
-        'downtime_duration'
+        'downtime_duration',
     ];
 
     protected $casts = [
-        'response_time' => 'float',
-        'data_found' => 'array',
-        'checked_at' => 'datetime',
-        'downtime_duration' => 'integer'
+        'response_time'     => 'float',
+        'data_found'        => 'array',
+        'checked_at'        => 'datetime',
+        'downtime_duration' => 'integer',
     ];
 
     // Relationships

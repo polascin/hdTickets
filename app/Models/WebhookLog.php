@@ -10,7 +10,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 /**
  * WebhookLog Model
- * 
+ *
  * Stores detailed logs of webhook delivery attempts for:
  * - Delivery tracking and debugging
  * - Performance analytics
@@ -33,15 +33,15 @@ class WebhookLog extends Model
         'attempt_number',
         'delivered_at',
         'user_agent',
-        'ip_address'
+        'ip_address',
     ];
 
     protected $casts = [
-        'payload' => 'array',
-        'response_code' => 'integer',
-        'response_time' => 'float',
+        'payload'        => 'array',
+        'response_code'  => 'integer',
+        'response_time'  => 'float',
         'attempt_number' => 'integer',
-        'delivered_at' => 'datetime'
+        'delivered_at'   => 'datetime',
     ];
 
     // Relationships
@@ -108,7 +108,7 @@ class WebhookLog extends Model
     public function getErrorType(): ?string
     {
         if (!$this->error_message) {
-            return null;
+            return NULL;
         }
 
         $errorMessage = strtolower($this->error_message);
@@ -235,9 +235,9 @@ class WebhookLog extends Model
     {
         return match ($this->status) {
             'success' => ['class' => 'success', 'text' => 'Success'],
-            'failed' => ['class' => 'danger', 'text' => 'Failed'],
+            'failed'  => ['class' => 'danger', 'text' => 'Failed'],
             'pending' => ['class' => 'warning', 'text' => 'Pending'],
-            default => ['class' => 'secondary', 'text' => 'Unknown']
+            default   => ['class' => 'secondary', 'text' => 'Unknown']
         };
     }
 
@@ -276,7 +276,7 @@ class WebhookLog extends Model
             return '';
         }
 
-        return strlen($this->error_message) > 100 
+        return strlen($this->error_message) > 100
             ? substr($this->error_message, 0, 100) . '...'
             : $this->error_message;
     }

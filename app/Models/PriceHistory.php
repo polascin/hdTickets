@@ -10,7 +10,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 /**
  * Price History Model
- * 
+ *
  * Stores historical price data for comprehensive analytics
  */
 class PriceHistory extends Model
@@ -31,19 +31,19 @@ class PriceHistory extends Model
         'market_conditions',
         'quality_score',
         'metadata',
-        'recorded_at'
+        'recorded_at',
     ];
 
     protected $casts = [
-        'price_min' => 'decimal:2',
-        'price_max' => 'decimal:2',
-        'price_average' => 'decimal:2',
-        'total_listings' => 'integer',
+        'price_min'          => 'decimal:2',
+        'price_max'          => 'decimal:2',
+        'price_average'      => 'decimal:2',
+        'total_listings'     => 'integer',
         'available_quantity' => 'integer',
-        'quality_score' => 'decimal:2',
-        'market_conditions' => 'array',
-        'metadata' => 'array',
-        'recorded_at' => 'datetime'
+        'quality_score'      => 'decimal:2',
+        'market_conditions'  => 'array',
+        'metadata'           => 'array',
+        'recorded_at'        => 'datetime',
     ];
 
     /**
@@ -106,7 +106,7 @@ class PriceHistory extends Model
             ->first();
 
         if (!$previousRecord) {
-            return null;
+            return NULL;
         }
 
         $minChange = $this->price_min - $previousRecord->price_min;
@@ -114,13 +114,13 @@ class PriceHistory extends Model
         $avgChange = $this->price_average - $previousRecord->price_average;
 
         return [
-            'min_change' => round($minChange, 2),
-            'max_change' => round($maxChange, 2),
-            'avg_change' => round($avgChange, 2),
-            'min_change_percentage' => $previousRecord->price_min > 0 ? 
+            'min_change'            => round($minChange, 2),
+            'max_change'            => round($maxChange, 2),
+            'avg_change'            => round($avgChange, 2),
+            'min_change_percentage' => $previousRecord->price_min > 0 ?
                 round(($minChange / $previousRecord->price_min) * 100, 2) : 0,
-            'avg_change_percentage' => $previousRecord->price_average > 0 ? 
-                round(($avgChange / $previousRecord->price_average) * 100, 2) : 0
+            'avg_change_percentage' => $previousRecord->price_average > 0 ?
+                round(($avgChange / $previousRecord->price_average) * 100, 2) : 0,
         ];
     }
 
@@ -130,9 +130,9 @@ class PriceHistory extends Model
     public function isSignificantDrop(float $threshold = 10.0): bool
     {
         $change = $this->getPriceChange();
-        
+
         if (!$change) {
-            return false;
+            return FALSE;
         }
 
         return $change['avg_change_percentage'] <= -$threshold;
@@ -144,7 +144,7 @@ class PriceHistory extends Model
     public function getMarketConditionSummary(): string
     {
         $conditions = $this->market_conditions ?? [];
-        
+
         $demand = $conditions['demand_level'] ?? 'medium';
         $inventory = $conditions['inventory_status'] ?? 'normal';
         $volatility = $conditions['price_volatility'] ?? 'stable';
@@ -195,6 +195,7 @@ class PriceHistory extends Model
 
         // Normalize demand based on typical inventory levels
         $normalizedInventory = min($this->available_quantity / 100, 1.0);
+
         return round(1.0 - $normalizedInventory, 2);
     }
 
@@ -212,17 +213,17 @@ class PriceHistory extends Model
     public function getAnalyticsSummary(): array
     {
         return [
-            'record_id' => $this->id,
-            'event_id' => $this->event_id,
-            'platform' => $this->platform,
-            'price_range' => $this->getFormattedPriceRange(),
-            'price_spread' => $this->getPriceSpread(),
-            'demand_indicator' => $this->getDemandIndicator(),
-            'market_summary' => $this->getMarketConditionSummary(),
-            'quality_score' => $this->quality_score,
-            'is_fresh' => $this->isFresh(),
+            'record_id'             => $this->id,
+            'event_id'              => $this->event_id,
+            'platform'              => $this->platform,
+            'price_range'           => $this->getFormattedPriceRange(),
+            'price_spread'          => $this->getPriceSpread(),
+            'demand_indicator'      => $this->getDemandIndicator(),
+            'market_summary'        => $this->getMarketConditionSummary(),
+            'quality_score'         => $this->quality_score,
+            'is_fresh'              => $this->isFresh(),
             'is_critical_inventory' => $this->isCriticalInventory(),
-            'recorded_at' => $this->recorded_at->toISOString()
+            'recorded_at'           => $this->recorded_at->toISOString(),
         ];
     }
 }

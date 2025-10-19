@@ -10,7 +10,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 /**
  * Price Alert Model
- * 
+ *
  * Manages user-configured price alerts and notifications
  */
 class PriceAlert extends Model
@@ -34,32 +34,36 @@ class PriceAlert extends Model
         'metadata',
         'last_triggered_at',
         'trigger_count',
-        'expires_at'
+        'expires_at',
     ];
 
     protected $casts = [
-        'target_price' => 'decimal:2',
-        'target_percentage' => 'decimal:1',
-        'baseline_price' => 'decimal:2',
-        'is_active' => 'boolean',
-        'platforms' => 'array',
+        'target_price'          => 'decimal:2',
+        'target_percentage'     => 'decimal:1',
+        'baseline_price'        => 'decimal:2',
+        'is_active'             => 'boolean',
+        'platforms'             => 'array',
         'notification_channels' => 'array',
-        'min_interval_minutes' => 'integer',
-        'max_triggers_per_day' => 'integer',
-        'conditions' => 'array',
-        'metadata' => 'array',
-        'trigger_count' => 'integer',
-        'last_triggered_at' => 'datetime',
-        'expires_at' => 'datetime'
+        'min_interval_minutes'  => 'integer',
+        'max_triggers_per_day'  => 'integer',
+        'conditions'            => 'array',
+        'metadata'              => 'array',
+        'trigger_count'         => 'integer',
+        'last_triggered_at'     => 'datetime',
+        'expires_at'            => 'datetime',
     ];
 
     /**
      * Alert type constants
      */
     public const TYPE_PRICE_DROP = 'price_drop';
+
     public const TYPE_PRICE_DROP_PERCENTAGE = 'price_drop_percentage';
+
     public const TYPE_ABSOLUTE_PRICE = 'absolute_price';
+
     public const TYPE_BEST_DEAL = 'best_deal';
+
     public const TYPE_INVENTORY_LOW = 'inventory_low';
 
     /**
@@ -83,7 +87,7 @@ class PriceAlert extends Model
      */
     public function scopeActive($query)
     {
-        return $query->where('is_active', true)
+        return $query->where('is_active', TRUE)
                     ->where(function ($q) {
                         $q->whereNull('expires_at')
                           ->orWhere('expires_at', '>', now());
@@ -127,18 +131,18 @@ class PriceAlert extends Model
     public function canTrigger(): bool
     {
         if (!$this->is_active) {
-            return false;
+            return FALSE;
         }
 
         if ($this->expires_at && $this->expires_at->isPast()) {
-            return false;
+            return FALSE;
         }
 
         // Check minimum interval
         if ($this->last_triggered_at) {
             $minutesSinceLastTrigger = $this->last_triggered_at->diffInMinutes(now());
             if ($minutesSinceLastTrigger < $this->min_interval_minutes) {
-                return false;
+                return FALSE;
             }
         }
 
@@ -146,11 +150,11 @@ class PriceAlert extends Model
         if ($this->max_triggers_per_day > 0) {
             $todayTriggers = $this->getTodayTriggerCount();
             if ($todayTriggers >= $this->max_triggers_per_day) {
-                return false;
+                return FALSE;
             }
         }
 
-        return true;
+        return TRUE;
     }
 
     /**
@@ -172,12 +176,12 @@ class PriceAlert extends Model
         $currentPrice = $priceData['price_min'] ?? 0;
 
         return match ($this->alert_type) {
-            self::TYPE_PRICE_DROP => $this->checkPriceDrop($currentPrice),
+            self::TYPE_PRICE_DROP            => $this->checkPriceDrop($currentPrice),
             self::TYPE_PRICE_DROP_PERCENTAGE => $this->checkPercentageDrop($currentPrice),
-            self::TYPE_ABSOLUTE_PRICE => $currentPrice <= $this->target_price,
-            self::TYPE_BEST_DEAL => $this->checkBestDeal($priceData),
-            self::TYPE_INVENTORY_LOW => $this->checkLowInventory($priceData),
-            default => false
+            self::TYPE_ABSOLUTE_PRICE        => $currentPrice <= $this->target_price,
+            self::TYPE_BEST_DEAL             => $this->checkBestDeal($priceData),
+            self::TYPE_INVENTORY_LOW         => $this->checkLowInventory($priceData),
+            default                          => FALSE
         };
     }
 
@@ -195,12 +199,13 @@ class PriceAlert extends Model
     private function checkPercentageDrop(float $currentPrice): bool
     {
         $basePrice = $this->baseline_price ?? $this->target_price;
-        
+
         if ($basePrice <= 0) {
-            return false;
+            return FALSE;
         }
 
         $dropPercentage = (($basePrice - $currentPrice) / $basePrice) * 100;
+
         return $dropPercentage >= $this->target_percentage;
     }
 
@@ -215,6 +220,7 @@ class PriceAlert extends Model
             ->min('price_min') ?? PHP_FLOAT_MAX;
 
         $currentPrice = $priceData['price_min'] ?? 0;
+
         return $currentPrice <= $historicalLow * 1.05; // Within 5% of historical low
     }
 
@@ -225,7 +231,7 @@ class PriceAlert extends Model
     {
         $inventory = $priceData['total_listings'] ?? $priceData['available_quantity'] ?? 0;
         $threshold = $this->conditions['inventory_threshold'] ?? 10;
-        
+
         return $inventory <= $threshold;
     }
 
@@ -236,16 +242,16 @@ class PriceAlert extends Model
     {
         $this->update([
             'last_triggered_at' => now(),
-            'trigger_count' => $this->trigger_count + 1
+            'trigger_count'     => $this->trigger_count + 1,
         ]);
 
         // Record trigger in separate table for analytics
         \DB::table('price_alert_triggers')->insert([
             'price_alert_id' => $this->id,
-            'triggered_at' => now(),
-            'trigger_data' => json_encode($priceData),
-            'created_at' => now(),
-            'updated_at' => now()
+            'triggered_at'   => now(),
+            'trigger_data'   => json_encode($priceData),
+            'created_at'     => now(),
+            'updated_at'     => now(),
         ]);
     }
 
@@ -260,7 +266,7 @@ class PriceAlert extends Model
 
         $successfulTriggers = \DB::table('price_alert_triggers')
             ->where('price_alert_id', $this->id)
-            ->whereJsonContains('trigger_data->user_acted', true)
+            ->whereJsonContains('trigger_data->user_acted', TRUE)
             ->count();
 
         return round(($successfulTriggers / $this->trigger_count) * 100, 1);
@@ -285,20 +291,20 @@ class PriceAlert extends Model
     {
         // Auto-disable if event has passed
         if ($this->event && $this->event->event_date && $this->event->event_date->isPast()) {
-            return true;
+            return TRUE;
         }
 
         // Auto-disable if expired
         if ($this->expires_at && $this->expires_at->isPast()) {
-            return true;
+            return TRUE;
         }
 
         // Auto-disable if too many failed triggers (low effectiveness)
         if ($this->trigger_count >= 10 && $this->getEffectiveness() < 10) {
-            return true;
+            return TRUE;
         }
 
-        return false;
+        return FALSE;
     }
 
     /**
@@ -309,12 +315,12 @@ class PriceAlert extends Model
         $eventName = $this->event->name ?? 'Unknown Event';
 
         return match ($this->alert_type) {
-            self::TYPE_PRICE_DROP => "Alert when {$eventName} tickets drop to £{$this->target_price}",
+            self::TYPE_PRICE_DROP            => "Alert when {$eventName} tickets drop to £{$this->target_price}",
             self::TYPE_PRICE_DROP_PERCENTAGE => "Alert when {$eventName} tickets drop by {$this->target_percentage}%",
-            self::TYPE_ABSOLUTE_PRICE => "Alert when {$eventName} tickets reach £{$this->target_price}",
-            self::TYPE_BEST_DEAL => "Alert for best deals on {$eventName} tickets",
-            self::TYPE_INVENTORY_LOW => "Alert when {$eventName} ticket inventory is low",
-            default => "Price alert for {$eventName}"
+            self::TYPE_ABSOLUTE_PRICE        => "Alert when {$eventName} tickets reach £{$this->target_price}",
+            self::TYPE_BEST_DEAL             => "Alert for best deals on {$eventName} tickets",
+            self::TYPE_INVENTORY_LOW         => "Alert when {$eventName} ticket inventory is low",
+            default                          => "Price alert for {$eventName}"
         };
     }
 
@@ -324,20 +330,20 @@ class PriceAlert extends Model
     public function getConfigSummary(): array
     {
         return [
-            'id' => $this->id,
-            'name' => $this->name,
-            'type' => $this->alert_type,
-            'description' => $this->getDescription(),
-            'target_price' => $this->target_price,
-            'target_percentage' => $this->target_percentage,
-            'is_active' => $this->is_active,
-            'platforms' => $this->platforms ?? [],
+            'id'                    => $this->id,
+            'name'                  => $this->name,
+            'type'                  => $this->alert_type,
+            'description'           => $this->getDescription(),
+            'target_price'          => $this->target_price,
+            'target_percentage'     => $this->target_percentage,
+            'is_active'             => $this->is_active,
+            'platforms'             => $this->platforms ?? [],
             'notification_channels' => $this->notification_channels ?? [],
-            'trigger_count' => $this->trigger_count,
-            'effectiveness' => $this->getEffectiveness(),
-            'estimated_savings' => $this->getEstimatedSavings(),
-            'expires_at' => $this->expires_at?->toISOString(),
-            'last_triggered_at' => $this->last_triggered_at?->toISOString()
+            'trigger_count'         => $this->trigger_count,
+            'effectiveness'         => $this->getEffectiveness(),
+            'estimated_savings'     => $this->getEstimatedSavings(),
+            'expires_at'            => $this->expires_at?->toISOString(),
+            'last_triggered_at'     => $this->last_triggered_at?->toISOString(),
         ];
     }
 
@@ -347,20 +353,20 @@ class PriceAlert extends Model
     public static function createDefault(User $user, Event $event, float $targetPrice): self
     {
         return self::create([
-            'user_id' => $user->id,
-            'event_id' => $event->id,
-            'name' => "Price Alert: {$event->name}",
-            'alert_type' => self::TYPE_PRICE_DROP,
-            'target_price' => $targetPrice,
-            'is_active' => true,
-            'platforms' => ['ticketmaster', 'seatgeek', 'stubhub'],
+            'user_id'               => $user->id,
+            'event_id'              => $event->id,
+            'name'                  => "Price Alert: {$event->name}",
+            'alert_type'            => self::TYPE_PRICE_DROP,
+            'target_price'          => $targetPrice,
+            'is_active'             => TRUE,
+            'platforms'             => ['ticketmaster', 'seatgeek', 'stubhub'],
             'notification_channels' => ['email', 'push'],
-            'min_interval_minutes' => 15,
-            'max_triggers_per_day' => 5,
-            'conditions' => [
-                'require_availability' => true,
-                'min_quantity' => 1
-            ]
+            'min_interval_minutes'  => 15,
+            'max_triggers_per_day'  => 5,
+            'conditions'            => [
+                'require_availability' => TRUE,
+                'min_quantity'         => 1,
+            ],
         ]);
     }
 
@@ -370,7 +376,7 @@ class PriceAlert extends Model
     public function optimize(): void
     {
         $effectiveness = $this->getEffectiveness();
-        
+
         // Adjust trigger frequency based on effectiveness
         if ($effectiveness > 80) {
             // High effectiveness - allow more frequent triggers

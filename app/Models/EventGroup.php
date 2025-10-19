@@ -4,17 +4,17 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use Carbon\Carbon;
 
 /**
  * EventGroup Model
- * 
+ *
  * Enables users to organize and manage multiple events together with:
  * - Event categorization and grouping
  * - Shared monitoring configurations
@@ -24,7 +24,8 @@ use Carbon\Carbon;
  */
 class EventGroup extends Model
 {
-    use HasFactory, SoftDeletes;
+    use HasFactory;
+    use SoftDeletes;
 
     protected $fillable = [
         'user_id',
@@ -36,22 +37,22 @@ class EventGroup extends Model
         'monitoring_config',
         'is_active',
         'total_events',
-        'last_modified_at'
+        'last_modified_at',
     ];
 
     protected $casts = [
-        'settings' => 'array',
+        'settings'          => 'array',
         'monitoring_config' => 'array',
-        'is_active' => 'boolean',
-        'total_events' => 'integer',
-        'last_modified_at' => 'datetime'
+        'is_active'         => 'boolean',
+        'total_events'      => 'integer',
+        'last_modified_at'  => 'datetime',
     ];
 
     protected $attributes = [
-        'settings' => '{}',
+        'settings'          => '{}',
         'monitoring_config' => '{}',
-        'is_active' => true,
-        'total_events' => 0
+        'is_active'         => TRUE,
+        'total_events'      => 0,
     ];
 
     // Relationships
@@ -68,7 +69,7 @@ class EventGroup extends Model
                 'added_at',
                 'priority',
                 'custom_settings',
-                'is_active'
+                'is_active',
             ])
             ->withTimestamps();
     }
@@ -91,7 +92,7 @@ class EventGroup extends Model
     public function getLastActivity(): ?Carbon
     {
         $lastMonitorActivity = $this->eventMonitors()
-            ->where('is_active', true)
+            ->where('is_active', TRUE)
             ->max('last_check_at');
 
         $lastPriceUpdate = $this->events()
@@ -99,7 +100,7 @@ class EventGroup extends Model
             ->max('price_histories.recorded_at');
 
         if (!$lastMonitorActivity && !$lastPriceUpdate) {
-            return null;
+            return NULL;
         }
 
         return Carbon::parse(max($lastMonitorActivity, $lastPriceUpdate));
@@ -107,40 +108,40 @@ class EventGroup extends Model
 
     public function getPerformanceScore(): float
     {
-        $monitors = $this->eventMonitors()->where('is_active', true)->get();
-        
+        $monitors = $this->eventMonitors()->where('is_active', TRUE)->get();
+
         if ($monitors->isEmpty()) {
             return 0.0;
         }
 
         $totalScore = 0;
         $criteria = [
-            'response_time' => 0.3,  // 30% weight
-            'success_rate' => 0.4,   // 40% weight
+            'response_time'  => 0.3,  // 30% weight
+            'success_rate'   => 0.4,   // 40% weight
             'alert_accuracy' => 0.2, // 20% weight
-            'uptime' => 0.1          // 10% weight
+            'uptime'         => 0.1,          // 10% weight
         ];
 
         foreach ($monitors as $monitor) {
             $score = 0;
-            
+
             // Response time score (lower is better)
             $avgResponseTime = $monitor->getAverageResponseTime();
             $responseScore = max(0, 100 - ($avgResponseTime / 10)); // 1s = 10 points penalty
             $score += $responseScore * $criteria['response_time'];
-            
+
             // Success rate score
             $successRate = $monitor->getSuccessRate();
             $score += $successRate * $criteria['success_rate'];
-            
+
             // Alert accuracy score
             $alertAccuracy = $monitor->getAlertAccuracy();
             $score += $alertAccuracy * $criteria['alert_accuracy'];
-            
+
             // Uptime score
             $uptime = $monitor->getUptime();
             $score += $uptime * $criteria['uptime'];
-            
+
             $totalScore += $score;
         }
 
@@ -150,8 +151,8 @@ class EventGroup extends Model
     public function getActiveEventsCount(): int
     {
         return $this->events()
-            ->wherePivot('is_active', true)
-            ->where('events.is_active', true)
+            ->wherePivot('is_active', TRUE)
+            ->where('events.is_active', TRUE)
             ->count();
     }
 
@@ -169,14 +170,14 @@ class EventGroup extends Model
             ->join('price_histories', 'events.id', '=', 'price_histories.event_id')
             ->join('price_alerts', 'events.id', '=', 'price_alerts.event_id')
             ->where('price_alerts.user_id', $this->user_id)
-            ->where('price_alerts.is_triggered', true)
+            ->where('price_alerts.is_triggered', TRUE)
             ->sum('price_alerts.potential_savings');
     }
 
     public function getAverageResponseTime(): float
     {
         return $this->eventMonitors()
-            ->where('is_active', true)
+            ->where('is_active', TRUE)
             ->avg('last_response_time') ?? 0.0;
     }
 
@@ -188,7 +189,7 @@ class EventGroup extends Model
             ->select([
                 'events.id',
                 'price_histories.price',
-                'price_histories.recorded_at'
+                'price_histories.recorded_at',
             ])
             ->get()
             ->groupBy('id');
@@ -201,13 +202,15 @@ class EventGroup extends Model
         $eventCount = 0;
 
         foreach ($priceData as $eventId => $prices) {
-            if ($prices->count() < 2) continue;
-            
+            if ($prices->count() < 2) {
+                continue;
+            }
+
             $priceValues = $prices->pluck('price')->toArray();
             $mean = array_sum($priceValues) / count($priceValues);
-            $variance = array_sum(array_map(fn($price) => pow($price - $mean, 2), $priceValues)) / count($priceValues);
+            $variance = array_sum(array_map(fn ($price) => pow($price - $mean, 2), $priceValues)) / count($priceValues);
             $volatility = sqrt($variance) / $mean; // Coefficient of variation
-            
+
             $totalVolatility += $volatility;
             $eventCount++;
         }
@@ -221,18 +224,18 @@ class EventGroup extends Model
     {
         try {
             $this->events()->attach($event->id, [
-                'added_at' => now(),
-                'priority' => $options['priority'] ?? $this->calculateEventPriority($event),
+                'added_at'        => now(),
+                'priority'        => $options['priority'] ?? $this->calculateEventPriority($event),
                 'custom_settings' => $options['custom_settings'] ?? [],
-                'is_active' => $options['is_active'] ?? true
+                'is_active'       => $options['is_active'] ?? TRUE,
             ]);
 
             $this->updateEventCount();
             $this->touch('last_modified_at');
 
-            return true;
+            return TRUE;
         } catch (\Exception $e) {
-            return false;
+            return FALSE;
         }
     }
 
@@ -243,9 +246,9 @@ class EventGroup extends Model
             $this->updateEventCount();
             $this->touch('last_modified_at');
 
-            return true;
+            return TRUE;
         } catch (\Exception $e) {
-            return false;
+            return FALSE;
         }
     }
 
@@ -253,27 +256,27 @@ class EventGroup extends Model
     {
         try {
             $this->events()->updateExistingPivot($event->id, [
-                'priority' => $priority
+                'priority' => $priority,
             ]);
 
-            return true;
+            return TRUE;
         } catch (\Exception $e) {
-            return false;
+            return FALSE;
         }
     }
 
     public function bulkUpdateEventSettings(array $eventIds, array $settings): array
     {
         $results = [];
-        
+
         foreach ($eventIds as $eventId) {
             try {
                 $this->events()->updateExistingPivot($eventId, [
-                    'custom_settings' => $settings
+                    'custom_settings' => $settings,
                 ]);
-                $results[$eventId] = true;
+                $results[$eventId] = TRUE;
             } catch (\Exception $e) {
-                $results[$eventId] = false;
+                $results[$eventId] = FALSE;
             }
         }
 
@@ -294,7 +297,7 @@ class EventGroup extends Model
 
     public function isAutoSetupEnabled(): bool
     {
-        return $this->monitoring_config['auto_setup_monitoring'] ?? true;
+        return $this->monitoring_config['auto_setup_monitoring'] ?? TRUE;
     }
 
     public function getNotificationFrequency(): string
@@ -304,22 +307,22 @@ class EventGroup extends Model
 
     public function isPriorityAdjustmentEnabled(): bool
     {
-        return $this->settings['auto_priority_adjustment'] ?? true;
+        return $this->settings['auto_priority_adjustment'] ?? TRUE;
     }
 
     public function isBulkOperationsEnabled(): bool
     {
-        return $this->settings['bulk_operations_enabled'] ?? true;
+        return $this->settings['bulk_operations_enabled'] ?? TRUE;
     }
 
     public function isSharedPriceAlertsEnabled(): bool
     {
-        return $this->settings['shared_price_alerts'] ?? false;
+        return $this->settings['shared_price_alerts'] ?? FALSE;
     }
 
     public function isUnifiedReportingEnabled(): bool
     {
-        return $this->settings['unified_reporting'] ?? true;
+        return $this->settings['unified_reporting'] ?? TRUE;
     }
 
     // Statistics and Analytics
@@ -330,7 +333,7 @@ class EventGroup extends Model
         $endOfDay = $date->copy()->endOfDay();
 
         return [
-            'date' => $date->toDateString(),
+            'date'         => $date->toDateString(),
             'total_checks' => $this->eventMonitors()
                 ->whereBetween('last_check_at', [$startOfDay, $endOfDay])
                 ->count(),
@@ -347,7 +350,7 @@ class EventGroup extends Model
                 ->join('auto_purchase_attempts', 'events.id', '=', 'auto_purchase_attempts.event_id')
                 ->where('auto_purchase_attempts.user_id', $this->user_id)
                 ->whereBetween('auto_purchase_attempts.attempted_at', [$startOfDay, $endOfDay])
-                ->count()
+                ->count(),
         ];
     }
 
@@ -362,17 +365,17 @@ class EventGroup extends Model
         return [
             'period' => [
                 'start' => now()->subDays(6)->toDateString(),
-                'end' => now()->toDateString()
+                'end'   => now()->toDateString(),
             ],
-            'daily_stats' => $days,
+            'daily_stats'   => $days,
             'weekly_totals' => [
-                'total_checks' => array_sum(array_column($days, 'total_checks')),
-                'price_changes_detected' => array_sum(array_column($days, 'price_changes_detected')),
-                'alerts_triggered' => array_sum(array_column($days, 'alerts_triggered')),
-                'auto_purchases_attempted' => array_sum(array_column($days, 'auto_purchases_attempted'))
+                'total_checks'             => array_sum(array_column($days, 'total_checks')),
+                'price_changes_detected'   => array_sum(array_column($days, 'price_changes_detected')),
+                'alerts_triggered'         => array_sum(array_column($days, 'alerts_triggered')),
+                'auto_purchases_attempted' => array_sum(array_column($days, 'auto_purchases_attempted')),
             ],
             'performance_score' => $this->getPerformanceScore(),
-            'recommendations' => $this->generatePerformanceRecommendations()
+            'recommendations'   => $this->generatePerformanceRecommendations(),
         ];
     }
 
@@ -381,17 +384,17 @@ class EventGroup extends Model
     private function updateEventCount(): void
     {
         $this->update([
-            'total_events' => $this->events()->count()
+            'total_events' => $this->events()->count(),
         ]);
     }
 
     private function calculateEventPriority(Event $event): int
     {
         $priority = 5; // Base priority
-        
+
         // Adjust based on event date
         if ($event->event_date) {
-            $daysUntilEvent = now()->diffInDays($event->event_date, false);
+            $daysUntilEvent = now()->diffInDays($event->event_date, FALSE);
             if ($daysUntilEvent <= 7) {
                 $priority += 3;
             } elseif ($daysUntilEvent <= 30) {
@@ -403,7 +406,7 @@ class EventGroup extends Model
         $recentActivity = $event->priceHistories()
             ->where('recorded_at', '>=', now()->subDays(7))
             ->count();
-        
+
         if ($recentActivity > 20) {
             $priority += 2;
         } elseif ($recentActivity > 10) {
@@ -416,31 +419,31 @@ class EventGroup extends Model
     private function generatePerformanceRecommendations(): array
     {
         $recommendations = [];
-        
+
         $performanceScore = $this->getPerformanceScore();
         if ($performanceScore < 70) {
             $recommendations[] = [
-                'type' => 'performance',
+                'type'     => 'performance',
                 'priority' => 'high',
-                'message' => 'Group performance is below optimal. Consider reducing monitoring frequency or reviewing platform configurations.'
+                'message'  => 'Group performance is below optimal. Consider reducing monitoring frequency or reviewing platform configurations.',
             ];
         }
 
         $volatilityIndex = $this->getPriceVolatilityIndex();
         if ($volatilityIndex > 0.2) {
             $recommendations[] = [
-                'type' => 'volatility',
+                'type'     => 'volatility',
                 'priority' => 'medium',
-                'message' => 'High price volatility detected. Consider setting up more aggressive price alerts.'
+                'message'  => 'High price volatility detected. Consider setting up more aggressive price alerts.',
             ];
         }
 
         $avgResponseTime = $this->getAverageResponseTime();
         if ($avgResponseTime > 5000) { // 5 seconds
             $recommendations[] = [
-                'type' => 'response_time',
+                'type'     => 'response_time',
                 'priority' => 'medium',
-                'message' => 'Slow response times detected. Consider optimizing monitoring configurations.'
+                'message'  => 'Slow response times detected. Consider optimizing monitoring configurations.',
             ];
         }
 
@@ -451,7 +454,7 @@ class EventGroup extends Model
 
     public function scopeActive($query)
     {
-        return $query->where('is_active', true);
+        return $query->where('is_active', TRUE);
     }
 
     public function scopeByCategory($query, string $category)
@@ -472,7 +475,7 @@ class EventGroup extends Model
     public function scopeWithActiveMonitors($query)
     {
         return $query->withCount(['eventMonitors' => function ($query) {
-            $query->where('is_active', true);
+            $query->where('is_active', TRUE);
         }]);
     }
 }

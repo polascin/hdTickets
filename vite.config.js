@@ -9,10 +9,11 @@ export default defineConfig({
         // Core application assets only - no frameworks
         'resources/css/tailwind.css',
         'resources/css/app.css',
+        'resources/css/app-v3.css',
         'resources/js/app.js',
         'resources/js/bootstrap.js',
         // Dashboard assets
-        'resources/js/dashboard/index.js', 
+        'resources/js/dashboard/index.js',
         'resources/js/dashboard/modern-customer-dashboard.js',
         // Ticket system assets
         'resources/js/tickets/index.js',

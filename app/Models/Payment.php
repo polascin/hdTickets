@@ -10,7 +10,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 /**
  * Payment Model
- * 
+ *
  * Tracks payment transactions including:
  * - Payment processing details
  * - Stripe transaction references
@@ -38,34 +38,41 @@ class Payment extends Model
         'refunded_at',
         'refund_amount',
         'failure_reason',
-        'metadata'
+        'metadata',
     ];
 
     protected $casts = [
-        'amount' => 'decimal:2',
-        'refund_amount' => 'decimal:2',
+        'amount'                 => 'decimal:2',
+        'refund_amount'          => 'decimal:2',
         'payment_method_details' => 'array',
-        'metadata' => 'array',
-        'paid_at' => 'datetime',
-        'refunded_at' => 'datetime'
+        'metadata'               => 'array',
+        'paid_at'                => 'datetime',
+        'refunded_at'            => 'datetime',
     ];
 
     protected $dates = [
         'paid_at',
-        'refunded_at'
+        'refunded_at',
     ];
 
     // Payment statuses
     public const STATUS_PENDING = 'pending';
+
     public const STATUS_SUCCEEDED = 'succeeded';
+
     public const STATUS_FAILED = 'failed';
+
     public const STATUS_CANCELLED = 'cancelled';
+
     public const STATUS_REFUNDED = 'refunded';
+
     public const STATUS_PARTIALLY_REFUNDED = 'partially_refunded';
 
     // Payment method types
     public const METHOD_CARD = 'card';
+
     public const METHOD_BANK_TRANSFER = 'bank_transfer';
+
     public const METHOD_PAYPAL = 'paypal';
 
     /**
@@ -123,39 +130,39 @@ class Payment extends Model
     {
         return match ($this->status) {
             self::STATUS_SUCCEEDED => [
-                'text' => 'Paid',
+                'text'  => 'Paid',
                 'color' => 'green',
-                'icon' => 'check-circle'
+                'icon'  => 'check-circle',
             ],
             self::STATUS_PENDING => [
-                'text' => 'Pending',
+                'text'  => 'Pending',
                 'color' => 'yellow',
-                'icon' => 'clock'
+                'icon'  => 'clock',
             ],
             self::STATUS_FAILED => [
-                'text' => 'Failed',
+                'text'  => 'Failed',
                 'color' => 'red',
-                'icon' => 'times-circle'
+                'icon'  => 'times-circle',
             ],
             self::STATUS_CANCELLED => [
-                'text' => 'Cancelled',
+                'text'  => 'Cancelled',
                 'color' => 'gray',
-                'icon' => 'ban'
+                'icon'  => 'ban',
             ],
             self::STATUS_REFUNDED => [
-                'text' => 'Refunded',
+                'text'  => 'Refunded',
                 'color' => 'blue',
-                'icon' => 'undo'
+                'icon'  => 'undo',
             ],
             self::STATUS_PARTIALLY_REFUNDED => [
-                'text' => 'Partial Refund',
+                'text'  => 'Partial Refund',
                 'color' => 'orange',
-                'icon' => 'undo'
+                'icon'  => 'undo',
             ],
             default => [
-                'text' => 'Unknown',
+                'text'  => 'Unknown',
                 'color' => 'gray',
-                'icon' => 'question-circle'
+                'icon'  => 'question-circle',
             ]
         };
     }
@@ -186,7 +193,7 @@ class Payment extends Model
     public function getPaymentMethodDescription(): string
     {
         $details = $this->payment_method_details ?? [];
-        
+
         return match ($this->payment_method_type) {
             self::METHOD_CARD => sprintf(
                 '**** **** **** %s (%s)',
@@ -194,8 +201,8 @@ class Payment extends Model
                 strtoupper($details['brand'] ?? 'card')
             ),
             self::METHOD_BANK_TRANSFER => 'Bank Transfer',
-            self::METHOD_PAYPAL => 'PayPal',
-            default => 'Unknown Payment Method'
+            self::METHOD_PAYPAL        => 'PayPal',
+            default                    => 'Unknown Payment Method'
         };
     }
 

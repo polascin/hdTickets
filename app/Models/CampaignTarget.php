@@ -10,13 +10,13 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 /**
  * Campaign Target Model
- * 
- * @property int $id
- * @property int $campaign_id
- * @property int $user_id
- * @property string $target_type
- * @property string $status
- * @property array|null $metadata
+ *
+ * @property int            $id
+ * @property int            $campaign_id
+ * @property int            $user_id
+ * @property string         $target_type
+ * @property string         $status
+ * @property array|null     $metadata
  * @property \Carbon\Carbon $created_at
  * @property \Carbon\Carbon $updated_at
  */
@@ -29,19 +29,22 @@ class CampaignTarget extends Model
         'user_id',
         'target_type',
         'status',
-        'metadata'
+        'metadata',
     ];
 
     protected $casts = [
-        'metadata' => 'array'
+        'metadata' => 'array',
     ];
 
     /**
      * Target statuses
      */
     public const STATUS_PENDING = 'pending';
+
     public const STATUS_SENT = 'sent';
+
     public const STATUS_FAILED = 'failed';
+
     public const STATUS_SKIPPED = 'skipped';
 
     /**

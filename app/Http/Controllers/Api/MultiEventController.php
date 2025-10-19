@@ -5,17 +5,17 @@ declare(strict_types=1);
 namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\Controller;
-use App\Services\MultiEventManagementService;
-use App\Models\EventGroup;
 use App\Models\Event;
-use Illuminate\Http\Request;
+use App\Models\EventGroup;
+use App\Services\MultiEventManagementService;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Support\Facades\Validator;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Validator;
 
 /**
  * Multi-Event Management API Controller
- * 
+ *
  * Provides RESTful API endpoints for:
  * - Event group management
  * - Bulk operations
@@ -40,14 +40,14 @@ class MultiEventController extends Controller
             $portfolio = $this->multiEventService->getEventPortfolio($user);
 
             return response()->json([
-                'success' => true,
-                'data' => $portfolio
+                'success' => TRUE,
+                'data'    => $portfolio,
             ]);
         } catch (\Exception $e) {
             return response()->json([
-                'success' => false,
+                'success' => FALSE,
                 'message' => 'Failed to retrieve portfolio',
-                'error' => $e->getMessage()
+                'error'   => $e->getMessage(),
             ], 500);
         }
     }
@@ -59,7 +59,7 @@ class MultiEventController extends Controller
     {
         try {
             $user = Auth::user();
-            
+
             $filters = [];
             if ($request->has('group_id')) {
                 $filters['group_id'] = $request->input('group_id');
@@ -71,14 +71,14 @@ class MultiEventController extends Controller
             $dashboardData = $this->multiEventService->getUnifiedDashboard($user, $filters);
 
             return response()->json([
-                'success' => true,
-                'data' => $dashboardData
+                'success' => TRUE,
+                'data'    => $dashboardData,
             ]);
         } catch (\Exception $e) {
             return response()->json([
-                'success' => false,
+                'success' => FALSE,
                 'message' => 'Failed to retrieve dashboard data',
-                'error' => $e->getMessage()
+                'error'   => $e->getMessage(),
             ], 500);
         }
     }
@@ -89,20 +89,20 @@ class MultiEventController extends Controller
     public function createGroup(Request $request): JsonResponse
     {
         $validator = Validator::make($request->all(), [
-            'name' => 'required|string|max:255',
-            'description' => 'nullable|string|max:1000',
-            'category' => 'nullable|string|max:100',
-            'color_code' => 'nullable|string|regex:/^#[0-9A-Fa-f]{6}$/',
-            'settings' => 'nullable|array',
+            'name'              => 'required|string|max:255',
+            'description'       => 'nullable|string|max:1000',
+            'category'          => 'nullable|string|max:100',
+            'color_code'        => 'nullable|string|regex:/^#[0-9A-Fa-f]{6}$/',
+            'settings'          => 'nullable|array',
             'monitoring_config' => 'nullable|array',
-            'is_active' => 'nullable|boolean'
+            'is_active'         => 'nullable|boolean',
         ]);
 
         if ($validator->fails()) {
             return response()->json([
-                'success' => false,
+                'success' => FALSE,
                 'message' => 'Validation failed',
-                'errors' => $validator->errors()
+                'errors'  => $validator->errors(),
             ], 422);
         }
 
@@ -111,15 +111,15 @@ class MultiEventController extends Controller
             $group = $this->multiEventService->createEventGroup($user, $request->all());
 
             return response()->json([
-                'success' => true,
+                'success' => TRUE,
                 'message' => 'Event group created successfully',
-                'data' => $group
+                'data'    => $group,
             ], 201);
         } catch (\Exception $e) {
             return response()->json([
-                'success' => false,
+                'success' => FALSE,
                 'message' => 'Failed to create event group',
-                'error' => $e->getMessage()
+                'error'   => $e->getMessage(),
             ], 500);
         }
     }
@@ -130,23 +130,23 @@ class MultiEventController extends Controller
     public function addEventsToGroup(Request $request, EventGroup $group): JsonResponse
     {
         $validator = Validator::make($request->all(), [
-            'event_ids' => 'required|array|min:1',
-            'event_ids.*' => 'required|integer|exists:events,id'
+            'event_ids'   => 'required|array|min:1',
+            'event_ids.*' => 'required|integer|exists:events,id',
         ]);
 
         if ($validator->fails()) {
             return response()->json([
-                'success' => false,
+                'success' => FALSE,
                 'message' => 'Validation failed',
-                'errors' => $validator->errors()
+                'errors'  => $validator->errors(),
             ], 422);
         }
 
         // Check if user owns the group
         if ($group->user_id !== Auth::id()) {
             return response()->json([
-                'success' => false,
-                'message' => 'Unauthorized access to event group'
+                'success' => FALSE,
+                'message' => 'Unauthorized access to event group',
             ], 403);
         }
 
@@ -154,15 +154,15 @@ class MultiEventController extends Controller
             $result = $this->multiEventService->addEventsToGroup($group, $request->input('event_ids'));
 
             return response()->json([
-                'success' => true,
+                'success' => TRUE,
                 'message' => "Added {$result['success_count']} events to group",
-                'data' => $result
+                'data'    => $result,
             ]);
         } catch (\Exception $e) {
             return response()->json([
-                'success' => false,
+                'success' => FALSE,
                 'message' => 'Failed to add events to group',
-                'error' => $e->getMessage()
+                'error'   => $e->getMessage(),
             ], 500);
         }
     }
@@ -173,17 +173,17 @@ class MultiEventController extends Controller
     public function bulkOperation(Request $request): JsonResponse
     {
         $validator = Validator::make($request->all(), [
-            'operation' => 'required|string|in:start_monitoring,stop_monitoring,update_price_alerts,setup_auto_purchase,update_priority,export_data',
-            'event_ids' => 'required|array|min:1',
+            'operation'   => 'required|string|in:start_monitoring,stop_monitoring,update_price_alerts,setup_auto_purchase,update_priority,export_data',
+            'event_ids'   => 'required|array|min:1',
             'event_ids.*' => 'required|integer|exists:events,id',
-            'parameters' => 'nullable|array'
+            'parameters'  => 'nullable|array',
         ]);
 
         if ($validator->fails()) {
             return response()->json([
-                'success' => false,
+                'success' => FALSE,
                 'message' => 'Validation failed',
-                'errors' => $validator->errors()
+                'errors'  => $validator->errors(),
             ], 422);
         }
 
@@ -197,15 +197,15 @@ class MultiEventController extends Controller
             );
 
             return response()->json([
-                'success' => true,
+                'success' => TRUE,
                 'message' => "Bulk operation completed: {$result['success_count']} successful, {$result['error_count']} failed",
-                'data' => $result
+                'data'    => $result,
             ]);
         } catch (\Exception $e) {
             return response()->json([
-                'success' => false,
+                'success' => FALSE,
                 'message' => 'Failed to execute bulk operation',
-                'error' => $e->getMessage()
+                'error'   => $e->getMessage(),
             ], 500);
         }
     }
@@ -216,15 +216,15 @@ class MultiEventController extends Controller
     public function categorizeEvents(Request $request): JsonResponse
     {
         $validator = Validator::make($request->all(), [
-            'event_ids' => 'required|array|min:1',
-            'event_ids.*' => 'required|integer|exists:events,id'
+            'event_ids'   => 'required|array|min:1',
+            'event_ids.*' => 'required|integer|exists:events,id',
         ]);
 
         if ($validator->fails()) {
             return response()->json([
-                'success' => false,
+                'success' => FALSE,
                 'message' => 'Validation failed',
-                'errors' => $validator->errors()
+                'errors'  => $validator->errors(),
             ], 422);
         }
 
@@ -232,15 +232,15 @@ class MultiEventController extends Controller
             $categorized = $this->multiEventService->categorizeEvents($request->input('event_ids'));
 
             return response()->json([
-                'success' => true,
+                'success' => TRUE,
                 'message' => 'Events categorized successfully',
-                'data' => $categorized
+                'data'    => $categorized,
             ]);
         } catch (\Exception $e) {
             return response()->json([
-                'success' => false,
+                'success' => FALSE,
                 'message' => 'Failed to categorize events',
-                'error' => $e->getMessage()
+                'error'   => $e->getMessage(),
             ], 500);
         }
     }
@@ -251,18 +251,18 @@ class MultiEventController extends Controller
     public function createAutomationRule(Request $request): JsonResponse
     {
         $validator = Validator::make($request->all(), [
-            'name' => 'required|string|max:255',
+            'name'        => 'required|string|max:255',
             'description' => 'nullable|string|max:1000',
-            'triggers' => 'required|array',
-            'actions' => 'required|array',
-            'is_active' => 'nullable|boolean'
+            'triggers'    => 'required|array',
+            'actions'     => 'required|array',
+            'is_active'   => 'nullable|boolean',
         ]);
 
         if ($validator->fails()) {
             return response()->json([
-                'success' => false,
+                'success' => FALSE,
                 'message' => 'Validation failed',
-                'errors' => $validator->errors()
+                'errors'  => $validator->errors(),
             ], 422);
         }
 
@@ -271,15 +271,15 @@ class MultiEventController extends Controller
             $rule = $this->multiEventService->createAutomationRule($user, $request->all());
 
             return response()->json([
-                'success' => true,
+                'success' => TRUE,
                 'message' => 'Automation rule created successfully',
-                'data' => $rule
+                'data'    => $rule,
             ], 201);
         } catch (\Exception $e) {
             return response()->json([
-                'success' => false,
+                'success' => FALSE,
                 'message' => 'Failed to create automation rule',
-                'error' => $e->getMessage()
+                'error'   => $e->getMessage(),
             ], 500);
         }
     }
@@ -292,27 +292,27 @@ class MultiEventController extends Controller
         // Check if user owns the group
         if ($group->user_id !== Auth::id()) {
             return response()->json([
-                'success' => false,
-                'message' => 'Unauthorized access to event group'
+                'success' => FALSE,
+                'message' => 'Unauthorized access to event group',
             ], 403);
         }
 
         try {
             $group->load(['events', 'eventMonitors']);
-            
+
             return response()->json([
-                'success' => true,
-                'data' => [
-                    'group' => $group,
+                'success' => TRUE,
+                'data'    => [
+                    'group'              => $group,
                     'performance_report' => $group->getWeeklyPerformanceReport(),
-                    'health_status' => $this->getGroupHealthStatus($group)
-                ]
+                    'health_status'      => $this->getGroupHealthStatus($group),
+                ],
             ]);
         } catch (\Exception $e) {
             return response()->json([
-                'success' => false,
+                'success' => FALSE,
                 'message' => 'Failed to retrieve group details',
-                'error' => $e->getMessage()
+                'error'   => $e->getMessage(),
             ], 500);
         }
     }
@@ -325,45 +325,45 @@ class MultiEventController extends Controller
         // Check if user owns the group
         if ($group->user_id !== Auth::id()) {
             return response()->json([
-                'success' => false,
-                'message' => 'Unauthorized access to event group'
+                'success' => FALSE,
+                'message' => 'Unauthorized access to event group',
             ], 403);
         }
 
         $validator = Validator::make($request->all(), [
-            'name' => 'sometimes|required|string|max:255',
-            'description' => 'nullable|string|max:1000',
-            'category' => 'nullable|string|max:100',
-            'color_code' => 'nullable|string|regex:/^#[0-9A-Fa-f]{6}$/',
-            'settings' => 'nullable|array',
+            'name'              => 'sometimes|required|string|max:255',
+            'description'       => 'nullable|string|max:1000',
+            'category'          => 'nullable|string|max:100',
+            'color_code'        => 'nullable|string|regex:/^#[0-9A-Fa-f]{6}$/',
+            'settings'          => 'nullable|array',
             'monitoring_config' => 'nullable|array',
-            'is_active' => 'nullable|boolean'
+            'is_active'         => 'nullable|boolean',
         ]);
 
         if ($validator->fails()) {
             return response()->json([
-                'success' => false,
+                'success' => FALSE,
                 'message' => 'Validation failed',
-                'errors' => $validator->errors()
+                'errors'  => $validator->errors(),
             ], 422);
         }
 
         try {
             $group->update($request->only([
-                'name', 'description', 'category', 'color_code', 
-                'settings', 'monitoring_config', 'is_active'
+                'name', 'description', 'category', 'color_code',
+                'settings', 'monitoring_config', 'is_active',
             ]));
 
             return response()->json([
-                'success' => true,
+                'success' => TRUE,
                 'message' => 'Event group updated successfully',
-                'data' => $group->fresh()
+                'data'    => $group->fresh(),
             ]);
         } catch (\Exception $e) {
             return response()->json([
-                'success' => false,
+                'success' => FALSE,
                 'message' => 'Failed to update event group',
-                'error' => $e->getMessage()
+                'error'   => $e->getMessage(),
             ], 500);
         }
     }
@@ -376,27 +376,27 @@ class MultiEventController extends Controller
         // Check if user owns the group
         if ($group->user_id !== Auth::id()) {
             return response()->json([
-                'success' => false,
-                'message' => 'Unauthorized access to event group'
+                'success' => FALSE,
+                'message' => 'Unauthorized access to event group',
             ], 403);
         }
 
         try {
             // Detach all events first
             $group->events()->detach();
-            
+
             // Delete the group
             $group->delete();
 
             return response()->json([
-                'success' => true,
-                'message' => 'Event group deleted successfully'
+                'success' => TRUE,
+                'message' => 'Event group deleted successfully',
             ]);
         } catch (\Exception $e) {
             return response()->json([
-                'success' => false,
+                'success' => FALSE,
                 'message' => 'Failed to delete event group',
-                'error' => $e->getMessage()
+                'error'   => $e->getMessage(),
             ], 500);
         }
     }
@@ -409,47 +409,47 @@ class MultiEventController extends Controller
         // Check if user owns the group
         if ($group->user_id !== Auth::id()) {
             return response()->json([
-                'success' => false,
-                'message' => 'Unauthorized access to event group'
+                'success' => FALSE,
+                'message' => 'Unauthorized access to event group',
             ], 403);
         }
 
         $validator = Validator::make($request->all(), [
-            'event_ids' => 'required|array|min:1',
-            'event_ids.*' => 'required|integer|exists:events,id'
+            'event_ids'   => 'required|array|min:1',
+            'event_ids.*' => 'required|integer|exists:events,id',
         ]);
 
         if ($validator->fails()) {
             return response()->json([
-                'success' => false,
+                'success' => FALSE,
                 'message' => 'Validation failed',
-                'errors' => $validator->errors()
+                'errors'  => $validator->errors(),
             ], 422);
         }
 
         try {
             $eventIds = $request->input('event_ids');
             $group->events()->detach($eventIds);
-            
+
             // Update group statistics
             $group->update([
-                'total_events' => $group->events()->count(),
-                'last_modified_at' => now()
+                'total_events'     => $group->events()->count(),
+                'last_modified_at' => now(),
             ]);
 
             return response()->json([
-                'success' => true,
+                'success' => TRUE,
                 'message' => 'Events removed from group successfully',
-                'data' => [
-                    'removed_count' => count($eventIds),
-                    'remaining_events' => $group->events()->count()
-                ]
+                'data'    => [
+                    'removed_count'    => count($eventIds),
+                    'remaining_events' => $group->events()->count(),
+                ],
             ]);
         } catch (\Exception $e) {
             return response()->json([
-                'success' => false,
+                'success' => FALSE,
                 'message' => 'Failed to remove events from group',
-                'error' => $e->getMessage()
+                'error'   => $e->getMessage(),
             ], 500);
         }
     }
@@ -464,14 +464,14 @@ class MultiEventController extends Controller
             $recommendations = $this->multiEventService->generatePortfolioRecommendations($user);
 
             return response()->json([
-                'success' => true,
-                'data' => $recommendations
+                'success' => TRUE,
+                'data'    => $recommendations,
             ]);
         } catch (\Exception $e) {
             return response()->json([
-                'success' => false,
+                'success' => FALSE,
                 'message' => 'Failed to generate recommendations',
-                'error' => $e->getMessage()
+                'error'   => $e->getMessage(),
             ], 500);
         }
     }
@@ -480,17 +480,17 @@ class MultiEventController extends Controller
 
     private function getGroupHealthStatus(EventGroup $group): array
     {
-        $monitors = $group->eventMonitors()->where('is_active', true)->get();
-        
+        $monitors = $group->eventMonitors()->where('is_active', TRUE)->get();
+
         if ($monitors->isEmpty()) {
             return [
-                'status' => 'inactive',
-                'message' => 'No active monitors in this group'
+                'status'  => 'inactive',
+                'message' => 'No active monitors in this group',
             ];
         }
 
-        $healthStatuses = $monitors->map(fn($monitor) => $monitor->getHealthStatus());
-        
+        $healthStatuses = $monitors->map(fn ($monitor) => $monitor->getHealthStatus());
+
         $criticalCount = $healthStatuses->where('status', 'critical')->count();
         $warningCount = $healthStatuses->where('status', 'warning')->count();
         $healthyCount = $healthStatuses->where('status', 'healthy')->count();
@@ -503,18 +503,18 @@ class MultiEventController extends Controller
             $message = "{$warningCount} monitors have warnings";
         } else {
             $status = 'healthy';
-            $message = "All monitors operating normally";
+            $message = 'All monitors operating normally';
         }
 
         return [
-            'status' => $status,
-            'message' => $message,
+            'status'    => $status,
+            'message'   => $message,
             'breakdown' => [
-                'healthy' => $healthyCount,
-                'warning' => $warningCount,
-                'critical' => $criticalCount
+                'healthy'  => $healthyCount,
+                'warning'  => $warningCount,
+                'critical' => $criticalCount,
             ],
-            'total_monitors' => $monitors->count()
+            'total_monitors' => $monitors->count(),
         ];
     }
 }

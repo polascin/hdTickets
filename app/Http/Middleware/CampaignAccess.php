@@ -10,7 +10,7 @@ use Illuminate\Http\Response;
 
 /**
  * Campaign Management Access Middleware
- * 
+ *
  * Controls access to marketing campaign features based on:
  * - User roles and permissions
  * - Subscription plan limits
@@ -27,34 +27,34 @@ class CampaignAccess
 
         if (!$user) {
             return response()->json([
-                'success' => false,
-                'message' => 'Authentication required'
+                'success' => FALSE,
+                'message' => 'Authentication required',
             ], 401);
         }
 
         // Check user role permissions
         if (!$this->hasRequiredPermissions($user, $permissions)) {
             return response()->json([
-                'success' => false,
-                'message' => 'Insufficient permissions for campaign management'
+                'success' => FALSE,
+                'message' => 'Insufficient permissions for campaign management',
             ], 403);
         }
 
         // Check subscription plan limits
         if (!$this->hasSubscriptionAccess($user)) {
             return response()->json([
-                'success' => false,
-                'message' => 'Upgrade your subscription to access marketing campaigns',
-                'upgrade_url' => route('subscription.plans')
+                'success'     => FALSE,
+                'message'     => 'Upgrade your subscription to access marketing campaigns',
+                'upgrade_url' => route('subscription.plans'),
             ], 402);
         }
 
         // Check campaign limits based on plan
         if (!$this->withinCampaignLimits($user, $request)) {
             return response()->json([
-                'success' => false,
-                'message' => 'Campaign limit reached for your subscription plan',
-                'upgrade_url' => route('subscription.plans')
+                'success'     => FALSE,
+                'message'     => 'Campaign limit reached for your subscription plan',
+                'upgrade_url' => route('subscription.plans'),
             ], 429);
         }
 
@@ -68,22 +68,24 @@ class CampaignAccess
     {
         // Admin users have full access
         if ($user->role === 'admin') {
-            return true;
+            return TRUE;
         }
 
         // Agent users have limited access
         if ($user->role === 'agent') {
             $allowedPermissions = ['view-campaigns', 'create-campaigns', 'manage-campaigns'];
+
             return empty($permissions) || !empty(array_intersect($permissions, $allowedPermissions));
         }
 
         // Customer users have very limited access
         if ($user->role === 'customer') {
             $allowedPermissions = ['view-campaigns'];
+
             return empty($permissions) || !empty(array_intersect($permissions, $allowedPermissions));
         }
 
-        return false;
+        return FALSE;
     }
 
     /**
@@ -95,7 +97,7 @@ class CampaignAccess
 
         // Free plan users cannot access marketing campaigns
         if ($plan === 'free') {
-            return false;
+            return FALSE;
         }
 
         // All paid plans have campaign access
@@ -109,23 +111,23 @@ class CampaignAccess
     {
         // Skip limit check for read operations
         if ($request->isMethod('GET')) {
-            return true;
+            return TRUE;
         }
 
         $plan = $user->subscription_plan ?? 'free';
         $currentCampaigns = $user->marketingCampaigns()->count();
 
         $limits = [
-            'starter' => 5,      // 5 campaigns per month
-            'pro' => 25,         // 25 campaigns per month  
-            'enterprise' => -1   // Unlimited campaigns
+            'starter'    => 5,      // 5 campaigns per month
+            'pro'        => 25,         // 25 campaigns per month
+            'enterprise' => -1,   // Unlimited campaigns
         ];
 
         $limit = $limits[$plan] ?? 0;
 
         // Unlimited campaigns
         if ($limit === -1) {
-            return true;
+            return TRUE;
         }
 
         // Check if within limit
