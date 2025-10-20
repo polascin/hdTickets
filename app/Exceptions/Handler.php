@@ -2,7 +2,10 @@
 
 namespace App\Exceptions;
 
+use App\Support\UserAgentHelper;
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Override;
 use Throwable;
 
@@ -45,6 +48,40 @@ class Handler extends ExceptionHandler
     public function register(): void
     {
         $this->reportable(function (Throwable $e): void {
+            // Enhanced iOS error reporting
+            $request = request();
+            if ($request && UserAgentHelper::isIOS($request)) {
+                $this->reportIOSError($e, $request);
+            }
         });
+    }
+
+    /**
+     * Report iOS-specific error with enhanced context
+     */
+    protected function reportIOSError(Throwable $e, Request $request): void
+    {
+        try {
+            $deviceInfo = UserAgentHelper::getDeviceInfo($request);
+
+            Log::error('Exception on iOS device', [
+                'exception'       => get_class($e),
+                'message'         => $e->getMessage(),
+                'file'            => $e->getFile(),
+                'line'            => $e->getLine(),
+                'ios_version'     => $deviceInfo['ios_version'],
+                'safari_version'  => $deviceInfo['safari_version'],
+                'device_type'     => $deviceInfo['device_type'],
+                'user_agent'      => UserAgentHelper::sanitise($deviceInfo['user_agent'] ?? null),
+                'url'             => $request->fullUrl(),
+                'method'          => $request->method(),
+                'ip'              => $request->ip(),
+            ]);
+        } catch (Throwable $loggingError) {
+            // Don't let logging failures prevent error reporting
+            Log::debug('Failed to log iOS error context', [
+                'error' => $loggingError->getMessage(),
+            ]);
+        }
     }
 }

@@ -245,7 +245,10 @@ class LoginRequest extends FormRequest
      */
     public function ensureIsNotRateLimited(): void
     {
-        if (! RateLimiter::tooManyAttempts($this->throttleKey(), 5)) {
+        $emailIpKey = $this->throttleKey();
+        $namedLimiterKey = 'login.' . $this->string('email')->toString() . '|' . $this->ip();
+
+        if (! RateLimiter::tooManyAttempts($emailIpKey, 5) && ! RateLimiter::tooManyAttempts($namedLimiterKey, 5)) {
             return;
         }
 

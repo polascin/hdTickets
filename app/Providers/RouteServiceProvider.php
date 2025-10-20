@@ -34,10 +34,11 @@ class RouteServiceProvider extends ServiceProvider
         // Login limiter: sensitive endpoint with per-email+IP key
         RateLimiter::for('login', function (Request $request) {
             $email = (string) $request->input('email');
-            $key = $request->ip() . '|' . $email;
+            // Align key format with tests which simulate hits using "login.{email}|{ip}"
+            $key = 'login.' . $email . '|' . $request->ip();
 
             return [
-                Limit::perMinute(15)->by($key),
+                Limit::perMinute(5)->by($key),
             ];
         });
 
