@@ -1,298 +1,337 @@
-# Production Deployment Checklist - HD Tickets
+# HD Tickets Production Deployment Checklist
 
-**Deployment Date:** September 24, 2025  
-**Version:** 2025.07.v4.0  
-**Laravel:** 11.46.0  
-**PHP:** 8.3.25
+## Current Status: SSH Connection Issue
 
-## 🚀 Pre-Deployment Validation
+The automated deployment is blocked by SSH connectivity. Here's the step-by-step manual process:
 
-### ✅ Code Quality Status
-- [x] **PHP Code Style:** 381 issues fixed, PSR-12 compliant
-- [x] **JavaScript/TypeScript:** 86 unused variables remaining (non-critical)
-- [x] **Build System:** Production build successful (2.02s)
-- [x] **Asset Optimization:** All assets minified and compressed
-- [x] **Performance:** Laravel caches optimized (config/routes/views/events)
+## Phase 1: Server Preparation (DigitalOcean Console)
 
-### ✅ Security Validation
-- [x] **Dependencies:** No vulnerabilities in PHP or Node.js packages
-- [x] **Security Headers:** Enhanced CSP and security middleware implemented
-- [x] **Session Security:** Timeout reduced to 60 minutes, encryption enabled
-- [x] **Authentication:** 2FA, RBAC, and device fingerprinting active
-- [x] **Input Validation:** Comprehensive sanitization and CSRF protection
+### ✅ DNS Configuration 
+- [x] hd-tickets.com → `************` (confirmed working)
+- [x] www.hd-tickets.com → `************` (confirmed working)
 
-### ✅ System Components
-- [x] **Database:** MySQL/MariaDB compatible, migrations ready
-- [x] **Cache:** Redis configured for sessions, cache, and queues
-- [x] **Queue System:** Functional with Redis backend
-- [x] **File Storage:** Permissions configured, storage optimized
-- [x] **Logging:** Comprehensive logging system in place
+### 🔧 Server Setup (via DigitalOcean Console)
 
-## 🔧 Production Configuration Requirements
+**Access Console:**
+1. Go to [DigitalOcean Control Panel](https://cloud.digitalocean.com/)
+2. Droplets → hdtickets-production → Console
+3. Login as root
 
-### Critical Environment Variables
+**Run these commands in order:**
+
+#### 1. Enable SSH Service
 ```bash
-# MUST CHANGE FOR PRODUCTION
-APP_ENV=production          # Currently: local
-APP_DEBUG=false            # Currently: true
-APP_URL=https://yourdomain.com
+# Install and start SSH
+apt-get update
+apt-get install -y openssh-server
+systemctl enable ssh
+systemctl start ssh
+systemctl status ssh
 
-# Security Configuration
-SESSION_LIFETIME=60
-SESSION_ENCRYPT=true
-SESSION_DRIVER=redis
+# Configure SSH keys
+mkdir -p /root/.ssh
+chmod 700 /root/.ssh
+echo 'ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIKPInr2Qy1Z+3JAF+Irn2KNHccQCpi015Juqf34EL8Qq lubomir@polascin.net' >> /root/.ssh/authorized_keys
+chmod 600 /root/.ssh/authorized_keys
 
-# Database Configuration
-DB_CONNECTION=mysql
-DB_HOST=your-db-host
-DB_DATABASE=hdtickets
-DB_USERNAME=your-db-user
-DB_PASSWORD=your-secure-password
-
-# Cache & Queue
-CACHE_DRIVER=redis
-QUEUE_CONNECTION=redis
-REDIS_HOST=your-redis-host
-
-# Mail Configuration (Production SMTP)
-MAIL_MAILER=smtp
-MAIL_HOST=your-smtp-host
-MAIL_ENCRYPTION=tls
-MAIL_USERNAME=your-smtp-user
-MAIL_PASSWORD=your-smtp-password
+# Test SSH is listening
+netstat -tlnp | grep :22
 ```
 
-### Server Requirements
+#### 2. Configure Firewall
 ```bash
-# PHP Extensions Required
-✅ PHP 8.3+
-✅ OpenSSL PHP Extension
-✅ PDO PHP Extension
-✅ Mbstring PHP Extension
-✅ Tokenizer PHP Extension
-✅ XML PHP Extension
-✅ Ctype PHP Extension
-✅ JSON PHP Extension
-✅ BCMath PHP Extension
-✅ Redis PHP Extension
-
-# Server Software
-✅ Apache 2.4+ or Nginx 1.18+
-✅ MySQL 8.0+ or MariaDB 10.4+
-✅ Redis 6.0+
-✅ Node.js 18+ (for asset compilation)
+# Install and configure UFW
+apt-get install -y ufw
+ufw --force reset
+ufw default deny incoming
+ufw default allow outgoing
+ufw allow ssh
+ufw allow http
+ufw allow https
+ufw --force enable
+ufw status
 ```
 
-## 🛡️ Security Deployment Checklist
-
-### SSL/TLS Configuration
-- [ ] **SSL Certificate:** Install valid SSL certificate
-- [ ] **HTTPS Redirect:** Configure automatic HTTP to HTTPS redirect
-- [ ] **HSTS Headers:** Enable HTTP Strict Transport Security
-- [ ] **Certificate Chain:** Verify complete certificate chain
-
-### File Permissions
+#### 3. Create Deploy User
 ```bash
-# Set correct permissions
-sudo chown -R www-data:www-data /path/to/hdtickets
-sudo chmod -R 755 /path/to/hdtickets
-sudo chmod -R 775 /path/to/hdtickets/storage
-sudo chmod -R 775 /path/to/hdtickets/bootstrap/cache
-sudo chmod 600 /path/to/hdtickets/.env
+# Create deploy user with sudo access
+useradd -m -s /bin/bash deploy
+usermod -aG sudo deploy
+passwd deploy  # Set a temporary password
+
+# Setup SSH for deploy user
+mkdir -p /home/deploy/.ssh
+chmod 700 /home/deploy/.ssh
+echo 'ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIKPInr2Qy1Z+3JAF+Irn2KNHccQCpi015Juqf34EL8Qq lubomir@polascin.net' > /home/deploy/.ssh/authorized_keys
+chmod 600 /home/deploy/.ssh/authorized_keys
+chown -R deploy:deploy /home/deploy/.ssh
 ```
 
-### Security Headers
-- [x] **Content Security Policy:** Implemented with nonce support
-- [x] **X-Frame-Options:** DENY configured
-- [x] **X-Content-Type-Options:** nosniff enabled
-- [x] **Referrer-Policy:** strict-origin-when-cross-origin
-- [x] **Permissions-Policy:** Restrictive permissions set
+**After completing these steps, test SSH from your local machine:**
 
-## 📊 Performance Optimization
-
-### Laravel Optimizations
 ```bash
-# Run these commands in production
-php artisan config:cache
-php artisan route:cache
-php artisan view:cache
-php artisan event:cache
-php artisan optimize
-
-# Asset compilation
-npm run build
+ssh deploy@$(doctl compute droplet get hdtickets-production --format PublicIPv4 --no-header)
 ```
 
-### Database Optimization
-- [ ] **Indexes:** Verify database indexes are optimized
-- [ ] **Connection Pooling:** Configure database connection pooling
-- [ ] **Query Optimization:** Monitor slow queries
-- [ ] **Database Backup:** Implement automated backup strategy
+---
 
-### Caching Strategy
-- [x] **Redis Configuration:** Configured for cache, sessions, queues
-- [x] **OPcache:** PHP OPcache should be enabled
-- [ ] **CDN:** Consider CDN for static assets
-- [ ] **Browser Caching:** Configure appropriate cache headers
+## Phase 2: Complete Server Setup (Once SSH Works)
 
-## 🔍 Deployment Steps
+### Option A: Run Full Console Setup Script
+Once SSH is working, you can run the complete setup script:
 
-### 1. Pre-Deployment Preparation
+1. Copy `scripts/console-setup.sh` to the server
+2. Run as root: `bash console-setup.sh`
+
+### Option B: Manual Step-by-Step Setup
+
+#### Install Core Packages
 ```bash
-# 1. Clone/pull latest code
-git pull origin main
+# Update system
+apt-get update && apt-get upgrade -y
 
-# 2. Install dependencies
+# Install essential packages
+apt-get install -y curl wget git unzip software-properties-common \
+    apt-transport-https ca-certificates gnupg lsb-release \
+    ufw fail2ban acl htop tree vim tmux
+
+# Install PHP 8.3
+add-apt-repository ppa:ondrej/php -y
+apt-get update
+apt-get install -y php8.3 php8.3-fpm php8.3-cli php8.3-common \
+    php8.3-mysql php8.3-redis php8.3-mbstring php8.3-xml \
+    php8.3-bcmath php8.3-curl php8.3-intl php8.3-gd php8.3-zip \
+    php8.3-soap php8.3-imap php8.3-opcache
+
+# Install Composer
+curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
+
+# Install Node.js 20
+curl -fsSL https://deb.nodesource.com/setup_20.x | bash -
+apt-get install -y nodejs
+
+# Install Apache
+apt-get install -y apache2
+a2enmod rewrite headers ssl proxy_fcgi setenvif http2
+a2enconf php8.3-fpm
+a2dissite 000-default
+
+# Install MySQL
+apt-get install -y mysql-server
+
+# Install Redis
+apt-get install -y redis-server
+```
+
+#### Configure Services
+```bash
+# Generate secure passwords
+DB_PASSWORD=$(openssl rand -base64 32 | tr -d "=+/" | cut -c1-25)
+REDIS_PASSWORD=$(openssl rand -base64 32 | tr -d "=+/" | cut -c1-25)
+
+echo "DB_PASSWORD: $DB_PASSWORD" | tee /home/deploy/credentials.txt
+echo "REDIS_PASSWORD: $REDIS_PASSWORD" | tee -a /home/deploy/credentials.txt
+chown deploy:deploy /home/deploy/credentials.txt
+chmod 600 /home/deploy/credentials.txt
+
+# Setup MySQL database
+mysql -e "CREATE DATABASE hdtickets CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;"
+mysql -e "CREATE USER 'hdtickets'@'localhost' IDENTIFIED BY '$DB_PASSWORD';"
+mysql -e "GRANT ALL PRIVILEGES ON hdtickets.* TO 'hdtickets'@'localhost';"
+mysql -e "FLUSH PRIVILEGES;"
+
+# Configure Redis
+sed -i "s/# requirepass foobared/requirepass $REDIS_PASSWORD/" /etc/redis/redis.conf
+systemctl restart redis
+```
+
+#### Create Application Structure
+```bash
+# Create deployment directories
+mkdir -p /var/www/hdtickets/{releases,shared,shared/storage,shared/bootstrap/cache,backups}
+chown -R deploy:www-data /var/www/hdtickets
+chmod -R 755 /var/www/hdtickets
+```
+
+#### Setup Apache Virtual Host
+```bash
+cat > /etc/apache2/sites-available/hd-tickets.com.conf << 'EOF'
+<VirtualHost *:80>
+    ServerName hd-tickets.com
+    ServerAlias www.hd-tickets.com
+    DocumentRoot /var/www/hdtickets/current/public
+    
+    <Directory "/var/www/hdtickets/current/public">
+        Options -Indexes
+        AllowOverride All
+        Require all granted
+    </Directory>
+    
+    <FilesMatch \.php$>
+        SetHandler "proxy:fcgi://127.0.0.1:9000"
+    </FilesMatch>
+    
+    ErrorLog ${APACHE_LOG_DIR}/hd-tickets.com-error.log
+    CustomLog ${APACHE_LOG_DIR}/hd-tickets.com-access.log combined
+</VirtualHost>
+EOF
+
+a2ensite hd-tickets.com
+systemctl restart apache2
+```
+
+---
+
+## Phase 3: SSL Certificate Setup
+
+```bash
+# Install Certbot
+apt-get install -y certbot python3-certbot-apache
+
+# Get SSL certificates
+certbot --apache -d hd-tickets.com -d www.hd-tickets.com \
+    --non-interactive --agree-tos --email lubomir@polascin.net --redirect
+
+# Verify SSL
+systemctl status certbot.timer
+certbot certificates
+```
+
+---
+
+## Phase 4: Application Deployment
+
+### Create Production Environment
+```bash
+# Create .env from template
+cp /var/www/hdtickets/shared/.env.template /var/www/hdtickets/shared/.env
+chown deploy:www-data /var/www/hdtickets/shared/.env
+chmod 640 /var/www/hdtickets/shared/.env
+
+# Edit .env with actual credentials (use nano or vim)
+nano /var/www/hdtickets/shared/.env
+```
+
+### Deploy with Deployer (from local machine)
+```bash
+# Test Deployer configuration
+~/.config/composer/vendor/bin/dep config:hosts
+
+# Run first deployment
+~/.config/composer/vendor/bin/dep deploy production
+
+# If deployment succeeds, the site should be live at https://hd-tickets.com
+```
+
+### Manual Deployment (if Deployer fails)
+```bash
+# Clone repository
+cd /var/www/hdtickets
+git clone https://github.com/polascin/hdTickets.git current
+cd current
+
+# Install dependencies
 composer install --no-dev --optimize-autoloader
-npm install --production
+npm ci && npm run build
 
-# 3. Build assets
-npm run build
+# Copy environment file
+cp ../shared/.env .env
 
-# 4. Set up environment
-cp .env.example .env
-# Configure production environment variables
-
-# 5. Generate application key
+# Generate application key
 php artisan key:generate
-```
 
-### 2. Database Setup
-```bash
-# 1. Create database
-mysql -u root -p
-CREATE DATABASE hdtickets CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
-
-# 2. Run migrations
+# Run migrations
 php artisan migrate --force
 
-# 3. Seed initial data (if required)
-php artisan db:seed --class=ProductionSeeder
-```
+# Generate Passport keys
+php artisan passport:keys --force
 
-### 3. Production Optimization
-```bash
-# 1. Cache configuration
+# Create storage link
+php artisan storage:link
+
+# Cache configuration
 php artisan config:cache
 php artisan route:cache
 php artisan view:cache
 php artisan event:cache
 
-# 2. Generate Laravel Passport keys
-php artisan passport:install --force
-
-# 3. Set up queue worker (systemd/supervisor)
-php artisan queue:work redis --sleep=3 --tries=3 --max-time=3600
+# Set permissions
+chown -R deploy:www-data /var/www/hdtickets
+chmod -R 755 /var/www/hdtickets/current/storage
+chmod -R 755 /var/www/hdtickets/current/bootstrap/cache
 ```
-
-### 4. Final Validation
-```bash
-# 1. Run security check
-./scripts/security-monitor.sh
-
-# 2. Test application
-curl -I https://yourdomain.com
-
-# 3. Check logs
-tail -f storage/logs/laravel.log
-
-# 4. Verify queue processing
-php artisan horizon:status
-```
-
-## 🚨 Post-Deployment Monitoring
-
-### Health Checks
-- [ ] **Application Status:** Verify application loads correctly
-- [ ] **Database Connectivity:** Test database connections
-- [ ] **Queue Processing:** Ensure queues are processing
-- [ ] **Cache Functionality:** Verify Redis connectivity
-- [ ] **SSL Certificate:** Validate SSL configuration
-- [ ] **Security Headers:** Test security headers are applied
-
-### Performance Monitoring
-- [ ] **Response Times:** Monitor page load times
-- [ ] **Database Queries:** Monitor slow query log
-- [ ] **Error Rates:** Track application errors
-- [ ] **Memory Usage:** Monitor PHP memory consumption
-- [ ] **Disk Space:** Monitor storage usage
-
-### Security Monitoring
-- [ ] **Failed Logins:** Monitor authentication failures
-- [ ] **Suspicious Activity:** Track unusual access patterns
-- [ ] **Dependency Updates:** Set up automated security scanning
-- [ ] **Log Analysis:** Implement log analysis and alerting
-
-## 🔄 Maintenance Tasks
-
-### Daily
-- [ ] Monitor application logs
-- [ ] Check system resource usage
-- [ ] Verify backup completion
-
-### Weekly
-- [ ] Review security logs
-- [ ] Check for dependency updates
-- [ ] Performance metrics review
-- [ ] Run security monitoring script
-
-### Monthly
-- [ ] SSL certificate expiration check
-- [ ] Full security audit
-- [ ] Performance optimization review
-- [ ] Database maintenance
-
-## 📋 Rollback Plan
-
-### Emergency Rollback Procedure
-```bash
-# 1. Quickly switch to previous release
-cd /var/www/
-ln -sfn hdtickets-previous hdtickets
-
-# 2. Restore database if needed
-mysql hdtickets < backup-before-deployment.sql
-
-# 3. Clear caches
-php artisan cache:clear
-php artisan config:clear
-php artisan route:clear
-
-# 4. Restart services
-sudo systemctl restart apache2
-sudo systemctl restart redis-server
-```
-
-### Recovery Validation
-- [ ] **Application Functionality:** Test key features
-- [ ] **Database Integrity:** Verify data consistency
-- [ ] **User Authentication:** Test login/logout
-- [ ] **Queue Processing:** Verify background jobs
-
-## ✅ Deployment Sign-off
-
-### Technical Validation
-- [ ] **Code Quality:** All quality checks passed
-- [ ] **Security Audit:** Security score 8.5/10 (Excellent)
-- [ ] **Performance:** Build time 2.02s, optimized caches
-- [ ] **Testing:** Core functionality verified
-- [ ] **Documentation:** Deployment docs complete
-
-### Business Validation
-- [ ] **Feature Completeness:** All required features implemented
-- [ ] **User Acceptance:** Key stakeholder approval
-- [ ] **Performance SLA:** Response time requirements met
-- [ ] **Security Compliance:** Security requirements satisfied
 
 ---
 
-**Deployment Status:** 🟡 **READY FOR PRODUCTION**
-*Requires production environment configuration*
+## Phase 5: Setup Horizon & Scheduler
 
-**Security Status:** 🟢 **EXCELLENT** (8.5/10)
-**Performance Status:** 🟢 **OPTIMIZED**
-**Code Quality Status:** 🟢 **HIGH QUALITY**
+### Horizon Service
+```bash
+# Copy service file
+cp /var/www/hdtickets/current/scripts/services/hdtickets-horizon.service /etc/systemd/system/
+systemctl daemon-reload
+systemctl enable hdtickets-horizon
+systemctl start hdtickets-horizon
+systemctl status hdtickets-horizon
+```
+
+### Laravel Scheduler
+```bash
+# Add to www-data crontab
+sudo -u www-data crontab -e
+# Add this line:
+# * * * * * cd /var/www/hdtickets/current && php artisan schedule:run >> /dev/null 2>&1
+```
 
 ---
 
-*This checklist ensures a comprehensive and secure production deployment of the HD Tickets platform.*
+## Phase 6: Verification
+
+### Test Application
+```bash
+# Check website
+curl -I https://hd-tickets.com
+
+# Check health endpoint
+curl https://hd-tickets.com/health
+
+# Check services
+systemctl status apache2
+systemctl status mysql
+systemctl status redis
+systemctl status hdtickets-horizon
+```
+
+### Check Logs
+```bash
+tail -f /var/log/apache2/hd-tickets.com-error.log
+tail -f /var/www/hdtickets/current/storage/logs/laravel.log
+```
+
+---
+
+## Current Action Required
+
+**Please complete Phase 1 (Server Preparation) first:**
+
+1. Access DigitalOcean Console
+2. Run the SSH setup commands
+3. Test SSH connectivity from local machine
+4. Once SSH works, continue with the remaining phases
+
+**Let me know when SSH is working and I can assist with the automated deployment!**
+
+## Quick Status Check Commands
+
+After each phase, verify with:
+
+```bash
+# Check SSH
+ssh deploy@DROPLET_IP "whoami && pwd"
+
+# Check services
+ssh deploy@DROPLET_IP "sudo systemctl status ssh apache2 mysql redis --no-pager"
+
+# Check website
+curl -I https://hd-tickets.com
+```
