@@ -31,6 +31,16 @@ class RouteServiceProvider extends ServiceProvider
     {
         RateLimiter::for('api', fn (Request $request) => Limit::perMinute(60)->by($request->user()?->id ?: $request->ip()));
 
+        // Login limiter: sensitive endpoint with per-email+IP key
+        RateLimiter::for('login', function (Request $request) {
+            $email = (string) $request->input('email');
+            $key = $request->ip() . '|' . $email;
+
+            return [
+                Limit::perMinute(15)->by($key),
+            ];
+        });
+
         // Specific rate limiter for dashboard realtime endpoint
         RateLimiter::for('dashboard-realtime', function (Request $request) {
             return Limit::perMinute(120)->by($request->user()?->id ?: $request->ip());

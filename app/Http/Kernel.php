@@ -13,6 +13,7 @@ use App\Http\Middleware\ComprehensiveLoggingMiddleware;
 use App\Http\Middleware\CustomerMiddleware;
 use App\Http\Middleware\EncryptCookies;
 use App\Http\Middleware\EnhancedLoginSecurity;
+use App\Http\Middleware\IosErrorTracker;
 use App\Http\Middleware\PreventRequestsDuringMaintenance;
 use App\Http\Middleware\PreventScraperWebAccess;
 use App\Http\Middleware\RedirectIfAuthenticated;
@@ -70,6 +71,7 @@ class Kernel extends HttpKernel
      */
     protected $middleware = [
         // \App\Http\Middleware\TrustHosts::class,
+        IosErrorTracker::class, // Track iOS errors early in the stack
         SecurityHeadersMiddleware::class, // Move to top
         TrustProxies::class,
         HandleCors::class,
@@ -167,5 +169,6 @@ class Kernel extends HttpKernel
         'enhanced.login.security' => EnhancedLoginSecurity::class,
         'verify.paypal.webhook'   => VerifyPayPalWebhook::class,
         'welcome.page'            => WelcomePageMiddleware::class,
+        'ios.error.tracker'       => IosErrorTracker::class,
     ];
 }

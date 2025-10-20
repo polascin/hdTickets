@@ -31,7 +31,7 @@ Route::middleware(['guest', EnhancedLoginSecurity::class])->group(function (): v
 
     Route::post('login', [AuthenticatedSessionController::class, 'store'])
         ->middleware('throttle:login')
-        ->middleware('recaptcha:login');
+        ->middleware(\App\Http\Middleware\RecaptchaMiddleware::class . ':login');
 
     // Login enhancement endpoints
     Route::post('login/check-email', [LoginEnhancementController::class, 'checkEmail'])
@@ -56,7 +56,7 @@ Route::middleware(['guest', EnhancedLoginSecurity::class])->group(function (): v
 
     Route::post('register', [ModernRegistrationController::class, 'store'])
         ->name('register.store')
-        ->middleware(['throttle:register', 'recaptcha:register']);
+        ->middleware(['throttle:register', \App\Http\Middleware\RecaptchaMiddleware::class . ':register']);
 
     // Real-time validation endpoints
     Route::post('register/check-email', [ModernRegistrationController::class, 'checkEmail'])
@@ -96,11 +96,11 @@ Route::middleware(['guest', EnhancedLoginSecurity::class])->group(function (): v
 
         Route::post('/', [PublicRegistrationController::class, 'store'])
             ->name('store')
-            ->middleware(['throttle:register', 'recaptcha:register']);
+            ->middleware(['throttle:register', \App\Http\Middleware\RecaptchaMiddleware::class . ':register']);
 
         Route::post('phone-verification', [PublicRegistrationController::class, 'phoneVerification'])
             ->name('phone.verify')
-            ->middleware(['throttle:5,1', 'recaptcha:phone-verification']);
+            ->middleware(['throttle:5,1', \App\Http\Middleware\RecaptchaMiddleware::class . ':phone-verification']);
 
         Route::post('resend-phone-verification', [PublicRegistrationController::class, 'resendPhoneVerification'])
             ->name('phone.resend')

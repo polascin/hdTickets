@@ -27,44 +27,55 @@ return [
         'default-src' => ["'self'"],
         'script-src'  => [
             "'self'",
-            "'unsafe-inline'", // Required for Laravel Blade templates (TODO: Replace with nonce)
-            "'unsafe-eval'", // Required for some JavaScript libraries (TODO: Minimize usage)
+            "'unsafe-inline'", // Required for Laravel Blade templates and iOS Safari compatibility
+            "'unsafe-eval'", // Required for some JavaScript libraries and iOS Safari
             'https://cdn.jsdelivr.net',
             'https://unpkg.com',
             'https://cdnjs.cloudflare.com',
-            // Add specific domains for better security
             'https://js.pusher.com',
+            'blob:', // iOS Safari may need blob: for some features
         ],
         'style-src' => [
             "'self'",
-            "'unsafe-inline'", // Required for CSS styling
+            "'unsafe-inline'", // Required for CSS styling and iOS Safari compatibility
             'https://cdn.jsdelivr.net',
             'https://unpkg.com',
             'https://cdnjs.cloudflare.com',
             'https://fonts.googleapis.com',
+            'https://fonts.bunny.net', // Added for font loading
         ],
         'font-src' => [
             "'self'",
+            'data:', // iOS Safari may load fonts as data URLs
             'https://fonts.gstatic.com',
+            'https://fonts.bunny.net',
             'https://cdn.jsdelivr.net',
         ],
         'img-src' => [
             "'self'",
-            'data:',
-            'https:',
-            'blob:',
+            'data:', // Required for inline images and iOS Safari
+            'https:', // Allow all HTTPS images (iOS Safari compatible)
+            'blob:', // Required for dynamically generated images
         ],
         'connect-src' => [
             "'self'",
-            'ws:',
-            'wss:',
+            'ws:', // WebSocket support
+            'wss:', // Secure WebSocket support
+            'https:', // iOS Safari may make XHR requests
+        ],
+        'media-src' => [
+            "'self'",
+            'data:',
+            'blob:', // iOS Safari video/audio support
         ],
         'frame-src'                 => ["'none'"],
         'frame-ancestors'           => ["'none'"],
         'object-src'                => ["'none'"],
         'base-uri'                  => ["'self'"],
         'form-action'               => ["'self'"],
-        'upgrade-insecure-requests' => TRUE,
+        // Disable upgrade-insecure-requests for iOS compatibility
+        // iOS Safari can have issues with this directive in certain scenarios
+        'upgrade-insecure-requests' => env('CSP_UPGRADE_INSECURE', FALSE),
     ],
 
     /*
