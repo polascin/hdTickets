@@ -97,7 +97,7 @@ class EnhancedLoginSecurityService
             'allowed'             => TRUE,
             'requires_2fa'        => $requires2FA,
             'device_trusted'      => $deviceCheck['trusted'],
-            'location_suspicious' => !$geoCheck['trusted'],
+            'location_suspicious' => ! $geoCheck['trusted'],
             'suspicious_activity' => $suspiciousActivity,
             'security_score'      => $this->calculateSecurityScore($geoCheck, $deviceCheck, $suspiciousActivity),
             'recommendations'     => $this->getSecurityRecommendations($geoCheck, $deviceCheck, $suspiciousActivity),
@@ -137,7 +137,7 @@ class EnhancedLoginSecurityService
         ]);
 
         // Check if device should be trusted
-        if ($used2FA && !$this->isDeviceTrusted($user, $deviceFingerprint)) {
+        if ($used2FA && ! $this->isDeviceTrusted($user, $deviceFingerprint)) {
             $this->addTrustedDevice($user, $deviceFingerprint, $request);
         }
 
@@ -275,7 +275,7 @@ class EnhancedLoginSecurityService
     {
         $geolocation = $this->getGeolocation($ipAddress);
 
-        if (!$geolocation) {
+        if (! $geolocation) {
             return ['trusted' => FALSE, 'reason' => 'unknown_location'];
         }
 
@@ -370,7 +370,7 @@ class EnhancedLoginSecurityService
         // Check for unusual time of day
         $currentHour = now()->hour;
         $usualLoginHours = $this->getUserUsualLoginHours($user);
-        if (!in_array($currentHour, $usualLoginHours, TRUE)) {
+        if (! in_array($currentHour, $usualLoginHours, TRUE)) {
             $suspiciousFactors[] = 'unusual_time';
             $riskScore += 15;
         }
@@ -402,11 +402,11 @@ class EnhancedLoginSecurityService
     {
         // Always require 2FA if user has it enabled and device is not trusted
         if ($user->two_factor_enabled) {
-            return !$deviceCheck['trusted'];
+            return ! $deviceCheck['trusted'];
         }
 
         // Require 2FA for suspicious locations
-        return !$geoCheck['trusted'];
+        return ! $geoCheck['trusted'];
     }
 
     /**
@@ -417,12 +417,12 @@ class EnhancedLoginSecurityService
         $score = 100;
 
         // Deduct for untrusted location
-        if (!$geoCheck['trusted']) {
+        if (! $geoCheck['trusted']) {
             $score -= 20;
         }
 
         // Deduct for untrusted device
-        if (!$deviceCheck['trusted']) {
+        if (! $deviceCheck['trusted']) {
             $score -= 15;
         }
 
@@ -441,11 +441,11 @@ class EnhancedLoginSecurityService
     {
         $recommendations = [];
 
-        if (!$geoCheck['trusted']) {
+        if (! $geoCheck['trusted']) {
             $recommendations[] = 'Consider enabling 2FA for enhanced security from new locations';
         }
 
-        if (!$deviceCheck['trusted']) {
+        if (! $deviceCheck['trusted']) {
             $recommendations[] = 'This device will be remembered for future logins after 2FA verification';
         }
 

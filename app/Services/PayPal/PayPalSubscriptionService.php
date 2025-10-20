@@ -5,13 +5,14 @@ namespace App\Services\PayPal;
 use App\Models\PaymentPlan;
 use App\Models\User;
 use App\Models\UserSubscription;
+use DateTime;
 use Exception;
 use Illuminate\Support\Facades\Log;
 
 class PayPalSubscriptionService
 {
     public function __construct(
-        private PayPalService $paypalService
+        private PayPalService $paypalService,
     ) {
     }
 
@@ -22,15 +23,13 @@ class PayPalSubscriptionService
     {
         // In a production system, you'd want to cache this product ID
         // For now, we'll create a new product each time or retrieve from config
-        $cachedProductId = cache()->remember('paypal_product_id', 3600, function () use ($productName) {
+        return cache()->remember('paypal_product_id', 3600, function () use ($productName) {
             return $this->paypalService->createProduct(
                 $productName,
                 'Access to HD Tickets sports event monitoring platform',
-                'SOFTWARE'
+                'SOFTWARE',
             );
         });
-
-        return $cachedProductId;
     }
 
     /**
@@ -106,7 +105,7 @@ class PayPalSubscriptionService
             // Find local subscription
             $subscription = UserSubscription::where('paypal_subscription_id', $paypalSubscriptionId)->first();
 
-            if (!$subscription) {
+            if (! $subscription) {
                 Log::error('Local subscription not found for PayPal subscription', [
                     'paypal_subscription_id' => $paypalSubscriptionId,
                 ]);
@@ -120,8 +119,8 @@ class PayPalSubscriptionService
             $subscription->update([
                 'status'          => $status,
                 'paypal_payer_id' => $paypalDetails['payer_id'] ?? NULL,
-                'starts_at'       => $paypalDetails['start_time'] ? new \DateTime($paypalDetails['start_time']) : now(),
-                'next_billing_at' => $paypalDetails['next_billing_time'] ? new \DateTime($paypalDetails['next_billing_time']) : NULL,
+                'starts_at'       => $paypalDetails['start_time'] ? new DateTime($paypalDetails['start_time']) : now(),
+                'next_billing_at' => $paypalDetails['next_billing_time'] ? new DateTime($paypalDetails['next_billing_time']) : NULL,
                 'amount_paid'     => $subscription->paymentPlan->price,
                 'metadata'        => array_merge($subscription->metadata ?? [], [
                     'paypal_status' => $paypalDetails['status'],
@@ -161,14 +160,14 @@ class PayPalSubscriptionService
     public function cancelSubscription(UserSubscription $subscription, string $reason = 'User requested cancellation'): bool
     {
         try {
-            if (!$subscription->paypal_subscription_id) {
+            if (! $subscription->paypal_subscription_id) {
                 throw new Exception('Not a PayPal subscription');
             }
 
             // Cancel with PayPal
             $cancelled = $this->paypalService->cancelSubscription(
                 $subscription->paypal_subscription_id,
-                $reason
+                $reason,
             );
 
             if ($cancelled) {
@@ -206,7 +205,7 @@ class PayPalSubscriptionService
     public function synchroniseSubscription(UserSubscription $subscription): bool
     {
         try {
-            if (!$subscription->paypal_subscription_id) {
+            if (! $subscription->paypal_subscription_id) {
                 return FALSE;
             }
 
@@ -249,7 +248,7 @@ class PayPalSubscriptionService
         try {
             $subscription = UserSubscription::where('paypal_subscription_id', $paypalSubscriptionId)->first();
 
-            if (!$subscription) {
+            if (! $subscription) {
                 Log::warning('Renewal webhook for unknown subscription', [
                     'paypal_subscription_id' => $paypalSubscriptionId,
                 ]);
@@ -308,7 +307,7 @@ class PayPalSubscriptionService
     /**
      * Calculate subscription end date based on billing cycle
      */
-    private function calculateEndDate(string $billingCycle, ?\DateTime $fromDate = NULL): \DateTime
+    private function calculateEndDate(string $billingCycle, ?DateTime $fromDate = NULL): DateTime
     {
         $baseDate = $fromDate ?: now();
 

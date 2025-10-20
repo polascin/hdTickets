@@ -14,6 +14,9 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 
+use function array_slice;
+use function in_array;
+
 /**
  * Social Proof Features API Controller
  *
@@ -67,7 +70,7 @@ class SocialProofController extends Controller
             $tickets = $this->getEventTickets($eventName, $venue, $date);
 
             if ($tickets->isEmpty()) {
-                return NULL;
+                return;
             }
 
             return [
@@ -82,7 +85,7 @@ class SocialProofController extends Controller
             ];
         });
 
-        if (!$data) {
+        if (! $data) {
             return response()->json([
                 'success' => FALSE,
                 'message' => 'No social proof data found for the specified event',
@@ -122,9 +125,9 @@ class SocialProofController extends Controller
             }
 
             $events = $query->withCount(['tickets as ticket_count'])
-                ->with(['tickets' => function ($ticketQuery) use ($timeFilter) {
+                ->with(['tickets' => function ($ticketQuery) use ($timeFilter): void {
                     $ticketQuery->where('created_at', '>=', $timeFilter)
-                                ->select(['event_id', 'current_price', 'views_count', 'platform', 'is_available']);
+                        ->select(['event_id', 'current_price', 'views_count', 'platform', 'is_available']);
                 }])
                 ->orderByDesc('popularity_score')
                 ->limit($limit)
@@ -160,7 +163,7 @@ class SocialProofController extends Controller
                 $tickets = Ticket::where('event_name', 'LIKE', "%{$eventName}%")->get();
 
                 if ($tickets->isEmpty()) {
-                    return NULL;
+                    return;
                 }
 
                 return [
@@ -201,19 +204,19 @@ class SocialProofController extends Controller
         $data = Cache::remember($cacheKey, 30, function () use ($since, $limit, $types) {
             $activities = [];
 
-            if (in_array('price_drop', $types)) {
+            if (in_array('price_drop', $types, TRUE)) {
                 $activities = array_merge($activities, $this->getPriceDropActivity($since));
             }
 
-            if (in_array('new_listing', $types)) {
+            if (in_array('new_listing', $types, TRUE)) {
                 $activities = array_merge($activities, $this->getNewListingActivity($since));
             }
 
-            if (in_array('sold_out', $types)) {
+            if (in_array('sold_out', $types, TRUE)) {
                 $activities = array_merge($activities, $this->getSoldOutActivity($since));
             }
 
-            if (in_array('high_demand', $types)) {
+            if (in_array('high_demand', $types, TRUE)) {
                 $activities = array_merge($activities, $this->getHighDemandActivity($since));
             }
 
@@ -238,7 +241,7 @@ class SocialProofController extends Controller
     {
         $user = Auth::user();
 
-        if (!$user) {
+        if (! $user) {
             return response()->json([
                 'success' => FALSE,
                 'message' => 'Authentication required',
@@ -271,7 +274,7 @@ class SocialProofController extends Controller
     {
         $ticket = Ticket::where('uuid', $ticketId)->first();
 
-        if (!$ticket) {
+        if (! $ticket) {
             return response()->json([
                 'success' => FALSE,
                 'message' => 'Ticket not found',
@@ -304,7 +307,7 @@ class SocialProofController extends Controller
     private function getTrendingEvents(): array
     {
         $events = Event::where('date', '>=', now())
-            ->withCount(['tickets as active_tickets' => function ($query) {
+            ->withCount(['tickets as active_tickets' => function ($query): void {
                 $query->where('is_available', TRUE);
             }])
             ->orderByDesc('popularity_score')
@@ -831,7 +834,7 @@ class SocialProofController extends Controller
     private function calculateTimePressure($tickets): string
     {
         $firstTicket = $tickets->first();
-        if (!$firstTicket || !$firstTicket->event_date) {
+        if (! $firstTicket || ! $firstTicket->event_date) {
             return 'none';
         }
 

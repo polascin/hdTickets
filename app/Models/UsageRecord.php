@@ -23,6 +23,21 @@ class UsageRecord extends Model
 {
     use HasFactory;
 
+    // Resource types
+    public const RESOURCE_API_REQUESTS = 'api_requests';
+
+    public const RESOURCE_EVENTS_MONITORED = 'events_monitored';
+
+    public const RESOURCE_PRICE_ALERTS = 'price_alerts';
+
+    public const RESOURCE_WEBHOOK_DELIVERIES = 'webhook_deliveries';
+
+    public const RESOURCE_AUTO_PURCHASES = 'auto_purchases';
+
+    public const RESOURCE_DATA_STORAGE = 'data_storage';
+
+    public const RESOURCE_SUPPORT_TICKETS = 'support_tickets';
+
     protected $fillable = [
         'user_id',
         'subscription_id',
@@ -51,21 +66,6 @@ class UsageRecord extends Model
         'billing_period_end',
         'recorded_at',
     ];
-
-    // Resource types
-    public const RESOURCE_API_REQUESTS = 'api_requests';
-
-    public const RESOURCE_EVENTS_MONITORED = 'events_monitored';
-
-    public const RESOURCE_PRICE_ALERTS = 'price_alerts';
-
-    public const RESOURCE_WEBHOOK_DELIVERIES = 'webhook_deliveries';
-
-    public const RESOURCE_AUTO_PURCHASES = 'auto_purchases';
-
-    public const RESOURCE_DATA_STORAGE = 'data_storage';
-
-    public const RESOURCE_SUPPORT_TICKETS = 'support_tickets';
 
     /**
      * Get the user that owns the usage record
@@ -112,7 +112,7 @@ class UsageRecord extends Model
             self::RESOURCE_AUTO_PURCHASES     => 'Auto Purchases',
             self::RESOURCE_DATA_STORAGE       => 'Data Storage (GB)',
             self::RESOURCE_SUPPORT_TICKETS    => 'Support Tickets',
-            default                           => ucwords(str_replace('_', ' ', $this->resource_type))
+            default                           => ucwords(str_replace('_', ' ', $this->resource_type)),
         };
     }
 
@@ -129,7 +129,7 @@ class UsageRecord extends Model
             self::RESOURCE_AUTO_PURCHASES     => 'purchases',
             self::RESOURCE_DATA_STORAGE       => 'GB',
             self::RESOURCE_SUPPORT_TICKETS    => 'tickets',
-            default                           => 'units'
+            default                           => 'units',
         };
     }
 
@@ -177,7 +177,7 @@ class UsageRecord extends Model
         string $resourceType,
         int $quantity,
         float $unitPrice = 0.0,
-        array $metadata = []
+        array $metadata = [],
     ): self {
         $subscription = $user->activeSubscription();
         $billingPeriod = self::getCurrentBillingPeriod($subscription);
@@ -202,7 +202,7 @@ class UsageRecord extends Model
     public static function getCurrentPeriodUsage(User $user, string $resourceType): int
     {
         $subscription = $user->activeSubscription();
-        if (!$subscription) {
+        if (! $subscription) {
             return 0;
         }
 
@@ -220,7 +220,7 @@ class UsageRecord extends Model
     public static function getCurrentPeriodSummary(User $user): array
     {
         $subscription = $user->activeSubscription();
-        if (!$subscription) {
+        if (! $subscription) {
             return [];
         }
 
@@ -251,7 +251,7 @@ class UsageRecord extends Model
     public static function hasExceededLimit(User $user, string $resourceType): bool
     {
         $subscription = $user->activeSubscription();
-        if (!$subscription) {
+        if (! $subscription) {
             return TRUE; // No subscription = free tier limits
         }
 
@@ -271,7 +271,7 @@ class UsageRecord extends Model
     public static function getRemainingQuota(User $user, string $resourceType): int
     {
         $subscription = $user->activeSubscription();
-        if (!$subscription) {
+        if (! $subscription) {
             return 0;
         }
 
@@ -287,6 +287,8 @@ class UsageRecord extends Model
 
     /**
      * Scope to get records for specific resource type
+     *
+     * @param mixed $query
      */
     public function scopeForResource($query, string $resourceType)
     {
@@ -295,10 +297,12 @@ class UsageRecord extends Model
 
     /**
      * Scope to get records for current billing period
+     *
+     * @param mixed $query
      */
     public function scopeCurrentBillingPeriod($query, ?Subscription $subscription = NULL)
     {
-        if (!$subscription) {
+        if (! $subscription) {
             return $query->whereNull('id'); // Return empty result
         }
 
@@ -309,6 +313,8 @@ class UsageRecord extends Model
 
     /**
      * Scope to get records for specific date range
+     *
+     * @param mixed $query
      */
     public function scopeDateRange($query, Carbon $startDate, Carbon $endDate)
     {
@@ -317,6 +323,8 @@ class UsageRecord extends Model
 
     /**
      * Scope to get records with overage costs
+     *
+     * @param mixed $query
      */
     public function scopeWithOverage($query)
     {
@@ -327,7 +335,7 @@ class UsageRecord extends Model
 
     private static function getCurrentBillingPeriod(?Subscription $subscription): array
     {
-        if (!$subscription) {
+        if (! $subscription) {
             // For free tier, use monthly periods starting from account creation
             $start = now()->startOfMonth();
             $end = now()->endOfMonth();

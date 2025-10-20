@@ -8,6 +8,7 @@ use App\Models\Event;
 use App\Models\EventGroup;
 use App\Models\EventMonitor;
 use App\Models\User;
+use Exception;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
@@ -27,7 +28,7 @@ class MultiEventManagementService
     public function __construct(
         private EnhancedEventMonitoringService $monitoringService,
         private PriceTrackingAnalyticsService $priceAnalyticsService,
-        private AutomatedPurchasingService $purchasingService
+        private AutomatedPurchasingService $purchasingService,
     ) {
     }
 
@@ -70,7 +71,7 @@ class MultiEventManagementService
                 $event = Event::findOrFail($eventId);
 
                 // Check if user has permission to monitor this event
-                if (!$this->canUserMonitorEvent($group->user, $event)) {
+                if (! $this->canUserMonitorEvent($group->user, $event)) {
                     $results[] = [
                         'event_id' => $eventId,
                         'success'  => FALSE,
@@ -99,7 +100,7 @@ class MultiEventManagementService
                     'event_name' => $event->name,
                 ];
                 $successCount++;
-            } catch (\Exception $e) {
+            } catch (Exception $e) {
                 $results[] = [
                     'event_id' => $eventId,
                     'success'  => FALSE,
@@ -179,7 +180,7 @@ class MultiEventManagementService
                     'setup_auto_purchase' => $this->setupAutoPurchase($user, $event, $parameters),
                     'update_priority'     => $this->updateEventPriority($user, $event, $parameters),
                     'export_data'         => $this->exportEventData($user, $event, $parameters),
-                    default               => throw new \Exception("Unknown operation: {$operation}")
+                    default               => throw new Exception("Unknown operation: {$operation}"),
                 };
 
                 $results[] = [
@@ -189,7 +190,7 @@ class MultiEventManagementService
                     'result'     => $result,
                 ];
                 $successCount++;
-            } catch (\Exception $e) {
+            } catch (Exception $e) {
                 $results[] = [
                     'event_id' => $eventId,
                     'success'  => FALSE,
@@ -224,17 +225,17 @@ class MultiEventManagementService
             ->with(['event', 'priceAlerts', 'autoPurchaseConfigs'])
             ->when(
                 $filters['group_id'] ?? NULL,
-                fn ($q, $groupId) => $q->whereHas('event.groups', fn ($subQ) => $subQ->where('event_groups.id', $groupId))
+                fn ($q, $groupId) => $q->whereHas('event.groups', fn ($subQ) => $subQ->where('event_groups.id', $groupId)),
             )
             ->when(
                 $filters['category'] ?? NULL,
-                fn ($q, $category) => $q->whereHas('event', fn ($subQ) => $subQ->where('category', $category))
+                fn ($q, $category) => $q->whereHas('event', fn ($subQ) => $subQ->where('category', $category)),
             )
             ->orderByDesc('priority')
             ->limit(50)
             ->get();
 
-        $dashboardData = [
+        return [
             'summary'             => $this->generateDashboardSummary($eventMonitors),
             'active_monitors'     => $eventMonitors->map(fn ($monitor) => $this->formatMonitorDashboard($monitor)),
             'real_time_alerts'    => $this->getRealtimeAlerts($user),
@@ -245,8 +246,6 @@ class MultiEventManagementService
             'filters_applied'     => $filters,
             'last_updated'        => now()->toISOString(),
         ];
-
-        return $dashboardData;
     }
 
     /**
@@ -258,7 +257,7 @@ class MultiEventManagementService
 
         foreach ($eventIds as $eventId) {
             $event = Event::find($eventId);
-            if (!$event) {
+            if (! $event) {
                 continue;
             }
 
@@ -315,7 +314,7 @@ class MultiEventManagementService
 
         foreach ($userRules as $ruleId) {
             $rule = Cache::get("automation_rule_{$ruleId}");
-            if (!$rule || !$rule['is_active']) {
+            if (! $rule || ! $rule['is_active']) {
                 continue;
             }
 
@@ -422,7 +421,7 @@ class MultiEventManagementService
             } elseif ($daysUntilEvent <= 30) {
                 $priority += 2;
             } elseif ($daysUntilEvent <= 90) {
-                $priority += 1;
+                ++$priority;
             }
         }
 

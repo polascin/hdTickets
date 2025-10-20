@@ -27,13 +27,13 @@ class RegisteredUserController extends Controller
     public function create(): View|Response|RedirectResponse
     {
         // If not authenticated, redirect to public registration
-        if (!Auth::check()) {
+        if (! Auth::check()) {
             return redirect()->route('register.public')
                 ->with('info', 'Please use the public registration form to create your account.');
         }
 
         // If authenticated but not admin, redirect to public registration
-        if (!Auth::user()->isAdmin()) {
+        if (! Auth::user()->isAdmin()) {
             return redirect()->route('register.public')
                 ->with('info', 'Access denied. User registration is restricted to administrators only.');
         }
@@ -53,7 +53,7 @@ class RegisteredUserController extends Controller
     public function store(Request $request): RedirectResponse
     {
         // Check if user is authenticated and is an admin
-        if (!Auth::check() || !Auth::user()->isAdmin()) {
+        if (! Auth::check() || ! Auth::user()->isAdmin()) {
             abort(403, 'Access denied. User registration is restricted to administrators only.');
         }
 

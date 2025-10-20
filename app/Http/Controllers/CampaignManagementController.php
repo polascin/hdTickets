@@ -6,10 +6,14 @@ namespace App\Http\Controllers;
 
 use App\Models\MarketingCampaign;
 use App\Services\CampaignManagementService;
+use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
+
+use function count;
+use function in_array;
 
 /**
  * Campaign Management Controller
@@ -23,7 +27,7 @@ use Illuminate\Support\Facades\Validator;
 class CampaignManagementController extends Controller
 {
     public function __construct(
-        private CampaignManagementService $campaignService
+        private CampaignManagementService $campaignService,
     ) {
         $this->middleware('auth');
         $this->middleware('can:manage-campaigns')->except(['trackOpen', 'trackClick']);
@@ -45,7 +49,7 @@ class CampaignManagementController extends Controller
                     'timestamp' => now()->toISOString(),
                 ],
             ]);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             Log::error('Failed to fetch campaigns', [
                 'error'   => $e->getMessage(),
                 'user_id' => auth()->id(),
@@ -104,7 +108,7 @@ class CampaignManagementController extends Controller
                     'created_at' => $campaign->created_at,
                 ],
             ], 201);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             Log::error('Failed to create campaign', [
                 'error'        => $e->getMessage(),
                 'request_data' => $request->all(),
@@ -134,7 +138,7 @@ class CampaignManagementController extends Controller
                     'analytics' => $analytics,
                 ],
             ]);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             Log::error('Failed to fetch campaign details', [
                 'campaign_id' => $campaign->id,
                 'error'       => $e->getMessage(),
@@ -154,7 +158,7 @@ class CampaignManagementController extends Controller
      */
     public function update(Request $request, MarketingCampaign $campaign): JsonResponse
     {
-        if (!$campaign->isEditable()) {
+        if (! $campaign->isEditable()) {
             return response()->json([
                 'success' => FALSE,
                 'message' => 'Campaign cannot be edited in current status',
@@ -187,7 +191,7 @@ class CampaignManagementController extends Controller
                 'message' => 'Campaign updated successfully',
                 'data'    => $campaign->fresh(),
             ]);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             Log::error('Failed to update campaign', [
                 'campaign_id' => $campaign->id,
                 'error'       => $e->getMessage(),
@@ -207,7 +211,7 @@ class CampaignManagementController extends Controller
      */
     public function launch(MarketingCampaign $campaign): JsonResponse
     {
-        if (!$campaign->canBeLaunched()) {
+        if (! $campaign->canBeLaunched()) {
             return response()->json([
                 'success' => FALSE,
                 'message' => 'Campaign cannot be launched in current status',
@@ -222,7 +226,7 @@ class CampaignManagementController extends Controller
                 'message' => 'Campaign launched successfully',
                 'data'    => $result,
             ]);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             Log::error('Failed to launch campaign', [
                 'campaign_id' => $campaign->id,
                 'error'       => $e->getMessage(),
@@ -242,7 +246,7 @@ class CampaignManagementController extends Controller
      */
     public function pause(MarketingCampaign $campaign): JsonResponse
     {
-        if (!$campaign->canBePaused()) {
+        if (! $campaign->canBePaused()) {
             return response()->json([
                 'success' => FALSE,
                 'message' => 'Campaign cannot be paused in current status',
@@ -257,7 +261,7 @@ class CampaignManagementController extends Controller
                 'message' => 'Campaign paused successfully',
                 'data'    => $campaign->fresh(),
             ]);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             Log::error('Failed to pause campaign', [
                 'campaign_id' => $campaign->id,
                 'error'       => $e->getMessage(),
@@ -292,7 +296,7 @@ class CampaignManagementController extends Controller
                 'message' => 'Campaign resumed successfully',
                 'data'    => $campaign->fresh(),
             ]);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             Log::error('Failed to resume campaign', [
                 'campaign_id' => $campaign->id,
                 'error'       => $e->getMessage(),
@@ -327,7 +331,7 @@ class CampaignManagementController extends Controller
                 'message' => 'Campaign cancelled successfully',
                 'data'    => $campaign->fresh(),
             ]);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             Log::error('Failed to cancel campaign', [
                 'campaign_id' => $campaign->id,
                 'error'       => $e->getMessage(),
@@ -347,7 +351,7 @@ class CampaignManagementController extends Controller
      */
     public function destroy(MarketingCampaign $campaign): JsonResponse
     {
-        if (!in_array($campaign->status, [MarketingCampaign::STATUS_DRAFT, MarketingCampaign::STATUS_CANCELLED])) {
+        if (! in_array($campaign->status, [MarketingCampaign::STATUS_DRAFT, MarketingCampaign::STATUS_CANCELLED], TRUE)) {
             return response()->json([
                 'success' => FALSE,
                 'message' => 'Only draft or cancelled campaigns can be deleted',
@@ -361,7 +365,7 @@ class CampaignManagementController extends Controller
                 'success' => TRUE,
                 'message' => 'Campaign deleted successfully',
             ]);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             Log::error('Failed to delete campaign', [
                 'campaign_id' => $campaign->id,
                 'error'       => $e->getMessage(),
@@ -388,7 +392,7 @@ class CampaignManagementController extends Controller
                 'success' => TRUE,
                 'data'    => $analytics,
             ]);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             Log::error('Failed to fetch campaign analytics', [
                 'campaign_id' => $campaign->id,
                 'error'       => $e->getMessage(),
@@ -433,7 +437,7 @@ class CampaignManagementController extends Controller
             return response()->json(['success' => TRUE], 200, [
                 'Content-Type' => 'image/gif',
             ]);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             Log::error('Failed to track email open', [
                 'campaign_id' => $campaignId,
                 'user_id'     => $userId,
@@ -472,7 +476,7 @@ class CampaignManagementController extends Controller
             }
 
             return response()->json(['success' => TRUE]);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             Log::error('Failed to track email click', [
                 'campaign_id' => $campaignId,
                 'user_id'     => $userId,
@@ -499,7 +503,7 @@ class CampaignManagementController extends Controller
                     $this->campaignService->processCampaign($campaign);
                     $campaign->update(['status' => MarketingCampaign::STATUS_ACTIVE]);
                     $processed++;
-                } catch (\Exception $e) {
+                } catch (Exception $e) {
                     Log::error('Failed to process scheduled campaign', [
                         'campaign_id' => $campaign->id,
                         'error'       => $e->getMessage(),
@@ -511,7 +515,7 @@ class CampaignManagementController extends Controller
                 'success' => TRUE,
                 'message' => "Processed {$processed} scheduled campaigns",
             ]);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             Log::error('Failed to process scheduled campaigns', [
                 'error' => $e->getMessage(),
             ]);

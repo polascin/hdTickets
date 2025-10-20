@@ -136,7 +136,7 @@ class AccountDeletionRequest extends Model
      */
     public function getRemainingGraceTime(): ?Carbon
     {
-        if (!$this->isInGracePeriod()) {
+        if (! $this->isInGracePeriod()) {
             return NULL;
         }
 
@@ -151,7 +151,7 @@ class AccountDeletionRequest extends Model
      */
     public function cancel(?string $reason = NULL): bool
     {
-        if (!$this->isPending() && !$this->isConfirmed()) {
+        if (! $this->isPending() && ! $this->isConfirmed()) {
             return FALSE;
         }
 
@@ -176,7 +176,7 @@ class AccountDeletionRequest extends Model
      */
     public function confirm(): bool
     {
-        if (!$this->isPending()) {
+        if (! $this->isPending()) {
             return FALSE;
         }
 
@@ -203,7 +203,7 @@ class AccountDeletionRequest extends Model
      */
     public function markCompleted(): bool
     {
-        if (!$this->isConfirmed()) {
+        if (! $this->isConfirmed()) {
             return FALSE;
         }
 
@@ -290,7 +290,7 @@ class AccountDeletionRequest extends Model
     protected function timeRemaining(): Attribute
     {
         return Attribute::make(get: function () {
-            if (!$this->isInGracePeriod()) {
+            if (! $this->isInGracePeriod()) {
                 return;
             }
 

@@ -10,6 +10,8 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
+use function in_array;
+
 /**
  * Subscription Model
  *
@@ -23,6 +25,30 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 class Subscription extends Model
 {
     use HasFactory;
+
+    // Subscription statuses
+    public const STATUS_ACTIVE = 'active';
+
+    public const STATUS_TRIALING = 'trialing';
+
+    public const STATUS_PAST_DUE = 'past_due';
+
+    public const STATUS_CANCELLED = 'cancelled';
+
+    public const STATUS_UNPAID = 'unpaid';
+
+    public const STATUS_INCOMPLETE = 'incomplete';
+
+    public const STATUS_INCOMPLETE_EXPIRED = 'incomplete_expired';
+
+    public const STATUS_CANCEL_AT_PERIOD_END = 'cancel_at_period_end';
+
+    // Plan names
+    public const PLAN_STARTER = 'starter';
+
+    public const PLAN_PRO = 'pro';
+
+    public const PLAN_ENTERPRISE = 'enterprise';
 
     protected $fillable = [
         'user_id',
@@ -62,30 +88,6 @@ class Subscription extends Model
         'last_payment_failed_at',
     ];
 
-    // Subscription statuses
-    public const STATUS_ACTIVE = 'active';
-
-    public const STATUS_TRIALING = 'trialing';
-
-    public const STATUS_PAST_DUE = 'past_due';
-
-    public const STATUS_CANCELLED = 'cancelled';
-
-    public const STATUS_UNPAID = 'unpaid';
-
-    public const STATUS_INCOMPLETE = 'incomplete';
-
-    public const STATUS_INCOMPLETE_EXPIRED = 'incomplete_expired';
-
-    public const STATUS_CANCEL_AT_PERIOD_END = 'cancel_at_period_end';
-
-    // Plan names
-    public const PLAN_STARTER = 'starter';
-
-    public const PLAN_PRO = 'pro';
-
-    public const PLAN_ENTERPRISE = 'enterprise';
-
     /**
      * Get the user that owns the subscription
      */
@@ -119,7 +121,7 @@ class Subscription extends Model
             self::STATUS_ACTIVE,
             self::STATUS_TRIALING,
             self::STATUS_CANCEL_AT_PERIOD_END,
-        ]);
+        ], TRUE);
     }
 
     /**
@@ -127,8 +129,8 @@ class Subscription extends Model
      */
     public function onTrial(): bool
     {
-        return $this->status === self::STATUS_TRIALING ||
-               ($this->trial_ends_at && $this->trial_ends_at->isFuture());
+        return $this->status === self::STATUS_TRIALING
+               || ($this->trial_ends_at && $this->trial_ends_at->isFuture());
     }
 
     /**
@@ -160,7 +162,7 @@ class Subscription extends Model
      */
     public function daysRemainingInPeriod(): int
     {
-        if (!$this->current_period_end) {
+        if (! $this->current_period_end) {
             return 0;
         }
 
@@ -172,7 +174,7 @@ class Subscription extends Model
      */
     public function trialDaysRemaining(): int
     {
-        if (!$this->trial_ends_at || $this->trial_ends_at->isPast()) {
+        if (! $this->trial_ends_at || $this->trial_ends_at->isPast()) {
             return 0;
         }
 
@@ -307,7 +309,7 @@ class Subscription extends Model
                 'text'  => 'Unknown',
                 'color' => 'gray',
                 'icon'  => 'question-circle',
-            ]
+            ],
         };
     }
 
@@ -381,7 +383,7 @@ class Subscription extends Model
             ],
         ];
 
-        return in_array($feature, $planFeatures[$this->plan_name] ?? []);
+        return in_array($feature, $planFeatures[$this->plan_name] ?? [], TRUE);
     }
 
     /**
@@ -397,6 +399,8 @@ class Subscription extends Model
 
     /**
      * Scope to get active subscriptions
+     *
+     * @param mixed $query
      */
     public function scopeActive($query)
     {
@@ -409,6 +413,8 @@ class Subscription extends Model
 
     /**
      * Scope to get cancelled subscriptions
+     *
+     * @param mixed $query
      */
     public function scopeCancelled($query)
     {
@@ -417,23 +423,27 @@ class Subscription extends Model
 
     /**
      * Scope to get trialing subscriptions
+     *
+     * @param mixed $query
      */
     public function scopeTrialing($query)
     {
         return $query->where('status', self::STATUS_TRIALING)
-                     ->orWhere(function ($query) {
-                         $query->whereNotNull('trial_ends_at')
-                               ->where('trial_ends_at', '>', now());
-                     });
+            ->orWhere(function ($query): void {
+                $query->whereNotNull('trial_ends_at')
+                    ->where('trial_ends_at', '>', now());
+            });
     }
 
     /**
      * Scope to get subscriptions ending soon
+     *
+     * @param mixed $query
      */
     public function scopeEndingSoon($query, int $days = 7)
     {
         return $query->where('current_period_end', '<=', now()->addDays($days))
-                     ->where('current_period_end', '>', now());
+            ->where('current_period_end', '>', now());
     }
 
     // Private helper methods

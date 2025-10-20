@@ -13,6 +13,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
 
+use function in_array;
+
 /**
  * Smart Ticket Monitoring Dashboard API Controller
  *
@@ -55,114 +57,6 @@ class TicketMonitoringController extends Controller
             'success' => TRUE,
             'data'    => $data,
         ]);
-    }
-
-    /**
-     * Get monitoring statistics
-     */
-    private function getMonitoringStats(User $user): array
-    {
-        $alerts = TicketAlert::where('user_id', $user->id);
-        $tickets = Ticket::whereHas('ticketAlerts', function ($query) use ($user) {
-            $query->where('user_id', $user->id);
-        });
-
-        return [
-            'total_monitored'       => $alerts->count(),
-            'active_alerts'         => $alerts->where('is_active', TRUE)->count(),
-            'triggered_today'       => $alerts->where('last_triggered_at', '>=', now()->startOfDay())->count(),
-            'price_drops_24h'       => $alerts->where('last_triggered_at', '>=', now()->subDay())->count(),
-            'average_response_time' => '2.3s',
-            'monitoring_uptime'     => '99.8%',
-        ];
-    }
-
-    /**
-     * Get monitored tickets
-     */
-    private function getMonitoredTickets(User $user): array
-    {
-        $tickets = Ticket::whereHas('ticketAlerts', function ($query) use ($user) {
-            $query->where('user_id', $user->id)->where('is_active', TRUE);
-        })
-        ->with(['ticketAlerts' => function ($query) use ($user) {
-            $query->where('user_id', $user->id);
-        }])
-        ->limit(20)
-        ->get();
-
-        return $tickets->map(function ($ticket) {
-            $alert = $ticket->ticketAlerts->first();
-
-            return [
-                'id'               => $ticket->uuid,
-                'event_name'       => $ticket->event_name,
-                'venue'            => $ticket->venue,
-                'date'             => $ticket->event_date,
-                'current_price'    => $ticket->current_price,
-                'target_price'     => $alert?->target_price,
-                'platform'         => $ticket->platform,
-                'status'           => $this->getTicketStatus($ticket),
-                'last_check'       => $ticket->last_scraped_at,
-                'price_change_24h' => $ticket->price_change_24h ?? 0,
-                'alert_status'     => $alert?->is_active ? 'active' : 'inactive',
-                'demand_level'     => $this->calculateDemandLevel($ticket),
-            ];
-        })->toArray();
-    }
-
-    /**
-     * Get recent activity
-     */
-    private function getRecentActivity(User $user): array
-    {
-        // Get recent alert triggers and ticket updates
-        $alerts = TicketAlert::where('user_id', $user->id)
-            ->whereNotNull('last_triggered_at')
-            ->orderBy('last_triggered_at', 'desc')
-            ->with('ticket')
-            ->limit(10)
-            ->get();
-
-        return $alerts->map(function ($alert) {
-            return [
-                'id'        => $alert->uuid,
-                'type'      => 'alert_triggered',
-                'title'     => 'Price Alert Triggered',
-                'message'   => "Price for {$alert->ticket->event_name} dropped to £{$alert->ticket->current_price}",
-                'timestamp' => $alert->last_triggered_at,
-                'ticket_id' => $alert->ticket->uuid,
-                'platform'  => $alert->ticket->platform,
-            ];
-        })->toArray();
-    }
-
-    /**
-     * Get demand indicators
-     */
-    private function getDemandIndicators(): array
-    {
-        return [
-            'high_demand_events' => [
-                [
-                    'event'        => 'Manchester United vs Liverpool',
-                    'venue'        => 'Old Trafford',
-                    'demand_score' => 94,
-                    'price_trend'  => 'increasing',
-                ],
-                [
-                    'event'        => 'Anthony Joshua vs Francis Ngannou',
-                    'venue'        => 'Wembley Stadium',
-                    'demand_score' => 87,
-                    'price_trend'  => 'stable',
-                ],
-            ],
-            'trending_platforms' => [
-                ['name' => 'StubHub', 'activity' => '+23%'],
-                ['name' => 'Viagogo', 'activity' => '+18%'],
-                ['name' => 'Ticketmaster', 'activity' => '+12%'],
-            ],
-        ];
     }
 
     /**
@@ -241,7 +135,7 @@ class TicketMonitoringController extends Controller
         $user->update([
             'custom_permissions' => array_merge(
                 $user->custom_permissions ?? [],
-                $preferences
+                $preferences,
             ),
         ]);
 
@@ -293,6 +187,114 @@ class TicketMonitoringController extends Controller
     }
 
     /**
+     * Get monitoring statistics
+     */
+    private function getMonitoringStats(User $user): array
+    {
+        $alerts = TicketAlert::where('user_id', $user->id);
+        $tickets = Ticket::whereHas('ticketAlerts', function ($query) use ($user): void {
+            $query->where('user_id', $user->id);
+        });
+
+        return [
+            'total_monitored'       => $alerts->count(),
+            'active_alerts'         => $alerts->where('is_active', TRUE)->count(),
+            'triggered_today'       => $alerts->where('last_triggered_at', '>=', now()->startOfDay())->count(),
+            'price_drops_24h'       => $alerts->where('last_triggered_at', '>=', now()->subDay())->count(),
+            'average_response_time' => '2.3s',
+            'monitoring_uptime'     => '99.8%',
+        ];
+    }
+
+    /**
+     * Get monitored tickets
+     */
+    private function getMonitoredTickets(User $user): array
+    {
+        $tickets = Ticket::whereHas('ticketAlerts', function ($query) use ($user): void {
+            $query->where('user_id', $user->id)->where('is_active', TRUE);
+        })
+            ->with(['ticketAlerts' => function ($query) use ($user): void {
+                $query->where('user_id', $user->id);
+            }])
+            ->limit(20)
+            ->get();
+
+        return $tickets->map(function ($ticket) {
+            $alert = $ticket->ticketAlerts->first();
+
+            return [
+                'id'               => $ticket->uuid,
+                'event_name'       => $ticket->event_name,
+                'venue'            => $ticket->venue,
+                'date'             => $ticket->event_date,
+                'current_price'    => $ticket->current_price,
+                'target_price'     => $alert?->target_price,
+                'platform'         => $ticket->platform,
+                'status'           => $this->getTicketStatus($ticket),
+                'last_check'       => $ticket->last_scraped_at,
+                'price_change_24h' => $ticket->price_change_24h ?? 0,
+                'alert_status'     => $alert?->is_active ? 'active' : 'inactive',
+                'demand_level'     => $this->calculateDemandLevel($ticket),
+            ];
+        })->toArray();
+    }
+
+    /**
+     * Get recent activity
+     */
+    private function getRecentActivity(User $user): array
+    {
+        // Get recent alert triggers and ticket updates
+        $alerts = TicketAlert::where('user_id', $user->id)
+            ->whereNotNull('last_triggered_at')
+            ->orderBy('last_triggered_at', 'desc')
+            ->with('ticket')
+            ->limit(10)
+            ->get();
+
+        return $alerts->map(function ($alert) {
+            return [
+                'id'        => $alert->uuid,
+                'type'      => 'alert_triggered',
+                'title'     => 'Price Alert Triggered',
+                'message'   => "Price for {$alert->ticket->event_name} dropped to £{$alert->ticket->current_price}",
+                'timestamp' => $alert->last_triggered_at,
+                'ticket_id' => $alert->ticket->uuid,
+                'platform'  => $alert->ticket->platform,
+            ];
+        })->toArray();
+    }
+
+    /**
+     * Get demand indicators
+     */
+    private function getDemandIndicators(): array
+    {
+        return [
+            'high_demand_events' => [
+                [
+                    'event'        => 'Manchester United vs Liverpool',
+                    'venue'        => 'Old Trafford',
+                    'demand_score' => 94,
+                    'price_trend'  => 'increasing',
+                ],
+                [
+                    'event'        => 'Anthony Joshua vs Francis Ngannou',
+                    'venue'        => 'Wembley Stadium',
+                    'demand_score' => 87,
+                    'price_trend'  => 'stable',
+                ],
+            ],
+            'trending_platforms' => [
+                ['name' => 'StubHub', 'activity' => '+23%'],
+                ['name' => 'Viagogo', 'activity' => '+18%'],
+                ['name' => 'Ticketmaster', 'activity' => '+12%'],
+            ],
+        ];
+    }
+
+    /**
      * Get price history for a ticket
      */
     private function getPriceHistory(Ticket $ticket): array
@@ -329,7 +331,7 @@ class TicketMonitoringController extends Controller
         }
 
         // Platform specific scoring
-        if (in_array($ticket->platform, ['StubHub', 'Viagogo'])) {
+        if (in_array($ticket->platform, ['StubHub', 'Viagogo'], TRUE)) {
             $score += 10;
         }
 
@@ -348,7 +350,7 @@ class TicketMonitoringController extends Controller
      */
     private function getTicketStatus(Ticket $ticket): string
     {
-        if (!$ticket->is_available) {
+        if (! $ticket->is_available) {
             return 'sold_out';
         }
 

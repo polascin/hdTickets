@@ -36,15 +36,6 @@ class Following extends Model
         'followed_at'           => 'datetime',
     ];
 
-    protected static function boot()
-    {
-        parent::boot();
-
-        static::creating(function ($model) {
-            $model->followed_at = now();
-        });
-    }
-
     /**
      * Get the user who is following
      */
@@ -63,6 +54,8 @@ class Following extends Model
 
     /**
      * Scope for active followings (with notifications enabled)
+     *
+     * @param mixed $query
      */
     public function scopeWithNotifications($query)
     {
@@ -71,6 +64,8 @@ class Following extends Model
 
     /**
      * Scope for recent activity
+     *
+     * @param mixed $query
      */
     public function scopeRecentActivity($query, int $days = 7)
     {
@@ -79,6 +74,8 @@ class Following extends Model
 
     /**
      * Scope for team followings
+     *
+     * @param mixed $query
      */
     public function scopeTeams($query)
     {
@@ -87,6 +84,8 @@ class Following extends Model
 
     /**
      * Scope for venue followings
+     *
+     * @param mixed $query
      */
     public function scopeVenues($query)
     {
@@ -99,5 +98,14 @@ class Following extends Model
     public function updateActivity(): void
     {
         $this->update(['last_activity_at' => now()]);
+    }
+
+    protected static function boot(): void
+    {
+        parent::boot();
+
+        static::creating(function ($model): void {
+            $model->followed_at = now();
+        });
     }
 }

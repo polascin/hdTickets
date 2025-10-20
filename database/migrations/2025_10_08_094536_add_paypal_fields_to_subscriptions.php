@@ -11,7 +11,7 @@ return new class() extends Migration {
     public function up(): void
     {
         if (Schema::hasTable('user_subscriptions')) {
-            Schema::table('user_subscriptions', function (Blueprint $table) {
+            Schema::table('user_subscriptions', function (Blueprint $table): void {
                 // PayPal subscription fields
                 $table->string('paypal_subscription_id')->nullable()->after('stripe_customer_id');
                 $table->string('paypal_payer_id')->nullable()->after('paypal_subscription_id');
@@ -24,7 +24,7 @@ return new class() extends Migration {
         }
 
         if (Schema::hasTable('purchase_attempts')) {
-            Schema::table('purchase_attempts', function (Blueprint $table) {
+            Schema::table('purchase_attempts', function (Blueprint $table): void {
                 // PayPal order fields
                 $table->string('paypal_order_id')->nullable()->after('transaction_id');
                 $table->string('paypal_capture_id')->nullable()->after('paypal_order_id');
@@ -41,7 +41,7 @@ return new class() extends Migration {
     public function down(): void
     {
         if (Schema::hasTable('user_subscriptions')) {
-            Schema::table('user_subscriptions', function (Blueprint $table) {
+            Schema::table('user_subscriptions', function (Blueprint $table): void {
                 // Drop PayPal subscription fields
                 $table->dropIndex('idx_paypal_subscription_id');
                 $table->dropColumn([
@@ -54,7 +54,7 @@ return new class() extends Migration {
         }
 
         if (Schema::hasTable('purchase_attempts')) {
-            Schema::table('purchase_attempts', function (Blueprint $table) {
+            Schema::table('purchase_attempts', function (Blueprint $table): void {
                 // Drop PayPal order fields
                 $table->dropIndex('idx_paypal_order_id');
                 $table->dropColumn([

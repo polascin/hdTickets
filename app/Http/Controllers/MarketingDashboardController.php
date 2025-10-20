@@ -9,12 +9,18 @@ use App\Models\Payment;
 use App\Models\Subscription;
 use App\Models\User;
 use App\Services\MarketingDashboardService;
+use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\ValidationException;
+
+use function dirname;
+use function in_array;
+use function is_array;
+use function strlen;
 
 /**
  * Marketing & Dashboard Controller
@@ -49,7 +55,7 @@ class MarketingDashboardController extends Controller
                 'success' => TRUE,
                 'data'    => $dashboard,
             ]);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             Log::error('Failed to get user dashboard', [
                 'error'   => $e->getMessage(),
                 'user_id' => Auth::id(),
@@ -71,7 +77,7 @@ class MarketingDashboardController extends Controller
             $user = Auth::user();
 
             // Check if user has admin role
-            if (!$user->hasRole('admin')) {
+            if (! $user->hasRole('admin')) {
                 return response()->json([
                     'success' => FALSE,
                     'message' => 'Unauthorized access',
@@ -84,7 +90,7 @@ class MarketingDashboardController extends Controller
                 'success' => TRUE,
                 'data'    => $dashboard,
             ]);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             Log::error('Failed to get admin dashboard', [
                 'error'   => $e->getMessage(),
                 'user_id' => Auth::id(),
@@ -109,7 +115,7 @@ class MarketingDashboardController extends Controller
                 'success' => TRUE,
                 'data'    => $analytics,
             ]);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             Log::error('Failed to get real-time analytics', [
                 'error'   => $e->getMessage(),
                 'user_id' => Auth::id(),
@@ -145,7 +151,7 @@ class MarketingDashboardController extends Controller
                 'message' => 'Validation failed',
                 'errors'  => $e->errors(),
             ], 422);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             Log::error('Failed to get user engagement report', [
                 'error'   => $e->getMessage(),
                 'user_id' => Auth::id(),
@@ -167,7 +173,7 @@ class MarketingDashboardController extends Controller
             $user = Auth::user();
 
             // Check if user has admin role
-            if (!$user->hasRole('admin')) {
+            if (! $user->hasRole('admin')) {
                 return response()->json([
                     'success' => FALSE,
                     'message' => 'Unauthorized access',
@@ -191,7 +197,7 @@ class MarketingDashboardController extends Controller
                 'message' => 'Validation failed',
                 'errors'  => $e->errors(),
             ], 422);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             Log::error('Failed to get revenue report', [
                 'error'   => $e->getMessage(),
                 'user_id' => Auth::id(),
@@ -213,7 +219,7 @@ class MarketingDashboardController extends Controller
             $user = Auth::user();
 
             // Check if user has admin or marketing role
-            if (!$user->hasRole(['admin', 'marketing'])) {
+            if (! $user->hasRole(['admin', 'marketing'])) {
                 return response()->json([
                     'success' => FALSE,
                     'message' => 'Unauthorized access',
@@ -225,7 +231,7 @@ class MarketingDashboardController extends Controller
             ]);
 
             $analytics = $this->dashboardService->getCampaignAnalytics(
-                $validated['campaign_id'] ?? NULL
+                $validated['campaign_id'] ?? NULL,
             );
 
             return response()->json([
@@ -238,7 +244,7 @@ class MarketingDashboardController extends Controller
                 'message' => 'Validation failed',
                 'errors'  => $e->errors(),
             ], 422);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             Log::error('Failed to get campaign analytics', [
                 'error'   => $e->getMessage(),
                 'user_id' => Auth::id(),
@@ -260,7 +266,7 @@ class MarketingDashboardController extends Controller
             $user = Auth::user();
 
             // Check if user has admin or marketing role
-            if (!$user->hasRole(['admin', 'marketing'])) {
+            if (! $user->hasRole(['admin', 'marketing'])) {
                 return response()->json([
                     'success' => FALSE,
                     'message' => 'Unauthorized access',
@@ -273,7 +279,7 @@ class MarketingDashboardController extends Controller
                 'success' => TRUE,
                 'data'    => $insights,
             ]);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             Log::error('Failed to get marketing insights', [
                 'error'   => $e->getMessage(),
                 'user_id' => Auth::id(),
@@ -309,7 +315,7 @@ class MarketingDashboardController extends Controller
                     ],
                     'events' => [
                         'total_events'     => Event::count(),
-                        'monitored_events' => Event::whereHas('monitors', function ($q) {
+                        'monitored_events' => Event::whereHas('monitors', function ($q): void {
                             $q->where('is_active', TRUE);
                         })->count(),
                         'recent_additions' => Event::where('created_at', '>=', now()->subWeek())->count(),
@@ -327,7 +333,7 @@ class MarketingDashboardController extends Controller
                 'success' => TRUE,
                 'data'    => $stats,
             ]);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             Log::error('Failed to get platform stats', [
                 'error'   => $e->getMessage(),
                 'user_id' => Auth::id(),
@@ -371,7 +377,7 @@ class MarketingDashboardController extends Controller
                 'message' => 'Validation failed',
                 'errors'  => $e->errors(),
             ], 422);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             Log::error('Failed to get performance metrics', [
                 'error'   => $e->getMessage(),
                 'user_id' => Auth::id(),
@@ -401,7 +407,7 @@ class MarketingDashboardController extends Controller
             ]);
 
             // Check permissions based on data type
-            if (in_array($validated['data_type'], ['admin', 'revenue']) && !$user->hasRole('admin')) {
+            if (in_array($validated['data_type'], ['admin', 'revenue'], TRUE) && ! $user->hasRole('admin')) {
                 return response()->json([
                     'success' => FALSE,
                     'message' => 'Unauthorized access',
@@ -425,7 +431,7 @@ class MarketingDashboardController extends Controller
                 'message' => 'Validation failed',
                 'errors'  => $e->errors(),
             ], 422);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             Log::error('Failed to export dashboard data', [
                 'error'   => $e->getMessage(),
                 'user_id' => Auth::id(),
@@ -455,7 +461,7 @@ class MarketingDashboardController extends Controller
             $targetUserId = $validated['user_id'] ?? $user->id;
 
             // If requesting another user's data, check admin permission
-            if ($targetUserId !== $user->id && !$user->hasRole('admin')) {
+            if ($targetUserId !== $user->id && ! $user->hasRole('admin')) {
                 return response()->json([
                     'success' => FALSE,
                     'message' => 'Unauthorized access',
@@ -483,7 +489,7 @@ class MarketingDashboardController extends Controller
                 'message' => 'Validation failed',
                 'errors'  => $e->errors(),
             ], 422);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             Log::error('Failed to get user activity timeline', [
                 'error'   => $e->getMessage(),
                 'user_id' => Auth::id(),
@@ -551,7 +557,7 @@ class MarketingDashboardController extends Controller
             'day'   => 7,
             'week'  => 4,
             'month' => 12,
-            default => 7
+            default => 7,
         };
 
         $unit = match ($period) {
@@ -559,7 +565,7 @@ class MarketingDashboardController extends Controller
             'day'   => 'days',
             'week'  => 'weeks',
             'month' => 'months',
-            default => 'days'
+            default => 'days',
         };
 
         for ($i = $intervals - 1; $i >= 0; $i--) {
@@ -577,7 +583,7 @@ class MarketingDashboardController extends Controller
             'admin'      => $this->dashboardService->getDashboardOverview(),
             'revenue'    => $this->dashboardService->getRevenueReport(),
             'engagement' => $this->dashboardService->getUserEngagementReport(),
-            default      => []
+            default      => [],
         };
     }
 
@@ -587,8 +593,8 @@ class MarketingDashboardController extends Controller
         $path = storage_path('app/exports/' . $filename);
 
         // Ensure directory exists
-        if (!file_exists(dirname($path))) {
-            mkdir(dirname($path), 0755, TRUE);
+        if (! file_exists(dirname($path))) {
+            mkdir(dirname($path), 0o755, TRUE);
         }
 
         switch ($format) {
@@ -614,7 +620,7 @@ class MarketingDashboardController extends Controller
     {
         // Count total records in nested array structure
         $count = 0;
-        array_walk_recursive($data, function () use (&$count) {
+        array_walk_recursive($data, function () use (&$count): void {
             $count++;
         });
 
@@ -655,7 +661,7 @@ class MarketingDashboardController extends Controller
             'monitor'      => ['events_added' => $count],
             'alert'        => ['notifications_sent' => $count],
             'subscription' => ['plan_changes' => $count],
-            default        => []
+            default        => [],
         };
     }
 
@@ -668,11 +674,11 @@ class MarketingDashboardController extends Controller
         ];
 
         foreach ($timeline as $date => $activities) {
-            if (!empty($activities)) {
+            if (! empty($activities)) {
                 $summary['total_days_active']++;
 
                 $dailyTotal = array_sum(array_column($activities, 'count'));
-                if (!$summary['most_active_day'] || $dailyTotal > $summary['most_active_day']['total']) {
+                if (! $summary['most_active_day'] || $dailyTotal > $summary['most_active_day']['total']) {
                     $summary['most_active_day'] = ['date' => $date, 'total' => $dailyTotal];
                 }
 
@@ -694,7 +700,7 @@ class MarketingDashboardController extends Controller
         // Flatten the array for CSV format
         $flattened = $this->flattenArray($data);
 
-        if (!empty($flattened)) {
+        if (! empty($flattened)) {
             // Write headers
             fputcsv($file, array_keys($flattened[0]));
 

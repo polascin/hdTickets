@@ -15,7 +15,7 @@ return new class() extends Migration {
         if (config('database.default') === 'sqlite') {
             // SQLite doesn't support stored functions like MySQL
             // Just create the error_log table for SQLite
-            if (!Schema::hasTable('error_log')) {
+            if (! Schema::hasTable('error_log')) {
                 Schema::create('error_log', function (Blueprint $table): void {
                     $table->id();
                     $table->text('error_message');
@@ -98,7 +98,7 @@ return new class() extends Migration {
         ');
 
         // Step 5: Create error_log table if it doesn\'t exist for logging retry failures
-        if (!Schema::hasTable('error_log')) {
+        if (! Schema::hasTable('error_log')) {
             Schema::create('error_log', function (Blueprint $table): void {
                 $table->id();
                 $table->text('error_message');

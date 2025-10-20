@@ -18,11 +18,11 @@ use Illuminate\Support\Facades\Log;
  *
  * Features:
  * - Available            return [
-                'change_percentage' => round((float) $change, 1),
-                'direction'         => $change > 0 ? 'up' : ($change < 0 ? 'down' : 'stable'),
-                'current_avg'       => round((float) $thisWeekAvg, 2),
-                'previous_avg'      => round((float) $lastWeekAvg, 2),
-            ];ts count with platform breakdown
+ * 'change_percentage' => round((float) $change, 1),
+ * 'direction'         => $change > 0 ? 'up' : ($change < 0 ? 'down' : 'stable'),
+ * 'current_avg'       => round((float) $thisWeekAvg, 2),
+ * 'previous_avg'      => round((float) $lastWeekAvg, 2),
+ * ];ts count with platform breakdown
  * - Daily, weekly, and monthly trends
  * - Price analytics and trends
  * - Platform performance metrics

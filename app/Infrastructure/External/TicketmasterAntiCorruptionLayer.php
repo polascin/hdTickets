@@ -175,15 +175,15 @@ class TicketmasterAntiCorruptionLayer
     {
         $addressParts = [];
 
-        if (!empty($venue['address']['line1'])) {
+        if (! empty($venue['address']['line1'])) {
             $addressParts[] = $venue['address']['line1'];
         }
 
-        if (!empty($venue['address']['line2'])) {
+        if (! empty($venue['address']['line2'])) {
             $addressParts[] = $venue['address']['line2'];
         }
 
-        if (!empty($venue['postalCode'])) {
+        if (! empty($venue['postalCode'])) {
             $addressParts[] = $venue['postalCode'];
         }
 
@@ -279,7 +279,7 @@ class TicketmasterAntiCorruptionLayer
     {
         $available = $ticketData['available'] ?? TRUE;
 
-        if (!$available) {
+        if (! $available) {
             return new AvailabilityStatus(AvailabilityStatus::SOLD_OUT);
         }
 

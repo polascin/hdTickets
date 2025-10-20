@@ -26,12 +26,12 @@ class AuthenticatedSessionController extends Controller
         if (config('auth.enhanced_login', FALSE)) {
             return view('auth.login-enhanced');
         }
-        
+
         // Check if comprehensive login is enabled
         if (config('auth.comprehensive_login', TRUE)) {
             return view('auth.login-comprehensive');
         }
-        
+
         // Fallback to basic login
         return view('auth.login');
     }

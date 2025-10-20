@@ -28,6 +28,23 @@ class CampaignEmail extends Model
 {
     use HasFactory;
 
+    /** Email statuses */
+    public const STATUS_PENDING = 'pending';
+
+    public const STATUS_SENT = 'sent';
+
+    public const STATUS_DELIVERED = 'delivered';
+
+    public const STATUS_OPENED = 'opened';
+
+    public const STATUS_CLICKED = 'clicked';
+
+    public const STATUS_FAILED = 'failed';
+
+    public const STATUS_BOUNCED = 'bounced';
+
+    public const STATUS_UNSUBSCRIBED = 'unsubscribed';
+
     protected $fillable = [
         'campaign_id',
         'user_id',
@@ -46,25 +63,6 @@ class CampaignEmail extends Model
         'clicked_at'    => 'datetime',
         'tracking_data' => 'array',
     ];
-
-    /**
-     * Email statuses
-     */
-    public const STATUS_PENDING = 'pending';
-
-    public const STATUS_SENT = 'sent';
-
-    public const STATUS_DELIVERED = 'delivered';
-
-    public const STATUS_OPENED = 'opened';
-
-    public const STATUS_CLICKED = 'clicked';
-
-    public const STATUS_FAILED = 'failed';
-
-    public const STATUS_BOUNCED = 'bounced';
-
-    public const STATUS_UNSUBSCRIBED = 'unsubscribed';
 
     /**
      * Get the campaign this email belongs to
@@ -87,7 +85,7 @@ class CampaignEmail extends Model
      */
     public function wasOpened(): bool
     {
-        return !is_null($this->opened_at);
+        return NULL !== $this->opened_at;
     }
 
     /**
@@ -95,7 +93,7 @@ class CampaignEmail extends Model
      */
     public function wasClicked(): bool
     {
-        return !is_null($this->clicked_at);
+        return NULL !== $this->clicked_at;
     }
 
     /**
@@ -103,7 +101,7 @@ class CampaignEmail extends Model
      */
     public function markAsOpened(): void
     {
-        if (!$this->wasOpened()) {
+        if (! $this->wasOpened()) {
             $this->update([
                 'opened_at' => now(),
                 'status'    => self::STATUS_OPENED,
@@ -116,7 +114,7 @@ class CampaignEmail extends Model
      */
     public function markAsClicked(): void
     {
-        if (!$this->wasClicked()) {
+        if (! $this->wasClicked()) {
             $this->update([
                 'clicked_at' => now(),
                 'status'     => self::STATUS_CLICKED,

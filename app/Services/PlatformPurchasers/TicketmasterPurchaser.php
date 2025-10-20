@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Services\PlatformPurchasers;
 
 use App\Models\User;
+use Exception;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 
@@ -52,22 +53,22 @@ class TicketmasterPurchaser
             // Step 2: Add tickets to cart (lightning fast)
             $cartResult = $this->addToCart($ticket, $quantity, $session);
 
-            if (!$cartResult['success']) {
-                throw new \Exception('Failed to add tickets to cart: ' . $cartResult['error']);
+            if (! $cartResult['success']) {
+                throw new Exception('Failed to add tickets to cart: ' . $cartResult['error']);
             }
 
             // Step 3: Apply user payment method
             $paymentResult = $this->applyPaymentMethod($user, $session, $preloadData);
 
-            if (!$paymentResult['success']) {
-                throw new \Exception('Failed to apply payment method: ' . $paymentResult['error']);
+            if (! $paymentResult['success']) {
+                throw new Exception('Failed to apply payment method: ' . $paymentResult['error']);
             }
 
             // Step 4: Execute checkout
             $checkoutResult = $this->executeCheckout($session, $user);
 
-            if (!$checkoutResult['success']) {
-                throw new \Exception('Checkout failed: ' . $checkoutResult['error']);
+            if (! $checkoutResult['success']) {
+                throw new Exception('Checkout failed: ' . $checkoutResult['error']);
             }
 
             $executionTime = (microtime(TRUE) - $startTime) * 1000;
@@ -88,7 +89,7 @@ class TicketmasterPurchaser
                 'confirmation_number' => $checkoutResult['confirmation_number'],
                 'execution_time'      => $executionTime,
             ];
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $executionTime = (microtime(TRUE) - $startTime) * 1000;
 
             Log::error('Ticketmaster purchase failed', [
@@ -99,6 +100,33 @@ class TicketmasterPurchaser
 
             throw $e;
         }
+    }
+
+    /**
+     * Bypass anti-bot detection
+     */
+    public function bypassAntiBotDetection(): array
+    {
+        // This would implement anti-bot bypass strategies
+        return [
+            'user_agent_rotation' => TRUE,
+            'proxy_rotation'      => FALSE,
+            'request_throttling'  => TRUE,
+            'session_warming'     => TRUE,
+        ];
+    }
+
+    /**
+     * Optimize for queue position
+     */
+    public function optimizeQueuePosition(): array
+    {
+        // This would implement queue position optimization
+        return [
+            'early_queue_join'      => TRUE,
+            'multiple_browser_tabs' => FALSE,
+            'session_persistence'   => TRUE,
+        ];
     }
 
     /**
@@ -128,16 +156,16 @@ class TicketmasterPurchaser
                 'X-CSRF-Token' => $session['csrf_token'],
                 'X-Session-ID' => $session['session_id'],
             ])
-            ->withCookies($session['cookies'], 'ticketmaster.com')
-            ->timeout(5) // 5 second timeout for speed
-            ->post($this->endpoints['cart'], [
-                'eventId'    => $ticket['external_id'],
-                'offerId'    => $ticket['offer_id'] ?? 'general',
-                'quantity'   => $quantity,
-                'section'    => $ticket['section'] ?? '',
-                'row'        => $ticket['row'] ?? '',
-                'priceClass' => $ticket['price_class'] ?? 'standard',
-            ]);
+                ->withCookies($session['cookies'], 'ticketmaster.com')
+                ->timeout(5) // 5 second timeout for speed
+                ->post($this->endpoints['cart'], [
+                    'eventId'    => $ticket['external_id'],
+                    'offerId'    => $ticket['offer_id'] ?? 'general',
+                    'quantity'   => $quantity,
+                    'section'    => $ticket['section'] ?? '',
+                    'row'        => $ticket['row'] ?? '',
+                    'priceClass' => $ticket['price_class'] ?? 'standard',
+                ]);
 
             if ($response->successful()) {
                 $data = $response->json();
@@ -156,7 +184,7 @@ class TicketmasterPurchaser
                 'success' => FALSE,
                 'error'   => $response->json()['message'] ?? 'Failed to add to cart',
             ];
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return [
                 'success' => FALSE,
                 'error'   => $e->getMessage(),
@@ -173,7 +201,7 @@ class TicketmasterPurchaser
             $paymentMethods = $preloadData['payment_methods'] ?? [];
             $primaryPayment = $paymentMethods[0] ?? NULL;
 
-            if (!$primaryPayment) {
+            if (! $primaryPayment) {
                 return [
                     'success' => FALSE,
                     'error'   => 'No payment method available',
@@ -185,13 +213,13 @@ class TicketmasterPurchaser
                 'X-CSRF-Token' => $session['csrf_token'],
                 'X-Session-ID' => $session['session_id'],
             ])
-            ->withCookies($session['cookies'], 'ticketmaster.com')
-            ->timeout(3)
-            ->post($this->endpoints['cart'] . '/payment', [
-                'paymentMethodId'   => $primaryPayment['id'],
-                'billingAddress'    => $this->formatBillingAddress($user, $preloadData),
-                'savePaymentMethod' => FALSE,
-            ]);
+                ->withCookies($session['cookies'], 'ticketmaster.com')
+                ->timeout(3)
+                ->post($this->endpoints['cart'] . '/payment', [
+                    'paymentMethodId'   => $primaryPayment['id'],
+                    'billingAddress'    => $this->formatBillingAddress($user, $preloadData),
+                    'savePaymentMethod' => FALSE,
+                ]);
 
             if ($response->successful()) {
                 return [
@@ -204,7 +232,7 @@ class TicketmasterPurchaser
                 'success' => FALSE,
                 'error'   => $response->json()['message'] ?? 'Failed to apply payment',
             ];
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return [
                 'success' => FALSE,
                 'error'   => $e->getMessage(),
@@ -223,14 +251,14 @@ class TicketmasterPurchaser
                 'X-CSRF-Token' => $session['csrf_token'],
                 'X-Session-ID' => $session['session_id'],
             ])
-            ->withCookies($session['cookies'], 'ticketmaster.com')
-            ->timeout(10) // Longer timeout for checkout
-            ->post($this->endpoints['checkout'], [
-                'cartId'          => $session['cart_id'],
-                'confirmPurchase' => TRUE,
-                'acceptTerms'     => TRUE,
-                'userEmail'       => $user->email,
-            ]);
+                ->withCookies($session['cookies'], 'ticketmaster.com')
+                ->timeout(10) // Longer timeout for checkout
+                ->post($this->endpoints['checkout'], [
+                    'cartId'          => $session['cart_id'],
+                    'confirmPurchase' => TRUE,
+                    'acceptTerms'     => TRUE,
+                    'userEmail'       => $user->email,
+                ]);
 
             if ($response->successful()) {
                 $data = $response->json();
@@ -253,7 +281,7 @@ class TicketmasterPurchaser
                 'success' => FALSE,
                 'error'   => $errorData['message'] ?? 'Checkout failed',
             ];
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return [
                 'success' => FALSE,
                 'error'   => $e->getMessage(),
@@ -297,32 +325,5 @@ class TicketmasterPurchaser
     private function generateCsrfToken(): string
     {
         return 'csrf_' . bin2hex(random_bytes(16));
-    }
-
-    /**
-     * Bypass anti-bot detection
-     */
-    public function bypassAntiBotDetection(): array
-    {
-        // This would implement anti-bot bypass strategies
-        return [
-            'user_agent_rotation' => TRUE,
-            'proxy_rotation'      => FALSE,
-            'request_throttling'  => TRUE,
-            'session_warming'     => TRUE,
-        ];
-    }
-
-    /**
-     * Optimize for queue position
-     */
-    public function optimizeQueuePosition(): array
-    {
-        // This would implement queue position optimization
-        return [
-            'early_queue_join'      => TRUE,
-            'multiple_browser_tabs' => FALSE,
-            'session_persistence'   => TRUE,
-        ];
     }
 }

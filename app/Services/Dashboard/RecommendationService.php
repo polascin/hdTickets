@@ -99,12 +99,12 @@ class RecommendationService
                 ->whereBetween('price', [$priceRange['min'], $priceRange['max']]);
 
             // Filter by favorite sports
-            if (!empty($favoriteSports)) {
+            if (! empty($favoriteSports)) {
                 $query->whereIn('sport', $favoriteSports);
             }
 
             // Filter by favorite teams
-            if (!empty($favoriteTeams)) {
+            if (! empty($favoriteTeams)) {
                 $query->where(function ($q) use ($favoriteTeams): void {
                     foreach ($favoriteTeams as $team) {
                         $q->orWhere('home_team', 'LIKE', "%{$team}%")
@@ -156,7 +156,7 @@ class RecommendationService
                 ->having('max_price', '>', DB::raw('min_price * 1.2')) // Price variation exists
                 ->whereNotIn('event_name', $existingAlerts);
 
-            if (!empty($favoriteSports)) {
+            if (! empty($favoriteSports)) {
                 $query->whereIn('sport', $favoriteSports);
             }
 
@@ -209,7 +209,7 @@ class RecommendationService
                 ->groupBy('event_name', 'sport', 'home_team', 'away_team', 'event_date')
                 ->having('listing_count', '>=', 3);
 
-            if (!empty($favoriteSports)) {
+            if (! empty($favoriteSports)) {
                 $query->whereIn('sport', $favoriteSports);
             }
 
@@ -297,11 +297,11 @@ class RecommendationService
                 ->orderBy('event_date', 'asc');
 
             // Prioritize favorite sports and teams
-            if (!empty($favoriteSports)) {
+            if (! empty($favoriteSports)) {
                 $query->whereIn('sport', $favoriteSports);
             }
 
-            if (!empty($favoriteTeams)) {
+            if (! empty($favoriteTeams)) {
                 $query->where(function ($q) use ($favoriteTeams): void {
                     foreach ($favoriteTeams as $team) {
                         $q->orWhere('home_team', 'LIKE', "%{$team}%")
@@ -398,13 +398,13 @@ class RecommendationService
 
         // Sport preference (30% weight)
         $favoriteSports = $preferences['favorite_sports'] ?? [];
-        if (!empty($favoriteSports) && in_array($ticket->sport, $favoriteSports, TRUE)) {
+        if (! empty($favoriteSports) && in_array($ticket->sport, $favoriteSports, TRUE)) {
             $score += 0.3;
         }
 
         // Team preference (25% weight)
         $favoriteTeams = $preferences['favorite_teams'] ?? [];
-        if (!empty($favoriteTeams)) {
+        if (! empty($favoriteTeams)) {
             foreach ($favoriteTeams as $team) {
                 if (stripos($ticket->home_team, $team) !== FALSE
                     || stripos($ticket->away_team, $team) !== FALSE) {
@@ -427,13 +427,13 @@ class RecommendationService
 
         // Venue preference (15% weight)
         $preferredVenues = $preferences['preferred_venues'] ?? [];
-        if (!empty($preferredVenues) && in_array($ticket->venue, $preferredVenues, TRUE)) {
+        if (! empty($preferredVenues) && in_array($ticket->venue, $preferredVenues, TRUE)) {
             $score += 0.15;
         }
 
         // Platform preference (10% weight)
         $preferredPlatforms = $preferences['preferred_platforms'] ?? [];
-        if (!empty($preferredPlatforms) && in_array($ticket->platform, $preferredPlatforms, TRUE)) {
+        if (! empty($preferredPlatforms) && in_array($ticket->platform, $preferredPlatforms, TRUE)) {
             $score += 0.1;
         }
 
@@ -581,16 +581,16 @@ class RecommendationService
 
         // Preferences completeness (40%)
         $preferenceScore = 0;
-        if (!empty($preferences['favorite_sports'])) {
+        if (! empty($preferences['favorite_sports'])) {
             $preferenceScore += 10;
         }
-        if (!empty($preferences['favorite_teams'])) {
+        if (! empty($preferences['favorite_teams'])) {
             $preferenceScore += 10;
         }
-        if (!empty($preferences['preferred_venues'])) {
+        if (! empty($preferences['preferred_venues'])) {
             $preferenceScore += 10;
         }
-        if (!empty($preferences['price_range'])) {
+        if (! empty($preferences['price_range'])) {
             $preferenceScore += 10;
         }
 
@@ -638,11 +638,11 @@ class RecommendationService
         $preferences = $user->preferences ?? [];
         $reasons = [];
 
-        if (!empty($preferences['favorite_sports'])) {
+        if (! empty($preferences['favorite_sports'])) {
             $reasons[] = 'Based on your favorite sports: ' . implode(', ', $preferences['favorite_sports']);
         }
 
-        if (!empty($preferences['favorite_teams'])) {
+        if (! empty($preferences['favorite_teams'])) {
             $reasons[] = 'Featuring your favorite teams: ' . implode(', ', array_slice($preferences['favorite_teams'], 0, 3));
         }
 

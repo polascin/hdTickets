@@ -11,11 +11,15 @@ use App\Models\Plan;
 use App\Models\Subscription;
 use App\Models\User;
 use Carbon\Carbon;
+use Exception;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use InvalidArgumentException;
 use Stripe\Customer;
 use Stripe\Stripe;
 use Stripe\Subscription as StripeSubscription;
+
+use function in_array;
 
 /**
  * Subscription Management Service
@@ -138,11 +142,11 @@ class SubscriptionService
         User $user,
         string $planName,
         string $paymentMethodId,
-        array $options = []
+        array $options = [],
     ): array {
         $plan = $this->getPlan($planName);
-        if (!$plan) {
-            throw new \InvalidArgumentException("Invalid plan: {$planName}");
+        if (! $plan) {
+            throw new InvalidArgumentException("Invalid plan: {$planName}");
         }
 
         DB::beginTransaction();
@@ -159,7 +163,7 @@ class SubscriptionService
                 $stripeCustomer->id,
                 $planName,
                 $paymentMethodId,
-                $options
+                $options,
             );
 
             // Create local subscription record
@@ -167,7 +171,7 @@ class SubscriptionService
                 $user,
                 $planName,
                 $stripeSubscription,
-                $options
+                $options,
             );
 
             // Update user subscription status
@@ -195,7 +199,7 @@ class SubscriptionService
                 'stripe_subscription' => $stripeSubscription,
                 'message'             => "Successfully subscribed to {$plan['name']} plan",
             ];
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             DB::rollBack();
 
             Log::error('Failed to create subscription', [
@@ -214,16 +218,16 @@ class SubscriptionService
     public function updateSubscription(
         User $user,
         string $newPlanName,
-        array $options = []
+        array $options = [],
     ): array {
         $currentSubscription = $user->activeSubscription();
-        if (!$currentSubscription) {
-            throw new \Exception('No active subscription found');
+        if (! $currentSubscription) {
+            throw new Exception('No active subscription found');
         }
 
         $newPlan = $this->getPlan($newPlanName);
-        if (!$newPlan) {
-            throw new \InvalidArgumentException("Invalid plan: {$newPlanName}");
+        if (! $newPlan) {
+            throw new InvalidArgumentException("Invalid plan: {$newPlanName}");
         }
 
         DB::beginTransaction();
@@ -240,7 +244,7 @@ class SubscriptionService
                         ],
                     ],
                     'proration_behavior' => $options['prorate'] ?? 'create_prorations',
-                ]
+                ],
             );
 
             // Update local subscription
@@ -270,7 +274,7 @@ class SubscriptionService
                 'subscription' => $currentSubscription->fresh(),
                 'message'      => "Successfully upgraded to {$newPlan['name']} plan",
             ];
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             DB::rollBack();
 
             Log::error('Failed to update subscription', [
@@ -289,11 +293,11 @@ class SubscriptionService
     public function cancelSubscription(
         User $user,
         bool $immediately = FALSE,
-        string $reason = NULL
+        ?string $reason = NULL,
     ): array {
         $subscription = $user->activeSubscription();
-        if (!$subscription) {
-            throw new \Exception('No active subscription found');
+        if (! $subscription) {
+            throw new Exception('No active subscription found');
         }
 
         DB::beginTransaction();
@@ -303,7 +307,7 @@ class SubscriptionService
                 // Cancel immediately
                 $stripeSubscription = StripeSubscription::update(
                     $subscription->stripe_subscription_id,
-                    ['cancel_at_period_end' => FALSE]
+                    ['cancel_at_period_end' => FALSE],
                 );
 
                 StripeSubscription::retrieve($subscription->stripe_subscription_id)->cancel();
@@ -324,7 +328,7 @@ class SubscriptionService
                 // Cancel at period end
                 StripeSubscription::update(
                     $subscription->stripe_subscription_id,
-                    ['cancel_at_period_end' => TRUE]
+                    ['cancel_at_period_end' => TRUE],
                 );
 
                 $subscription->update([
@@ -353,7 +357,7 @@ class SubscriptionService
                 'subscription' => $subscription->fresh(),
                 'message'      => $message,
             ];
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             DB::rollBack();
 
             Log::error('Failed to cancel subscription', [
@@ -371,15 +375,15 @@ class SubscriptionService
     public function resumeSubscription(User $user): array
     {
         $subscription = $user->activeSubscription();
-        if (!$subscription || $subscription->status !== 'cancel_at_period_end') {
-            throw new \Exception('No subscription pending cancellation found');
+        if (! $subscription || $subscription->status !== 'cancel_at_period_end') {
+            throw new Exception('No subscription pending cancellation found');
         }
 
         try {
             // Resume in Stripe
             StripeSubscription::update(
                 $subscription->stripe_subscription_id,
-                ['cancel_at_period_end' => FALSE]
+                ['cancel_at_period_end' => FALSE],
             );
 
             // Update local subscription
@@ -399,7 +403,7 @@ class SubscriptionService
                 'subscription' => $subscription->fresh(),
                 'message'      => 'Subscription resumed successfully',
             ];
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             Log::error('Failed to resume subscription', [
                 'user_id' => $user->id,
                 'error'   => $e->getMessage(),
@@ -416,11 +420,11 @@ class SubscriptionService
     {
         $plan = $this->getPlan($user->subscription_plan ?? 'free');
 
-        if (!$plan) {
+        if (! $plan) {
             return FALSE;
         }
 
-        return in_array($feature, $plan['features']['features'] ?? []);
+        return in_array($feature, $plan['features']['features'] ?? [], TRUE);
     }
 
     /**
@@ -430,7 +434,7 @@ class SubscriptionService
     {
         $plan = $this->getPlan($user->subscription_plan ?? 'free');
 
-        if (!$plan) {
+        if (! $plan) {
             return $this->getFreePlanLimits();
         }
 
@@ -445,7 +449,7 @@ class SubscriptionService
         $limits = $this->getUserLimits($user);
         $limitKey = $resource . '_limit';
 
-        if (!isset($limits[$limitKey])) {
+        if (! isset($limits[$limitKey])) {
             return FALSE;
         }
 
@@ -461,7 +465,7 @@ class SubscriptionService
     {
         $subscription = $user->activeSubscription();
 
-        if (!$subscription) {
+        if (! $subscription) {
             return [
                 'plan'              => 'Free',
                 'status'            => 'free',
@@ -492,7 +496,7 @@ class SubscriptionService
     {
         $subscription = Subscription::where('stripe_subscription_id', $stripeSubscriptionId)->first();
 
-        if (!$subscription) {
+        if (! $subscription) {
             Log::warning('Failed payment for unknown subscription', ['stripe_id' => $stripeSubscriptionId]);
 
             return;
@@ -519,7 +523,7 @@ class SubscriptionService
         if ($user->stripe_customer_id) {
             try {
                 return Customer::retrieve($user->stripe_customer_id);
-            } catch (\Exception $e) {
+            } catch (Exception $e) {
                 // Customer not found, create new one
             }
         }
@@ -547,7 +551,7 @@ class SubscriptionService
         string $customerId,
         string $planName,
         string $paymentMethodId,
-        array $options
+        array $options,
     ): StripeSubscription {
         $priceId = $this->getStripePriceId($planName);
 
@@ -567,7 +571,7 @@ class SubscriptionService
         User $user,
         string $planName,
         StripeSubscription $stripeSubscription,
-        array $options
+        array $options,
     ): Subscription {
         $plan = $this->getPlan($planName);
 
@@ -593,7 +597,7 @@ class SubscriptionService
             'starter'    => config('stripe.prices.starter'),
             'pro'        => config('stripe.prices.pro'),
             'enterprise' => config('stripe.prices.enterprise'),
-            default      => throw new \InvalidArgumentException("No Stripe price ID for plan: {$planName}")
+            default      => throw new InvalidArgumentException("No Stripe price ID for plan: {$planName}"),
         };
     }
 
@@ -620,7 +624,7 @@ class SubscriptionService
             'price_alerts'          => $user->priceAlerts()->count(),
             'webhook_endpoints'     => $user->webhooks()->count(),
             'auto_purchase_configs' => $user->autoPurchaseConfigs()->count(),
-            default                 => 0
+            default                 => 0,
         };
     }
 

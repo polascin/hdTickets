@@ -13,6 +13,8 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
 
+use function chr;
+
 class DashboardTestSeeder extends Seeder
 {
     /**
@@ -22,7 +24,7 @@ class DashboardTestSeeder extends Seeder
     {
         $this->command->info('🚀 Starting comprehensive dashboard seeding...');
 
-        DB::transaction(function () {
+        DB::transaction(function (): void {
             $this->createTestCustomers();
             $this->createTicketsWithVariedData();
             $this->createTicketAlerts();
@@ -77,7 +79,7 @@ class DashboardTestSeeder extends Seeder
                 array_merge($customerData, [
                     'created_at' => now()->subDays(rand(30, 90)),
                     'updated_at' => now(),
-                ])
+                ]),
             );
         }
 

@@ -2,11 +2,13 @@
 
 namespace App\Http\Middleware;
 
+use App\Support\UserAgentHelper;
 use Closure;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Log;
 use Symfony\Component\HttpFoundation\Response;
+use Throwable;
 
 class PreventScraperWebAccess
 {
@@ -27,14 +29,35 @@ class PreventScraperWebAccess
 
         // Check if user is logged in and is a scraper
         if ($user && $user->isScraper()) {
-            // Log the unauthorized access attempt
-            Log::warning('Scraper user attempted web access', [
-                'user_id'    => $user->id,
-                'username'   => $user->username,
-                'ip'         => $request->ip(),
-                'user_agent' => $request->userAgent(),
-                'url'        => $request->fullUrl(),
-            ]);
+            try {
+                // Get device information safely
+                $deviceInfo = UserAgentHelper::getDeviceInfo($request);
+                $userAgent = UserAgentHelper::sanitise($deviceInfo['user_agent'] ?? NULL);
+
+                // Log the unauthorized access attempt
+                Log::warning('Scraper user attempted web access', [
+                    'user_id'     => $user->id,
+                    'username'    => $user->username,
+                    'ip'          => $request->ip(),
+                    'user_agent'  => $userAgent,
+                    'device_info' => $deviceInfo,
+                    'url'         => $request->fullUrl(),
+                ]);
+
+                // Log iOS-specific attempts for monitoring
+                if ($deviceInfo['is_ios']) {
+                    UserAgentHelper::logIOSRequest($request, 'scraper_web_access_attempt');
+                }
+            } catch (Throwable $e) {
+                // Fallback logging if user agent parsing fails
+                Log::warning('Scraper user attempted web access (UA parsing failed)', [
+                    'user_id'  => $user->id,
+                    'username' => $user->username,
+                    'ip'       => $request->ip(),
+                    'url'      => $request->fullUrl(),
+                    'error'    => $e->getMessage(),
+                ]);
+            }
 
             // Log out the scraper user and redirect with error
             Auth::logout();

@@ -7,12 +7,14 @@ namespace App\Jobs;
 use App\Models\User;
 use App\Services\EnhancedSmartAlertsService;
 use App\Services\NotificationChannels\PushNotificationService;
+use Exception;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Log;
+use Throwable;
 
 /**
  * Enhanced Push Notification Job
@@ -35,13 +37,13 @@ class SendEnhancedPushNotificationJob implements ShouldQueue
     public function __construct(
         private string $alertId,
         private User $user,
-        private array $alertData
+        private array $alertData,
     ) {
     }
 
     public function handle(
         PushNotificationService $pushService,
-        EnhancedSmartAlertsService $alertsService
+        EnhancedSmartAlertsService $alertsService,
     ): void {
         $startTime = microtime(TRUE);
 
@@ -61,7 +63,7 @@ class SendEnhancedPushNotificationJob implements ShouldQueue
                         'response_time' => $responseTime,
                         'message_id'    => $result['message_id'] ?? NULL,
                         'delivery_id'   => $result['delivery_id'] ?? NULL,
-                    ]
+                    ],
                 );
 
                 Log::info('Enhanced push notification delivered', [
@@ -70,9 +72,9 @@ class SendEnhancedPushNotificationJob implements ShouldQueue
                     'response_time' => $responseTime,
                 ]);
             } else {
-                throw new \Exception($result['error'] ?? 'Push notification failed');
+                throw new Exception($result['error'] ?? 'Push notification failed');
             }
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $responseTime = (microtime(TRUE) - $startTime) * 1000;
 
             $alertsService->updateEnhancedDeliveryStatus(
@@ -83,7 +85,7 @@ class SendEnhancedPushNotificationJob implements ShouldQueue
                     'error'         => $e->getMessage(),
                     'response_time' => $responseTime,
                     'attempt'       => $this->attempts(),
-                ]
+                ],
             );
 
             Log::error('Enhanced push notification failed', [
@@ -99,6 +101,19 @@ class SendEnhancedPushNotificationJob implements ShouldQueue
                 $this->fail($e);
             }
         }
+    }
+
+    /**
+     * Handle job failure
+     */
+    public function failed(Throwable $exception): void
+    {
+        Log::error('Enhanced push notification job failed permanently', [
+            'alert_id' => $this->alertId,
+            'user_id'  => $this->user->id,
+            'error'    => $exception->getMessage(),
+            'attempts' => $this->attempts(),
+        ]);
     }
 
     /**
@@ -154,7 +169,7 @@ class SendEnhancedPushNotificationJob implements ShouldQueue
             'high'     => '⚡ ALERT',
             'medium'   => '📢 Notice',
             'low'      => '💡 Info',
-            default    => '📣 HD Tickets'
+            default    => '📣 HD Tickets',
         };
 
         return match ($type) {
@@ -162,7 +177,7 @@ class SendEnhancedPushNotificationJob implements ShouldQueue
             'new_listing'           => "{$prefix}: New Tickets Available!",
             'availability_restored' => "{$prefix}: Tickets Back in Stock!",
             'low_inventory'         => "{$prefix}: Limited Tickets Left!",
-            default                 => "{$prefix}: Ticket Alert"
+            default                 => "{$prefix}: Ticket Alert",
         };
     }
 
@@ -179,7 +194,7 @@ class SendEnhancedPushNotificationJob implements ShouldQueue
             'new_listing'           => "New {$eventName} tickets available from £{$this->alertData['min_price']}!",
             'availability_restored' => "{$eventName} tickets are back in stock! Starting at £{$this->alertData['min_price']}",
             'low_inventory'         => "Only {$this->alertData['remaining_tickets']} tickets left for {$eventName}!",
-            default                 => $this->alertData['message'] ?? 'Check your HD Tickets dashboard for updates.'
+            default                 => $this->alertData['message'] ?? 'Check your HD Tickets dashboard for updates.',
         };
     }
 
@@ -193,7 +208,7 @@ class SendEnhancedPushNotificationJob implements ShouldQueue
 
         return match ($type) {
             'price_drop', 'new_listing', 'availability_restored', 'low_inventory' => $eventId ? route('events.show', $eventId) : route('dashboard'),
-            default => route('dashboard')
+            default => route('dashboard'),
         };
     }
 
@@ -232,18 +247,5 @@ class SendEnhancedPushNotificationJob implements ShouldQueue
         }
 
         return $baseActions;
-    }
-
-    /**
-     * Handle job failure
-     */
-    public function failed(\Throwable $exception): void
-    {
-        Log::error('Enhanced push notification job failed permanently', [
-            'alert_id' => $this->alertId,
-            'user_id'  => $this->user->id,
-            'error'    => $exception->getMessage(),
-            'attempts' => $this->attempts(),
-        ]);
     }
 }

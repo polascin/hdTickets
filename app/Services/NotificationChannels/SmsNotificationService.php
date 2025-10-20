@@ -2,8 +2,12 @@
 
 namespace App\Services\NotificationChannels;
 
+use Exception;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
+use InvalidArgumentException;
+
+use function strlen;
 
 class SmsNotificationService
 {
@@ -43,7 +47,7 @@ class SmsNotificationService
      */
     public function send(string $phoneNumber, string $message): bool
     {
-        if (!$this->isConfigured()) {
+        if (! $this->isConfigured()) {
             Log::warning('SMS service not configured');
 
             return FALSE;
@@ -55,7 +59,7 @@ class SmsNotificationService
                 'nexmo'     => $this->sendViaNexmo($phoneNumber, $message),
                 'textlocal' => $this->sendViaTextLocal($phoneNumber, $message),
                 'log'       => $this->sendViaLog($phoneNumber, $message),
-                default     => throw new \InvalidArgumentException("Unsupported SMS provider: {$this->provider}")
+                default     => throw new InvalidArgumentException("Unsupported SMS provider: {$this->provider}"),
             };
 
             if ($response['success']) {
@@ -75,7 +79,7 @@ class SmsNotificationService
             ]);
 
             return FALSE;
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             Log::error('SMS sending exception', [
                 'to'       => $phoneNumber,
                 'provider' => $this->provider,
@@ -83,6 +87,38 @@ class SmsNotificationService
             ]);
 
             return FALSE;
+        }
+    }
+
+    /**
+     * Validate phone number format
+     */
+    public function validatePhoneNumber(string $phoneNumber): bool
+    {
+        $cleaned = preg_replace('/[^0-9+]/', '', $phoneNumber);
+
+        // Basic validation for UK phone numbers
+        return preg_match('/^(\+44|44|0)[1-9]\d{8,9}$/', $cleaned) === 1;
+    }
+
+    /**
+     * Get SMS delivery status
+     */
+    public function getDeliveryStatus(string $messageId): ?string
+    {
+        try {
+            return match ($this->provider) {
+                'twilio' => $this->getTwilioStatus($messageId),
+                'nexmo'  => $this->getNexmoStatus($messageId),
+                default  => NULL,
+            };
+        } catch (Exception $e) {
+            Log::error('Failed to get SMS delivery status', [
+                'message_id' => $messageId,
+                'error'      => $e->getMessage(),
+            ]);
+
+            return NULL;
         }
     }
 
@@ -135,7 +171,7 @@ class SmsNotificationService
             $data = $response->json();
             $messages = $data['messages'] ?? [];
 
-            if (!empty($messages) && $messages[0]['status'] === '0') {
+            if (! empty($messages) && $messages[0]['status'] === '0') {
                 return [
                     'success'    => TRUE,
                     'message_id' => $messages[0]['message-id'] ?? NULL,
@@ -219,7 +255,7 @@ class SmsNotificationService
         }
 
         // Add + prefix for international format
-        if (!str_starts_with($phoneNumber, '+')) {
+        if (! str_starts_with($phoneNumber, '+')) {
             $phoneNumber = '+' . $phoneNumber;
         }
 
@@ -236,39 +272,7 @@ class SmsNotificationService
             return TRUE;
         }
 
-        return !empty($this->apiKey) && !empty($this->apiSecret);
-    }
-
-    /**
-     * Validate phone number format
-     */
-    public function validatePhoneNumber(string $phoneNumber): bool
-    {
-        $cleaned = preg_replace('/[^0-9+]/', '', $phoneNumber);
-
-        // Basic validation for UK phone numbers
-        return preg_match('/^(\+44|44|0)[1-9]\d{8,9}$/', $cleaned) === 1;
-    }
-
-    /**
-     * Get SMS delivery status
-     */
-    public function getDeliveryStatus(string $messageId): ?string
-    {
-        try {
-            return match ($this->provider) {
-                'twilio' => $this->getTwilioStatus($messageId),
-                'nexmo'  => $this->getNexmoStatus($messageId),
-                default  => NULL
-            };
-        } catch (\Exception $e) {
-            Log::error('Failed to get SMS delivery status', [
-                'message_id' => $messageId,
-                'error'      => $e->getMessage(),
-            ]);
-
-            return NULL;
-        }
+        return ! empty($this->apiKey) && ! empty($this->apiSecret);
     }
 
     private function getTwilioStatus(string $messageId): ?string

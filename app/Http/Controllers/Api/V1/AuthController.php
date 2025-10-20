@@ -7,6 +7,7 @@ namespace App\Http\Controllers\Api\V1;
 use App\Http\Controllers\Controller;
 use App\Models\ApiKey;
 use App\Models\User;
+use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -68,7 +69,7 @@ class AuthController extends Controller
             $tokenResult = $user->createToken(
                 $request->input('device_name', 'API Access'),
                 ['*'],
-                $remember ? now()->addDays(30) : now()->addHours(24)
+                $remember ? now()->addDays(30) : now()->addHours(24),
             );
 
             // Clear rate limiting on successful login
@@ -139,7 +140,7 @@ class AuthController extends Controller
                 'api_key'      => $apiKey,
                 'api_limits'   => $this->getUserApiLimits($user),
             ], 201);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return $this->errorResponse('Registration failed', ['error' => $e->getMessage()], 500);
         }
     }
@@ -166,7 +167,7 @@ class AuthController extends Controller
             return $this->successResponse([
                 'message' => 'Successfully logged out',
             ]);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return $this->errorResponse('Logout failed', ['error' => $e->getMessage()], 500);
         }
     }
@@ -185,7 +186,7 @@ class AuthController extends Controller
                 'current_usage' => $this->getCurrentUsage($user),
                 'api_keys'      => $user->apiKeys()->select(['id', 'name', 'last_used_at', 'is_active'])->get(),
             ]);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return $this->errorResponse('Failed to retrieve profile', ['error' => $e->getMessage()], 500);
         }
     }
@@ -217,7 +218,7 @@ class AuthController extends Controller
                 'message' => 'Profile updated successfully',
                 'user'    => $this->formatUserProfile($user->fresh()),
             ]);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return $this->errorResponse('Failed to update profile', ['error' => $e->getMessage()], 500);
         }
     }
@@ -262,7 +263,7 @@ class AuthController extends Controller
                 'api_key' => $apiKey,
                 'warning' => 'Store this key securely. It will not be shown again.',
             ], 201);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return $this->errorResponse('Failed to generate API key', ['error' => $e->getMessage()], 500);
         }
     }
@@ -284,7 +285,7 @@ class AuthController extends Controller
                 'total_keys' => $apiKeys->count(),
                 'max_keys'   => $this->getMaxApiKeys($user),
             ]);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return $this->errorResponse('Failed to retrieve API keys', ['error' => $e->getMessage()], 500);
         }
     }
@@ -303,7 +304,7 @@ class AuthController extends Controller
             return $this->successResponse([
                 'message' => 'API key revoked successfully',
             ]);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return $this->errorResponse('Failed to revoke API key', ['error' => $e->getMessage()], 500);
         }
     }
@@ -330,7 +331,7 @@ class AuthController extends Controller
             $stats = $this->calculateUsageStats($user, $period, $breakdown);
 
             return $this->successResponse($stats);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return $this->errorResponse('Failed to retrieve usage stats', ['error' => $e->getMessage()], 500);
         }
     }
@@ -402,7 +403,7 @@ class AuthController extends Controller
                 'max_api_keys'      => 1,
                 'webhook_endpoints' => 0,
                 'rate_limit_reset'  => 'hourly',
-            ]
+            ],
         };
     }
 

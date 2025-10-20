@@ -8,6 +8,9 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
+use function in_array;
+use function sprintf;
+
 /**
  * Payment Model
  *
@@ -21,6 +24,26 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 class Payment extends Model
 {
     use HasFactory;
+
+    // Payment statuses
+    public const STATUS_PENDING = 'pending';
+
+    public const STATUS_SUCCEEDED = 'succeeded';
+
+    public const STATUS_FAILED = 'failed';
+
+    public const STATUS_CANCELLED = 'cancelled';
+
+    public const STATUS_REFUNDED = 'refunded';
+
+    public const STATUS_PARTIALLY_REFUNDED = 'partially_refunded';
+
+    // Payment method types
+    public const METHOD_CARD = 'card';
+
+    public const METHOD_BANK_TRANSFER = 'bank_transfer';
+
+    public const METHOD_PAYPAL = 'paypal';
 
     protected $fillable = [
         'user_id',
@@ -54,26 +77,6 @@ class Payment extends Model
         'paid_at',
         'refunded_at',
     ];
-
-    // Payment statuses
-    public const STATUS_PENDING = 'pending';
-
-    public const STATUS_SUCCEEDED = 'succeeded';
-
-    public const STATUS_FAILED = 'failed';
-
-    public const STATUS_CANCELLED = 'cancelled';
-
-    public const STATUS_REFUNDED = 'refunded';
-
-    public const STATUS_PARTIALLY_REFUNDED = 'partially_refunded';
-
-    // Payment method types
-    public const METHOD_CARD = 'card';
-
-    public const METHOD_BANK_TRANSFER = 'bank_transfer';
-
-    public const METHOD_PAYPAL = 'paypal';
 
     /**
      * Get the user that owns the payment
@@ -120,7 +123,7 @@ class Payment extends Model
      */
     public function isRefunded(): bool
     {
-        return in_array($this->status, [self::STATUS_REFUNDED, self::STATUS_PARTIALLY_REFUNDED]);
+        return in_array($this->status, [self::STATUS_REFUNDED, self::STATUS_PARTIALLY_REFUNDED], TRUE);
     }
 
     /**
@@ -163,7 +166,7 @@ class Payment extends Model
                 'text'  => 'Unknown',
                 'color' => 'gray',
                 'icon'  => 'question-circle',
-            ]
+            ],
         };
     }
 
@@ -180,7 +183,7 @@ class Payment extends Model
      */
     public function getFormattedRefundAmount(): string
     {
-        if (!$this->refund_amount) {
+        if (! $this->refund_amount) {
             return '$0.00';
         }
 
@@ -198,11 +201,11 @@ class Payment extends Model
             self::METHOD_CARD => sprintf(
                 '**** **** **** %s (%s)',
                 $details['last4'] ?? '****',
-                strtoupper($details['brand'] ?? 'card')
+                strtoupper($details['brand'] ?? 'card'),
             ),
             self::METHOD_BANK_TRANSFER => 'Bank Transfer',
             self::METHOD_PAYPAL        => 'PayPal',
-            default                    => 'Unknown Payment Method'
+            default                    => 'Unknown Payment Method',
         };
     }
 
@@ -216,6 +219,8 @@ class Payment extends Model
 
     /**
      * Scope to get successful payments
+     *
+     * @param mixed $query
      */
     public function scopeSuccessful($query)
     {
@@ -224,6 +229,8 @@ class Payment extends Model
 
     /**
      * Scope to get failed payments
+     *
+     * @param mixed $query
      */
     public function scopeFailed($query)
     {
@@ -232,6 +239,8 @@ class Payment extends Model
 
     /**
      * Scope to get refunded payments
+     *
+     * @param mixed $query
      */
     public function scopeRefunded($query)
     {
@@ -240,6 +249,10 @@ class Payment extends Model
 
     /**
      * Scope to get payments for specific date range
+     *
+     * @param mixed $query
+     * @param mixed $startDate
+     * @param mixed $endDate
      */
     public function scopeDateRange($query, $startDate, $endDate)
     {
@@ -248,6 +261,10 @@ class Payment extends Model
 
     /**
      * Scope to get payments by amount range
+     *
+     * @param mixed $query
+     * @param mixed $minAmount
+     * @param mixed $maxAmount
      */
     public function scopeAmountRange($query, $minAmount, $maxAmount)
     {

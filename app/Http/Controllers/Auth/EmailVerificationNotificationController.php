@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Auth;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Throwable;
 
 class EmailVerificationNotificationController extends Controller
 {
@@ -17,7 +18,7 @@ class EmailVerificationNotificationController extends Controller
     public function store(Request $request): RedirectResponse
     {
         $user = $request->user();
-        if (!$user) {
+        if (! $user) {
             return redirect()->route('login');
         }
 
@@ -27,8 +28,9 @@ class EmailVerificationNotificationController extends Controller
 
         try {
             $user->sendEmailVerificationNotification();
-        } catch (\Throwable $e) {
+        } catch (Throwable $e) {
             report($e);
+
             return back()->with('error', 'We could not send the verification email. Please try again later.');
         }
 

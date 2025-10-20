@@ -109,7 +109,11 @@
         </div>
 
         <div class="mt-8 sm:mx-auto sm:w-full sm:max-w-md animate-slide-up">
-          @yield('content')
+          @if (isset($slot) && trim($slot) !== '')
+            {{ $slot }}
+          @else
+            @yield('content')
+          @endif
         </div>
 
         <!-- Security Info -->

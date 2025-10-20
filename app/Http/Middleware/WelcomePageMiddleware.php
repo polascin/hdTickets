@@ -2,14 +2,16 @@
 
 namespace App\Http\Middleware;
 
+use App\Support\UserAgentHelper;
 use Closure;
-use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
+use Throwable;
 
 use function in_array;
+use function is_array;
 
 class WelcomePageMiddleware
 {
@@ -34,7 +36,7 @@ class WelcomePageMiddleware
         $response = $next($request);
 
         // Add cache headers for public content
-        if (!Auth::check()) {
+        if (! Auth::check()) {
             $this->addPublicCacheHeaders($response);
         }
 
@@ -103,15 +105,24 @@ class WelcomePageMiddleware
     protected function trackVisitorAnalytics(Request $request): void
     {
         try {
+            $deviceInfo = UserAgentHelper::getDeviceInfo($request);
+
             $visitorData = [
                 'ip'               => $request->ip(),
-                'user_agent'       => $request->userAgent(),
+                'user_agent'       => UserAgentHelper::sanitise($deviceInfo['user_agent'] ?? NULL),
+                'device_type'      => $deviceInfo['device_type'] ?? 'unknown',
+                'is_ios'           => $deviceInfo['is_ios'] ?? FALSE,
                 'referer'          => $request->header('referer'),
                 'timestamp'        => now(),
                 'session_id'       => $request->session()->getId(),
                 'is_authenticated' => Auth::check(),
                 'user_id'          => Auth::id(),
             ];
+
+            // Log iOS access specifically
+            if ($deviceInfo['is_ios']) {
+                UserAgentHelper::logIOSRequest($request, 'welcome_page_visit');
+            }
 
             // Store visitor data in cache for batch processing
             $cacheKey = 'visitor_analytics_' . date('Y-m-d-H');
@@ -123,8 +134,11 @@ class WelcomePageMiddleware
 
             // Track unique visitors
             $this->trackUniqueVisitor($request);
-        } catch (Exception $e) {
-            Log::warning('Analytics tracking error in middleware: ' . $e->getMessage());
+        } catch (Throwable $e) {
+            Log::warning('Analytics tracking error in middleware', [
+                'error' => $e->getMessage(),
+                'ip'    => $request->ip(),
+            ]);
         }
     }
 
@@ -136,7 +150,7 @@ class WelcomePageMiddleware
         $visitorHash = hash('sha256', $request->ip() . $request->userAgent());
         $cacheKey = 'unique_visitor_' . date('Y-m-d') . '_' . $visitorHash;
 
-        if (!Cache::has($cacheKey)) {
+        if (! Cache::has($cacheKey)) {
             // Mark as seen for today
             Cache::put($cacheKey, TRUE, 86400); // 24 hours
 
@@ -191,9 +205,8 @@ class WelcomePageMiddleware
      */
     protected function getCountryFromIp($ip)
     {
-        // Placeholder implementation
-        // In production, use MaxMind GeoIP2 or similar service
-        if ($ip === '127.0.0.1' || str_starts_with($ip, '192.168.')) {
+        // Skip for local/private IPs
+        if ($ip === '*********' || str_starts_with($ip, '192.168.') || str_starts_with($ip, '10.')) {
             return; // Local IP
         }
 
@@ -201,17 +214,48 @@ class WelcomePageMiddleware
         $cacheKey = 'country_lookup_' . hash('sha256', $ip);
 
         return Cache::remember($cacheKey, 86400, function () use ($ip) {
-            // Example: Use a free GeoIP service
+            // Use free GeoIP service with comprehensive error handling
             try {
-                $response = file_get_contents("http://ip-api.com/json/{$ip}?fields=countryCode");
-                if ($response === FALSE) {
-                    return NULL;
+                $context = stream_context_create([
+                    'http' => [
+                        'timeout'       => 2, // 2 second timeout
+                        'ignore_errors' => TRUE,
+                        'method'        => 'GET',
+                        'header'        => [
+                            'User-Agent: HDTickets/1.0',
+                            'Accept: application/json',
+                        ],
+                    ],
+                ]);
+
+                $response = @file_get_contents("http://ip-api.com/json/{$ip}?fields=countryCode", FALSE, $context);
+
+                if ($response === FALSE || $response === '') {
+                    Log::debug('GeoIP country lookup failed for IP', [
+                        'ip'    => $ip,
+                        'error' => error_get_last()['message'] ?? 'Unknown error',
+                    ]);
+
+                    return;
                 }
+
                 $data = json_decode($response, TRUE);
 
+                if (! is_array($data)) {
+                    Log::debug('Invalid GeoIP response', [
+                        'ip'       => $ip,
+                        'response' => substr($response, 0, 200),
+                    ]);
+
+                    return;
+                }
+
                 return $data['countryCode'] ?? NULL;
-            } catch (Exception $e) {
-                Log::warning('GeoIP lookup failed: ' . $e->getMessage());
+            } catch (Throwable $e) {
+                Log::debug('GeoIP lookup failed', [
+                    'ip'    => $ip,
+                    'error' => $e->getMessage(),
+                ]);
 
                 return;
             }
@@ -223,20 +267,25 @@ class WelcomePageMiddleware
      */
     protected function isAutomatedTool(Request $request): bool
     {
-        $userAgent = strtolower($request->userAgent() ?? '');
+        try {
+            // Use UserAgentHelper to safely detect automated tools
+            $deviceInfo = UserAgentHelper::getDeviceInfo($request);
 
-        $botIndicators = [
-            'bot', 'spider', 'crawler', 'scraper', 'curl', 'wget', 'python',
-            'java', 'go-http-client', 'okhttp', 'apache-httpclient',
-        ];
-
-        foreach ($botIndicators as $indicator) {
-            if (str_contains($userAgent, $indicator)) {
-                return TRUE;
+            // Don't flag iOS devices as bots
+            if ($deviceInfo['is_ios']) {
+                return FALSE;
             }
-        }
 
-        return FALSE;
+            return UserAgentHelper::isAutomatedTool($request);
+        } catch (Throwable $e) {
+            Log::debug('Error detecting automated tool', [
+                'error' => $e->getMessage(),
+                'ip'    => $request->ip(),
+            ]);
+
+            // Assume not a bot on error - don't block legitimate users
+            return FALSE;
+        }
     }
 
     /**

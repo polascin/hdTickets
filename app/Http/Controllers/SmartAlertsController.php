@@ -8,9 +8,11 @@ use App\Http\Requests\SmartAlert\CreateSmartAlertRequest;
 use App\Http\Requests\SmartAlert\UpdateSmartAlertRequest;
 use App\Models\SmartAlert;
 use App\Services\SmartAlertsService;
+use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
+use Log;
 
 /**
  * Smart Alerts Controller
@@ -22,7 +24,7 @@ use Illuminate\View\View;
 class SmartAlertsController extends Controller
 {
     public function __construct(
-        private readonly SmartAlertsService $smartAlertsService
+        private readonly SmartAlertsService $smartAlertsService,
     ) {
     }
 
@@ -78,8 +80,8 @@ class SmartAlertsController extends Controller
                 'message' => 'Smart alert created successfully',
                 'alert'   => $alert->load('user'),
             ], 201);
-        } catch (\Exception $e) {
-            \Log::error('Failed to create smart alert', [
+        } catch (Exception $e) {
+            Log::error('Failed to create smart alert', [
                 'error'        => $e->getMessage(),
                 'user_id'      => $request->user()->id,
                 'request_data' => $request->validated(),
@@ -138,8 +140,8 @@ class SmartAlertsController extends Controller
                 'message' => 'Smart alert updated successfully',
                 'alert'   => $alert->fresh()->load('user'),
             ]);
-        } catch (\Exception $e) {
-            \Log::error('Failed to update smart alert', [
+        } catch (Exception $e) {
+            Log::error('Failed to update smart alert', [
                 'error'        => $e->getMessage(),
                 'alert_id'     => $alert->id,
                 'user_id'      => $request->user()->id,
@@ -173,8 +175,8 @@ class SmartAlertsController extends Controller
                 'success' => TRUE,
                 'message' => 'Smart alert deleted successfully',
             ]);
-        } catch (\Exception $e) {
-            \Log::error('Failed to delete smart alert', [
+        } catch (Exception $e) {
+            Log::error('Failed to delete smart alert', [
                 'error'    => $e->getMessage(),
                 'alert_id' => $alert->id,
                 'user_id'  => $request->user()->id,
@@ -201,15 +203,15 @@ class SmartAlertsController extends Controller
         }
 
         try {
-            $alert->update(['is_active' => !$alert->is_active]);
+            $alert->update(['is_active' => ! $alert->is_active]);
 
             return response()->json([
                 'success'   => TRUE,
                 'message'   => 'Alert status updated successfully',
                 'is_active' => $alert->is_active,
             ]);
-        } catch (\Exception $e) {
-            \Log::error('Failed to toggle smart alert', [
+        } catch (Exception $e) {
+            Log::error('Failed to toggle smart alert', [
                 'error'    => $e->getMessage(),
                 'alert_id' => $alert->id,
                 'user_id'  => $request->user()->id,
@@ -243,8 +245,8 @@ class SmartAlertsController extends Controller
                 'message' => 'Test alert sent successfully',
                 'result'  => $result,
             ]);
-        } catch (\Exception $e) {
-            \Log::error('Failed to test smart alert', [
+        } catch (Exception $e) {
+            Log::error('Failed to test smart alert', [
                 'error'    => $e->getMessage(),
                 'alert_id' => $alert->id,
                 'user_id'  => $request->user()->id,

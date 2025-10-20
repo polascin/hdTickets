@@ -18,6 +18,8 @@ use Illuminate\Support\Facades\Validator;
 use Illuminate\View\View;
 use Throwable;
 
+use function strlen;
+
 /**
  * Modern Registration Controller
  *
@@ -103,7 +105,7 @@ class ModernRegistrationController extends Controller
         $exists = User::where('email', $request->email)->exists();
 
         return response()->json([
-            'available' => !$exists,
+            'available' => ! $exists,
             'message'   => $exists ? 'This email is already registered.' : 'Email is available.',
         ]);
     }
@@ -145,7 +147,7 @@ class ModernRegistrationController extends Controller
 
         $rules = $this->getFieldValidationRules($field);
 
-        if (!$rules) {
+        if (! $rules) {
             return response()->json(['valid' => FALSE, 'message' => 'Invalid field']);
         }
 
@@ -216,7 +218,7 @@ class ModernRegistrationController extends Controller
             $strength >= 80 => 'Strong password',
             $strength >= 60 => 'Good password',
             $strength >= 40 => 'Fair password',
-            default         => 'Weak password'
+            default         => 'Weak password',
         };
     }
 

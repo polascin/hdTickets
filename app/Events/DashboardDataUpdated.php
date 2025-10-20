@@ -23,9 +23,8 @@ class DashboardDataUpdated implements ShouldBroadcast
         public User $user,
         public string $updateType,
         public array $data,
-        public ?string $message = NULL
+        public ?string $message = NULL,
     ) {
-        //
     }
 
     /**

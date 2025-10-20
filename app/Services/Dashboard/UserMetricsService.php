@@ -355,7 +355,7 @@ class UserMetricsService
     {
         $mostActive = $alerts->sortByDesc('matches_count')->first();
 
-        if (!$mostActive) {
+        if (! $mostActive) {
             return NULL;
         }
 
@@ -428,7 +428,7 @@ class UserMetricsService
     // Helper methods for engagement scoring
     protected function getLastActivityScore(User $user): int
     {
-        if (!$user->updated_at) {
+        if (! $user->updated_at) {
             return 0;
         }
 
@@ -463,7 +463,7 @@ class UserMetricsService
         if ($user->email) {
             $score += 5;
         }
-        if ($user->preferences && !empty($user->preferences)) {
+        if ($user->preferences && ! empty($user->preferences)) {
             $score += 10;
         }
 
@@ -584,19 +584,19 @@ class UserMetricsService
     {
         $score = 0;
 
-        if (!empty($preferences['favorite_sports'])) {
+        if (! empty($preferences['favorite_sports'])) {
             $score += 25;
         }
-        if (!empty($preferences['favorite_teams'])) {
+        if (! empty($preferences['favorite_teams'])) {
             $score += 25;
         }
-        if (!empty($preferences['preferred_venues'])) {
+        if (! empty($preferences['preferred_venues'])) {
             $score += 20;
         }
         if (isset($preferences['price_range'])) {
             $score += 20;
         }
-        if (!empty($preferences['notification_preferences'])) {
+        if (! empty($preferences['notification_preferences'])) {
             $score += 10;
         }
 

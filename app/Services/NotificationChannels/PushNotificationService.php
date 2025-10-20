@@ -4,9 +4,12 @@ namespace App\Services\NotificationChannels;
 
 use App\Models\PushSubscription;
 use App\Models\User;
+use Exception;
 use Illuminate\Support\Facades\Log;
 use Minishlink\WebPush\Subscription;
 use Minishlink\WebPush\WebPush;
+
+use function in_array;
 
 class PushNotificationService
 {
@@ -36,7 +39,7 @@ class PushNotificationService
      */
     public function send(User $user, array $payload): bool
     {
-        if (!$this->isConfigured()) {
+        if (! $this->isConfigured()) {
             Log::warning('Push notification service not configured');
 
             return FALSE;
@@ -76,7 +79,7 @@ class PushNotificationService
      */
     public function sendToSubscription(PushSubscription $subscription, array $payload): bool
     {
-        if (!$this->isConfigured() || $this->webPush === NULL) {
+        if (! $this->isConfigured() || $this->webPush === NULL) {
             Log::warning('Push notification service not configured for subscription');
 
             return FALSE;
@@ -91,7 +94,7 @@ class PushNotificationService
 
             $notification = $this->webPush->sendOneNotification(
                 $webPushSubscription,
-                json_encode($this->formatPayload($payload))
+                json_encode($this->formatPayload($payload)),
             );
 
             if ($notification->isSuccess()) {
@@ -106,7 +109,7 @@ class PushNotificationService
             // Handle specific errors
             $statusCode = $notification->getResponse()->getStatusCode();
 
-            if (in_array($statusCode, [400, 404, 410, 413])) {
+            if (in_array($statusCode, [400, 404, 410, 413], TRUE)) {
                 // Subscription is invalid, remove it
                 Log::info('Removing invalid push subscription', [
                     'subscription_id' => $subscription->id,
@@ -122,7 +125,7 @@ class PushNotificationService
             ]);
 
             return FALSE;
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             Log::error('Push notification exception', [
                 'subscription_id' => $subscription->id,
                 'error'           => $e->getMessage(),
@@ -159,13 +162,13 @@ class PushNotificationService
         $query = PushSubscription::query()->with('user');
 
         // Apply criteria filters
-        if (!empty($criteria['user_roles'])) {
-            $query->whereHas('user', function ($q) use ($criteria) {
+        if (! empty($criteria['user_roles'])) {
+            $query->whereHas('user', function ($q) use ($criteria): void {
                 $q->whereIn('role', $criteria['user_roles']);
             });
         }
 
-        if (!empty($criteria['created_after'])) {
+        if (! empty($criteria['created_after'])) {
             $query->where('created_at', '>=', $criteria['created_after']);
         }
 
@@ -210,7 +213,7 @@ class PushNotificationService
     /**
      * Unsubscribe user from push notifications
      */
-    public function unsubscribe(User $user, string $endpoint = NULL): int
+    public function unsubscribe(User $user, ?string $endpoint = NULL): int
     {
         $query = PushSubscription::where('user_id', $user->id);
 
@@ -219,49 +222,6 @@ class PushNotificationService
         }
 
         return $query->delete();
-    }
-
-    /**
-     * Format payload for web push
-     */
-    private function formatPayload(array $payload): array
-    {
-        return [
-            'title' => $payload['title'] ?? 'HD Tickets',
-            'body'  => $payload['body'] ?? '',
-            'icon'  => $payload['icon'] ?? asset('images/logo-hdtickets-enhanced.svg'),
-            'badge' => $payload['badge'] ?? asset('images/logo-hdtickets-enhanced.svg'),
-            'image' => $payload['image'] ?? NULL,
-            'data'  => array_merge([
-                'timestamp' => now()->toISOString(),
-                'origin'    => config('app.url'),
-            ], $payload['data'] ?? []),
-            'actions' => $payload['actions'] ?? [
-                [
-                    'action' => 'view',
-                    'title'  => 'View Details',
-                    'icon'   => asset('images/icons/view.svg'),
-                ],
-                [
-                    'action' => 'dismiss',
-                    'title'  => 'Dismiss',
-                    'icon'   => asset('images/icons/close.svg'),
-                ],
-            ],
-            'tag'                => $payload['tag'] ?? 'hd-tickets-notification',
-            'requireInteraction' => $payload['require_interaction'] ?? FALSE,
-            'silent'             => $payload['silent'] ?? FALSE,
-            'vibrate'            => $payload['vibrate'] ?? [200, 100, 200],
-        ];
-    }
-
-    /**
-     * Check if push notification service is configured
-     */
-    private function isConfigured(): bool
-    {
-        return !empty($this->config['vapid']['public_key']) &&
-               !empty($this->config['vapid']['private_key']);
     }
 
     /**
@@ -309,9 +269,9 @@ class PushNotificationService
     {
         // Remove subscriptions not used in the last 90 days
         $deletedCount = PushSubscription::where('last_used_at', '<', now()->subDays(90))
-            ->orWhere(function ($query) {
+            ->orWhere(function ($query): void {
                 $query->whereNull('last_used_at')
-                      ->where('created_at', '<', now()->subDays(7));
+                    ->where('created_at', '<', now()->subDays(7));
             })
             ->delete();
 
@@ -320,5 +280,48 @@ class PushNotificationService
         ]);
 
         return $deletedCount;
+    }
+
+    /**
+     * Format payload for web push
+     */
+    private function formatPayload(array $payload): array
+    {
+        return [
+            'title' => $payload['title'] ?? 'HD Tickets',
+            'body'  => $payload['body'] ?? '',
+            'icon'  => $payload['icon'] ?? asset('images/logo-hdtickets-enhanced.svg'),
+            'badge' => $payload['badge'] ?? asset('images/logo-hdtickets-enhanced.svg'),
+            'image' => $payload['image'] ?? NULL,
+            'data'  => array_merge([
+                'timestamp' => now()->toISOString(),
+                'origin'    => config('app.url'),
+            ], $payload['data'] ?? []),
+            'actions' => $payload['actions'] ?? [
+                [
+                    'action' => 'view',
+                    'title'  => 'View Details',
+                    'icon'   => asset('images/icons/view.svg'),
+                ],
+                [
+                    'action' => 'dismiss',
+                    'title'  => 'Dismiss',
+                    'icon'   => asset('images/icons/close.svg'),
+                ],
+            ],
+            'tag'                => $payload['tag'] ?? 'hd-tickets-notification',
+            'requireInteraction' => $payload['require_interaction'] ?? FALSE,
+            'silent'             => $payload['silent'] ?? FALSE,
+            'vibrate'            => $payload['vibrate'] ?? [200, 100, 200],
+        ];
+    }
+
+    /**
+     * Check if push notification service is configured
+     */
+    private function isConfigured(): bool
+    {
+        return ! empty($this->config['vapid']['public_key'])
+               && ! empty($this->config['vapid']['private_key']);
     }
 }

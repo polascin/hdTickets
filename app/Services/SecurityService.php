@@ -162,7 +162,7 @@ class SecurityService
             default                   => FALSE,
         };
 
-        if (!$hasPermission) {
+        if (! $hasPermission) {
             $this->logSecurityActivity(
                 'Permission denied',
                 array_merge([
@@ -213,7 +213,7 @@ class SecurityService
         }
 
         // Check for destructive operations
-        if (in_array($operation, ['delete', 'disable', 'remove'], TRUE) && (!$user->canDeleteAnyData() && count($items) > 10)) {
+        if (in_array($operation, ['delete', 'disable', 'remove'], TRUE) && (! $user->canDeleteAnyData() && count($items) > 10)) {
             $validation['valid'] = FALSE;
             $validation['errors'][] = 'Destructive bulk operations limited to 10 items for non-root users';
         }
@@ -316,7 +316,7 @@ class SecurityService
      */
     public function initAgent(): void
     {
-        if (!$this->agent) {
+        if (! $this->agent) {
             $this->agent = new Agent();
         }
     }
@@ -457,7 +457,7 @@ class SecurityService
                && $device['os'] === $newDevice['os']
                && $device['ip_address'] === $newDevice['ip_address']);
 
-        if (!$exists) {
+        if (! $exists) {
             $trustedDevices[] = $newDevice;
             $user->update(['trusted_devices' => $trustedDevices]);
         }
@@ -575,7 +575,7 @@ class SecurityService
         $recommendations = [];
 
         // Check 2FA status
-        if (!$user->two_factor_enabled) {
+        if (! $user->two_factor_enabled) {
             $issues[] = [
                 'type'        => 'critical',
                 'title'       => 'Two-Factor Authentication Disabled',
@@ -728,7 +728,7 @@ class SecurityService
             ->where('country', $locationInfo['country'])
             ->exists();
 
-        if ($locationInfo['country'] && !$hasLoginFromLocation) {
+        if ($locationInfo['country'] && ! $hasLoginFromLocation) {
             $flags[] = 'new_location';
         }
 
@@ -739,7 +739,7 @@ class SecurityService
             ->where('operating_system', $deviceInfo['os'])
             ->exists();
 
-        if (!$hasLoginFromDevice) {
+        if (! $hasLoginFromDevice) {
             $flags[] = 'new_device';
         }
 
@@ -751,7 +751,7 @@ class SecurityService
             ->map(fn ($record) => $record->attempted_at->hour)
             ->unique();
 
-        if ($usualLoginTimes->isNotEmpty() && !$usualLoginTimes->contains($currentHour)) {
+        if ($usualLoginTimes->isNotEmpty() && ! $usualLoginTimes->contains($currentHour)) {
             $timeDifference = $usualLoginTimes->map(fn ($hour): float|int => abs($hour - $currentHour))->min();
             if ($timeDifference >= 6) {
                 $flags[] = 'unusual_time';

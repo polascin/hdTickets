@@ -28,7 +28,7 @@ class ActivityLogger
 
     public function __construct()
     {
-        if (!self::$requestId) {
+        if (! self::$requestId) {
             self::$requestId = uniqid('req_', TRUE);
         }
     }
@@ -55,7 +55,7 @@ class ActivityLogger
      */
     public function endTiming(string $operation, float $warningThreshold = 1.0): void
     {
-        if (!isset(self::$performanceTimings[$operation])) {
+        if (! isset(self::$performanceTimings[$operation])) {
             return;
         }
 

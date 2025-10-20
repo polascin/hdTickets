@@ -26,7 +26,7 @@ class PublicRegistrationRequest extends FormRequest
      */
     public function rules(): array
     {
-        $rules = [
+        return [
             'first_name'       => ['required', 'string', 'max:100'],
             'last_name'        => ['required', 'string', 'max:100'],
             'email'            => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:' . User::class],
@@ -36,8 +36,6 @@ class PublicRegistrationRequest extends FormRequest
             'marketing_opt_in' => ['nullable', 'boolean'],
             'enable_2fa'       => ['nullable', 'boolean'],
         ];
-
-        return $rules;
     }
 
     /**

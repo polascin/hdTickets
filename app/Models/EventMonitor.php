@@ -5,11 +5,14 @@ declare(strict_types=1);
 namespace App\Models;
 
 use Carbon\Carbon;
+use Exception;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
+
+use function in_array;
 
 /**
  * EventMonitor Model
@@ -181,7 +184,7 @@ class EventMonitor extends Model
             $this->update(['check_interval' => max(60, $intervalSeconds)]); // Minimum 1 minute
 
             return TRUE;
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return FALSE;
         }
     }
@@ -190,13 +193,13 @@ class EventMonitor extends Model
     {
         try {
             $platforms = $this->platforms ?? [];
-            if (!in_array($platform, $platforms)) {
+            if (! in_array($platform, $platforms, TRUE)) {
                 $platforms[] = $platform;
                 $this->update(['platforms' => $platforms]);
             }
 
             return TRUE;
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return FALSE;
         }
     }
@@ -209,7 +212,7 @@ class EventMonitor extends Model
             $this->update(['platforms' => array_values($platforms)]);
 
             return TRUE;
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return FALSE;
         }
     }
@@ -220,13 +223,13 @@ class EventMonitor extends Model
             $validPreferences = ['email', 'sms', 'push', 'webhook'];
             $filteredPreferences = array_filter(
                 $preferences,
-                fn ($pref) => in_array($pref, $validPreferences)
+                fn ($pref) => in_array($pref, $validPreferences, TRUE),
             );
 
             $this->update(['notification_preferences' => $filteredPreferences]);
 
             return TRUE;
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return FALSE;
         }
     }
@@ -238,7 +241,7 @@ class EventMonitor extends Model
             $this->update(['priority' => $priority]);
 
             return TRUE;
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return FALSE;
         }
     }
@@ -275,7 +278,7 @@ class EventMonitor extends Model
 
     public function isOverdue(): bool
     {
-        if (!$this->is_active || !$this->last_check_at) {
+        if (! $this->is_active || ! $this->last_check_at) {
             return FALSE;
         }
 
@@ -286,7 +289,7 @@ class EventMonitor extends Model
 
     public function getNextCheckTime(): ?Carbon
     {
-        if (!$this->is_active || !$this->last_check_at) {
+        if (! $this->is_active || ! $this->last_check_at) {
             return NULL;
         }
 
@@ -295,12 +298,12 @@ class EventMonitor extends Model
 
     public function shouldBeChecked(): bool
     {
-        if (!$this->is_active) {
+        if (! $this->is_active) {
             return FALSE;
         }
 
         // If never checked, should be checked
-        if (!$this->last_check_at) {
+        if (! $this->last_check_at) {
             return TRUE;
         }
 
@@ -431,6 +434,50 @@ class EventMonitor extends Model
         ];
     }
 
+    // Scopes
+
+    public function scopeActive($query)
+    {
+        return $query->where('is_active', TRUE);
+    }
+
+    public function scopeByUser($query, User $user)
+    {
+        return $query->where('user_id', $user->id);
+    }
+
+    public function scopeByPriority($query, int $priority)
+    {
+        return $query->where('priority', $priority);
+    }
+
+    public function scopeOverdue($query)
+    {
+        return $query->where('is_active', TRUE)
+            ->whereNotNull('last_check_at')
+            ->whereRaw('DATE_ADD(last_check_at, INTERVAL check_interval SECOND) < NOW()');
+    }
+
+    public function scopeNeedsCheck($query)
+    {
+        return $query->where('is_active', TRUE)
+            ->where(function ($query): void {
+                $query->whereNull('last_check_at')
+                    ->orWhereRaw('DATE_ADD(last_check_at, INTERVAL check_interval SECOND) < NOW()');
+            });
+    }
+
+    public function scopeWithPerformanceMetrics($query)
+    {
+        return $query->selectRaw('
+            event_monitors.*,
+            CASE 
+                WHEN total_checks = 0 THEN 100 
+                ELSE (success_count / total_checks) * 100 
+            END as success_rate
+        ');
+    }
+
     // Private Helper Methods
 
     private function calculateEfficiencyScore(): float
@@ -537,49 +584,5 @@ class EventMonitor extends Model
         }
 
         return $change > 0 ? 'increasing' : 'decreasing';
-    }
-
-    // Scopes
-
-    public function scopeActive($query)
-    {
-        return $query->where('is_active', TRUE);
-    }
-
-    public function scopeByUser($query, User $user)
-    {
-        return $query->where('user_id', $user->id);
-    }
-
-    public function scopeByPriority($query, int $priority)
-    {
-        return $query->where('priority', $priority);
-    }
-
-    public function scopeOverdue($query)
-    {
-        return $query->where('is_active', TRUE)
-            ->whereNotNull('last_check_at')
-            ->whereRaw('DATE_ADD(last_check_at, INTERVAL check_interval SECOND) < NOW()');
-    }
-
-    public function scopeNeedsCheck($query)
-    {
-        return $query->where('is_active', TRUE)
-            ->where(function ($query) {
-                $query->whereNull('last_check_at')
-                    ->orWhereRaw('DATE_ADD(last_check_at, INTERVAL check_interval SECOND) < NOW()');
-            });
-    }
-
-    public function scopeWithPerformanceMetrics($query)
-    {
-        return $query->selectRaw('
-            event_monitors.*,
-            CASE 
-                WHEN total_checks = 0 THEN 100 
-                ELSE (success_count / total_checks) * 100 
-            END as success_rate
-        ');
     }
 }

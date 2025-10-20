@@ -45,7 +45,7 @@ class DataExportService
         $platforms = $filters['platforms'] ?? [];
 
         $data = ScrapedTicket::whereBetween('created_at', [$startDate, $endDate])
-            ->when(!empty($platforms), function ($query) use ($platforms): void {
+            ->when(! empty($platforms), function ($query) use ($platforms): void {
                 $query->whereIn('platform', $platforms);
             })
             ->select([
@@ -464,7 +464,7 @@ class DataExportService
      */
     protected function validateFormat(string $format): void
     {
-        if (!in_array($format, $this->supportedFormats, TRUE)) {
+        if (! in_array($format, $this->supportedFormats, TRUE)) {
             throw new InvalidArgumentException(
                 "Unsupported format '{$format}'. Supported formats: " . implode(', ', $this->supportedFormats),
             );

@@ -398,7 +398,7 @@ class TicketSource extends Model
     protected function timeUntilEvent(): Attribute
     {
         return Attribute::make(get: function () {
-            if (!$this->event_date) {
+            if (! $this->event_date) {
                 return;
             }
 
@@ -409,7 +409,7 @@ class TicketSource extends Model
     protected function lastCheckedHuman(): Attribute
     {
         return Attribute::make(get: function () {
-            if (!$this->last_checked) {
+            if (! $this->last_checked) {
                 return 'Never';
             }
 

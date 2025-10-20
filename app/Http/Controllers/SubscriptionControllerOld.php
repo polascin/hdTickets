@@ -9,6 +9,7 @@ use App\Models\Subscription;
 use App\Models\UsageRecord;
 use App\Models\User;
 use App\Services\SubscriptionService;
+use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -53,7 +54,7 @@ class SubscriptionController extends Controller
                     'subscription_status' => $user->subscription_status ?? 'free',
                 ],
             ]);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             Log::error('Failed to get subscription plans', [
                 'error'   => $e->getMessage(),
                 'user_id' => Auth::id(),
@@ -97,7 +98,7 @@ class SubscriptionController extends Controller
                 $user,
                 $validated['plan'],
                 $validated['payment_method_id'],
-                $options
+                $options,
             );
 
             return response()->json([
@@ -114,7 +115,7 @@ class SubscriptionController extends Controller
                 'message' => 'Validation failed',
                 'errors'  => $e->errors(),
             ], 422);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             Log::error('Failed to create subscription', [
                 'error'   => $e->getMessage(),
                 'user_id' => Auth::id(),
@@ -142,7 +143,7 @@ class SubscriptionController extends Controller
             $user = Auth::user();
             $currentSubscription = $user->activeSubscription();
 
-            if (!$currentSubscription) {
+            if (! $currentSubscription) {
                 return response()->json([
                     'success' => FALSE,
                     'message' => 'No active subscription found. Create a subscription first.',
@@ -163,7 +164,7 @@ class SubscriptionController extends Controller
             $result = $this->subscriptionService->updateSubscription(
                 $user,
                 $validated['plan'],
-                $options
+                $options,
             );
 
             return response()->json([
@@ -180,7 +181,7 @@ class SubscriptionController extends Controller
                 'message' => 'Validation failed',
                 'errors'  => $e->errors(),
             ], 422);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             Log::error('Failed to upgrade subscription', [
                 'error'    => $e->getMessage(),
                 'user_id'  => Auth::id(),
@@ -210,7 +211,7 @@ class SubscriptionController extends Controller
             $result = $this->subscriptionService->cancelSubscription(
                 $user,
                 $validated['immediately'] ?? FALSE,
-                $validated['reason'] ?? NULL
+                $validated['reason'] ?? NULL,
             );
 
             return response()->json([
@@ -227,7 +228,7 @@ class SubscriptionController extends Controller
                 'message' => 'Validation failed',
                 'errors'  => $e->errors(),
             ], 422);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             Log::error('Failed to cancel subscription', [
                 'error'   => $e->getMessage(),
                 'user_id' => Auth::id(),
@@ -258,7 +259,7 @@ class SubscriptionController extends Controller
                 ],
                 'message' => $result['message'],
             ]);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             Log::error('Failed to resume subscription', [
                 'error'   => $e->getMessage(),
                 'user_id' => Auth::id(),
@@ -280,7 +281,7 @@ class SubscriptionController extends Controller
             $user = Auth::user();
             $subscription = $user->activeSubscription();
 
-            if (!$subscription) {
+            if (! $subscription) {
                 return response()->json([
                     'success' => TRUE,
                     'data'    => [
@@ -302,7 +303,7 @@ class SubscriptionController extends Controller
                     'usage_summary'   => UsageRecord::getCurrentPeriodSummary($user),
                 ],
             ]);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             Log::error('Failed to get current subscription', [
                 'error'   => $e->getMessage(),
                 'user_id' => Auth::id(),
@@ -328,7 +329,7 @@ class SubscriptionController extends Controller
                 'success' => TRUE,
                 'data'    => $summary,
             ]);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             Log::error('Failed to get billing summary', [
                 'error'   => $e->getMessage(),
                 'user_id' => Auth::id(),
@@ -365,7 +366,7 @@ class SubscriptionController extends Controller
                 $query->where('status', $validated['status']);
             }
 
-            if (isset($validated['start_date']) && isset($validated['end_date'])) {
+            if (isset($validated['start_date'], $validated['end_date'])) {
                 $query->dateRange($validated['start_date'], $validated['end_date']);
             }
 
@@ -373,7 +374,7 @@ class SubscriptionController extends Controller
                 $validated['per_page'] ?? 15,
                 ['*'],
                 'page',
-                $validated['page'] ?? 1
+                $validated['page'] ?? 1,
             );
 
             return response()->json([
@@ -386,7 +387,7 @@ class SubscriptionController extends Controller
                 'message' => 'Validation failed',
                 'errors'  => $e->errors(),
             ], 422);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             Log::error('Failed to get payment history', [
                 'error'   => $e->getMessage(),
                 'user_id' => Auth::id(),
@@ -420,10 +421,10 @@ class SubscriptionController extends Controller
                 $query->forResource($validated['resource_type']);
             }
 
-            if (isset($validated['start_date']) && isset($validated['end_date'])) {
+            if (isset($validated['start_date'], $validated['end_date'])) {
                 $query->dateRange(
                     \Carbon\Carbon::parse($validated['start_date']),
-                    \Carbon\Carbon::parse($validated['end_date'])
+                    \Carbon\Carbon::parse($validated['end_date']),
                 );
             } else {
                 // Default to current billing period
@@ -454,7 +455,7 @@ class SubscriptionController extends Controller
                 'message' => 'Validation failed',
                 'errors'  => $e->errors(),
             ], 422);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             Log::error('Failed to get usage analytics', [
                 'error'   => $e->getMessage(),
                 'user_id' => Auth::id(),
@@ -496,7 +497,7 @@ class SubscriptionController extends Controller
                 'message' => 'Validation failed',
                 'errors'  => $e->errors(),
             ], 422);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             Log::error('Failed to check feature access', [
                 'error'   => $e->getMessage(),
                 'user_id' => Auth::id(),
@@ -521,17 +522,17 @@ class SubscriptionController extends Controller
                 'day'   => $record->recorded_at->format('Y-m-d'),
                 'week'  => $record->recorded_at->format('Y-W'),
                 'month' => $record->recorded_at->format('Y-m'),
-                default => $record->recorded_at->format('Y-m-d')
+                default => $record->recorded_at->format('Y-m-d'),
             };
 
-            if (!isset($grouped[$key])) {
+            if (! isset($grouped[$key])) {
                 $grouped[$key] = [
                     'period'    => $key,
                     'resources' => [],
                 ];
             }
 
-            if (!isset($grouped[$key]['resources'][$record->resource_type])) {
+            if (! isset($grouped[$key]['resources'][$record->resource_type])) {
                 $grouped[$key]['resources'][$record->resource_type] = [
                     'quantity' => 0,
                     'cost'     => 0,

@@ -5,11 +5,13 @@ declare(strict_types=1);
 namespace App\Http\Controllers\Api\V1;
 
 use App\Http\Controllers\Controller;
+use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
+use Validator;
 
 /**
  * API Documentation Controller
@@ -91,7 +93,7 @@ class DocumentationController extends Controller
                 'status'           => 'healthy',
                 'response_time_ms' => $dbTime,
             ];
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $health['status'] = 'degraded';
             $health['services']['database'] = [
                 'status' => 'unhealthy',
@@ -110,7 +112,7 @@ class DocumentationController extends Controller
                 'status'           => $cached === 'test' ? 'healthy' : 'unhealthy',
                 'response_time_ms' => $cacheTime,
             ];
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $health['status'] = 'degraded';
             $health['services']['cache'] = [
                 'status' => 'unhealthy',
@@ -278,7 +280,7 @@ class DocumentationController extends Controller
      */
     public function validateWebhook(Request $request): JsonResponse
     {
-        $validator = \Validator::make($request->all(), [
+        $validator = Validator::make($request->all(), [
             'url'    => 'required|url',
             'events' => 'required|array',
             'secret' => 'nullable|string|min:16',
@@ -537,7 +539,7 @@ class DocumentationController extends Controller
             'starter'    => ['requests_per_hour' => 100, 'max_api_keys' => 2],
             'pro'        => ['requests_per_hour' => 1000, 'max_api_keys' => 10],
             'enterprise' => ['requests_per_hour' => 10000, 'max_api_keys' => 50],
-            default      => ['requests_per_hour' => 50, 'max_api_keys' => 1]
+            default      => ['requests_per_hour' => 50, 'max_api_keys' => 1],
         };
     }
 

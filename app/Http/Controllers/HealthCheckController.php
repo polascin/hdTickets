@@ -310,7 +310,7 @@ class HealthCheckController extends Controller
             $storagePath = storage_path();
             $logsPath = storage_path('logs');
 
-            if (!is_writable($storagePath)) {
+            if (! is_writable($storagePath)) {
                 return [
                     'status'           => 'unhealthy',
                     'message'          => 'Storage directory not writable',
@@ -488,7 +488,7 @@ class HealthCheckController extends Controller
         $platforms = config('app.ticket_platforms', []);
 
         foreach ($platforms as $platform => $config) {
-            if (!($config['enabled'] ?? FALSE)) {
+            if (! ($config['enabled'] ?? FALSE)) {
                 continue;
             }
 
@@ -504,7 +504,7 @@ class HealthCheckController extends Controller
                         'reachable' => $reachable,
                     ];
 
-                    if (!$reachable && $overallStatus === 'healthy') {
+                    if (! $reachable && $overallStatus === 'healthy') {
                         $overallStatus = 'degraded';
                     }
                 }

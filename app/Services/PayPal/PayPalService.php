@@ -2,6 +2,8 @@
 
 namespace App\Services\PayPal;
 
+use Exception;
+
 class PayPalService
 {
     public function __construct()
@@ -9,8 +11,8 @@ class PayPalService
         // Temporarily disabled for deployment
     }
 
-    public function __call($method, $args)
+    public function __call($method, $args): void
     {
-        throw new \Exception('PayPal service is temporarily disabled');
+        throw new Exception('PayPal service is temporarily disabled');
     }
 }

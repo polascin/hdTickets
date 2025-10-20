@@ -8,6 +8,8 @@ use Closure;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 
+use function in_array;
+
 /**
  * Campaign Management Access Middleware
  *
@@ -20,12 +22,14 @@ class CampaignAccess
 {
     /**
      * Handle an incoming request
+     *
+     * @param array $permissions
      */
     public function handle(Request $request, Closure $next, ...$permissions): Response
     {
         $user = $request->user();
 
-        if (!$user) {
+        if (! $user) {
             return response()->json([
                 'success' => FALSE,
                 'message' => 'Authentication required',
@@ -33,7 +37,7 @@ class CampaignAccess
         }
 
         // Check user role permissions
-        if (!$this->hasRequiredPermissions($user, $permissions)) {
+        if (! $this->hasRequiredPermissions($user, $permissions)) {
             return response()->json([
                 'success' => FALSE,
                 'message' => 'Insufficient permissions for campaign management',
@@ -41,7 +45,7 @@ class CampaignAccess
         }
 
         // Check subscription plan limits
-        if (!$this->hasSubscriptionAccess($user)) {
+        if (! $this->hasSubscriptionAccess($user)) {
             return response()->json([
                 'success'     => FALSE,
                 'message'     => 'Upgrade your subscription to access marketing campaigns',
@@ -50,7 +54,7 @@ class CampaignAccess
         }
 
         // Check campaign limits based on plan
-        if (!$this->withinCampaignLimits($user, $request)) {
+        if (! $this->withinCampaignLimits($user, $request)) {
             return response()->json([
                 'success'     => FALSE,
                 'message'     => 'Campaign limit reached for your subscription plan',
@@ -63,6 +67,8 @@ class CampaignAccess
 
     /**
      * Check if user has required permissions
+     *
+     * @param mixed $user
      */
     private function hasRequiredPermissions($user, array $permissions): bool
     {
@@ -75,14 +81,14 @@ class CampaignAccess
         if ($user->role === 'agent') {
             $allowedPermissions = ['view-campaigns', 'create-campaigns', 'manage-campaigns'];
 
-            return empty($permissions) || !empty(array_intersect($permissions, $allowedPermissions));
+            return empty($permissions) || ! empty(array_intersect($permissions, $allowedPermissions));
         }
 
         // Customer users have very limited access
         if ($user->role === 'customer') {
             $allowedPermissions = ['view-campaigns'];
 
-            return empty($permissions) || !empty(array_intersect($permissions, $allowedPermissions));
+            return empty($permissions) || ! empty(array_intersect($permissions, $allowedPermissions));
         }
 
         return FALSE;
@@ -90,6 +96,8 @@ class CampaignAccess
 
     /**
      * Check if user's subscription plan allows campaign access
+     *
+     * @param mixed $user
      */
     private function hasSubscriptionAccess($user): bool
     {
@@ -101,11 +109,13 @@ class CampaignAccess
         }
 
         // All paid plans have campaign access
-        return in_array($plan, ['starter', 'pro', 'enterprise']);
+        return in_array($plan, ['starter', 'pro', 'enterprise'], TRUE);
     }
 
     /**
      * Check if user is within campaign limits for their plan
+     *
+     * @param mixed $user
      */
     private function withinCampaignLimits($user, Request $request): bool
     {

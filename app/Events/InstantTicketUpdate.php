@@ -12,6 +12,9 @@ use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
 
+use function count;
+use function in_array;
+
 /**
  * Real-time ticket update event for instant dashboard updates
  */
@@ -24,7 +27,7 @@ class InstantTicketUpdate implements ShouldBroadcast
     public function __construct(
         public Event $event,
         public array $changes,
-        public ?int $userId = NULL
+        public ?int $userId = NULL,
     ) {
     }
 
@@ -83,9 +86,9 @@ class InstantTicketUpdate implements ShouldBroadcast
             'change_types'              => array_count_values($types),
             'platforms_affected'        => $platforms,
             'urgent_alerts'             => $urgentCount,
-            'has_new_listings'          => in_array('new_listing', $types),
-            'has_price_drops'           => in_array('price_drop', $types),
-            'has_availability_restored' => in_array('availability_restored', $types),
+            'has_new_listings'          => in_array('new_listing', $types, TRUE),
+            'has_price_drops'           => in_array('price_drop', $types, TRUE),
+            'has_availability_restored' => in_array('availability_restored', $types, TRUE),
         ];
     }
 }

@@ -4,6 +4,7 @@ namespace App\Http\Middleware;
 
 use App\Services\PayPal\PayPalService;
 use Closure;
+use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Symfony\Component\HttpFoundation\Response as HttpResponse;
@@ -38,7 +39,7 @@ class VerifyPayPalWebhook
     ];
 
     public function __construct(
-        private PayPalService $paypalService
+        private PayPalService $paypalService,
     ) {
     }
 
@@ -55,7 +56,7 @@ class VerifyPayPalWebhook
         }
 
         // Verify IP address is from PayPal
-        if (!$this->isValidPayPalIp($request->ip())) {
+        if (! $this->isValidPayPalIp($request->ip())) {
             Log::warning('PayPal webhook request from invalid IP', [
                 'ip'         => $request->ip(),
                 'user_agent' => $request->userAgent(),
@@ -75,7 +76,7 @@ class VerifyPayPalWebhook
         ];
 
         foreach ($requiredHeaders as $header) {
-            if (!$request->hasHeader($header)) {
+            if (! $request->hasHeader($header)) {
                 Log::warning('PayPal webhook missing required header', [
                     'missing_header' => $header,
                     'ip'             => $request->ip(),
@@ -86,7 +87,7 @@ class VerifyPayPalWebhook
         }
 
         // Verify webhook signature
-        if (!$this->verifyWebhookSignature($request)) {
+        if (! $this->verifyWebhookSignature($request)) {
             Log::error('PayPal webhook signature verification failed', [
                 'ip'      => $request->ip(),
                 'headers' => $this->extractPayPalHeaders($request),
@@ -96,7 +97,7 @@ class VerifyPayPalWebhook
         }
 
         // Check for replay attacks (webhook timestamp should be recent)
-        if (!$this->isRecentTimestamp($request->header('PAYPAL-TRANSMISSION-TIME'))) {
+        if (! $this->isRecentTimestamp($request->header('PAYPAL-TRANSMISSION-TIME'))) {
             Log::warning('PayPal webhook timestamp too old - possible replay attack', [
                 'timestamp' => $request->header('PAYPAL-TRANSMISSION-TIME'),
                 'ip'        => $request->ip(),
@@ -150,7 +151,7 @@ class VerifyPayPalWebhook
             return $ip === $range;
         }
 
-        list($subnet, $bits) = explode('/', $range);
+        [$subnet, $bits] = explode('/', $range);
 
         if ($bits === NULL) {
             $bits = 32;
@@ -174,14 +175,14 @@ class VerifyPayPalWebhook
             $body = $request->getContent();
             $webhookId = config('services.paypal.webhook_id');
 
-            if (!$webhookId) {
+            if (! $webhookId) {
                 Log::error('PayPal webhook ID not configured');
 
                 return FALSE;
             }
 
             return $this->paypalService->verifyWebhookSignature($headers, $body, $webhookId);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             Log::error('PayPal webhook signature verification error', [
                 'error' => $e->getMessage(),
                 'ip'    => $request->ip(),
@@ -210,7 +211,7 @@ class VerifyPayPalWebhook
      */
     private function isRecentTimestamp(?string $timestamp): bool
     {
-        if (!$timestamp) {
+        if (! $timestamp) {
             return FALSE;
         }
 
@@ -230,7 +231,7 @@ class VerifyPayPalWebhook
             $payload = json_decode($request->getContent(), TRUE);
 
             return $payload['event_type'] ?? NULL;
-        } catch (\Exception) {
+        } catch (Exception) {
             return NULL;
         }
     }

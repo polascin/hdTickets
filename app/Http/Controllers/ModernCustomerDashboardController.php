@@ -18,6 +18,11 @@ use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
+use function in_array;
+use function is_array;
+use function is_object;
+use function is_string;
+
 /**
  * Modern Customer Dashboard Controller
  *
@@ -40,7 +45,7 @@ class ModernCustomerDashboardController extends Controller
     {
         $user = Auth::user();
 
-        if (!$user || !$this->isAuthorizedUser($user)) {
+        if (! $user || ! $this->isAuthorizedUser($user)) {
             abort(403, 'Access denied. Customer access required.');
         }
 
@@ -57,7 +62,7 @@ class ModernCustomerDashboardController extends Controller
     {
         $user = Auth::user();
 
-        if (!$user || !$this->isAuthorizedUser($user)) {
+        if (! $user || ! $this->isAuthorizedUser($user)) {
             return response()->json(['error' => 'Unauthorized'], 403);
         }
 
@@ -77,7 +82,7 @@ class ModernCustomerDashboardController extends Controller
     {
         $user = Auth::user();
 
-        if (!$user || !$this->isAuthorizedUser($user)) {
+        if (! $user || ! $this->isAuthorizedUser($user)) {
             return response()->json(['error' => 'Unauthorized'], 403);
         }
 
@@ -109,7 +114,7 @@ class ModernCustomerDashboardController extends Controller
     {
         $user = Auth::user();
 
-        if (!$user || !$this->isAuthorizedUser($user)) {
+        if (! $user || ! $this->isAuthorizedUser($user)) {
             return response()->json(['error' => 'Unauthorized'], 403);
         }
 
@@ -128,7 +133,7 @@ class ModernCustomerDashboardController extends Controller
     {
         $user = Auth::user();
 
-        if (!$user || !$this->isAuthorizedUser($user)) {
+        if (! $user || ! $this->isAuthorizedUser($user)) {
             return response()->json(['error' => 'Unauthorized'], 403);
         }
 
@@ -157,7 +162,7 @@ class ModernCustomerDashboardController extends Controller
     {
         $user = Auth::user();
 
-        if (!$user || !$this->isAuthorizedUser($user)) {
+        if (! $user || ! $this->isAuthorizedUser($user)) {
             return response()->json(['error' => 'Unauthorized'], 403);
         }
 
@@ -184,7 +189,7 @@ class ModernCustomerDashboardController extends Controller
      */
     private function isAuthorizedUser(User $user): bool
     {
-        return in_array($user->role, ['customer', 'admin']);
+        return in_array($user->role, ['customer', 'admin'], TRUE);
     }
 
     /**
@@ -272,45 +277,45 @@ class ModernCustomerDashboardController extends Controller
                 'max_price', 'platform', 'event_type', 'created_at',
                 'external_id', 'ticket_url',
             ])
-            ->where('is_available', TRUE)
-            ->where('status', 'active')
-            ->when($user->preferences, function ($query) use ($user) {
-                // Apply user preferences for personalization
-                $preferences = $user->preferences;
+                ->where('is_available', TRUE)
+                ->where('status', 'active')
+                ->when($user->preferences, function ($query) use ($user): void {
+                    // Apply user preferences for personalization
+                    $preferences = $user->preferences;
 
-                // Handle both object and string preferences
-                if (is_object($preferences) && isset($preferences->favorite_categories)) {
-                    $categories = explode(',', $preferences->favorite_categories);
-                    $query->whereIn('event_type', $categories);
-                } elseif (is_string($preferences)) {
-                    $decodedPrefs = json_decode($preferences, TRUE);
-                    if (is_array($decodedPrefs) && isset($decodedPrefs['favorite_categories'])) {
-                        $categories = explode(',', $decodedPrefs['favorite_categories']);
+                    // Handle both object and string preferences
+                    if (is_object($preferences) && isset($preferences->favorite_categories)) {
+                        $categories = explode(',', $preferences->favorite_categories);
                         $query->whereIn('event_type', $categories);
+                    } elseif (is_string($preferences)) {
+                        $decodedPrefs = json_decode($preferences, TRUE);
+                        if (is_array($decodedPrefs) && isset($decodedPrefs['favorite_categories'])) {
+                            $categories = explode(',', $decodedPrefs['favorite_categories']);
+                            $query->whereIn('event_type', $categories);
+                        }
                     }
-                }
-            })
-            ->orderBy('created_at', 'desc')
-            ->offset($offset)
-            ->limit($limit)
-            ->get()
-            ->map(function ($ticket) {
-                return [
-                    'id'             => $ticket->id,
-                    'event_name'     => $ticket->title,
-                    'venue_name'     => $ticket->venue ?: 'TBD',
-                    'event_date'     => $ticket->event_date ? Carbon::parse($ticket->event_date)->format('M j, Y g:i A') : 'TBD',
-                    'price'          => number_format((float) $ticket->min_price, 2),
-                    'original_price' => $ticket->max_price ? number_format((float) $ticket->max_price, 2) : NULL,
-                    'discount'       => $ticket->max_price && $ticket->min_price < $ticket->max_price ?
-                        round((($ticket->max_price - $ticket->min_price) / $ticket->max_price) * 100) : NULL,
-                    'platform'     => ucfirst($ticket->platform),
-                    'category'     => ucfirst($ticket->event_type),
-                    'image_url'    => NULL, // Not available in current schema
-                    'external_url' => $ticket->ticket_url,
-                    'time_ago'     => $ticket->created_at->diffForHumans(),
-                ];
-            });
+                })
+                ->orderBy('created_at', 'desc')
+                ->offset($offset)
+                ->limit($limit)
+                ->get()
+                ->map(function ($ticket) {
+                    return [
+                        'id'             => $ticket->id,
+                        'event_name'     => $ticket->title,
+                        'venue_name'     => $ticket->venue ?: 'TBD',
+                        'event_date'     => $ticket->event_date ? Carbon::parse($ticket->event_date)->format('M j, Y g:i A') : 'TBD',
+                        'price'          => number_format((float) $ticket->min_price, 2),
+                        'original_price' => $ticket->max_price ? number_format((float) $ticket->max_price, 2) : NULL,
+                        'discount'       => $ticket->max_price && $ticket->min_price < $ticket->max_price ?
+                            round((($ticket->max_price - $ticket->min_price) / $ticket->max_price) * 100) : NULL,
+                        'platform'     => ucfirst($ticket->platform),
+                        'category'     => ucfirst($ticket->event_type),
+                        'image_url'    => NULL, // Not available in current schema
+                        'external_url' => $ticket->ticket_url,
+                        'time_ago'     => $ticket->created_at->diffForHumans(),
+                    ];
+                });
         } catch (Exception $e) {
             Log::error('Failed to get recent tickets: ' . $e->getMessage());
 

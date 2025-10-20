@@ -10,6 +10,8 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 
+use function in_array;
+
 /**
  * Marketing Campaign Model
  *
@@ -32,6 +34,35 @@ class MarketingCampaign extends Model
 {
     use HasFactory;
 
+    /** Campaign types */
+    public const TYPE_EMAIL = 'email';
+
+    public const TYPE_PUSH = 'push';
+
+    public const TYPE_IN_APP = 'in_app';
+
+    public const TYPE_SMS = 'sms';
+
+    /** Campaign statuses */
+    public const STATUS_DRAFT = 'draft';
+
+    public const STATUS_SCHEDULED = 'scheduled';
+
+    public const STATUS_ACTIVE = 'active';
+
+    public const STATUS_COMPLETED = 'completed';
+
+    public const STATUS_PAUSED = 'paused';
+
+    public const STATUS_CANCELLED = 'cancelled';
+
+    /** Schedule types */
+    public const SCHEDULE_IMMEDIATE = 'immediate';
+
+    public const SCHEDULE_SCHEDULED = 'scheduled';
+
+    public const SCHEDULE_RECURRING = 'recurring';
+
     protected $fillable = [
         'name',
         'description',
@@ -52,41 +83,6 @@ class MarketingCampaign extends Model
         'scheduled_at' => 'datetime',
         'launched_at'  => 'datetime',
     ];
-
-    /**
-     * Campaign types
-     */
-    public const TYPE_EMAIL = 'email';
-
-    public const TYPE_PUSH = 'push';
-
-    public const TYPE_IN_APP = 'in_app';
-
-    public const TYPE_SMS = 'sms';
-
-    /**
-     * Campaign statuses
-     */
-    public const STATUS_DRAFT = 'draft';
-
-    public const STATUS_SCHEDULED = 'scheduled';
-
-    public const STATUS_ACTIVE = 'active';
-
-    public const STATUS_COMPLETED = 'completed';
-
-    public const STATUS_PAUSED = 'paused';
-
-    public const STATUS_CANCELLED = 'cancelled';
-
-    /**
-     * Schedule types
-     */
-    public const SCHEDULE_IMMEDIATE = 'immediate';
-
-    public const SCHEDULE_SCHEDULED = 'scheduled';
-
-    public const SCHEDULE_RECURRING = 'recurring';
 
     /**
      * Get the user who created this campaign
@@ -130,6 +126,8 @@ class MarketingCampaign extends Model
 
     /**
      * Scope for active campaigns
+     *
+     * @param mixed $query
      */
     public function scopeActive($query)
     {
@@ -138,6 +136,8 @@ class MarketingCampaign extends Model
 
     /**
      * Scope for completed campaigns
+     *
+     * @param mixed $query
      */
     public function scopeCompleted($query)
     {
@@ -146,6 +146,8 @@ class MarketingCampaign extends Model
 
     /**
      * Scope for email campaigns
+     *
+     * @param mixed $query
      */
     public function scopeEmail($query)
     {
@@ -157,7 +159,7 @@ class MarketingCampaign extends Model
      */
     public function isEditable(): bool
     {
-        return in_array($this->status, [self::STATUS_DRAFT, self::STATUS_SCHEDULED]);
+        return in_array($this->status, [self::STATUS_DRAFT, self::STATUS_SCHEDULED], TRUE);
     }
 
     /**

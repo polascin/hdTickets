@@ -28,7 +28,7 @@ class DashboardController extends Controller
      */
     public function index(): View
     {
-        if (!$user = Auth::user()) {
+        if (! $user = Auth::user()) {
             abort(401);
         }
 
@@ -195,10 +195,10 @@ class DashboardController extends Controller
      */
     public function getUserMetrics(Request $request): array
     {
-        if (!$user = Auth::user()) {
+        if (! $user = Auth::user()) {
             abort(401);
         }
-        if (!$user) {
+        if (! $user) {
             return [
                 'success' => FALSE,
                 'error'   => 'User not authenticated',
@@ -229,7 +229,7 @@ class DashboardController extends Controller
                     ->recent(12); // Last 12 hours
 
                 // Apply user preference filters
-                if (!empty($favoriteTeams)) {
+                if (! empty($favoriteTeams)) {
                     $recommendationsQuery->where(function ($q) use ($favoriteTeams): void {
                         foreach ($favoriteTeams as $team) {
                             $q->orWhere('title', 'like', "%{$team}%")
@@ -238,11 +238,11 @@ class DashboardController extends Controller
                     });
                 }
 
-                if (!empty($preferredVenues)) {
+                if (! empty($preferredVenues)) {
                     $recommendationsQuery->whereIn('venue', $preferredVenues);
                 }
 
-                if (!empty($priceThresholds) && isset($priceThresholds['max_budget'])) {
+                if (! empty($priceThresholds) && isset($priceThresholds['max_budget'])) {
                     $recommendationsQuery->priceRange(NULL, $priceThresholds['max_budget']);
                 }
 
@@ -263,7 +263,7 @@ class DashboardController extends Controller
                         'active_alerts_count'       => $activeAlerts->count(),
                         'alerts_triggered_today'    => $alertsTriggered,
                         'activity_score'            => $activityScore,
-                        'preferences_configured'    => !empty($favoriteTeams) || !empty($preferredVenues),
+                        'preferences_configured'    => ! empty($favoriteTeams) || ! empty($preferredVenues),
                         'avg_response_time_minutes' => $avgResponseTime,
                         'user_insights'             => [
                             'favorite_sports'        => $this->getUserFavoriteSports($user->id),
@@ -299,7 +299,7 @@ class DashboardController extends Controller
      */
     public function getRecentTicketsHtml(Request $request): JsonResponse
     {
-        if (!$request->ajax()) {
+        if (! $request->ajax()) {
             abort(403, 'Only AJAX requests are allowed');
         }
 
@@ -323,11 +323,11 @@ class DashboardController extends Controller
      */
     public function getDashboardStats(Request $request): JsonResponse
     {
-        if (!$request->ajax()) {
+        if (! $request->ajax()) {
             abort(403, 'Only AJAX requests are allowed');
         }
 
-        if (!$user = Auth::user()) {
+        if (! $user = Auth::user()) {
             return response()->json(['success' => FALSE, 'message' => 'Unauthenticated'], 401);
         }
 
@@ -460,7 +460,7 @@ class DashboardController extends Controller
                 ];
 
                 // Return summary or detailed based on request
-                if (!$request->get('detailed', FALSE)) {
+                if (! $request->get('detailed', FALSE)) {
                     return [
                         'success' => TRUE,
                         'data'    => [
@@ -768,7 +768,7 @@ class DashboardController extends Controller
 
             // Determine status based on metrics
             $status = 'healthy';
-            if (!$isAvailable || $successRate < 50) {
+            if (! $isAvailable || $successRate < 50) {
                 $status = 'down';
             } elseif ($successRate < 80 || $avgResponseTime > 5000) {
                 $status = 'degraded';

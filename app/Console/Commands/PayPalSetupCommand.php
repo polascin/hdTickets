@@ -7,24 +7,23 @@ use Exception;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Config;
 
+use function count;
+use function strlen;
+
 class PayPalSetupCommand extends Command
 {
-    /**
-     * The name and signature of the console command.
-     */
+    /** The name and signature of the console command. */
     protected $signature = 'paypal:setup 
                            {--verify : Verify PayPal credentials}
                            {--list-webhooks : List existing webhooks}
                            {--create-webhook : Create webhook subscription}
                            {--webhook-url= : Webhook URL for creation}';
 
-    /**
-     * The console command description.
-     */
+    /** The console command description. */
     protected $description = 'Setup and manage PayPal integration';
 
     public function __construct(
-        private PayPalService $paypalService
+        private PayPalService $paypalService,
     ) {
         parent::__construct();
     }
@@ -108,11 +107,10 @@ class PayPalSetupCommand extends Command
                 }
 
                 return self::SUCCESS;
-            } else {
-                $this->error('✗ Credential verification failed - Invalid response');
-
-                return self::FAILURE;
             }
+            $this->error('✗ Credential verification failed - Invalid response');
+
+            return self::FAILURE;
         } catch (Exception $e) {
             $this->error('✗ Credential verification failed: ' . $e->getMessage());
 
@@ -174,7 +172,7 @@ class PayPalSetupCommand extends Command
     {
         $webhookUrl = $this->option('webhook-url') ?: $this->ask('Enter webhook URL', url('/webhooks/paypal'));
 
-        if (!$webhookUrl) {
+        if (! $webhookUrl) {
             $this->error('Webhook URL is required');
 
             return self::FAILURE;
@@ -218,11 +216,10 @@ class PayPalSetupCommand extends Command
                 Config::set('services.paypal.webhook_id', $webhook['id']);
 
                 return self::SUCCESS;
-            } else {
-                $this->error('✗ Webhook creation failed - Invalid response');
-
-                return self::FAILURE;
             }
+            $this->error('✗ Webhook creation failed - Invalid response');
+
+            return self::FAILURE;
         } catch (Exception $e) {
             $this->error('Failed to create webhook: ' . $e->getMessage());
 

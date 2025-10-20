@@ -13,6 +13,8 @@ use Illuminate\Http\Response;
 use Mockery;
 use Tests\TestCase;
 
+use function in_array;
+
 class PayPalTicketPurchaseTest extends TestCase
 {
     use RefreshDatabase;
@@ -21,31 +23,9 @@ class PayPalTicketPurchaseTest extends TestCase
 
     private Ticket $ticket;
 
-    protected function setUp(): void
-    {
-        parent::setUp();
-
-        // Create test user
-        $this->user = $this->createTestUser([
-            'email' => 'test@example.com',
-            'name'  => 'Test User',
-        ], 'customer');
-
-        // Create test ticket
-        $this->ticket = $this->createTestTicket([
-            'title'              => 'Test Sports Event',
-            'price'              => 99.99,
-            'currency'           => 'USD',
-            'available_quantity' => 10,
-            'is_available'       => TRUE,
-            'venue'              => 'Test Arena',
-            'location'           => 'Test City, TC',
-            'sport'              => 'basketball',
-            'event_date'         => now()->addDays(30),
-        ]);
-    }
-
-    /** @test */
+    /**
+     * @test
+     */
     public function user_can_access_ticket_purchase_page(): void
     {
         // Act
@@ -60,7 +40,9 @@ class PayPalTicketPurchaseTest extends TestCase
         $response->assertSee($this->ticket->title);
     }
 
-    /** @test */
+    /**
+     * @test
+     */
     public function user_can_purchase_ticket_with_stripe(): void
     {
         // Arrange
@@ -98,7 +80,9 @@ class PayPalTicketPurchaseTest extends TestCase
         ]);
     }
 
-    /** @test */
+    /**
+     * @test
+     */
     public function user_can_purchase_ticket_with_paypal(): void
     {
         // Arrange
@@ -136,7 +120,9 @@ class PayPalTicketPurchaseTest extends TestCase
         ]);
     }
 
-    /** @test */
+    /**
+     * @test
+     */
     public function paypal_order_creation_stores_attempt(): void
     {
         // Arrange
@@ -165,7 +151,9 @@ class PayPalTicketPurchaseTest extends TestCase
         $this->assertEquals(3, $attempt->quantity);
     }
 
-    /** @test */
+    /**
+     * @test
+     */
     public function paypal_payment_capture_completes_purchase(): void
     {
         // Arrange
@@ -209,7 +197,9 @@ class PayPalTicketPurchaseTest extends TestCase
         ]);
     }
 
-    /** @test */
+    /**
+     * @test
+     */
     public function paypal_webhook_handles_payment_capture_completed(): void
     {
         // Arrange
@@ -261,7 +251,9 @@ class PayPalTicketPurchaseTest extends TestCase
         ]);
     }
 
-    /** @test */
+    /**
+     * @test
+     */
     public function paypal_webhook_handles_payment_capture_denied(): void
     {
         // Arrange
@@ -309,7 +301,9 @@ class PayPalTicketPurchaseTest extends TestCase
         ]);
     }
 
-    /** @test */
+    /**
+     * @test
+     */
     public function paypal_refund_processes_successfully(): void
     {
         // Arrange
@@ -349,7 +343,9 @@ class PayPalTicketPurchaseTest extends TestCase
         ]);
     }
 
-    /** @test */
+    /**
+     * @test
+     */
     public function purchase_validation_prevents_invalid_data(): void
     {
         // Act & Assert - Missing required fields
@@ -381,7 +377,9 @@ class PayPalTicketPurchaseTest extends TestCase
             ->assertStatus(Response::HTTP_UNPROCESSABLE_ENTITY);
     }
 
-    /** @test */
+    /**
+     * @test
+     */
     public function purchase_respects_ticket_availability(): void
     {
         // Arrange - Ticket with limited quantity
@@ -408,7 +406,9 @@ class PayPalTicketPurchaseTest extends TestCase
         $response->assertJsonValidationErrors(['quantity']);
     }
 
-    /** @test */
+    /**
+     * @test
+     */
     public function unavailable_ticket_cannot_be_purchased(): void
     {
         // Arrange - Unavailable ticket
@@ -437,7 +437,9 @@ class PayPalTicketPurchaseTest extends TestCase
         ]);
     }
 
-    /** @test */
+    /**
+     * @test
+     */
     public function guest_user_cannot_purchase_tickets(): void
     {
         // Arrange
@@ -455,7 +457,9 @@ class PayPalTicketPurchaseTest extends TestCase
         $response->assertStatus(Response::HTTP_UNAUTHORIZED);
     }
 
-    /** @test */
+    /**
+     * @test
+     */
     public function user_can_view_purchase_history(): void
     {
         // Arrange
@@ -492,7 +496,9 @@ class PayPalTicketPurchaseTest extends TestCase
         $response->assertSee('stripe');
     }
 
-    /** @test */
+    /**
+     * @test
+     */
     public function user_cannot_exceed_subscription_limits(): void
     {
         // This test would check subscription limits for customer users
@@ -516,7 +522,31 @@ class PayPalTicketPurchaseTest extends TestCase
         $this->assertTrue(in_array($response->status(), [
             Response::HTTP_FORBIDDEN,
             Response::HTTP_UNPROCESSABLE_ENTITY,
-        ]));
+        ], TRUE));
+    }
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+
+        // Create test user
+        $this->user = $this->createTestUser([
+            'email' => 'test@example.com',
+            'name'  => 'Test User',
+        ], 'customer');
+
+        // Create test ticket
+        $this->ticket = $this->createTestTicket([
+            'title'              => 'Test Sports Event',
+            'price'              => 99.99,
+            'currency'           => 'USD',
+            'available_quantity' => 10,
+            'is_available'       => TRUE,
+            'venue'              => 'Test Arena',
+            'location'           => 'Test City, TC',
+            'sport'              => 'basketball',
+            'event_date'         => now()->addDays(30),
+        ]);
     }
 
     private function mockPaymentServices(): void

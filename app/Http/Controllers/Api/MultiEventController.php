@@ -8,10 +8,13 @@ use App\Http\Controllers\Controller;
 use App\Models\Event;
 use App\Models\EventGroup;
 use App\Services\MultiEventManagementService;
+use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
+
+use function count;
 
 /**
  * Multi-Event Management API Controller
@@ -26,7 +29,7 @@ use Illuminate\Support\Facades\Validator;
 class MultiEventController extends Controller
 {
     public function __construct(
-        private MultiEventManagementService $multiEventService
+        private MultiEventManagementService $multiEventService,
     ) {
     }
 
@@ -43,7 +46,7 @@ class MultiEventController extends Controller
                 'success' => TRUE,
                 'data'    => $portfolio,
             ]);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return response()->json([
                 'success' => FALSE,
                 'message' => 'Failed to retrieve portfolio',
@@ -74,7 +77,7 @@ class MultiEventController extends Controller
                 'success' => TRUE,
                 'data'    => $dashboardData,
             ]);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return response()->json([
                 'success' => FALSE,
                 'message' => 'Failed to retrieve dashboard data',
@@ -115,7 +118,7 @@ class MultiEventController extends Controller
                 'message' => 'Event group created successfully',
                 'data'    => $group,
             ], 201);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return response()->json([
                 'success' => FALSE,
                 'message' => 'Failed to create event group',
@@ -158,7 +161,7 @@ class MultiEventController extends Controller
                 'message' => "Added {$result['success_count']} events to group",
                 'data'    => $result,
             ]);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return response()->json([
                 'success' => FALSE,
                 'message' => 'Failed to add events to group',
@@ -193,7 +196,7 @@ class MultiEventController extends Controller
                 $user,
                 $request->input('operation'),
                 $request->input('event_ids'),
-                $request->input('parameters', [])
+                $request->input('parameters', []),
             );
 
             return response()->json([
@@ -201,7 +204,7 @@ class MultiEventController extends Controller
                 'message' => "Bulk operation completed: {$result['success_count']} successful, {$result['error_count']} failed",
                 'data'    => $result,
             ]);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return response()->json([
                 'success' => FALSE,
                 'message' => 'Failed to execute bulk operation',
@@ -236,7 +239,7 @@ class MultiEventController extends Controller
                 'message' => 'Events categorized successfully',
                 'data'    => $categorized,
             ]);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return response()->json([
                 'success' => FALSE,
                 'message' => 'Failed to categorize events',
@@ -275,7 +278,7 @@ class MultiEventController extends Controller
                 'message' => 'Automation rule created successfully',
                 'data'    => $rule,
             ], 201);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return response()->json([
                 'success' => FALSE,
                 'message' => 'Failed to create automation rule',
@@ -308,7 +311,7 @@ class MultiEventController extends Controller
                     'health_status'      => $this->getGroupHealthStatus($group),
                 ],
             ]);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return response()->json([
                 'success' => FALSE,
                 'message' => 'Failed to retrieve group details',
@@ -359,7 +362,7 @@ class MultiEventController extends Controller
                 'message' => 'Event group updated successfully',
                 'data'    => $group->fresh(),
             ]);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return response()->json([
                 'success' => FALSE,
                 'message' => 'Failed to update event group',
@@ -392,7 +395,7 @@ class MultiEventController extends Controller
                 'success' => TRUE,
                 'message' => 'Event group deleted successfully',
             ]);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return response()->json([
                 'success' => FALSE,
                 'message' => 'Failed to delete event group',
@@ -445,7 +448,7 @@ class MultiEventController extends Controller
                     'remaining_events' => $group->events()->count(),
                 ],
             ]);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return response()->json([
                 'success' => FALSE,
                 'message' => 'Failed to remove events from group',
@@ -467,7 +470,7 @@ class MultiEventController extends Controller
                 'success' => TRUE,
                 'data'    => $recommendations,
             ]);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return response()->json([
                 'success' => FALSE,
                 'message' => 'Failed to generate recommendations',

@@ -10,7 +10,7 @@ return new class() extends Migration {
      */
     public function up(): void
     {
-        Schema::create('campaign_analytics', function (Blueprint $table) {
+        Schema::create('campaign_analytics', function (Blueprint $table): void {
             $table->id();
             $table->foreignId('campaign_id')->constrained('marketing_campaigns')->onDelete('cascade');
             $table->integer('total_targets')->default(0);

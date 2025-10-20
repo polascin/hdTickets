@@ -150,7 +150,7 @@ class Kernel extends HttpKernel
         'guest'                   => RedirectIfAuthenticated::class,
         'password.confirm'        => RequirePassword::class,
         'precognitive'            => HandlePrecognitiveRequests::class,
-        'recaptcha'               => \App\Http\Middleware\RecaptchaMiddleware::class,
+        'recaptcha'               => Middleware\RecaptchaMiddleware::class,
         'signed'                  => ValidateSignature::class,
         'throttle'                => ThrottleRequests::class,
         'verified'                => EnsureEmailIsVerified::class,

@@ -4,6 +4,7 @@ namespace App\Http\Middleware;
 
 use App\Services\Security\ApiSecurityService;
 use App\Services\Security\SecurityMonitoringService;
+use App\Support\UserAgentHelper;
 use Closure;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -39,41 +40,60 @@ class SecurityHeadersMiddleware
      */
     public function handle(Request $request, Closure $next): Response
     {
-        // Monitor request for threats (temporarily disabled)
-        // $threatAnalysis = $this->securityMonitoring->monitorRequest($request);
+        try {
+            // Log iOS requests for monitoring
+            if (UserAgentHelper::isIOS($request)) {
+                UserAgentHelper::logIOSRequest($request, 'security_headers_middleware');
+            }
 
-        // Block request if critical threats detected (temporarily disabled)
-        // if ($threatAnalysis['risk_level'] === 'critical') {
-        //     return response()->json([
-        //         'error' => 'Request blocked due to security policy violation',
-        //         'code' => 'SECURITY_BLOCK'
-        //     ], 403);
-        // }
+            // Monitor request for threats (temporarily disabled)
+            // $threatAnalysis = $this->securityMonitoring->monitorRequest($request);
 
-        // Check API rate limits for API routes (temporarily disabled)
-        // if ($request->is('api/*')) {
-        //     $endpoint = $this->getEndpointIdentifier($request);
-        //     $user = Auth::user();
+            // Block request if critical threats detected (temporarily disabled)
+            // if ($threatAnalysis['risk_level'] === 'critical') {
+            //     return response()->json([
+            //         'error' => 'Request blocked due to security policy violation',
+            //         'code' => 'SECURITY_BLOCK'
+            //     ], 403);
+            // }
 
-        //     $rateLimitResult = $this->apiSecurity->checkRateLimit($request, $endpoint, $user);
-        //     if (!$rateLimitResult['allowed']) {
-        //         return response()->json([
-        //             'error' => 'Rate limit exceeded',
-        //             'retry_after' => $rateLimitResult['retry_after'] ?? 60
-        //         ], 429);
-        //     }
-        // }
+            // Check API rate limits for API routes (temporarily disabled)
+            // if ($request->is('api/*')) {
+            //     $endpoint = $this->getEndpointIdentifier($request);
+            //     $user = Auth::user();
 
-        // Process request
-        $response = $next($request);
+            //     $rateLimitResult = $this->apiSecurity->checkRateLimit($request, $endpoint, $user);
+            //     if (!$rateLimitResult['allowed']) {
+            //         return response()->json([
+            //             'error' => 'Rate limit exceeded',
+            //             'retry_after' => $rateLimitResult['retry_after'] ?? 60
+            //         ], 429);
+            //     }
+            // }
 
-        // Apply security headers
-        $this->applySecurityHeaders($request, $response);
+            // Process request
+            $response = $next($request);
 
-        // Record request metrics
-        $this->recordRequestMetrics($request, $response);
+            // Apply security headers
+            $this->applySecurityHeaders($request, $response);
 
-        return $response;
+            // Record request metrics
+            $this->recordRequestMetrics($request, $response);
+
+            return $response;
+        } catch (\Throwable $e) {
+            Log::error('SecurityHeadersMiddleware error', [
+                'error'      => $e->getMessage(),
+                'trace'      => $e->getTraceAsString(),
+                'ip'         => $request->ip(),
+                'path'       => $request->path(),
+                'user_agent' => UserAgentHelper::sanitise(UserAgentHelper::get($request)),
+            ]);
+
+            // Continue with request processing even if middleware fails
+            // Don't block legitimate users due to middleware errors
+            return $next($request);
+        }
     }
 
     /**
@@ -217,40 +237,50 @@ class SecurityHeadersMiddleware
      */
     protected function buildContentSecurityPolicy(): string
     {
-        $cspConfig = config('security.csp', []);
+        try {
+            $cspConfig = config('security.csp', []);
 
-        // Debug logging to see what's happening
-        Log::info('SecurityHeadersMiddleware: buildContentSecurityPolicy called');
-        Log::info('CSP Config loaded:', ['count' => count($cspConfig), 'keys' => array_keys($cspConfig)]);
+            // Debug logging to see what's happening
+            Log::debug('SecurityHeadersMiddleware: buildContentSecurityPolicy called');
+            Log::debug('CSP Config loaded:', ['count' => count($cspConfig), 'keys' => array_keys($cspConfig)]);
 
-        $policies = [];
+            $policies = [];
 
-        foreach ($cspConfig as $directive => $sources) {
-            if ($directive === 'upgrade-insecure-requests') {
-                // Only add upgrade-insecure-requests directive if it's true
-                if ($sources === TRUE) {
-                    $policies[] = 'upgrade-insecure-requests';
+            foreach ($cspConfig as $directive => $sources) {
+                if ($directive === 'upgrade-insecure-requests') {
+                    // Only add upgrade-insecure-requests directive if it's true
+                    if ($sources === TRUE) {
+                        $policies[] = 'upgrade-insecure-requests';
+                    }
+                    // Skip adding it if it's false (which is what we want)
+                } elseif (is_array($sources)) {
+                    $policies[] = $directive . ' ' . implode(' ', $sources);
                 }
-                // Skip adding it if it's false (which is what we want)
-            } elseif (is_array($sources)) {
-                $policies[] = $directive . ' ' . implode(' ', $sources);
             }
+
+            Log::debug('Built CSP Policies count:', ['count' => count($policies)]);
+
+            // Use fallback only if no valid policies were generated from config
+            if ($policies === []) {
+                Log::debug('Using fallback CSP policy - policies array was empty');
+                $policies = [
+                    "default-src 'self'",
+                ];
+            }
+
+            $finalCSP = implode('; ', $policies);
+            Log::debug('Final CSP String length:', ['length' => strlen($finalCSP), 'preview' => substr($finalCSP, 0, 100) . '...']);
+
+            return $finalCSP;
+        } catch (\Throwable $e) {
+            Log::error('Error building CSP policy', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+            ]);
+
+            // Return safe fallback CSP
+            return "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:";
         }
-
-        Log::info('Built CSP Policies count:', ['count' => count($policies)]);
-
-        // Use fallback only if no valid policies were generated from config
-        if ($policies === []) {
-            Log::info('Using fallback CSP policy - policies array was empty');
-            $policies = [
-                "default-src 'self'",
-            ];
-        }
-
-        $finalCSP = implode('; ', $policies);
-        Log::info('Final CSP String length:', ['length' => strlen($finalCSP), 'preview' => substr($finalCSP, 0, 100) . '...']);
-
-        return $finalCSP;
     }
 
     /**

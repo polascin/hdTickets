@@ -12,7 +12,7 @@ use Illuminate\View\View;
 class TwoFactorSetupController extends Controller
 {
     public function __construct(
-        protected TwoFactorAuthService $twoFactorService
+        protected TwoFactorAuthService $twoFactorService,
     ) {
     }
 
@@ -52,7 +52,7 @@ class TwoFactorSetupController extends Controller
         $user = $request->user();
         $secretKey = session('2fa_temp_secret');
 
-        if (!$secretKey) {
+        if (! $secretKey) {
             throw ValidationException::withMessages([
                 'code' => 'Session expired. Please refresh the page and try again.',
             ]);
@@ -61,10 +61,10 @@ class TwoFactorSetupController extends Controller
         $success = $this->twoFactorService->enableTwoFactor(
             $user,
             $secretKey,
-            $request->input('code')
+            $request->input('code'),
         );
 
-        if (!$success) {
+        if (! $success) {
             throw ValidationException::withMessages([
                 'code' => 'Invalid verification code. Please try again.',
             ]);

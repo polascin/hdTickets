@@ -168,7 +168,7 @@ final readonly class PlatformSource implements Stringable
         }
 
         $normalizedPlatform = strtoupper(trim($platform));
-        if (!in_array($normalizedPlatform, self::VALID_PLATFORMS, TRUE)) {
+        if (! in_array($normalizedPlatform, self::VALID_PLATFORMS, TRUE)) {
             throw new InvalidArgumentException(
                 sprintf(
                     'Invalid platform source: %s. Valid platforms: %s',

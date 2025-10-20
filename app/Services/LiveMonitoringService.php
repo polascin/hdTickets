@@ -3,9 +3,13 @@
 namespace App\Services;
 
 use App\Models\ScrapedTicket;
+use Exception;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
+
+use function count;
+use function in_array;
 
 class LiveMonitoringService
 {
@@ -136,13 +140,58 @@ class LiveMonitoringService
             ];
 
             // Merge and deduplicate
-            $allLeagues = collect($predefinedLeagues)->merge($leagues)
+            return collect($predefinedLeagues)->merge($leagues)
                 ->unique('slug')
                 ->sortByDesc('ticket_count')
                 ->values()
                 ->toArray();
+        });
+    }
 
-            return $allLeagues;
+    /**
+     * Get platform status summary for all platforms
+     */
+    public function getPlatformStatus(): array
+    {
+        $platforms = $this->getMonitoredPlatforms();
+
+        return [
+            'summary' => [
+                'total_platforms' => count($platforms),
+                'online'          => collect($platforms)->where('status.status', 'online')->count(),
+                'offline'         => collect($platforms)->where('status.status', 'offline')->count(),
+                'error'           => collect($platforms)->where('status.status', 'error')->count(),
+            ],
+            'platforms'    => $platforms,
+            'last_updated' => now()->toISOString(),
+        ];
+    }
+
+    /**
+     * Get system monitoring statistics
+     */
+    public function getSystemStats(): array
+    {
+        return Cache::remember('system_monitoring_stats', 60, function () {
+            return [
+                'monitoring' => [
+                    'active_alerts'            => \App\Models\TicketAlert::active()->count(),
+                    'total_users'              => \App\Models\User::count(),
+                    'notifications_sent_today' => $this->getNotificationsSentToday(),
+                    'avg_response_time'        => $this->getAverageResponseTime(),
+                ],
+                'tickets' => [
+                    'total_monitored'   => ScrapedTicket::count(),
+                    'available_now'     => ScrapedTicket::where('is_available', TRUE)->count(),
+                    'high_demand'       => ScrapedTicket::where('is_high_demand', TRUE)->count(),
+                    'price_drops_today' => ScrapedTicket::where('price_changed_at', '>=', today())->count(),
+                ],
+                'platforms' => [
+                    'total_platforms'  => count($this->getMonitoredPlatforms()),
+                    'active_platforms' => $this->getActivePlatformsCount(),
+                    'last_scrape'      => ScrapedTicket::latest()->value('created_at'),
+                ],
+            ];
         });
     }
 
@@ -164,7 +213,7 @@ class LiveMonitoringService
                     'livenation'   => 'https://www.livenation.co.uk',
                 ];
 
-                if (!isset($urls[$platform])) {
+                if (! isset($urls[$platform])) {
                     return ['status' => 'unknown', 'response_time' => NULL];
                 }
 
@@ -186,7 +235,7 @@ class LiveMonitoringService
                     'error_code'    => $response->status(),
                     'checked_at'    => now()->toISOString(),
                 ];
-            } catch (\Exception $e) {
+            } catch (Exception $e) {
                 Log::warning("Platform status check failed for {$platform}: " . $e->getMessage());
 
                 return [
@@ -197,25 +246,6 @@ class LiveMonitoringService
                 ];
             }
         });
-    }
-
-    /**
-     * Get platform status summary for all platforms
-     */
-    public function getPlatformStatus(): array
-    {
-        $platforms = $this->getMonitoredPlatforms();
-
-        return [
-            'summary' => [
-                'total_platforms' => count($platforms),
-                'online'          => collect($platforms)->where('status.status', 'online')->count(),
-                'offline'         => collect($platforms)->where('status.status', 'offline')->count(),
-                'error'           => collect($platforms)->where('status.status', 'error')->count(),
-            ],
-            'platforms'    => $platforms,
-            'last_updated' => now()->toISOString(),
-        ];
     }
 
     /**
@@ -265,39 +295,11 @@ class LiveMonitoringService
             'carabao_cup', 'championship', 'league_one', 'league_two',
         ];
 
-        if (in_array($leagueSlug, $footballLeagues)) {
+        if (in_array($leagueSlug, $footballLeagues, TRUE)) {
             return 'Football';
         }
 
         return 'Other';
-    }
-
-    /**
-     * Get system monitoring statistics
-     */
-    public function getSystemStats(): array
-    {
-        return Cache::remember('system_monitoring_stats', 60, function () {
-            return [
-                'monitoring' => [
-                    'active_alerts'            => \App\Models\TicketAlert::active()->count(),
-                    'total_users'              => \App\Models\User::count(),
-                    'notifications_sent_today' => $this->getNotificationsSentToday(),
-                    'avg_response_time'        => $this->getAverageResponseTime(),
-                ],
-                'tickets' => [
-                    'total_monitored'   => ScrapedTicket::count(),
-                    'available_now'     => ScrapedTicket::where('is_available', TRUE)->count(),
-                    'high_demand'       => ScrapedTicket::where('is_high_demand', TRUE)->count(),
-                    'price_drops_today' => ScrapedTicket::where('price_changed_at', '>=', today())->count(),
-                ],
-                'platforms' => [
-                    'total_platforms'  => count($this->getMonitoredPlatforms()),
-                    'active_platforms' => $this->getActivePlatformsCount(),
-                    'last_scrape'      => ScrapedTicket::latest()->value('created_at'),
-                ],
-            ];
-        });
     }
 
     private function getNotificationsSentToday(): int

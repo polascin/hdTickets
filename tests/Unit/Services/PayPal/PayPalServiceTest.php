@@ -11,6 +11,7 @@ use PayPalCheckoutSdk\Orders\OrdersCaptureRequest;
 use PayPalCheckoutSdk\Orders\OrdersCreateRequest;
 use PayPalCheckoutSdk\Orders\OrdersGetRequest;
 use PayPalCheckoutSdk\Payments\CapturesRefundRequest;
+use ReflectionClass;
 use Tests\TestCase;
 
 class PayPalServiceTest extends TestCase
@@ -19,30 +20,9 @@ class PayPalServiceTest extends TestCase
 
     private MockInterface $mockClient;
 
-    protected function setUp(): void
-    {
-        parent::setUp();
-
-        // Mock the PayPal HTTP client
-        $this->mockClient = Mockery::mock(PayPalHttpClient::class);
-
-        // Create service instance with mocked client
-        $this->paypalService = new PayPalService();
-
-        // Use reflection to inject the mock client
-        $reflection = new \ReflectionClass($this->paypalService);
-        $clientProperty = $reflection->getProperty('client');
-        $clientProperty->setAccessible(TRUE);
-        $clientProperty->setValue($this->paypalService, $this->mockClient);
-    }
-
-    protected function tearDown(): void
-    {
-        Mockery::close();
-        parent::tearDown();
-    }
-
-    /** @test */
+    /**
+     * @test
+     */
     public function it_creates_paypal_order_successfully(): void
     {
         // Arrange
@@ -88,7 +68,9 @@ class PayPalServiceTest extends TestCase
         $this->assertStringContains('ORDER123456', $result['approve_link']);
     }
 
-    /** @test */
+    /**
+     * @test
+     */
     public function it_handles_order_creation_failure(): void
     {
         // Arrange
@@ -108,7 +90,9 @@ class PayPalServiceTest extends TestCase
         $this->paypalService->createOrder($orderData);
     }
 
-    /** @test */
+    /**
+     * @test
+     */
     public function it_captures_paypal_order_successfully(): void
     {
         // Arrange
@@ -153,7 +137,9 @@ class PayPalServiceTest extends TestCase
         $this->assertEquals('USD', $result['currency']);
     }
 
-    /** @test */
+    /**
+     * @test
+     */
     public function it_handles_order_capture_failure(): void
     {
         // Arrange
@@ -170,7 +156,9 @@ class PayPalServiceTest extends TestCase
         $this->paypalService->captureOrder($orderId);
     }
 
-    /** @test */
+    /**
+     * @test
+     */
     public function it_retrieves_order_details_successfully(): void
     {
         // Arrange
@@ -214,7 +202,9 @@ class PayPalServiceTest extends TestCase
         $this->assertEquals('john.doe@example.com', $result['payer']['email_address']);
     }
 
-    /** @test */
+    /**
+     * @test
+     */
     public function it_processes_refund_successfully(): void
     {
         // Arrange
@@ -254,7 +244,9 @@ class PayPalServiceTest extends TestCase
         $this->assertEquals('USD', $result['currency']);
     }
 
-    /** @test */
+    /**
+     * @test
+     */
     public function it_handles_refund_failure(): void
     {
         // Arrange
@@ -277,7 +269,9 @@ class PayPalServiceTest extends TestCase
         $this->paypalService->refundOrder($captureId, $refundData);
     }
 
-    /** @test */
+    /**
+     * @test
+     */
     public function it_verifies_webhook_signature_successfully(): void
     {
         // Arrange
@@ -292,7 +286,7 @@ class PayPalServiceTest extends TestCase
         $webhookId = 'test-webhook-id';
 
         // Mock the signature verification (this would normally call PayPal's verification service)
-        $reflection = new \ReflectionClass($this->paypalService);
+        $reflection = new ReflectionClass($this->paypalService);
         $verifyMethod = $reflection->getMethod('verifyWebhookSignature');
         $verifyMethod->setAccessible(TRUE);
 
@@ -305,7 +299,9 @@ class PayPalServiceTest extends TestCase
         $this->assertIsBool($result);
     }
 
-    /** @test */
+    /**
+     * @test
+     */
     public function it_handles_invalid_webhook_signature(): void
     {
         // Arrange
@@ -323,7 +319,9 @@ class PayPalServiceTest extends TestCase
         $this->assertFalse($result);
     }
 
-    /** @test */
+    /**
+     * @test
+     */
     public function it_handles_paypal_client_initialization(): void
     {
         // Arrange - Create new service to test initialization
@@ -342,7 +340,9 @@ class PayPalServiceTest extends TestCase
         $this->assertInstanceOf(PayPalService::class, $liveService);
     }
 
-    /** @test */
+    /**
+     * @test
+     */
     public function it_validates_order_data_before_creation(): void
     {
         // Arrange
@@ -357,7 +357,9 @@ class PayPalServiceTest extends TestCase
         $this->paypalService->createOrder($invalidOrderData);
     }
 
-    /** @test */
+    /**
+     * @test
+     */
     public function it_handles_network_errors_gracefully(): void
     {
         // Arrange
@@ -384,7 +386,9 @@ class PayPalServiceTest extends TestCase
         $this->paypalService->createOrder($orderData);
     }
 
-    /** @test */
+    /**
+     * @test
+     */
     public function it_formats_error_responses_correctly(): void
     {
         // Arrange
@@ -412,7 +416,9 @@ class PayPalServiceTest extends TestCase
         $this->paypalService->createOrder($orderData);
     }
 
-    /** @test */
+    /**
+     * @test
+     */
     public function it_logs_api_interactions(): void
     {
         // This test would verify that API interactions are properly logged
@@ -447,5 +453,28 @@ class PayPalServiceTest extends TestCase
 
         // Assert - No exceptions thrown means logging is working
         $this->assertNotEmpty($result);
+    }
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+
+        // Mock the PayPal HTTP client
+        $this->mockClient = Mockery::mock(PayPalHttpClient::class);
+
+        // Create service instance with mocked client
+        $this->paypalService = new PayPalService();
+
+        // Use reflection to inject the mock client
+        $reflection = new ReflectionClass($this->paypalService);
+        $clientProperty = $reflection->getProperty('client');
+        $clientProperty->setAccessible(TRUE);
+        $clientProperty->setValue($this->paypalService, $this->mockClient);
+    }
+
+    protected function tearDown(): void
+    {
+        Mockery::close();
+        parent::tearDown();
     }
 }

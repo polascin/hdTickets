@@ -133,7 +133,7 @@ class EnhancedSecurityHeadersMiddleware
             $cookie->setSameSite('Lax');
 
             // Ensure HttpOnly for non-essential cookies
-            if (!in_array($cookie->getName(), ['XSRF-TOKEN', 'remember_token'], TRUE)) {
+            if (! in_array($cookie->getName(), ['XSRF-TOKEN', 'remember_token'], TRUE)) {
                 $cookie->setHttpOnly(TRUE);
             }
         }

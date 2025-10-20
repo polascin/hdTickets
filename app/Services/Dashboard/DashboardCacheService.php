@@ -358,7 +358,7 @@ class DashboardCacheService
      */
     private function getMonitoredEventsCount(?User $user = NULL): int
     {
-        if (!$user) {
+        if (! $user) {
             return ScrapedTicket::available()
                 ->selectRaw('COUNT(DISTINCT CONCAT(title, venue, event_date)) as unique_events')
                 ->value('unique_events') ?: 0;
@@ -370,7 +370,7 @@ class DashboardCacheService
         $query = ScrapedTicket::available()
             ->selectRaw('COUNT(DISTINCT CONCAT(title, venue, event_date)) as unique_events');
 
-        if (!empty($favoriteTeams)) {
+        if (! empty($favoriteTeams)) {
             $query->where(function ($q) use ($favoriteTeams): void {
                 foreach ($favoriteTeams as $team) {
                     $q->orWhere('title', 'like', "%{$team}%")

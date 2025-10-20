@@ -10,7 +10,7 @@ return new class() extends Migration {
      */
     public function up(): void
     {
-        Schema::table('users', function (Blueprint $table) {
+        Schema::table('users', function (Blueprint $table): void {
             $table->string('google_id')->nullable()->after('id');
             $table->string('avatar')->nullable()->after('email_verified_at');
             $table->string('provider')->nullable()->after('avatar');
@@ -31,7 +31,7 @@ return new class() extends Migration {
      */
     public function down(): void
     {
-        Schema::table('users', function (Blueprint $table) {
+        Schema::table('users', function (Blueprint $table): void {
             $table->dropIndex(['provider', 'provider_id']);
             $table->dropIndex(['google_id']);
 

@@ -6,12 +6,16 @@ namespace App\Jobs;
 
 use App\Models\AutoPurchaseConfig;
 use App\Services\AutomatedPurchasingService;
+use Exception;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Log;
+use Throwable;
+
+use function count;
 
 /**
  * Retry Auto Purchase Job
@@ -33,7 +37,7 @@ class RetryAutoPurchaseJob implements ShouldQueue
 
     public function __construct(
         private int $configId,
-        private array $availableTickets
+        private array $availableTickets,
     ) {
     }
 
@@ -42,7 +46,7 @@ class RetryAutoPurchaseJob implements ShouldQueue
         try {
             $config = AutoPurchaseConfig::find($this->configId);
 
-            if (!$config) {
+            if (! $config) {
                 Log::warning('Auto purchase config not found for retry', [
                     'config_id' => $this->configId,
                 ]);
@@ -50,7 +54,7 @@ class RetryAutoPurchaseJob implements ShouldQueue
                 return;
             }
 
-            if (!$config->canAttemptPurchase()) {
+            if (! $config->canAttemptPurchase()) {
                 Log::info('Auto purchase retry skipped - config cannot attempt purchase', [
                     'config_id'     => $this->configId,
                     'is_active'     => $config->is_active,
@@ -79,7 +83,7 @@ class RetryAutoPurchaseJob implements ShouldQueue
                     'error'     => $result['error'],
                 ]);
             }
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             Log::error('Auto purchase retry job failed', [
                 'config_id' => $this->configId,
                 'error'     => $e->getMessage(),
@@ -97,7 +101,7 @@ class RetryAutoPurchaseJob implements ShouldQueue
     /**
      * Handle job failure
      */
-    public function failed(\Throwable $exception): void
+    public function failed(Throwable $exception): void
     {
         Log::error('Auto purchase retry job failed permanently', [
             'config_id' => $this->configId,

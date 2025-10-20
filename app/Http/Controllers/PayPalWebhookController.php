@@ -16,7 +16,7 @@ class PayPalWebhookController extends Controller
     public function __construct(
         private PayPalService $paypalService,
         private PayPalSubscriptionService $paypalSubscriptionService,
-        private AuditService $auditService
+        private AuditService $auditService,
     ) {
     }
 
@@ -37,7 +37,7 @@ class PayPalWebhookController extends Controller
             payload: $eventData ?: [],
             ip_address: $request->ip(),
             user_agent: $request->userAgent(),
-            status: 'received'
+            status: 'received',
         );
 
         try {
@@ -46,7 +46,7 @@ class PayPalWebhookController extends Controller
             $configWebhookId = config('services.paypal.webhook_id');
 
             // Verify webhook signature
-            if (!$this->verifyWebhookSignature($headers, $payload, $configWebhookId)) {
+            if (! $this->verifyWebhookSignature($headers, $payload, $configWebhookId)) {
                 // Audit security violation
                 $this->auditService->logSecurityEvent(
                     event: 'paypal_webhook_signature_verification_failed',
@@ -56,7 +56,7 @@ class PayPalWebhookController extends Controller
                         'headers'    => $headers,
                         'webhook_id' => $configWebhookId,
                         'event_type' => $eventType,
-                    ]
+                    ],
                 );
 
                 Log::warning('PayPal webhook signature verification failed', [
@@ -69,7 +69,7 @@ class PayPalWebhookController extends Controller
             }
 
             // Parse webhook event
-            if (!$eventData || !isset($eventData['event_type'])) {
+            if (! $eventData || ! isset($eventData['event_type'])) {
                 $this->auditService->logPayPalWebhook(
                     event_type: 'invalid_payload',
                     webhook_id: $webhookId,
@@ -77,7 +77,7 @@ class PayPalWebhookController extends Controller
                     ip_address: $request->ip(),
                     user_agent: $request->userAgent(),
                     status: 'failed',
-                    error: 'Invalid webhook payload'
+                    error: 'Invalid webhook payload',
                 );
 
                 Log::error('Invalid PayPal webhook payload', ['payload' => $payload]);
@@ -101,7 +101,7 @@ class PayPalWebhookController extends Controller
                 payload: $eventData,
                 ip_address: $request->ip(),
                 user_agent: $request->userAgent(),
-                status: 'processed'
+                status: 'processed',
             );
 
             return response('Webhook handled successfully', 200);
@@ -114,7 +114,7 @@ class PayPalWebhookController extends Controller
                 ip_address: $request->ip(),
                 user_agent: $request->userAgent(),
                 status: 'failed',
-                error: $e->getMessage()
+                error: $e->getMessage(),
             );
 
             Log::error('PayPal webhook processing failed', [
@@ -166,7 +166,7 @@ class PayPalWebhookController extends Controller
     private function handleSubscriptionCreated(array $resource): void
     {
         $subscriptionId = $resource['id'] ?? NULL;
-        if (!$subscriptionId) {
+        if (! $subscriptionId) {
             Log::error('PayPal subscription created webhook missing subscription ID');
 
             return;
@@ -184,7 +184,7 @@ class PayPalWebhookController extends Controller
     private function handleSubscriptionActivated(array $resource): void
     {
         $subscriptionId = $resource['id'] ?? NULL;
-        if (!$subscriptionId) {
+        if (! $subscriptionId) {
             Log::error('PayPal subscription activated webhook missing subscription ID');
 
             return;
@@ -201,7 +201,7 @@ class PayPalWebhookController extends Controller
                 amount: NULL,
                 currency: NULL,
                 status: 'active',
-                metadata: $resource
+                metadata: $resource,
             );
 
             Log::info('PayPal subscription activated via webhook', [
@@ -217,7 +217,7 @@ class PayPalWebhookController extends Controller
                 amount: NULL,
                 currency: NULL,
                 status: 'failed',
-                metadata: array_merge($resource, ['error' => 'Local subscription not found'])
+                metadata: array_merge($resource, ['error' => 'Local subscription not found']),
             );
 
             Log::warning('PayPal subscription activation failed - local subscription not found', [
@@ -232,7 +232,7 @@ class PayPalWebhookController extends Controller
     private function handleSubscriptionCancelled(array $resource): void
     {
         $subscriptionId = $resource['id'] ?? NULL;
-        if (!$subscriptionId) {
+        if (! $subscriptionId) {
             Log::error('PayPal subscription cancelled webhook missing subscription ID');
 
             return;
@@ -257,7 +257,7 @@ class PayPalWebhookController extends Controller
                 amount: NULL,
                 currency: NULL,
                 status: 'cancelled',
-                metadata: $resource
+                metadata: $resource,
             );
 
             Log::info('PayPal subscription cancelled via webhook', [
@@ -273,7 +273,7 @@ class PayPalWebhookController extends Controller
                 amount: NULL,
                 currency: NULL,
                 status: 'failed',
-                metadata: array_merge($resource, ['error' => 'Local subscription not found'])
+                metadata: array_merge($resource, ['error' => 'Local subscription not found']),
             );
 
             Log::warning('PayPal subscription cancellation webhook - local subscription not found', [
@@ -288,7 +288,7 @@ class PayPalWebhookController extends Controller
     private function handleSubscriptionSuspended(array $resource): void
     {
         $subscriptionId = $resource['id'] ?? NULL;
-        if (!$subscriptionId) {
+        if (! $subscriptionId) {
             Log::error('PayPal subscription suspended webhook missing subscription ID');
 
             return;
@@ -313,7 +313,7 @@ class PayPalWebhookController extends Controller
                 amount: NULL,
                 currency: NULL,
                 status: 'suspended',
-                metadata: $resource
+                metadata: $resource,
             );
 
             Log::info('PayPal subscription suspended via webhook', [
@@ -330,7 +330,7 @@ class PayPalWebhookController extends Controller
     private function handleSubscriptionExpired(array $resource): void
     {
         $subscriptionId = $resource['id'] ?? NULL;
-        if (!$subscriptionId) {
+        if (! $subscriptionId) {
             Log::error('PayPal subscription expired webhook missing subscription ID');
 
             return;
@@ -362,7 +362,7 @@ class PayPalWebhookController extends Controller
         $amount = $resource['amount']['value'] ?? NULL;
         $currency = $resource['amount']['currency_code'] ?? NULL;
 
-        if (!$captureId) {
+        if (! $captureId) {
             Log::error('PayPal payment capture completed webhook missing capture ID');
 
             return;
@@ -379,7 +379,7 @@ class PayPalWebhookController extends Controller
             amount: (float) ($amount ?? 0),
             currency: $currency ?? 'USD',
             status: 'completed',
-            metadata: $resource
+            metadata: $resource,
         );
 
         Log::info('PayPal payment capture completed', [
@@ -411,7 +411,7 @@ class PayPalWebhookController extends Controller
             amount: (float) ($amount ?? 0),
             currency: $currency ?? 'USD',
             status: 'denied',
-            metadata: array_merge($resource, ['denial_reason' => $reason])
+            metadata: array_merge($resource, ['denial_reason' => $reason]),
         );
 
         Log::warning('PayPal payment capture denied', [
@@ -446,7 +446,7 @@ class PayPalWebhookController extends Controller
         $amount = $resource['amount']['total'] ?? NULL;
         $currency = $resource['amount']['currency'] ?? NULL;
 
-        if (!$subscriptionId) {
+        if (! $subscriptionId) {
             Log::error('PayPal subscription payment completed webhook missing subscription ID');
 
             return;
@@ -470,7 +470,7 @@ class PayPalWebhookController extends Controller
                 amount: (float) ($amount ?? 0),
                 currency: $currency,
                 status: 'active',
-                metadata: $resource
+                metadata: $resource,
             );
 
             Log::info('PayPal subscription payment processed via webhook', [
@@ -503,7 +503,7 @@ class PayPalWebhookController extends Controller
             amount: (float) ($amount ?? 0),
             currency: $currency ?? 'USD',
             failure_reason: $reason,
-            metadata: $resource
+            metadata: $resource,
         );
 
         Log::warning('PayPal subscription payment failed', [

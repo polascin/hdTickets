@@ -4,8 +4,11 @@ namespace App\Services;
 
 use App\Models\AuditLog;
 use App\Models\User;
+use Exception;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
+
+use function strlen;
 
 class AuditService
 {
@@ -16,7 +19,7 @@ class AuditService
         string $action,
         array $data,
         ?User $user = NULL,
-        string $level = 'info'
+        string $level = 'info',
     ): void {
         $this->logEvent('paypal_transaction', $action, $data, $user, $level);
     }
@@ -29,7 +32,7 @@ class AuditService
         array $payload,
         array $headers,
         bool $verified = FALSE,
-        ?string $error = NULL
+        ?string $error = NULL,
     ): void {
         $data = [
             'event_type'   => $eventType,
@@ -59,7 +62,7 @@ class AuditService
         string $currency,
         bool $success,
         ?string $orderId = NULL,
-        ?string $error = NULL
+        ?string $error = NULL,
     ): void {
         $data = [
             'payment_method' => $paymentMethod,
@@ -86,7 +89,7 @@ class AuditService
         string $action,
         array $subscriptionData,
         bool $success = TRUE,
-        ?string $error = NULL
+        ?string $error = NULL,
     ): void {
         $data = array_merge($subscriptionData, [
             'success'    => $success,
@@ -106,7 +109,7 @@ class AuditService
         string $event,
         array $data,
         string $level = 'warning',
-        ?User $user = NULL
+        ?User $user = NULL,
     ): void {
         $securityData = array_merge($data, [
             'ip_address' => request()?->ip(),
@@ -125,7 +128,7 @@ class AuditService
         string $paymentMethod,
         float $amount,
         string $error,
-        array $fraudData = []
+        array $fraudData = [],
     ): void {
         $request = request();
         $data = [
@@ -156,7 +159,7 @@ class AuditService
     public function logIdempotencyCheck(
         string $key,
         bool $duplicate,
-        array $context = []
+        array $context = [],
     ): void {
         $data = [
             'idempotency_key' => $key,
@@ -178,7 +181,7 @@ class AuditService
         string $endpoint,
         int $attempts,
         int $maxAttempts,
-        ?User $user = NULL
+        ?User $user = NULL,
     ): void {
         $data = [
             'endpoint'     => $endpoint,
@@ -196,6 +199,40 @@ class AuditService
     }
 
     /**
+     * Get audit statistics for dashboard
+     */
+    public function getPayPalAuditStats(int $days = 30): array
+    {
+        $since = now()->subDays($days);
+
+        return [
+            'total_transactions' => AuditLog::where('event', 'LIKE', 'paypal_transaction.%')
+                ->where('created_at', '>', $since)
+                ->count(),
+
+            'successful_payments' => AuditLog::where('event', 'paypal_transaction.payment_completed')
+                ->where('created_at', '>', $since)
+                ->count(),
+
+            'failed_payments' => AuditLog::where('event', 'LIKE', 'payment_failure.%')
+                ->where('created_at', '>', $since)
+                ->count(),
+
+            'webhook_events' => AuditLog::where('event', 'LIKE', 'paypal_webhook.%')
+                ->where('created_at', '>', $since)
+                ->count(),
+
+            'security_events' => AuditLog::where('event', 'LIKE', 'security.%')
+                ->where('created_at', '>', $since)
+                ->count(),
+
+            'suspicious_activities' => AuditLog::where('tags', 'LIKE', '%suspicious%')
+                ->where('created_at', '>', $since)
+                ->count(),
+        ];
+    }
+
+    /**
      * Core event logging method
      */
     private function logEvent(
@@ -203,7 +240,7 @@ class AuditService
         string $action,
         array $data,
         ?User $user = NULL,
-        string $level = 'info'
+        string $level = 'info',
     ): void {
         try {
             // Log to Laravel log
@@ -229,7 +266,7 @@ class AuditService
                 'tags'           => $this->generateTags($category, $action, $data),
                 'properties'     => $data,
             ]);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             // Fallback logging if audit log fails
             Log::error('Failed to write audit log', [
                 'error'         => $e->getMessage(),
@@ -324,9 +361,9 @@ class AuditService
 
         // Unusual user agent
         if (isset($data['user_agent'])) {
-            if (empty($data['user_agent']) ||
-                strlen($data['user_agent']) < 10 ||
-                preg_match('/bot|crawler|scanner|wget|curl/i', $data['user_agent'])) {
+            if (empty($data['user_agent'])
+                || strlen($data['user_agent']) < 10
+                || preg_match('/bot|crawler|scanner|wget|curl/i', $data['user_agent'])) {
                 $suspiciousIndicators++;
             }
         }
@@ -342,39 +379,5 @@ class AuditService
         }
 
         return $suspiciousIndicators >= 2;
-    }
-
-    /**
-     * Get audit statistics for dashboard
-     */
-    public function getPayPalAuditStats(int $days = 30): array
-    {
-        $since = now()->subDays($days);
-
-        return [
-            'total_transactions' => AuditLog::where('event', 'LIKE', 'paypal_transaction.%')
-                ->where('created_at', '>', $since)
-                ->count(),
-
-            'successful_payments' => AuditLog::where('event', 'paypal_transaction.payment_completed')
-                ->where('created_at', '>', $since)
-                ->count(),
-
-            'failed_payments' => AuditLog::where('event', 'LIKE', 'payment_failure.%')
-                ->where('created_at', '>', $since)
-                ->count(),
-
-            'webhook_events' => AuditLog::where('event', 'LIKE', 'paypal_webhook.%')
-                ->where('created_at', '>', $since)
-                ->count(),
-
-            'security_events' => AuditLog::where('event', 'LIKE', 'security.%')
-                ->where('created_at', '>', $since)
-                ->count(),
-
-            'suspicious_activities' => AuditLog::where('tags', 'LIKE', '%suspicious%')
-                ->where('created_at', '>', $since)
-                ->count(),
-        ];
     }
 }

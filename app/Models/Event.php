@@ -60,6 +60,8 @@ class Event extends Model
 
     /**
      * Scope for upcoming events
+     *
+     * @param mixed $query
      */
     public function scopeUpcoming($query)
     {
@@ -68,6 +70,8 @@ class Event extends Model
 
     /**
      * Scope for events by sport
+     *
+     * @param mixed $query
      */
     public function scopeBySport($query, string $sport)
     {
@@ -76,6 +80,8 @@ class Event extends Model
 
     /**
      * Scope for high demand events
+     *
+     * @param mixed $query
      */
     public function scopeHighDemand($query)
     {

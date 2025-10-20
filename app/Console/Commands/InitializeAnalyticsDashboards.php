@@ -96,7 +96,7 @@ class InitializeAnalyticsDashboards extends Command
     {
         $user = User::find($userId);
 
-        if (!$user) {
+        if (! $user) {
             $this->error("❌ User with ID {$userId} not found!");
 
             return;
@@ -123,7 +123,7 @@ class InitializeAnalyticsDashboards extends Command
             // Check if user already has a default dashboard
             $existingDashboard = AnalyticsDashboard::getDefaultForUser($user->id);
 
-            if ($existingDashboard && !$force) {
+            if ($existingDashboard && ! $force) {
                 return FALSE; // Skip if dashboard exists and not forcing
             }
 
@@ -315,7 +315,7 @@ class InitializeAnalyticsDashboards extends Command
 
         try {
             foreach ($requiredTables as $table) {
-                if (!DB::getSchemaBuilder()->hasTable($table)) {
+                if (! DB::getSchemaBuilder()->hasTable($table)) {
                     return FALSE;
                 }
             }

@@ -6,6 +6,7 @@ namespace App\Http\Controllers;
 
 use App\Models\PushSubscription;
 use App\Services\NotificationChannels\PushNotificationService;
+use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
@@ -21,7 +22,7 @@ use Illuminate\Support\Facades\Validator;
 class PushNotificationController extends Controller
 {
     public function __construct(
-        private readonly PushNotificationService $pushService
+        private readonly PushNotificationService $pushService,
     ) {
     }
 
@@ -82,7 +83,7 @@ class PushNotificationController extends Controller
                 'message'         => 'Successfully subscribed to push notifications',
                 'subscription_id' => $subscription->id,
             ]);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             Log::error('Failed to subscribe to push notifications', [
                 'error'    => $e->getMessage(),
                 'user_id'  => $request->user()->id,
@@ -120,7 +121,7 @@ class PushNotificationController extends Controller
                 ->where('endpoint', $request->input('endpoint'))
                 ->first();
 
-            if (!$subscription) {
+            if (! $subscription) {
                 return response()->json([
                     'success' => FALSE,
                     'message' => 'Subscription not found',
@@ -134,7 +135,7 @@ class PushNotificationController extends Controller
                 'success' => TRUE,
                 'message' => 'Successfully unsubscribed from push notifications',
             ]);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             Log::error('Failed to unsubscribe from push notifications', [
                 'error'    => $e->getMessage(),
                 'user_id'  => $request->user()->id,
@@ -155,7 +156,7 @@ class PushNotificationController extends Controller
     {
         $vapidKey = config('services.webpush.vapid_public_key');
 
-        if (!$vapidKey) {
+        if (! $vapidKey) {
             return response()->json([
                 'success' => FALSE,
                 'message' => 'VAPID key not configured',
@@ -202,7 +203,7 @@ class PushNotificationController extends Controller
                 'sent_count'   => $result['sent_count'] ?? 0,
                 'failed_count' => $result['failed_count'] ?? 0,
             ]);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             Log::error('Failed to send test push notification', [
                 'error'   => $e->getMessage(),
                 'user_id' => $request->user()->id,
@@ -279,7 +280,7 @@ class PushNotificationController extends Controller
                 'message'  => 'Push notification settings updated successfully',
                 'settings' => $request->validated(),
             ]);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             Log::error('Failed to update push notification settings', [
                 'error'    => $e->getMessage(),
                 'user_id'  => $request->user()->id,

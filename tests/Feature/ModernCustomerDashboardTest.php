@@ -21,47 +21,9 @@ class ModernCustomerDashboardTest extends TestCase
 
     private User $adminUser;
 
-    protected function setUp(): void
-    {
-        parent::setUp();
-
-        // Create test customer
-        $this->customer = User::factory()->create([
-            'role'              => User::ROLE_CUSTOMER,
-            'email'             => 'test.customer@example.com',
-            'email_verified_at' => now(),
-        ]);
-
-        // Create admin user for comparison
-        $this->adminUser = User::factory()->create([
-            'role'  => User::ROLE_ADMIN,
-            'email' => 'admin@example.com',
-        ]);
-
-        // Create payment plan and subscription
-        $paymentPlan = PaymentPlan::create([
-            'name'             => 'Test Plan',
-            'slug'             => 'test-plan',
-            'description'      => 'Test payment plan',
-            'price'            => 19.99,
-            'currency'         => 'USD',
-            'billing_interval' => 'monthly',
-            'stripe_price_id'  => 'price_test_monthly',
-            'features'         => json_encode(['ticket_alerts' => 50]),
-            'is_active'        => TRUE,
-        ]);
-
-        Subscription::create([
-            'user_id'                => $this->customer->id,
-            'payment_plan_id'        => $paymentPlan->id,
-            'stripe_subscription_id' => 'sub_test_123',
-            'status'                 => 'active',
-            'current_period_start'   => now()->subDays(10),
-            'current_period_end'     => now()->addDays(20),
-        ]);
-    }
-
-    /** @test */
+    /**
+     * @test
+     */
     public function customer_can_access_modern_dashboard(): void
     {
         $response = $this->actingAs($this->customer)
@@ -79,7 +41,9 @@ class ModernCustomerDashboardTest extends TestCase
         ]);
     }
 
-    /** @test */
+    /**
+     * @test
+     */
     public function non_customer_cannot_access_customer_dashboard(): void
     {
         $response = $this->actingAs($this->adminUser)
@@ -88,7 +52,9 @@ class ModernCustomerDashboardTest extends TestCase
         $response->assertStatus(403);
     }
 
-    /** @test */
+    /**
+     * @test
+     */
     public function guest_user_redirected_to_login(): void
     {
         $response = $this->get('/dashboard/customer');
@@ -96,7 +62,9 @@ class ModernCustomerDashboardTest extends TestCase
         $response->assertRedirect('/login');
     }
 
-    /** @test */
+    /**
+     * @test
+     */
     public function dashboard_stats_ajax_endpoint_returns_correct_data(): void
     {
         // Create test tickets for the customer
@@ -143,7 +111,9 @@ class ModernCustomerDashboardTest extends TestCase
         $this->assertArrayHasKey('total_savings', $data);
     }
 
-    /** @test */
+    /**
+     * @test
+     */
     public function dashboard_tickets_ajax_endpoint_returns_paginated_results(): void
     {
         // Create 25 tickets for pagination test
@@ -168,7 +138,9 @@ class ModernCustomerDashboardTest extends TestCase
         $this->assertEquals(25, $data['pagination']['total']);
     }
 
-    /** @test */
+    /**
+     * @test
+     */
     public function dashboard_alerts_ajax_endpoint_returns_user_alerts(): void
     {
         // Create alerts for this customer
@@ -202,7 +174,9 @@ class ModernCustomerDashboardTest extends TestCase
         }
     }
 
-    /** @test */
+    /**
+     * @test
+     */
     public function dashboard_recommendations_endpoint_returns_personalized_data(): void
     {
         // Create user preferences
@@ -235,7 +209,9 @@ class ModernCustomerDashboardTest extends TestCase
         $this->assertIsArray($data);
     }
 
-    /** @test */
+    /**
+     * @test
+     */
     public function dashboard_market_insights_endpoint_returns_analytics_data(): void
     {
         $response = $this->actingAs($this->customer)
@@ -257,7 +233,9 @@ class ModernCustomerDashboardTest extends TestCase
         $this->assertArrayHasKey('market_summary', $data);
     }
 
-    /** @test */
+    /**
+     * @test
+     */
     public function dashboard_caches_data_correctly(): void
     {
         // First request should hit the database
@@ -275,11 +253,13 @@ class ModernCustomerDashboardTest extends TestCase
         // Data should be identical (cached)
         $this->assertEquals(
             $response1->json('data'),
-            $response2->json('data')
+            $response2->json('data'),
         );
     }
 
-    /** @test */
+    /**
+     * @test
+     */
     public function subscription_status_is_correctly_determined(): void
     {
         $response = $this->actingAs($this->customer)
@@ -295,7 +275,9 @@ class ModernCustomerDashboardTest extends TestCase
         $this->assertNull($subscriptionStatus['trial_days_remaining']);
     }
 
-    /** @test */
+    /**
+     * @test
+     */
     public function trial_user_subscription_status_is_correctly_determined(): void
     {
         // Create a trial user
@@ -329,7 +311,9 @@ class ModernCustomerDashboardTest extends TestCase
         $this->assertEquals(7, $subscriptionStatus['trial_days_remaining']);
     }
 
-    /** @test */
+    /**
+     * @test
+     */
     public function ajax_endpoints_require_authentication(): void
     {
         $endpoints = [
@@ -346,7 +330,9 @@ class ModernCustomerDashboardTest extends TestCase
         }
     }
 
-    /** @test */
+    /**
+     * @test
+     */
     public function ajax_endpoints_require_customer_role(): void
     {
         $endpoints = [
@@ -364,7 +350,9 @@ class ModernCustomerDashboardTest extends TestCase
         }
     }
 
-    /** @test */
+    /**
+     * @test
+     */
     public function dashboard_handles_error_states_gracefully(): void
     {
         // Test with a customer that has no data
@@ -386,7 +374,9 @@ class ModernCustomerDashboardTest extends TestCase
         $this->assertEquals(0, $stats['active_alerts']);
     }
 
-    /** @test */
+    /**
+     * @test
+     */
     public function dashboard_view_contains_required_data_attributes(): void
     {
         $response = $this->actingAs($this->customer)
@@ -397,5 +387,45 @@ class ModernCustomerDashboardTest extends TestCase
         $response->assertSee('data-tickets', FALSE);
         $response->assertSee('x-data="modernCustomerDashboard()"', FALSE);
         $response->assertSee('csrf-token', FALSE);
+    }
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+
+        // Create test customer
+        $this->customer = User::factory()->create([
+            'role'              => User::ROLE_CUSTOMER,
+            'email'             => 'test.customer@example.com',
+            'email_verified_at' => now(),
+        ]);
+
+        // Create admin user for comparison
+        $this->adminUser = User::factory()->create([
+            'role'  => User::ROLE_ADMIN,
+            'email' => 'admin@example.com',
+        ]);
+
+        // Create payment plan and subscription
+        $paymentPlan = PaymentPlan::create([
+            'name'             => 'Test Plan',
+            'slug'             => 'test-plan',
+            'description'      => 'Test payment plan',
+            'price'            => 19.99,
+            'currency'         => 'USD',
+            'billing_interval' => 'monthly',
+            'stripe_price_id'  => 'price_test_monthly',
+            'features'         => json_encode(['ticket_alerts' => 50]),
+            'is_active'        => TRUE,
+        ]);
+
+        Subscription::create([
+            'user_id'                => $this->customer->id,
+            'payment_plan_id'        => $paymentPlan->id,
+            'stripe_subscription_id' => 'sub_test_123',
+            'status'                 => 'active',
+            'current_period_start'   => now()->subDays(10),
+            'current_period_end'     => now()->addDays(20),
+        ]);
     }
 }

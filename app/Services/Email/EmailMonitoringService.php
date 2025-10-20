@@ -179,7 +179,7 @@ class EmailMonitoringService
      */
     public function clearProcessedCache(?string $connection = NULL): void
     {
-        if (!$this->config['cache']['enabled']) {
+        if (! $this->config['cache']['enabled']) {
             return;
         }
 
@@ -210,7 +210,7 @@ class EmailMonitoringService
         ];
 
         // Select mailbox
-        if (!$this->connectionService->selectMailbox($imapConnection, $mailbox)) {
+        if (! $this->connectionService->selectMailbox($imapConnection, $mailbox)) {
             throw new RuntimeException("Failed to select mailbox '{$mailbox}'");
         }
 
@@ -259,7 +259,7 @@ class EmailMonitoringService
 
             if ($emails === FALSE) {
                 $error = imap_last_error();
-                if ($error && !str_contains($error, 'SEARCH completed')) {
+                if ($error && ! str_contains($error, 'SEARCH completed')) {
                     Log::channel($this->config['logging']['channel'])
                         ->warning('IMAP search returned no results or error', [
                             'criteria' => $searchCriteria,
@@ -351,13 +351,13 @@ class EmailMonitoringService
 
         // Get email headers
         $headers = $this->getEmailHeaders($imapConnection, $uid);
-        if (!$headers) {
+        if (! $headers) {
             return $result;
         }
 
         // Check if email is from a sports event platform
         $platform = $this->identifyPlatform($headers);
-        if (!$platform) {
+        if (! $platform) {
             $this->markEmailAsProcessed($uid, $connection);
 
             return $result;
@@ -366,7 +366,7 @@ class EmailMonitoringService
         $result['platform'] = $platform;
 
         // Check if email contains sports event content
-        if (!$this->containsSportsEventContent($imapConnection, $uid, $platform)) {
+        if (! $this->containsSportsEventContent($imapConnection, $uid, $platform)) {
             $this->markEmailAsProcessed($uid, $connection);
             $result['processed'] = TRUE;
 
@@ -398,7 +398,7 @@ class EmailMonitoringService
      */
     private function isEmailProcessed(int $uid, string $connection): bool
     {
-        if (!$this->config['cache']['enabled']) {
+        if (! $this->config['cache']['enabled']) {
             return FALSE;
         }
 
@@ -415,7 +415,7 @@ class EmailMonitoringService
      */
     private function markEmailAsProcessed(int $uid, string $connection): void
     {
-        if (!$this->config['cache']['enabled']) {
+        if (! $this->config['cache']['enabled']) {
             return;
         }
 
@@ -438,7 +438,7 @@ class EmailMonitoringService
         try {
             $headerInfo = @imap_headerinfo($imapConnection, $uid, 0, 0);
 
-            if (!$headerInfo) {
+            if (! $headerInfo) {
                 return NULL;
             }
 
@@ -504,7 +504,7 @@ class EmailMonitoringService
         try {
             // Get email body
             $body = $this->getEmailBody($imapConnection, $uid);
-            if (!$body) {
+            if (! $body) {
                 return FALSE;
             }
 
@@ -550,13 +550,13 @@ class EmailMonitoringService
     {
         try {
             $structure = @imap_fetchstructure($imapConnection, $uid, FT_UID);
-            if (!$structure) {
+            if (! $structure) {
                 return NULL;
             }
 
             // Get body
             $body = @imap_fetchbody($imapConnection, $uid, 1, FT_UID);
-            if (!$body) {
+            if (! $body) {
                 return NULL;
             }
 
@@ -590,7 +590,7 @@ class EmailMonitoringService
      */
     private function queueEmailForProcessing($imapConnection, int $uid, string $connection, string $platform, array $headers): void
     {
-        if (!$this->config['queue']['enabled']) {
+        if (! $this->config['queue']['enabled']) {
             return;
         }
 

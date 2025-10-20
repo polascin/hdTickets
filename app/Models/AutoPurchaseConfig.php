@@ -99,11 +99,11 @@ class AutoPurchaseConfig extends Model
      */
     public function canAttemptPurchase(): bool
     {
-        if (!$this->is_active) {
+        if (! $this->is_active) {
             return FALSE;
         }
 
-        if (!$this->isWithinPurchaseWindow()) {
+        if (! $this->isWithinPurchaseWindow()) {
             return FALSE;
         }
 
@@ -163,6 +163,8 @@ class AutoPurchaseConfig extends Model
 
     /**
      * Scope for active configurations
+     *
+     * @param mixed $query
      */
     public function scopeActive($query)
     {
@@ -171,22 +173,26 @@ class AutoPurchaseConfig extends Model
 
     /**
      * Scope for configurations within purchase window
+     *
+     * @param mixed $query
      */
     public function scopeWithinWindow($query)
     {
         $now = now();
 
-        return $query->where(function ($q) use ($now) {
+        return $query->where(function ($q) use ($now): void {
             $q->whereNull('purchase_window_start')
-              ->orWhere('purchase_window_start', '<=', $now);
-        })->where(function ($q) use ($now) {
+                ->orWhere('purchase_window_start', '<=', $now);
+        })->where(function ($q) use ($now): void {
             $q->whereNull('purchase_window_end')
-              ->orWhere('purchase_window_end', '>=', $now);
+                ->orWhere('purchase_window_end', '>=', $now);
         });
     }
 
     /**
      * Scope for high priority configurations
+     *
+     * @param mixed $query
      */
     public function scopeHighPriority($query)
     {
@@ -249,16 +255,16 @@ class AutoPurchaseConfig extends Model
         } elseif ($successRate >= 60) {
             $newScore += 2;
         } elseif ($successRate >= 40) {
-            $newScore += 1;
+            ++$newScore;
         } elseif ($successRate < 20) {
             $newScore -= 2;
         }
 
         // Adjust based on execution time (faster is better)
         if ($avgExecutionTime && $avgExecutionTime < 5000) { // Less than 5 seconds
-            $newScore += 1;
+            ++$newScore;
         } elseif ($avgExecutionTime && $avgExecutionTime > 15000) { // More than 15 seconds
-            $newScore -= 1;
+            --$newScore;
         }
 
         // Keep score within bounds
@@ -270,20 +276,20 @@ class AutoPurchaseConfig extends Model
      */
     public function needsContextPreloading(): bool
     {
-        if (!($this->advanced_settings['auto_preload_context'] ?? TRUE)) {
+        if (! ($this->advanced_settings['auto_preload_context'] ?? TRUE)) {
             return FALSE;
         }
 
         $cacheKey = "auto_purchase_preload_{$this->id}";
         $preloadData = \Illuminate\Support\Facades\Cache::get($cacheKey);
 
-        if (!$preloadData) {
+        if (! $preloadData) {
             return TRUE;
         }
 
         // Check if preload data is older than 30 minutes
         $preloadedAt = $preloadData['preloaded_at'] ?? NULL;
-        if (!$preloadedAt || now()->diffInMinutes($preloadedAt) > 30) {
+        if (! $preloadedAt || now()->diffInMinutes($preloadedAt) > 30) {
             return TRUE;
         }
 

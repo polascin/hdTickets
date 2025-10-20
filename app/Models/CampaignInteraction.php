@@ -24,22 +24,7 @@ class CampaignInteraction extends Model
 {
     use HasFactory;
 
-    protected $fillable = [
-        'campaign_id',
-        'user_id',
-        'action',
-        'timestamp',
-        'metadata',
-    ];
-
-    protected $casts = [
-        'timestamp' => 'datetime',
-        'metadata'  => 'array',
-    ];
-
-    /**
-     * Interaction actions
-     */
+    /** Interaction actions */
     public const ACTION_SENT = 'sent';
 
     public const ACTION_DELIVERED = 'delivered';
@@ -55,6 +40,19 @@ class CampaignInteraction extends Model
     public const ACTION_BOUNCED = 'bounced';
 
     public const ACTION_FAILED = 'failed';
+
+    protected $fillable = [
+        'campaign_id',
+        'user_id',
+        'action',
+        'timestamp',
+        'metadata',
+    ];
+
+    protected $casts = [
+        'timestamp' => 'datetime',
+        'metadata'  => 'array',
+    ];
 
     /**
      * Get the campaign this interaction belongs to

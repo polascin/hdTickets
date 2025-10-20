@@ -7,7 +7,7 @@ use Illuminate\Support\Facades\Schema;
 return new class() extends Migration {
     public function up(): void
     {
-        Schema::create('event_monitors', function (Blueprint $table) {
+        Schema::create('event_monitors', function (Blueprint $table): void {
             $table->id();
             $table->unsignedBigInteger('user_id');
             $table->unsignedBigInteger('event_id');
@@ -34,7 +34,7 @@ return new class() extends Migration {
             $table->index(['last_check_at']);
         });
 
-        Schema::table('event_monitors', function (Blueprint $table) {
+        Schema::table('event_monitors', function (Blueprint $table): void {
             if (Schema::hasTable('users')) {
                 $table->foreign('user_id')->references('id')->on('users')->cascadeOnDelete();
             }

@@ -13,7 +13,7 @@ $request = Illuminate\Http\Request::capture();
 try {
     $response = $kernel->handle($request);
 
-    if ($response->getStatusCode() == 200) {
+    if ($response->getStatusCode() === 200) {
         echo "SUCCESS: Dashboard accessible\n";
     } else {
         echo 'HTTP ' . $response->getStatusCode() . "\n";

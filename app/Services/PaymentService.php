@@ -18,7 +18,7 @@ class PaymentService
 {
     public function __construct(
         private PayPalService $paypalService,
-        private PayPalSubscriptionService $paypalSubscriptionService
+        private PayPalSubscriptionService $paypalSubscriptionService,
     ) {
         Stripe::setApiKey(config('services.stripe.secret'));
     }
@@ -305,7 +305,7 @@ class PaymentService
     {
         $subscription = $user->activeSubscription();
 
-        if (!$subscription) {
+        if (! $subscription) {
             return [
                 'monthly_limit' => 5, // Free tier limit
                 'unlimited'     => FALSE,

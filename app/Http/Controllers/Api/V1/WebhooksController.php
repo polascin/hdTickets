@@ -7,12 +7,14 @@ namespace App\Http\Controllers\Api\V1;
 use App\Http\Controllers\Controller;
 use App\Models\Webhook;
 use App\Models\WebhookLog;
+use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
+use Log;
 
 /**
  * Webhooks API Controller
@@ -39,13 +41,13 @@ class WebhooksController extends Controller
             $user = Auth::user();
 
             $webhooks = Webhook::where('user_id', $user->id)
-                ->when($request->filled('is_active'), function ($query) use ($request) {
+                ->when($request->filled('is_active'), function ($query) use ($request): void {
                     $query->where('is_active', $request->boolean('is_active'));
                 })
-                ->when($request->filled('event_type'), function ($query) use ($request) {
+                ->when($request->filled('event_type'), function ($query) use ($request): void {
                     $query->whereJsonContains('events', $request->input('event_type'));
                 })
-                ->with(['logs' => function ($query) {
+                ->with(['logs' => function ($query): void {
                     $query->latest()->limit(5);
                 }])
                 ->orderBy('created_at', 'desc')
@@ -73,7 +75,7 @@ class WebhooksController extends Controller
                     'healthy_webhooks' => $webhooks->filter(fn ($w) => $w->getSuccessRate() > 95)->count(),
                 ],
             ]);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return $this->errorResponse('Failed to retrieve webhooks', ['error' => $e->getMessage()]);
         }
     }
@@ -150,7 +152,7 @@ class WebhooksController extends Controller
                 ],
                 'test_result' => $testResult,
             ], 201);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return $this->errorResponse('Failed to create webhook', ['error' => $e->getMessage()], 500);
         }
     }
@@ -166,7 +168,7 @@ class WebhooksController extends Controller
         }
 
         try {
-            $webhook->load(['logs' => function ($query) {
+            $webhook->load(['logs' => function ($query): void {
                 $query->latest()->limit(20);
             }]);
 
@@ -207,7 +209,7 @@ class WebhooksController extends Controller
                     'updated_at' => $webhook->updated_at,
                 ],
             ]);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return $this->errorResponse('Failed to retrieve webhook details', ['error' => $e->getMessage()]);
         }
     }
@@ -262,7 +264,7 @@ class WebhooksController extends Controller
                     'updated_at' => $webhook->updated_at,
                 ],
             ]);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return $this->errorResponse('Failed to update webhook', ['error' => $e->getMessage()], 500);
         }
     }
@@ -284,7 +286,7 @@ class WebhooksController extends Controller
             return $this->successResponse([
                 'message' => 'Webhook deleted successfully',
             ]);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return $this->errorResponse('Failed to delete webhook', ['error' => $e->getMessage()], 500);
         }
     }
@@ -306,7 +308,7 @@ class WebhooksController extends Controller
                 'test_result' => $testResult,
                 'message'     => $testResult['success'] ? 'Webhook test successful' : 'Webhook test failed',
             ]);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return $this->errorResponse('Failed to test webhook', ['error' => $e->getMessage()], 500);
         }
     }
@@ -370,7 +372,7 @@ class WebhooksController extends Controller
                     'avg_response_time' => $webhook->getAverageResponseTime(),
                 ],
             ]);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return $this->errorResponse('Failed to retrieve webhook logs', ['error' => $e->getMessage()]);
         }
     }
@@ -436,7 +438,7 @@ class WebhooksController extends Controller
             'starter'    => 1,
             'pro'        => 5,
             'enterprise' => 25,
-            default      => 0
+            default      => 0,
         };
     }
 
@@ -485,7 +487,7 @@ class WebhooksController extends Controller
                 'response_body' => $response->body(),
                 'test_payload'  => $testPayload,
             ];
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             // Log the failed test
             WebhookLog::create([
                 'webhook_id'     => $webhook->id,
@@ -520,7 +522,7 @@ class WebhooksController extends Controller
             $data = $request->all();
 
             // Log receipt for debugging/analytics
-            \Log::info("Received {$eventType} webhook", [
+            Log::info("Received {$eventType} webhook", [
                 'data'      => $data,
                 'signature' => $signature,
                 'ip'        => $request->ip(),
@@ -532,7 +534,7 @@ class WebhooksController extends Controller
                 'event_type'  => $eventType,
                 'received_at' => now()->toISOString(),
             ]);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return response()->json([
                 'success' => FALSE,
                 'message' => 'Failed to process webhook',

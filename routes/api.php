@@ -371,34 +371,34 @@ Route::prefix('v1/subscriptions')->middleware(['auth:sanctum', ApiRateLimit::cla
        * Access: Authenticated users
        * Features: Starter ($19), Pro ($49), Enterprise ($199) plans
        */
-    Route::get('/plans', [\App\Http\Controllers\SubscriptionController::class, 'getPlans'])
+    Route::get('/plans', [App\Http\Controllers\SubscriptionController::class, 'getPlans'])
         ->name('api.subscriptions.plans');
 
-    Route::post('/subscribe', [\App\Http\Controllers\SubscriptionController::class, 'subscribe'])
+    Route::post('/subscribe', [App\Http\Controllers\SubscriptionController::class, 'subscribe'])
         ->name('api.subscriptions.subscribe');
 
-    Route::post('/upgrade', [\App\Http\Controllers\SubscriptionController::class, 'upgrade'])
+    Route::post('/upgrade', [App\Http\Controllers\SubscriptionController::class, 'upgrade'])
         ->name('api.subscriptions.upgrade');
 
-    Route::post('/cancel', [\App\Http\Controllers\SubscriptionController::class, 'cancel'])
+    Route::post('/cancel', [App\Http\Controllers\SubscriptionController::class, 'cancel'])
         ->name('api.subscriptions.cancel');
 
-    Route::post('/resume', [\App\Http\Controllers\SubscriptionController::class, 'resume'])
+    Route::post('/resume', [App\Http\Controllers\SubscriptionController::class, 'resume'])
         ->name('api.subscriptions.resume');
 
-    Route::get('/current', [\App\Http\Controllers\SubscriptionController::class, 'current'])
+    Route::get('/current', [App\Http\Controllers\SubscriptionController::class, 'current'])
         ->name('api.subscriptions.current');
 
-    Route::get('/billing', [\App\Http\Controllers\SubscriptionController::class, 'billing'])
+    Route::get('/billing', [App\Http\Controllers\SubscriptionController::class, 'billing'])
         ->name('api.subscriptions.billing');
 
-    Route::get('/payments', [\App\Http\Controllers\SubscriptionController::class, 'payments'])
+    Route::get('/payments', [App\Http\Controllers\SubscriptionController::class, 'payments'])
         ->name('api.subscriptions.payments');
 
-    Route::get('/usage', [\App\Http\Controllers\SubscriptionController::class, 'usage'])
+    Route::get('/usage', [App\Http\Controllers\SubscriptionController::class, 'usage'])
         ->name('api.subscriptions.usage');
 
-    Route::post('/check-feature-access', [\App\Http\Controllers\SubscriptionController::class, 'checkFeatureAccess'])
+    Route::post('/check-feature-access', [App\Http\Controllers\SubscriptionController::class, 'checkFeatureAccess'])
         ->name('api.subscriptions.check-feature-access');
 });
 
@@ -431,7 +431,7 @@ Route::prefix('v1')->middleware(['auth:sanctum', ApiRateLimit::class . ':api,120
     // Session Management Routes for Professional Auth Features
     Route::post('/session/extend', function (Request $request) {
         try {
-            if (!Auth::check()) {
+            if (! Auth::check()) {
                 return response()->json([
                     'success' => FALSE,
                     'message' => 'User not authenticated',
@@ -470,7 +470,7 @@ Route::prefix('v1')->middleware(['auth:sanctum', ApiRateLimit::class . ':api,120
     });
 
     Route::get('/session/status', function (Request $request) {
-        if (!Auth::check()) {
+        if (! Auth::check()) {
             return response()->json([
                 'success'       => FALSE,
                 'authenticated' => FALSE,
@@ -795,7 +795,7 @@ Route::prefix('v1')->middleware(['auth:sanctum', ApiRateLimit::class . ':api,120
         // Download route for API exports
         Route::get('/download/{file}', function (string $file) {
             $path = storage_path('app/analytics/exports/api/' . $file);
-            if (!file_exists($path)) {
+            if (! file_exists($path)) {
                 return response()->json([
                     'success' => FALSE,
                     'message' => 'Export file not found or has expired',
@@ -911,7 +911,7 @@ use App\Http\Controllers\Api\V1\WebhooksController;
 use App\Http\Middleware\ApiKeyAuth;
 
 // API Access Layer - V1 Routes
-Route::prefix('api-access/v1')->group(function () {
+Route::prefix('api-access/v1')->group(function (): void {
     // Public endpoints (no authentication required)
     Route::get('/', [DocumentationController::class, 'index']);
     Route::get('/health', [DocumentationController::class, 'health']);
@@ -919,12 +919,12 @@ Route::prefix('api-access/v1')->group(function () {
     Route::get('/openapi', [DocumentationController::class, 'openApiSpec']);
 
     // Authentication endpoints
-    Route::prefix('auth')->group(function () {
+    Route::prefix('auth')->group(function (): void {
         Route::post('/login', [V1AuthController::class, 'login']);
         Route::post('/register', [V1AuthController::class, 'register']);
 
         // Authenticated auth endpoints
-        Route::middleware([ApiKeyAuth::class])->group(function () {
+        Route::middleware([ApiKeyAuth::class])->group(function (): void {
             Route::post('/logout', [V1AuthController::class, 'logout']);
             Route::get('/profile', [V1AuthController::class, 'profile']);
             Route::put('/profile', [V1AuthController::class, 'updateProfile']);
@@ -933,14 +933,14 @@ Route::prefix('api-access/v1')->group(function () {
     });
 
     // API Key Management
-    Route::middleware([ApiKeyAuth::class])->prefix('api-keys')->group(function () {
+    Route::middleware([ApiKeyAuth::class])->prefix('api-keys')->group(function (): void {
         Route::get('/', [V1AuthController::class, 'listApiKeys']);
         Route::post('/', [V1AuthController::class, 'createApiKey']);
         Route::delete('/{keyId}', [V1AuthController::class, 'revokeApiKey']);
     });
 
     // Events API - Core functionality
-    Route::middleware([ApiKeyAuth::class])->prefix('events')->group(function () {
+    Route::middleware([ApiKeyAuth::class])->prefix('events')->group(function (): void {
         // Event discovery and search
         Route::get('/', [V1EventsController::class, 'index'])
             ->middleware('throttle:100,60'); // 100 requests per hour
@@ -949,7 +949,7 @@ Route::prefix('api-access/v1')->group(function () {
         Route::get('/{event}', [V1EventsController::class, 'show']);
 
         // Event monitoring
-        Route::prefix('{event}/monitoring')->group(function () {
+        Route::prefix('{event}/monitoring')->group(function (): void {
             Route::post('/start', [V1EventsController::class, 'startMonitoring'])
                 ->middleware(ApiKeyAuth::class . ':write');
             Route::post('/stop', [V1EventsController::class, 'stopMonitoring'])
@@ -960,7 +960,7 @@ Route::prefix('api-access/v1')->group(function () {
         });
 
         // Price analytics and alerts
-        Route::prefix('{event}/price')->group(function () {
+        Route::prefix('{event}/price')->group(function (): void {
             Route::get('/analytics', [V1EventsController::class, 'priceAnalytics'])
                 ->middleware('throttle:30,60'); // 30 requests per hour for analytics
             Route::post('/alerts', [V1EventsController::class, 'createPriceAlert'])
@@ -968,21 +968,21 @@ Route::prefix('api-access/v1')->group(function () {
         });
 
         // Automated purchasing
-        Route::prefix('{event}/purchase')->group(function () {
+        Route::prefix('{event}/purchase')->group(function (): void {
             Route::post('/configure', [V1EventsController::class, 'configureAutoPurchase'])
                 ->middleware(ApiKeyAuth::class . ':write');
         });
     });
 
     // Multi-Event Management API
-    Route::middleware([ApiKeyAuth::class])->prefix('multi-event')->group(function () {
+    Route::middleware([ApiKeyAuth::class])->prefix('multi-event')->group(function (): void {
         // Portfolio overview
         Route::get('/portfolio', [MultiEventController::class, 'portfolio']);
         Route::get('/dashboard', [MultiEventController::class, 'dashboard']);
         Route::get('/recommendations', [MultiEventController::class, 'recommendations']);
 
         // Event groups
-        Route::prefix('groups')->group(function () {
+        Route::prefix('groups')->group(function (): void {
             Route::post('/', [MultiEventController::class, 'createGroup'])
                 ->middleware(ApiKeyAuth::class . ':write');
             Route::get('/{group}', [MultiEventController::class, 'getGroup']);
@@ -1012,7 +1012,7 @@ Route::prefix('api-access/v1')->group(function () {
     });
 
     // Webhooks API
-    Route::middleware([ApiKeyAuth::class])->prefix('webhooks')->group(function () {
+    Route::middleware([ApiKeyAuth::class])->prefix('webhooks')->group(function (): void {
         Route::get('/', [WebhooksController::class, 'list']);
         Route::post('/', [WebhooksController::class, 'create'])
             ->middleware(ApiKeyAuth::class . ':write');
@@ -1027,7 +1027,7 @@ Route::prefix('api-access/v1')->group(function () {
     });
 
     // Developer Tools
-    Route::middleware([ApiKeyAuth::class])->prefix('dev-tools')->group(function () {
+    Route::middleware([ApiKeyAuth::class])->prefix('dev-tools')->group(function (): void {
         Route::get('/test-connection', [DocumentationController::class, 'testConnection']);
         Route::get('/rate-limits', [DocumentationController::class, 'rateLimits']);
         Route::get('/usage-stats', [DocumentationController::class, 'usageStats']);
@@ -1036,7 +1036,7 @@ Route::prefix('api-access/v1')->group(function () {
 });
 
 // Webhook receiver endpoints (no authentication, validates signatures)
-Route::prefix('webhooks/v1')->group(function () {
+Route::prefix('webhooks/v1')->group(function (): void {
     Route::post('/price-alert', [WebhooksController::class, 'receivePriceAlert']);
     Route::post('/monitoring-update', [WebhooksController::class, 'receiveMonitoringUpdate']);
     Route::post('/purchase-complete', [WebhooksController::class, 'receivePurchaseComplete']);
@@ -1044,7 +1044,7 @@ Route::prefix('webhooks/v1')->group(function () {
 });
 
 // Marketing Dashboard and Campaign Management Routes
-Route::middleware(['auth:sanctum', CheckApiRole::class . ':admin,agent'])->prefix('v1/marketing')->group(function () {
+Route::middleware(['auth:sanctum', CheckApiRole::class . ':admin,agent'])->prefix('v1/marketing')->group(function (): void {
     // Marketing Dashboard
     Route::get('/dashboard', [MarketingDashboardController::class, 'getDashboard']);
     Route::get('/dashboard/admin', [MarketingDashboardController::class, 'getAdminDashboard'])
@@ -1071,7 +1071,7 @@ Route::middleware(['auth:sanctum', CheckApiRole::class . ':admin,agent'])->prefi
 });
 
 // Public Campaign Tracking Routes (no authentication required)
-Route::prefix('v1/campaigns')->group(function () {
+Route::prefix('v1/campaigns')->group(function (): void {
     Route::get('/{campaign}/track/open/{user}', [CampaignManagementController::class, 'trackOpen'])
         ->name('campaign.track.open');
     Route::post('/{campaign}/track/click/{user}', [CampaignManagementController::class, 'trackClick'])
@@ -1079,7 +1079,7 @@ Route::prefix('v1/campaigns')->group(function () {
 });
 
 // Backwards compatibility aliases for API Access Layer
-Route::prefix('api-access/v1/legacy')->group(function () {
+Route::prefix('api-access/v1/legacy')->group(function (): void {
     Route::get('/events', [V1EventsController::class, 'index']);
     Route::get('/events/{event}', [V1EventsController::class, 'show']);
     Route::post('/events/{event}/monitor', [V1EventsController::class, 'startMonitoring']);

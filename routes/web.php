@@ -160,7 +160,7 @@ Route::get('/csp-debug', function () {
 */
 
 // PayPal webhook endpoint
-Route::post('/webhooks/paypal', [\App\Http\Controllers\PayPalWebhookController::class, 'handle'])
+Route::post('/webhooks/paypal', [App\Http\Controllers\PayPalWebhookController::class, 'handle'])
     ->name('webhooks.paypal')
     ->withoutMiddleware(['web'])
     ->middleware(['verify.paypal.webhook']);
@@ -168,24 +168,24 @@ Route::post('/webhooks/paypal', [\App\Http\Controllers\PayPalWebhookController::
 // Stripe webhook endpoint (existing compatibility)
 Route::post('/webhooks/stripe', function (Request $request) {
     // This would be handled by your existing SubscriptionController webhook method
-    return app(\App\Http\Controllers\SubscriptionController::class)->webhook($request);
+    return app(App\Http\Controllers\SubscriptionController::class)->webhook($request);
 })->name('webhooks.stripe')->withoutMiddleware(['web']);
 
 // PayPal subscription return/cancel endpoints
-Route::get('/subscription/paypal/return', [\App\Http\Controllers\SubscriptionController::class, 'paypalReturn'])
+Route::get('/subscription/paypal/return', [App\Http\Controllers\SubscriptionController::class, 'paypalReturn'])
     ->name('subscription.paypal.return')
     ->middleware(['auth']);
 
-Route::get('/subscription/paypal/cancel', [\App\Http\Controllers\SubscriptionController::class, 'paypalCancel'])
+Route::get('/subscription/paypal/cancel', [App\Http\Controllers\SubscriptionController::class, 'paypalCancel'])
     ->name('subscription.paypal.cancel')
     ->middleware(['auth']);
 
 // PayPal ticket purchase return/cancel endpoints
-Route::get('/tickets/paypal/return', [\App\Http\Controllers\TicketPurchaseController::class, 'paypalReturn'])
+Route::get('/tickets/paypal/return', [TicketPurchaseController::class, 'paypalReturn'])
     ->name('tickets.paypal.return')
     ->middleware(['auth']);
 
-Route::get('/tickets/paypal/cancel', [\App\Http\Controllers\TicketPurchaseController::class, 'paypalCancel'])
+Route::get('/tickets/paypal/cancel', [TicketPurchaseController::class, 'paypalCancel'])
     ->name('tickets.paypal.cancel')
     ->middleware(['auth']);
 
@@ -339,7 +339,7 @@ Route::middleware(['auth', 'verified'])->prefix('dashboard')->name('dashboard.')
         // Download route for exports
         Route::get('/download/{file}', function (string $file) {
             $path = storage_path('app/analytics/exports/' . $file);
-            if (!file_exists($path)) {
+            if (! file_exists($path)) {
                 abort(404);
             }
 
@@ -864,7 +864,7 @@ require __DIR__ . '/admin.php';
 
 Route::get('/dashboard-test', function () {
     $user = User::where('role', 'admin')->first();
-    if (!$user) {
+    if (! $user) {
         return response()->json(['error' => 'Admin user not found']);
     }
 
@@ -892,7 +892,7 @@ Route::get('/dashboard/customer-test', [App\Http\Controllers\CustomerDashboardTe
 
 Route::get('/customer-test', function () {
     $user = User::where('role', 'customer')->first();
-    if (!$user) {
+    if (! $user) {
         return response()->json(['error' => 'Customer user not found']);
     }
 

@@ -7,7 +7,7 @@ use Illuminate\Support\Facades\Schema;
 return new class() extends Migration {
     public function up(): void
     {
-        Schema::create('event_group_events', function (Blueprint $table) {
+        Schema::create('event_group_events', function (Blueprint $table): void {
             $table->id();
             $table->unsignedBigInteger('event_group_id');
             $table->unsignedBigInteger('event_id');
@@ -23,7 +23,7 @@ return new class() extends Migration {
         });
 
         // Add foreign keys only if referenced tables exist (useful in testing when loading partial schema dumps)
-        Schema::table('event_group_events', function (Blueprint $table) {
+        Schema::table('event_group_events', function (Blueprint $table): void {
             if (Schema::hasTable('event_groups')) {
                 $table->foreign('event_group_id')->references('id')->on('event_groups')->cascadeOnDelete();
             }

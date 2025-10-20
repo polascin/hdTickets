@@ -90,7 +90,7 @@ class RealTimeMonitoringService
     {
         $ticket = Ticket::find($ticketId);
 
-        if (!$ticket) {
+        if (! $ticket) {
             throw new Exception("Ticket {$ticketId} not found");
         }
 
@@ -269,7 +269,7 @@ class RealTimeMonitoringService
             try {
                 $ticket = Ticket::find($ticketId);
 
-                if (!$ticket) {
+                if (! $ticket) {
                     $this->removeFromWatchList($ticketId);
 
                     continue;
@@ -385,7 +385,7 @@ class RealTimeMonitoringService
         $source = $ticket->metadata['source'] ?? NULL;
         $url = $ticket->metadata['url'] ?? NULL;
 
-        if (!$source || !$url) {
+        if (! $source || ! $url) {
             return [];
         }
 
@@ -393,7 +393,7 @@ class RealTimeMonitoringService
             // Use appropriate scraper plugin
             $plugin = $this->scraperManager->getPlugin($source);
 
-            if (!$plugin) {
+            if (! $plugin) {
                 return [];
             }
 
@@ -595,7 +595,7 @@ class RealTimeMonitoringService
         $errorRate = $this->calculateErrorRate();
 
         $status = 'healthy';
-        if (!$isActive) {
+        if (! $isActive) {
             $status = 'inactive';
         } elseif ($errorRate > 20) {
             $status = 'critical';

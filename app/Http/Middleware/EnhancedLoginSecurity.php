@@ -2,6 +2,7 @@
 
 namespace App\Http\Middleware;
 
+use App\Support\UserAgentHelper;
 use Closure;
 use Exception;
 use Illuminate\Http\Request;
@@ -10,10 +11,12 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\RateLimiter;
 use InvalidArgumentException;
 use Symfony\Component\HttpFoundation\Response;
+use Throwable;
 
 use function array_slice;
 use function count;
 use function in_array;
+use function is_array;
 
 class EnhancedLoginSecurity
 {
@@ -23,7 +26,7 @@ class EnhancedLoginSecurity
     public function handle(Request $request, Closure $next): Response
     {
         // Skip for non-login requests
-        if (!$this->isLoginRequest($request)) {
+        if (! $this->isLoginRequest($request)) {
             return $next($request);
         }
 
@@ -54,7 +57,7 @@ class EnhancedLoginSecurity
     {
         $fingerprint = $request->input('device_fingerprint');
 
-        if (!$fingerprint) {
+        if (! $fingerprint) {
             Log::warning('Login attempt without device fingerprint', [
                 'ip'         => $request->ip(),
                 'user_agent' => $request->userAgent(),
@@ -79,7 +82,7 @@ class EnhancedLoginSecurity
             // Validate fingerprint structure
             $requiredFields = ['userAgent', 'language', 'platform', 'timezone', 'screen', 'canvas'];
             foreach ($requiredFields as $field) {
-                if (!isset($decoded[$field])) {
+                if (! isset($decoded[$field])) {
                     throw new InvalidArgumentException("Missing fingerprint field: {$field}");
                 }
             }
@@ -90,7 +93,7 @@ class EnhancedLoginSecurity
                 $cacheKey = "user_fingerprint:{$email}";
                 $storedFingerprints = Cache::get($cacheKey, []);
 
-                if (!in_array($fingerprint, $storedFingerprints, TRUE)) {
+                if (! in_array($fingerprint, $storedFingerprints, TRUE)) {
                     $storedFingerprints[] = $fingerprint;
                     Cache::put($cacheKey, array_slice($storedFingerprints, -5), now()->addMonths(3));
 
@@ -145,7 +148,7 @@ class EnhancedLoginSecurity
         $ip = $request->ip();
         $email = $request->input('email');
 
-        if (!$email) {
+        if (! $email) {
             return;
         }
 
@@ -155,7 +158,7 @@ class EnhancedLoginSecurity
 
         $currentLocation = $this->getLocationFromIP($ip);
 
-        if (!empty($knownLocations) && $currentLocation) {
+        if (! empty($knownLocations) && $currentLocation) {
             $isKnownLocation = FALSE;
 
             foreach ($knownLocations as $location) {
@@ -166,7 +169,7 @@ class EnhancedLoginSecurity
                 }
             }
 
-            if (!$isKnownLocation) {
+            if (! $isKnownLocation) {
                 Log::warning('Login from unusual location', [
                     'email'           => $email,
                     'ip'              => $ip,
@@ -189,18 +192,22 @@ class EnhancedLoginSecurity
 
     private function detectAutomation(Request $request): void
     {
-        $userAgent = $request->userAgent();
-        $suspiciousUA = [
-            'selenium', 'webdriver', 'phantom', 'headless', 'chrome-lighthouse',
-            'crawler', 'bot', 'spider', 'scraper',
-        ];
+        try {
+            // Use UserAgentHelper to safely detect automated tools
+            if (UserAgentHelper::isAutomatedTool($request)) {
+                $deviceInfo = UserAgentHelper::getDeviceInfo($request);
 
-        foreach ($suspiciousUA as $pattern) {
-            if (stripos((string) $userAgent, $pattern) !== FALSE) {
+                // Don't block iOS devices even if they have unusual user agents
+                if ($deviceInfo['is_ios']) {
+                    UserAgentHelper::logIOSRequest($request, 'login_attempt');
+
+                    return;
+                }
+
                 Log::warning('Potential automated login attempt detected', [
-                    'user_agent' => $userAgent,
-                    'ip'         => $request->ip(),
-                    'pattern'    => $pattern,
+                    'user_agent'  => UserAgentHelper::sanitise($deviceInfo['user_agent'] ?? NULL),
+                    'device_info' => $deviceInfo,
+                    'ip'          => $request->ip(),
                 ]);
 
                 // Increase rate limiting for automated requests
@@ -210,9 +217,13 @@ class EnhancedLoginSecurity
                 if (RateLimiter::attempts($botKey) > 5) {
                     abort(429, 'Automated requests not allowed');
                 }
-
-                break;
             }
+        } catch (Throwable $e) {
+            Log::warning('Error detecting automation in login', [
+                'error' => $e->getMessage(),
+                'ip'    => $request->ip(),
+            ]);
+            // Allow request to continue on error - don't block legitimate users
         }
     }
 
@@ -250,7 +261,7 @@ class EnhancedLoginSecurity
     private function getCountryFromIP(string $ip): string
     {
         // Skip for local/private IPs
-        if (!filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE)) {
+        if (! filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE)) {
             return 'Local';
         }
 
@@ -267,33 +278,57 @@ class EnhancedLoginSecurity
             return 'Unknown';
         }
 
-        // Async API call with timeout and fallback
+        // API call with comprehensive error handling and timeout
         try {
             $context = stream_context_create([
                 'http' => [
                     'timeout'       => 2, // 2 second timeout
                     'ignore_errors' => TRUE,
+                    'method'        => 'GET',
+                    'header'        => [
+                        'User-Agent: HDTickets/1.0',
+                        'Accept: application/json',
+                    ],
                 ],
             ]);
 
             $response = @file_get_contents("http://ip-api.com/json/{$ip}?fields=country", FALSE, $context);
 
-            if ($response === FALSE) {
-                Log::debug('Geolocation API unavailable for IP: ' . $ip);
+            if ($response === FALSE || $response === '') {
+                Log::debug('GeoIP API unavailable for IP', [
+                    'ip'    => $ip,
+                    'error' => error_get_last()['message'] ?? 'Unknown error',
+                ]);
                 Cache::put($cacheKey, 'Unknown', now()->addHours(1));
 
                 return 'Unknown';
             }
 
             $data = json_decode($response, TRUE);
-            $country = $data['country'] ?? 'Unknown';
+
+            if (! is_array($data) || ! isset($data['country'])) {
+                Log::debug('Invalid GeoIP API response', [
+                    'ip'       => $ip,
+                    'response' => substr($response, 0, 200),
+                ]);
+                Cache::put($cacheKey, 'Unknown', now()->addHours(1));
+
+                return 'Unknown';
+            }
+
+            $country = $data['country'];
 
             // Cache for 24 hours
             Cache::put($cacheKey, $country, now()->addDay());
 
             return $country;
-        } catch (Exception $e) {
-            Log::debug('Geolocation lookup failed', ['ip' => $ip, 'error' => $e->getMessage()]);
+        } catch (Throwable $e) {
+            Log::debug('Geolocation lookup failed', [
+                'ip'    => $ip,
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+            ]);
+            // Cache failure for 1 hour to prevent repeated API calls
             Cache::put($cacheKey, 'Unknown', now()->addHour());
 
             return 'Unknown';
@@ -303,7 +338,7 @@ class EnhancedLoginSecurity
     private function getLocationFromIP(string $ip): ?array
     {
         // Skip for local/private IPs
-        if (!filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE)) {
+        if (! filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE)) {
             return NULL;
         }
 
@@ -320,25 +355,43 @@ class EnhancedLoginSecurity
             return NULL;
         }
 
-        // Async API call with timeout and fallback
+        // API call with comprehensive error handling and timeout
         try {
             $context = stream_context_create([
                 'http' => [
                     'timeout'       => 2, // 2 second timeout
                     'ignore_errors' => TRUE,
+                    'method'        => 'GET',
+                    'header'        => [
+                        'User-Agent: HDTickets/1.0',
+                        'Accept: application/json',
+                    ],
                 ],
             ]);
 
             $response = @file_get_contents("http://ip-api.com/json/{$ip}?fields=lat,lon,city,country", FALSE, $context);
 
-            if ($response === FALSE) {
-                Log::debug('Geolocation API unavailable for IP: ' . $ip);
+            if ($response === FALSE || $response === '') {
+                Log::debug('GeoIP location API unavailable', [
+                    'ip'    => $ip,
+                    'error' => error_get_last()['message'] ?? 'Unknown error',
+                ]);
                 Cache::put($cacheKey, NULL, now()->addHours(1));
 
                 return NULL;
             }
 
             $data = json_decode($response, TRUE);
+
+            if (! is_array($data)) {
+                Log::debug('Invalid GeoIP location API response', [
+                    'ip'       => $ip,
+                    'response' => substr($response, 0, 200),
+                ]);
+                Cache::put($cacheKey, NULL, now()->addHours(1));
+
+                return NULL;
+            }
 
             if (isset($data['lat'], $data['lon'])) {
                 $location = [
@@ -353,8 +406,12 @@ class EnhancedLoginSecurity
 
                 return $location;
             }
-        } catch (Exception $e) {
-            Log::debug('Geolocation lookup failed', ['ip' => $ip, 'error' => $e->getMessage()]);
+        } catch (Throwable $e) {
+            Log::debug('Geolocation lookup failed', [
+                'ip'    => $ip,
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+            ]);
         }
 
         // Cache null result for 1 hour to prevent repeated API calls

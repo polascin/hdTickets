@@ -56,6 +56,8 @@ class PriceHistory extends Model
 
     /**
      * Scope for recent price data
+     *
+     * @param mixed $query
      */
     public function scopeRecent($query, int $hours = 24)
     {
@@ -64,6 +66,8 @@ class PriceHistory extends Model
 
     /**
      * Scope for specific platform
+     *
+     * @param mixed $query
      */
     public function scopePlatform($query, string $platform)
     {
@@ -72,6 +76,8 @@ class PriceHistory extends Model
 
     /**
      * Scope for date range
+     *
+     * @param mixed $query
      */
     public function scopeDateRange($query, \Carbon\Carbon $start, \Carbon\Carbon $end)
     {
@@ -80,6 +86,8 @@ class PriceHistory extends Model
 
     /**
      * Scope for price range
+     *
+     * @param mixed $query
      */
     public function scopePriceRange($query, float $minPrice, float $maxPrice)
     {
@@ -88,6 +96,8 @@ class PriceHistory extends Model
 
     /**
      * Scope for high quality data
+     *
+     * @param mixed $query
      */
     public function scopeHighQuality($query, float $threshold = 0.7)
     {
@@ -105,7 +115,7 @@ class PriceHistory extends Model
             ->orderByDesc('recorded_at')
             ->first();
 
-        if (!$previousRecord) {
+        if (! $previousRecord) {
             return NULL;
         }
 
@@ -131,7 +141,7 @@ class PriceHistory extends Model
     {
         $change = $this->getPriceChange();
 
-        if (!$change) {
+        if (! $change) {
             return FALSE;
         }
 
@@ -165,7 +175,7 @@ class PriceHistory extends Model
      */
     public function getFormattedPriceRange(): string
     {
-        if ($this->price_min == $this->price_max) {
+        if ($this->price_min === $this->price_max) {
             return "£{$this->price_min}";
         }
 

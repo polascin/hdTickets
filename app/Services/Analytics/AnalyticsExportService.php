@@ -57,7 +57,7 @@ class AnalyticsExportService
      */
     public function export(string $format, array $data, array $options = []): array
     {
-        if (!in_array(strtolower($format), $this->supportedFormats, TRUE)) {
+        if (! in_array(strtolower($format), $this->supportedFormats, TRUE)) {
             throw new InvalidArgumentException("Unsupported export format: {$format}");
         }
 
@@ -116,7 +116,7 @@ class AnalyticsExportService
 
         // Ensure directory exists
         $directory = dirname($filePath);
-        if (!is_dir($directory)) {
+        if (! is_dir($directory)) {
             mkdir($directory, 0o755, TRUE);
         }
 
@@ -422,7 +422,7 @@ class AnalyticsExportService
         $row = 1;
 
         // Sport-based pricing analysis
-        if (isset($pricingData['sport_analysis']) && !empty($pricingData['sport_analysis'])) {
+        if (isset($pricingData['sport_analysis']) && ! empty($pricingData['sport_analysis'])) {
             $sheet->setCellValue("A{$row}", 'Sport Category Pricing Analysis');
             $sheet->getStyle("A{$row}")->getFont()->setBold(TRUE);
             $row += 2;
@@ -447,7 +447,7 @@ class AnalyticsExportService
         }
 
         // Price distribution
-        if (isset($pricingData['price_distribution']) && !empty($pricingData['price_distribution'])) {
+        if (isset($pricingData['price_distribution']) && ! empty($pricingData['price_distribution'])) {
             $row += 2;
             $sheet->setCellValue("A{$row}", 'Price Distribution');
             $sheet->getStyle("A{$row}")->getFont()->setBold(TRUE);
@@ -483,7 +483,7 @@ class AnalyticsExportService
         $row = 1;
 
         // Trending events
-        if (isset($eventData['trending_events']) && !empty($eventData['trending_events'])) {
+        if (isset($eventData['trending_events']) && ! empty($eventData['trending_events'])) {
             $sheet->setCellValue("A{$row}", 'Trending Events');
             $sheet->getStyle("A{$row}")->getFont()->setBold(TRUE);
             $row += 2;
@@ -525,7 +525,7 @@ class AnalyticsExportService
         $row = 1;
 
         // Price anomalies
-        if (isset($anomaliesData['price_anomalies']['anomalies']) && !empty($anomaliesData['price_anomalies']['anomalies'])) {
+        if (isset($anomaliesData['price_anomalies']['anomalies']) && ! empty($anomaliesData['price_anomalies']['anomalies'])) {
             $sheet->setCellValue("A{$row}", 'Price Anomalies');
             $sheet->getStyle("A{$row}")->getFont()->setBold(TRUE);
             $row += 2;
@@ -776,7 +776,7 @@ class AnalyticsExportService
             ->with('source')
             ->whereBetween('created_at', [$dateFrom, $dateTo]);
 
-        if (!empty($params['sport'])) {
+        if (! empty($params['sport'])) {
             $query->where('sport', $params['sport']);
         }
 

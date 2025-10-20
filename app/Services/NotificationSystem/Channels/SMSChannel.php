@@ -29,13 +29,13 @@ class SMSChannel implements NotificationChannelInterface
     public function send(User $user, array $notification): bool
     {
         try {
-            if (!$this->twilio) {
+            if (! $this->twilio) {
                 Log::warning('Twilio not configured, skipping SMS notification');
 
                 return FALSE;
             }
 
-            if (!$user->phone || !$user->sms_notifications_enabled) {
+            if (! $user->phone || ! $user->sms_notifications_enabled) {
                 Log::info('Skipping SMS notification - no phone or disabled', [
                     'user_id' => $user->id,
                     'type'    => $notification['type'],
@@ -79,9 +79,9 @@ class SMSChannel implements NotificationChannelInterface
      */
     public function isAvailable(): bool
     {
-        return !empty(config('services.twilio.sid'))
-               && !empty(config('services.twilio.token'))
-               && !empty(config('services.twilio.from'));
+        return ! empty(config('services.twilio.sid'))
+               && ! empty(config('services.twilio.token'))
+               && ! empty(config('services.twilio.from'));
     }
 
     /**
@@ -97,7 +97,7 @@ class SMSChannel implements NotificationChannelInterface
                 $data = $notification['data'];
                 $savings = $data['old_price'] - $data['new_price'];
                 $message .= "\n\nSavings: {$data['currency']}{$savings}";
-                if (!empty($data['ticket_url'])) {
+                if (! empty($data['ticket_url'])) {
                     $message .= "\n\nView: " . $this->shortenUrl($data['ticket_url']);
                 }
 
@@ -105,17 +105,17 @@ class SMSChannel implements NotificationChannelInterface
             case 'ticket_available':
                 $data = $notification['data'];
                 $message .= "\n\nPrice: {$data['currency']}{$data['price']}";
-                if (!empty($data['venue'])) {
+                if (! empty($data['venue'])) {
                     $message .= "\nVenue: {$data['venue']}";
                 }
-                if (!empty($data['ticket_url'])) {
+                if (! empty($data['ticket_url'])) {
                     $message .= "\n\nView: " . $this->shortenUrl($data['ticket_url']);
                 }
 
                 break;
             case 'system_status':
                 $data = $notification['data'];
-                if (!empty($data['affected_platforms'])) {
+                if (! empty($data['affected_platforms'])) {
                     $message .= "\n\nAffected: " . implode(', ', $data['affected_platforms']);
                 }
 

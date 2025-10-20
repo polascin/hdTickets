@@ -24,6 +24,15 @@ class CampaignTarget extends Model
 {
     use HasFactory;
 
+    /** Target statuses */
+    public const STATUS_PENDING = 'pending';
+
+    public const STATUS_SENT = 'sent';
+
+    public const STATUS_FAILED = 'failed';
+
+    public const STATUS_SKIPPED = 'skipped';
+
     protected $fillable = [
         'campaign_id',
         'user_id',
@@ -35,17 +44,6 @@ class CampaignTarget extends Model
     protected $casts = [
         'metadata' => 'array',
     ];
-
-    /**
-     * Target statuses
-     */
-    public const STATUS_PENDING = 'pending';
-
-    public const STATUS_SENT = 'sent';
-
-    public const STATUS_FAILED = 'failed';
-
-    public const STATUS_SKIPPED = 'skipped';
 
     /**
      * Get the campaign this target belongs to

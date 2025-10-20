@@ -428,7 +428,7 @@ class TestQualityGates
             $gateResult = $this->checkGate($gateName, $gate, $testResults);
             $results['gates'][$gateName] = $gateResult;
 
-            if ($gate['required'] && !$gateResult['passed']) {
+            if ($gate['required'] && ! $gateResult['passed']) {
                 $results['passed'] = FALSE;
             }
         }

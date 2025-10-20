@@ -193,7 +193,7 @@ class ComprehensiveLoggingMiddleware
 
         $headers = [];
         foreach ($request->headers->all() as $key => $values) {
-            if (!in_array(strtolower($key), $excludeHeaders, TRUE)) {
+            if (! in_array(strtolower($key), $excludeHeaders, TRUE)) {
                 $headers[$key] = is_array($values) ? implode(', ', $values) : $values;
             }
         }

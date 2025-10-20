@@ -6,14 +6,17 @@ use App\Models\TicketAlert;
 use App\Models\User;
 use App\Services\NotificationChannels\PushNotificationService;
 use App\Services\NotificationChannels\SmsNotificationService;
+use Exception;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
+
+use function count;
 
 class SmartAlertsService
 {
     public function __construct(
         private SmsNotificationService $smsService,
-        private PushNotificationService $pushService
+        private PushNotificationService $pushService,
     ) {
     }
 
@@ -135,7 +138,7 @@ class SmartAlertsService
                 'alert_id' => $data['alert']->id,
                 'template' => $template,
             ]);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             Log::error('Failed to send email alert', [
                 'user_id' => $data['user']->id,
                 'error'   => $e->getMessage(),
@@ -154,7 +157,7 @@ class SmartAlertsService
                 'alert_id' => $data['alert']->id,
                 'type'     => $type,
             ]);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             Log::error('Failed to send SMS alert', [
                 'user_id' => $data['user']->id,
                 'error'   => $e->getMessage(),
@@ -173,7 +176,7 @@ class SmartAlertsService
                 'alert_id' => $data['alert']->id,
                 'type'     => $type,
             ]);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             Log::error('Failed to send push notification', [
                 'user_id' => $data['user']->id,
                 'error'   => $e->getMessage(),
@@ -183,21 +186,21 @@ class SmartAlertsService
 
     private function shouldSendEmail(array $preferences, string $type = 'general'): bool
     {
-        return ($preferences['email_enabled'] ?? TRUE) &&
-               ($preferences["email_{$type}"] ?? TRUE);
+        return ($preferences['email_enabled'] ?? TRUE)
+               && ($preferences["email_{$type}"] ?? TRUE);
     }
 
     private function shouldSendSms(array $preferences, string $type = 'general'): bool
     {
-        return ($preferences['sms_enabled'] ?? FALSE) &&
-               ($preferences["sms_{$type}"] ?? FALSE) &&
-               !empty($preferences['phone_number']);
+        return ($preferences['sms_enabled'] ?? FALSE)
+               && ($preferences["sms_{$type}"] ?? FALSE)
+               && ! empty($preferences['phone_number']);
     }
 
     private function shouldSendPush(array $preferences, string $type = 'general'): bool
     {
-        return ($preferences['push_enabled'] ?? TRUE) &&
-               ($preferences["push_{$type}"] ?? TRUE);
+        return ($preferences['push_enabled'] ?? TRUE)
+               && ($preferences["push_{$type}"] ?? TRUE);
     }
 
     private function generateSmsMessage(array $data, string $type): string
@@ -205,7 +208,7 @@ class SmartAlertsService
         return match ($type) {
             'instant'    => "🎟️ INSTANT ALERT: {$data['tickets'][0]['title']} tickets available! From £{$data['tickets'][0]['price']}. Act fast! hdtickets.com",
             'price-drop' => "💰 PRICE DROP: {$data['alert']['event_name']} tickets reduced by £{$data['total_savings']}! Check now: hdtickets.com",
-            default      => "🎫 HD Tickets: {$data['total_matches']} new matches found for '{$data['alert']['event_name']}'! View: hdtickets.com"
+            default      => "🎫 HD Tickets: {$data['total_matches']} new matches found for '{$data['alert']['event_name']}'! View: hdtickets.com",
         };
     }
 
@@ -239,7 +242,7 @@ class SmartAlertsService
                     'url'  => route('alerts.show', $data['alert']['id']),
                     'type' => 'availability',
                 ],
-            ]
+            ],
         };
     }
 

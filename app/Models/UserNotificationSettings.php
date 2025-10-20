@@ -84,10 +84,10 @@ class UserNotificationSettings extends Model
     public function isConfigured(): bool
     {
         return match ($this->channel) {
-            'slack'    => !empty($this->webhook_url) || !empty($this->slack_user_id),
-            'discord'  => !empty($this->webhook_url) || !empty($this->discord_user_id),
-            'telegram' => !empty($this->chat_id),
-            'webhook'  => !empty($this->webhook_url),
+            'slack'    => ! empty($this->webhook_url) || ! empty($this->slack_user_id),
+            'discord'  => ! empty($this->webhook_url) || ! empty($this->discord_user_id),
+            'telegram' => ! empty($this->chat_id),
+            'webhook'  => ! empty($this->webhook_url),
             default    => FALSE,
         };
     }
@@ -152,14 +152,14 @@ class UserNotificationSettings extends Model
      */
     public function test(): array
     {
-        if (!$this->is_enabled) {
+        if (! $this->is_enabled) {
             return [
                 'success' => FALSE,
                 'message' => 'Channel is disabled',
             ];
         }
 
-        if (!$this->isConfigured()) {
+        if (! $this->isConfigured()) {
             return [
                 'success' => FALSE,
                 'message' => 'Channel is not properly configured',

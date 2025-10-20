@@ -89,12 +89,12 @@ class TicketPurchaseValidationMiddleware
             $user = $request->user();
 
             // Validate user authentication
-            if (!$user) {
+            if (! $user) {
                 return $this->denyAccess($request, 'Authentication required', 'unauthenticated', NULL, [], Response::HTTP_UNAUTHORIZED);
             }
 
             // Validate quantity parameter early
-            if (!$request->has('quantity')) {
+            if (! $request->has('quantity')) {
                 return $this->denyAccess($request, 'Quantity parameter is required', 'missing_quantity', $user, [], Response::HTTP_BAD_REQUEST);
             }
             $quantityRaw = $request->input('quantity');
@@ -105,14 +105,14 @@ class TicketPurchaseValidationMiddleware
 
             // Get ticket being purchased
             $ticket = $this->getTicketFromRequest($request);
-            if (!$ticket instanceof Ticket) {
+            if (! $ticket instanceof Ticket) {
                 return $this->denyAccess($request, 'Ticket not found', 'ticket_not_found', $user, [], Response::HTTP_NOT_FOUND);
             }
 
             // Perform comprehensive purchase validation
             $validation = $this->validatePurchaseEligibility($user, $ticket, $request);
 
-            if (!$validation['can_purchase']) {
+            if (! $validation['can_purchase']) {
                 return $this->denyAccess(
                     $request,
                     $validation['message'],
@@ -174,37 +174,37 @@ class TicketPurchaseValidationMiddleware
         ];
 
         // 1. Check user status
-        if (!$this->validateUserStatus($user, $validation)) {
+        if (! $this->validateUserStatus($user, $validation)) {
             return $validation;
         }
 
         // 2. Check subscription requirements
-        if (!$this->validateSubscription($user, $validation)) {
+        if (! $this->validateSubscription($user, $validation)) {
             return $validation;
         }
 
         // 3. Check role-based permissions
-        if (!$this->validateRolePermissions($user, $validation)) {
+        if (! $this->validateRolePermissions($user, $validation)) {
             return $validation;
         }
 
         // 4. Check ticket availability
-        if (!$this->validateTicketAvailability($ticket, $request, $validation)) {
+        if (! $this->validateTicketAvailability($ticket, $request, $validation)) {
             return $validation;
         }
 
         // 5. Check purchase limits
-        if (!$this->validatePurchaseLimits($user, $ticket, $request, $validation)) {
+        if (! $this->validatePurchaseLimits($user, $ticket, $request, $validation)) {
             return $validation;
         }
 
         // 6. Security checks
-        if (!$this->validateSecurity($user, $request, $validation)) {
+        if (! $this->validateSecurity($user, $request, $validation)) {
             return $validation;
         }
 
         // 7. Rate limiting
-        if (!$this->validateRateLimit($user, $request, $validation)) {
+        if (! $this->validateRateLimit($user, $request, $validation)) {
             return $validation;
         }
 
@@ -221,7 +221,7 @@ class TicketPurchaseValidationMiddleware
     protected function validateUserStatus(User $user, array &$validation): bool
     {
         // Check if account is active
-        if (!$user->is_active) {
+        if (! $user->is_active) {
             $validation['reasons'][] = 'Account is inactive';
             $validation['message'] = 'Your account is inactive. Please contact support.';
 
@@ -237,7 +237,7 @@ class TicketPurchaseValidationMiddleware
         }
 
         // Check email verification
-        if (!$user->hasVerifiedEmail()) {
+        if (! $user->hasVerifiedEmail()) {
             $validation['reasons'][] = 'Email not verified';
             $validation['message'] = 'Please verify your email address before making purchases.';
 
@@ -281,7 +281,7 @@ class TicketPurchaseValidationMiddleware
         }
 
         // Check active subscription
-        if (!$user->hasActiveSubscription()) {
+        if (! $user->hasActiveSubscription()) {
             $validation['reasons'][] = 'Active subscription required';
             $validation['message'] = 'An active subscription is required to purchase tickets.';
 
@@ -321,7 +321,7 @@ class TicketPurchaseValidationMiddleware
         }
 
         // If RBAC service did not grant, fallback to user's own method if available
-        if (!$hasPermission && method_exists($user, 'hasPermission')) {
+        if (! $hasPermission && method_exists($user, 'hasPermission')) {
             try {
                 $hasPermission = $user->hasPermission('tickets.purchase');
             } catch (Throwable $e) {
@@ -329,7 +329,7 @@ class TicketPurchaseValidationMiddleware
             }
         }
 
-        if (!$hasPermission) {
+        if (! $hasPermission) {
             $validation['reasons'][] = 'Insufficient permissions';
             $validation['message'] = 'You do not have permission to purchase tickets.';
 
@@ -362,7 +362,7 @@ class TicketPurchaseValidationMiddleware
         }
 
         // Check if ticket is available for purchase
-        if (!$ticket->is_available) {
+        if (! $ticket->is_available) {
             $validation['reasons'][] = 'Ticket is not available';
             $validation['message'] = 'This ticket is no longer available for purchase.';
 
@@ -528,7 +528,7 @@ class TicketPurchaseValidationMiddleware
     {
         $ticketId = $request->route('ticket')?->id ?? $request->route('id') ?? $request->input('ticket_id');
 
-        if (!$ticketId) {
+        if (! $ticketId) {
             return NULL;
         }
 
@@ -587,7 +587,7 @@ class TicketPurchaseValidationMiddleware
         $score += $patternScore;
 
         // Check device trust
-        if (!$this->isTrustedDevice($user, $request)) {
+        if (! $this->isTrustedDevice($user, $request)) {
             $score += 10;
         }
 

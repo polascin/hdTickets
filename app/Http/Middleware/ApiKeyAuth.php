@@ -7,11 +7,16 @@ namespace App\Http\Middleware;
 use App\Models\ApiKey;
 use App\Models\User;
 use Closure;
+use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\RateLimiter;
+use Log;
+
+use function array_slice;
+use function count;
 
 /**
  * API Key Authentication Middleware
@@ -26,27 +31,29 @@ class ApiKeyAuth
 {
     /**
      * Handle an incoming request.
+     *
+     * @param string[] $permissions
      */
     public function handle(Request $request, Closure $next, string ...$permissions)
     {
         $apiKey = $this->extractApiKey($request);
 
-        if (!$apiKey) {
+        if (! $apiKey) {
             return $this->unauthorizedResponse('API key required');
         }
 
         $keyModel = $this->validateApiKey($apiKey);
 
-        if (!$keyModel) {
+        if (! $keyModel) {
             return $this->unauthorizedResponse('Invalid API key');
         }
 
-        if (!$keyModel->isValid()) {
+        if (! $keyModel->isValid()) {
             return $this->unauthorizedResponse('API key is expired, revoked, or inactive');
         }
 
         // Check permissions if specified
-        if (!empty($permissions) && !$keyModel->hasAnyPermission($permissions)) {
+        if (! empty($permissions) && ! $keyModel->hasAnyPermission($permissions)) {
             return $this->forbiddenResponse('Insufficient permissions');
         }
 
@@ -114,7 +121,7 @@ class ApiKeyAuth
     /**
      * Check rate limiting for API key
      */
-    private function checkRateLimit(ApiKey $apiKey, Request $request): TRUE|JsonResponse
+    private function checkRateLimit(ApiKey $apiKey, Request $request): true|JsonResponse
     {
         // Use API key specific rate limiting
         $rateLimitKey = "api_key_rate_limit:{$apiKey->id}";
@@ -163,7 +170,7 @@ class ApiKeyAuth
     private function recordUsage(ApiKey $apiKey, Request $request): void
     {
         // Update API key usage in background
-        dispatch(function () use ($apiKey, $request) {
+        dispatch(function () use ($apiKey, $request): void {
             $apiKey->recordUsage($request->ip());
 
             // Log detailed usage if needed
@@ -204,9 +211,9 @@ class ApiKeyAuth
             }
 
             Cache::put($detailKey, $existing, 86400);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             // Log error but don't fail the request
-            \Log::warning('Failed to log API usage', [
+            Log::warning('Failed to log API usage', [
                 'api_key_id' => $apiKey->id,
                 'error'      => $e->getMessage(),
             ]);
@@ -222,7 +229,7 @@ class ApiKeyAuth
             'starter'    => 100,
             'pro'        => 1000,
             'enterprise' => 10000,
-            default      => 50
+            default      => 50,
         };
     }
 
@@ -320,7 +327,7 @@ class ApiRateLimit
             'starter'    => ['general' => 100, 'search' => 20, 'intensive' => 10],
             'pro'        => ['general' => 1000, 'search' => 200, 'intensive' => 50],
             'enterprise' => ['general' => 10000, 'search' => 2000, 'intensive' => 500],
-            default      => ['general' => 50, 'search' => 10, 'intensive' => 5]
+            default      => ['general' => 50, 'search' => 10, 'intensive' => 5],
         };
 
         $maxAttempts = $baseLimits[$limitType] ?? $baseLimits['general'];
@@ -329,7 +336,7 @@ class ApiRateLimit
         $decaySeconds = match ($limitType) {
             'intensive' => 3600, // 1 hour for intensive operations
             'search'    => 900,     // 15 minutes for search operations
-            default     => 3600      // 1 hour for general operations
+            default     => 3600,      // 1 hour for general operations
         };
 
         return [
@@ -346,10 +353,11 @@ class ApiRateLimit
     {
         if ($seconds >= 3600) {
             return (int) ($seconds / 3600) . ' hour(s)';
-        } elseif ($seconds >= 60) {
-            return (int) ($seconds / 60) . ' minute(s)';
-        } else {
-            return $seconds . ' second(s)';
         }
+        if ($seconds >= 60) {
+            return (int) ($seconds / 60) . ' minute(s)';
+        }
+
+        return $seconds . ' second(s)';
     }
 }

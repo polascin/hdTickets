@@ -10,10 +10,12 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\View\View;
 
+use function count;
+
 class LiveMonitoringController extends Controller
 {
     public function __construct(
-        private LiveMonitoringService $monitoringService
+        private LiveMonitoringService $monitoringService,
     ) {
     }
 
@@ -127,7 +129,7 @@ class LiveMonitoringController extends Controller
      */
     public function getMonitoringPreferences(): JsonResponse
     {
-        if (!Auth::check()) {
+        if (! Auth::check()) {
             return response()->json(['success' => FALSE, 'message' => 'Authentication required'], 401);
         }
 
@@ -153,7 +155,7 @@ class LiveMonitoringController extends Controller
      */
     public function updateMonitoringPreferences(Request $request): JsonResponse
     {
-        if (!Auth::check()) {
+        if (! Auth::check()) {
             return response()->json(['success' => FALSE, 'message' => 'Authentication required'], 401);
         }
 
@@ -198,24 +200,24 @@ class LiveMonitoringController extends Controller
                 'id', 'title', 'venue', 'event_date', 'price', 'platform',
                 'availability_status', 'views_count', 'searches_count',
             ])
-            ->where('event_date', '>=', now())
-            ->where('is_available', TRUE)
-            ->orderByDesc('views_count')
-            ->orderByDesc('searches_count')
-            ->limit(10)
-            ->get()
-            ->map(function ($ticket) {
-                return [
-                    'id'          => $ticket->id,
-                    'title'       => $ticket->title,
-                    'venue'       => $ticket->venue,
-                    'event_date'  => $ticket->event_date,
-                    'price'       => $ticket->price,
-                    'platform'    => $ticket->platform,
-                    'status'      => $this->getStatusIndicator($ticket),
-                    'trend_score' => $ticket->views_count + ($ticket->searches_count * 2),
-                ];
-            });
+                ->where('event_date', '>=', now())
+                ->where('is_available', TRUE)
+                ->orderByDesc('views_count')
+                ->orderByDesc('searches_count')
+                ->limit(10)
+                ->get()
+                ->map(function ($ticket) {
+                    return [
+                        'id'          => $ticket->id,
+                        'title'       => $ticket->title,
+                        'venue'       => $ticket->venue,
+                        'event_date'  => $ticket->event_date,
+                        'price'       => $ticket->price,
+                        'platform'    => $ticket->platform,
+                        'status'      => $this->getStatusIndicator($ticket),
+                        'trend_score' => $ticket->views_count + ($ticket->searches_count * 2),
+                    ];
+                });
         });
 
         return response()->json([
@@ -250,10 +252,10 @@ class LiveMonitoringController extends Controller
     {
         $query = ScrapedTicket::query()
             ->where('event_date', '>=', now())
-            ->where(function ($q) {
+            ->where(function ($q): void {
                 $q->where('availability_status', 'limited')
-                  ->orWhere('availability_status', 'sold_out')
-                  ->orWhere('is_high_demand', TRUE);
+                    ->orWhere('availability_status', 'sold_out')
+                    ->orWhere('is_high_demand', TRUE);
             })
             ->orderByDesc('views_count')
             ->orderBy('event_date');

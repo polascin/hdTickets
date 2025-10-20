@@ -9,9 +9,12 @@ use App\Models\CampaignEmail;
 use App\Models\CampaignTarget;
 use App\Models\MarketingCampaign;
 use App\Models\User;
+use Exception;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
+
+use function is_string;
 
 /**
  * Campaign Management Service
@@ -64,7 +67,7 @@ class CampaignManagementService
             ]);
 
             return $campaign;
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             DB::rollBack();
 
             Log::error('Failed to create campaign', [
@@ -82,7 +85,7 @@ class CampaignManagementService
     public function launchCampaign(MarketingCampaign $campaign): array
     {
         if ($campaign->status !== 'draft') {
-            throw new \Exception('Campaign must be in draft status to launch');
+            throw new Exception('Campaign must be in draft status to launch');
         }
 
         DB::beginTransaction();
@@ -111,7 +114,7 @@ class CampaignManagementService
             ]);
 
             return $result;
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             DB::rollBack();
 
             Log::error('Failed to launch campaign', [
@@ -146,7 +149,7 @@ class CampaignManagementService
                 } else {
                     $results['failed']++;
                 }
-            } catch (\Exception $e) {
+            } catch (Exception $e) {
                 $results['failed']++;
                 $results['errors'][] = [
                     'user_id' => $target->user_id,
@@ -168,6 +171,77 @@ class CampaignManagementService
     }
 
     /**
+     * Get campaign performance analytics
+     */
+    public function getCampaignAnalytics(MarketingCampaign $campaign): array
+    {
+        $analytics = $campaign->analytics;
+        $interactions = $campaign->interactions()
+            ->selectRaw('action, COUNT(*) as count')
+            ->groupBy('action')
+            ->pluck('count', 'action')
+            ->toArray();
+
+        return [
+            'campaign_info' => [
+                'id'          => $campaign->id,
+                'name'        => $campaign->name,
+                'type'        => $campaign->type,
+                'status'      => $campaign->status,
+                'created_at'  => $campaign->created_at,
+                'launched_at' => $campaign->launched_at,
+            ],
+            'delivery_metrics' => [
+                'total_targets'   => $analytics->total_targets ?? 0,
+                'messages_sent'   => $analytics->messages_sent ?? 0,
+                'messages_failed' => $analytics->messages_failed ?? 0,
+                'delivery_rate'   => $analytics->delivery_rate ?? 0,
+            ],
+            'engagement_metrics' => [
+                'opens'           => $interactions['open'] ?? 0,
+                'clicks'          => $interactions['click'] ?? 0,
+                'conversions'     => $interactions['conversion'] ?? 0,
+                'unsubscribes'    => $interactions['unsubscribe'] ?? 0,
+                'open_rate'       => $this->calculateRate($interactions['open'] ?? 0, $analytics->messages_sent ?? 0),
+                'click_rate'      => $this->calculateRate($interactions['click'] ?? 0, $analytics->messages_sent ?? 0),
+                'conversion_rate' => $this->calculateRate($interactions['conversion'] ?? 0, $analytics->messages_sent ?? 0),
+            ],
+            'revenue_impact'     => $this->calculateRevenueImpact($campaign),
+            'performance_trends' => $this->getPerformanceTrends($campaign),
+        ];
+    }
+
+    /**
+     * Get all campaigns with analytics
+     */
+    public function getAllCampaignsWithAnalytics(): array
+    {
+        $campaigns = MarketingCampaign::with(['analytics', 'creator'])
+            ->orderBy('created_at', 'desc')
+            ->get();
+
+        return $campaigns->map(function ($campaign) {
+            $analytics = $campaign->analytics;
+
+            return [
+                'id'          => $campaign->id,
+                'name'        => $campaign->name,
+                'type'        => $campaign->type,
+                'status'      => $campaign->status,
+                'created_at'  => $campaign->created_at,
+                'launched_at' => $campaign->launched_at,
+                'created_by'  => $campaign->creator->name ?? 'Unknown',
+                'metrics'     => [
+                    'targets'          => $analytics->total_targets ?? 0,
+                    'sent'             => $analytics->messages_sent ?? 0,
+                    'delivery_rate'    => $analytics->delivery_rate ?? 0,
+                    'engagement_score' => $this->calculateEngagementScore($campaign),
+                ],
+            ];
+        })->toArray();
+    }
+
+    /**
      * Send campaign message to user
      */
     private function sendCampaignMessage(MarketingCampaign $campaign, User $user): bool
@@ -177,7 +251,7 @@ class CampaignManagementService
             'push'   => $this->sendPushNotification($campaign, $user),
             'in_app' => $this->sendInAppNotification($campaign, $user),
             'sms'    => $this->sendSMSCampaign($campaign, $user),
-            default  => FALSE
+            default  => FALSE,
         };
     }
 
@@ -207,7 +281,7 @@ class CampaignManagementService
             ]);
 
             return TRUE;
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             Log::error('Email campaign failed', [
                 'campaign_id' => $campaign->id,
                 'user_id'     => $user->id,
@@ -232,7 +306,7 @@ class CampaignManagementService
             ]);
 
             return TRUE;
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return FALSE;
         }
     }
@@ -255,7 +329,7 @@ class CampaignManagementService
             ]);
 
             return TRUE;
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return FALSE;
         }
     }
@@ -274,7 +348,7 @@ class CampaignManagementService
             ]);
 
             return TRUE;
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return FALSE;
         }
     }
@@ -300,7 +374,7 @@ class CampaignManagementService
                 $personalizedContent[$key] = str_replace(
                     array_keys($placeholders),
                     array_values($placeholders),
-                    $value
+                    $value,
                 );
             }
         }
@@ -383,79 +457,8 @@ class CampaignManagementService
                 'delivery_rate'   => $results['total_targets'] > 0 ?
                     round(($results['sent'] / $results['total_targets']) * 100, 2) : 0,
                 'last_updated' => now(),
-            ]
+            ],
         );
-    }
-
-    /**
-     * Get campaign performance analytics
-     */
-    public function getCampaignAnalytics(MarketingCampaign $campaign): array
-    {
-        $analytics = $campaign->analytics;
-        $interactions = $campaign->interactions()
-            ->selectRaw('action, COUNT(*) as count')
-            ->groupBy('action')
-            ->pluck('count', 'action')
-            ->toArray();
-
-        return [
-            'campaign_info' => [
-                'id'          => $campaign->id,
-                'name'        => $campaign->name,
-                'type'        => $campaign->type,
-                'status'      => $campaign->status,
-                'created_at'  => $campaign->created_at,
-                'launched_at' => $campaign->launched_at,
-            ],
-            'delivery_metrics' => [
-                'total_targets'   => $analytics->total_targets ?? 0,
-                'messages_sent'   => $analytics->messages_sent ?? 0,
-                'messages_failed' => $analytics->messages_failed ?? 0,
-                'delivery_rate'   => $analytics->delivery_rate ?? 0,
-            ],
-            'engagement_metrics' => [
-                'opens'           => $interactions['open'] ?? 0,
-                'clicks'          => $interactions['click'] ?? 0,
-                'conversions'     => $interactions['conversion'] ?? 0,
-                'unsubscribes'    => $interactions['unsubscribe'] ?? 0,
-                'open_rate'       => $this->calculateRate($interactions['open'] ?? 0, $analytics->messages_sent ?? 0),
-                'click_rate'      => $this->calculateRate($interactions['click'] ?? 0, $analytics->messages_sent ?? 0),
-                'conversion_rate' => $this->calculateRate($interactions['conversion'] ?? 0, $analytics->messages_sent ?? 0),
-            ],
-            'revenue_impact'     => $this->calculateRevenueImpact($campaign),
-            'performance_trends' => $this->getPerformanceTrends($campaign),
-        ];
-    }
-
-    /**
-     * Get all campaigns with analytics
-     */
-    public function getAllCampaignsWithAnalytics(): array
-    {
-        $campaigns = MarketingCampaign::with(['analytics', 'creator'])
-            ->orderBy('created_at', 'desc')
-            ->get();
-
-        return $campaigns->map(function ($campaign) {
-            $analytics = $campaign->analytics;
-
-            return [
-                'id'          => $campaign->id,
-                'name'        => $campaign->name,
-                'type'        => $campaign->type,
-                'status'      => $campaign->status,
-                'created_at'  => $campaign->created_at,
-                'launched_at' => $campaign->launched_at,
-                'created_by'  => $campaign->creator->name ?? 'Unknown',
-                'metrics'     => [
-                    'targets'          => $analytics->total_targets ?? 0,
-                    'sent'             => $analytics->messages_sent ?? 0,
-                    'delivery_rate'    => $analytics->delivery_rate ?? 0,
-                    'engagement_score' => $this->calculateEngagementScore($campaign),
-                ],
-            ];
-        })->toArray();
     }
 
     /**
@@ -531,7 +534,7 @@ class CampaignManagementService
     private function calculateEngagementScore(MarketingCampaign $campaign): float
     {
         $analytics = $campaign->analytics;
-        if (!$analytics || $analytics->messages_sent == 0) {
+        if (! $analytics || $analytics->messages_sent === 0) {
             return 0;
         }
 

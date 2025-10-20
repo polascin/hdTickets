@@ -55,7 +55,7 @@ final class TicketAvailabilityChanged extends AbstractDomainEvent
      */
     public function becameAvailable(): bool
     {
-        return !$this->oldStatus->canPurchase() && $this->newStatus->canPurchase();
+        return ! $this->oldStatus->canPurchase() && $this->newStatus->canPurchase();
     }
 
     /**
@@ -63,7 +63,7 @@ final class TicketAvailabilityChanged extends AbstractDomainEvent
      */
     public function becameUnavailable(): bool
     {
-        return $this->oldStatus->canPurchase() && !$this->newStatus->canPurchase();
+        return $this->oldStatus->canPurchase() && ! $this->newStatus->canPurchase();
     }
 
     /**
@@ -71,7 +71,7 @@ final class TicketAvailabilityChanged extends AbstractDomainEvent
      */
     public function soldOut(): bool
     {
-        return $this->newStatus->isSoldOut() && !$this->oldStatus->isSoldOut();
+        return $this->newStatus->isSoldOut() && ! $this->oldStatus->isSoldOut();
     }
 
     /**

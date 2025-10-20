@@ -124,7 +124,7 @@ class GenerateScheduledReports extends Command
         }
 
         $successful = array_filter($results, fn (array $r) => $r['success']);
-        $failed = array_filter($results, fn (array $r): bool => !$r['success']);
+        $failed = array_filter($results, fn (array $r): bool => ! $r['success']);
 
         $this->info('  ✅ Successfully generated: ' . count($successful));
 

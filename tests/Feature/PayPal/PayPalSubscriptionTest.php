@@ -24,52 +24,9 @@ class PayPalSubscriptionTest extends TestCase
 
     private PaymentPlan $annualPlan;
 
-    protected function setUp(): void
-    {
-        parent::setUp();
-
-        // Create test user
-        $this->user = $this->createTestUser([
-            'email' => 'test@example.com',
-            'name'  => 'Test User',
-        ], 'customer');
-
-        // Create test payment plans
-        $this->monthlyPlan = PaymentPlan::create([
-            'name'                  => 'Monthly Plan',
-            'slug'                  => 'monthly',
-            'price'                 => 29.99,
-            'currency'              => 'USD',
-            'interval'              => 'monthly',
-            'interval_days'         => 30,
-            'max_tickets_per_month' => 100,
-            'is_active'             => TRUE,
-            'features'              => [
-                'ticket_limit'  => 100,
-                'price_alerts'  => TRUE,
-                'notifications' => TRUE,
-            ],
-        ]);
-
-        $this->annualPlan = PaymentPlan::create([
-            'name'                  => 'Annual Plan',
-            'slug'                  => 'annual',
-            'price'                 => 299.99,
-            'currency'              => 'USD',
-            'interval'              => 'annual',
-            'interval_days'         => 365,
-            'max_tickets_per_month' => 100,
-            'is_active'             => TRUE,
-            'features'              => [
-                'ticket_limit'     => 100,
-                'price_alerts'     => TRUE,
-                'notifications'    => TRUE,
-                'priority_support' => TRUE,
-            ],
-        ]);
-    }
-
-    /** @test */
+    /**
+     * @test
+     */
     public function user_can_access_subscription_checkout_page(): void
     {
         // Act
@@ -83,7 +40,9 @@ class PayPalSubscriptionTest extends TestCase
         $response->assertSee('Credit/Debit Card');
     }
 
-    /** @test */
+    /**
+     * @test
+     */
     public function user_can_create_paypal_subscription_via_api(): void
     {
         // Arrange
@@ -124,7 +83,9 @@ class PayPalSubscriptionTest extends TestCase
         ]);
     }
 
-    /** @test */
+    /**
+     * @test
+     */
     public function paypal_subscription_approval_creates_subscription(): void
     {
         // Arrange
@@ -158,7 +119,9 @@ class PayPalSubscriptionTest extends TestCase
         ]);
     }
 
-    /** @test */
+    /**
+     * @test
+     */
     public function paypal_subscription_activation_updates_status(): void
     {
         // Arrange
@@ -203,7 +166,9 @@ class PayPalSubscriptionTest extends TestCase
         ]);
     }
 
-    /** @test */
+    /**
+     * @test
+     */
     public function user_can_cancel_paypal_subscription(): void
     {
         // Arrange
@@ -237,7 +202,9 @@ class PayPalSubscriptionTest extends TestCase
         ]);
     }
 
-    /** @test */
+    /**
+     * @test
+     */
     public function paypal_webhook_handles_subscription_created(): void
     {
         // Arrange
@@ -268,7 +235,9 @@ class PayPalSubscriptionTest extends TestCase
         $response->assertJson(['status' => 'success']);
     }
 
-    /** @test */
+    /**
+     * @test
+     */
     public function paypal_webhook_handles_subscription_activated(): void
     {
         // Arrange
@@ -307,7 +276,9 @@ class PayPalSubscriptionTest extends TestCase
         ]);
     }
 
-    /** @test */
+    /**
+     * @test
+     */
     public function paypal_webhook_handles_subscription_cancelled(): void
     {
         // Arrange
@@ -346,7 +317,9 @@ class PayPalSubscriptionTest extends TestCase
         ]);
     }
 
-    /** @test */
+    /**
+     * @test
+     */
     public function paypal_webhook_handles_subscription_payment_completed(): void
     {
         // Arrange
@@ -388,7 +361,9 @@ class PayPalSubscriptionTest extends TestCase
         ]);
     }
 
-    /** @test */
+    /**
+     * @test
+     */
     public function paypal_webhook_handles_subscription_payment_failed(): void
     {
         // Arrange
@@ -434,7 +409,9 @@ class PayPalSubscriptionTest extends TestCase
         ]);
     }
 
-    /** @test */
+    /**
+     * @test
+     */
     public function invalid_webhook_signature_is_rejected(): void
     {
         // Arrange
@@ -454,7 +431,9 @@ class PayPalSubscriptionTest extends TestCase
         $response->assertStatus(Response::HTTP_UNAUTHORIZED);
     }
 
-    /** @test */
+    /**
+     * @test
+     */
     public function user_can_view_current_subscription(): void
     {
         // Arrange
@@ -486,7 +465,9 @@ class PayPalSubscriptionTest extends TestCase
         ]);
     }
 
-    /** @test */
+    /**
+     * @test
+     */
     public function user_can_view_subscription_history(): void
     {
         // Arrange
@@ -536,7 +517,9 @@ class PayPalSubscriptionTest extends TestCase
         $this->assertCount(2, $responseData['subscriptions']);
     }
 
-    /** @test */
+    /**
+     * @test
+     */
     public function subscription_requires_authentication(): void
     {
         // Act & Assert
@@ -551,7 +534,9 @@ class PayPalSubscriptionTest extends TestCase
             ->assertStatus(Response::HTTP_UNAUTHORIZED);
     }
 
-    /** @test */
+    /**
+     * @test
+     */
     public function subscription_validation_prevents_invalid_data(): void
     {
         // Act & Assert - Missing plan type
@@ -570,6 +555,51 @@ class PayPalSubscriptionTest extends TestCase
                 'billing_info'    => [],
             ])
             ->assertStatus(Response::HTTP_UNPROCESSABLE_ENTITY);
+    }
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+
+        // Create test user
+        $this->user = $this->createTestUser([
+            'email' => 'test@example.com',
+            'name'  => 'Test User',
+        ], 'customer');
+
+        // Create test payment plans
+        $this->monthlyPlan = PaymentPlan::create([
+            'name'                  => 'Monthly Plan',
+            'slug'                  => 'monthly',
+            'price'                 => 29.99,
+            'currency'              => 'USD',
+            'interval'              => 'monthly',
+            'interval_days'         => 30,
+            'max_tickets_per_month' => 100,
+            'is_active'             => TRUE,
+            'features'              => [
+                'ticket_limit'  => 100,
+                'price_alerts'  => TRUE,
+                'notifications' => TRUE,
+            ],
+        ]);
+
+        $this->annualPlan = PaymentPlan::create([
+            'name'                  => 'Annual Plan',
+            'slug'                  => 'annual',
+            'price'                 => 299.99,
+            'currency'              => 'USD',
+            'interval'              => 'annual',
+            'interval_days'         => 365,
+            'max_tickets_per_month' => 100,
+            'is_active'             => TRUE,
+            'features'              => [
+                'ticket_limit'     => 100,
+                'price_alerts'     => TRUE,
+                'notifications'    => TRUE,
+                'priority_support' => TRUE,
+            ],
+        ]);
     }
 
     private function mockPayPalServices(): void

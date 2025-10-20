@@ -10,6 +10,8 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
+use function in_array;
+
 /**
  * API Key Model
  *
@@ -71,8 +73,8 @@ class ApiKey extends Model
     public function isValid(): bool
     {
         return $this->is_active
-            && !$this->isExpired()
-            && !$this->isRevoked();
+            && ! $this->isExpired()
+            && ! $this->isRevoked();
     }
 
     public function isExpired(): bool
@@ -82,19 +84,19 @@ class ApiKey extends Model
 
     public function isRevoked(): bool
     {
-        return !is_null($this->revoked_at);
+        return NULL !== $this->revoked_at;
     }
 
     public function hasPermission(string $permission): bool
     {
-        return in_array($permission, $this->permissions ?? [])
-            || in_array('admin', $this->permissions ?? []);
+        return in_array($permission, $this->permissions ?? [], TRUE)
+            || in_array('admin', $this->permissions ?? [], TRUE);
     }
 
     public function hasAnyPermission(array $permissions): bool
     {
-        return !empty(array_intersect($permissions, $this->permissions ?? []))
-            || in_array('admin', $this->permissions ?? []);
+        return ! empty(array_intersect($permissions, $this->permissions ?? []))
+            || in_array('admin', $this->permissions ?? [], TRUE);
     }
 
     // Usage Tracking
@@ -108,9 +110,9 @@ class ApiKey extends Model
         ]);
     }
 
-    public function getDailyUsage(Carbon $date = NULL): int
+    public function getDailyUsage(?Carbon $date = NULL): int
     {
-        $date = $date ?? now();
+        $date ??= now();
         $startOfDay = $date->copy()->startOfDay();
         $endOfDay = $date->copy()->endOfDay();
 
@@ -119,9 +121,9 @@ class ApiKey extends Model
         return 0;
     }
 
-    public function getHourlyUsage(Carbon $hour = NULL): int
+    public function getHourlyUsage(?Carbon $hour = NULL): int
     {
-        $hour = $hour ?? now();
+        $hour ??= now();
         $startOfHour = $hour->copy()->startOfHour();
         $endOfHour = $hour->copy()->endOfHour();
 
@@ -132,7 +134,7 @@ class ApiKey extends Model
 
     public function isRateLimited(): bool
     {
-        if (!$this->rate_limit) {
+        if (! $this->rate_limit) {
             return FALSE;
         }
 
@@ -143,7 +145,7 @@ class ApiKey extends Model
 
     public function getRemainingRequests(): int
     {
-        if (!$this->rate_limit) {
+        if (! $this->rate_limit) {
             return PHP_INT_MAX;
         }
 
@@ -164,7 +166,7 @@ class ApiKey extends Model
             return 'expired';
         }
 
-        if (!$this->is_active) {
+        if (! $this->is_active) {
             return 'inactive';
         }
 
@@ -177,7 +179,7 @@ class ApiKey extends Model
 
     public function getHealthScore(): float
     {
-        if (!$this->isValid()) {
+        if (! $this->isValid()) {
             return 0.0;
         }
 
@@ -223,7 +225,7 @@ class ApiKey extends Model
 
     // Management Operations
 
-    public function revoke(string $reason = NULL): bool
+    public function revoke(?string $reason = NULL): bool
     {
         return $this->update([
             'is_active'         => FALSE,
@@ -249,7 +251,7 @@ class ApiKey extends Model
         $validPermissions = ['read', 'write', 'admin'];
         $filteredPermissions = array_filter(
             $permissions,
-            fn ($perm) => in_array($perm, $validPermissions)
+            fn ($perm) => in_array($perm, $validPermissions, TRUE),
         );
 
         return $this->update(['permissions' => array_unique($filteredPermissions)]);
@@ -274,9 +276,9 @@ class ApiKey extends Model
     public function scopeActive($query)
     {
         return $query->where('is_active', TRUE)
-            ->where(function ($q) {
+            ->where(function ($q): void {
                 $q->whereNull('expires_at')
-                  ->orWhere('expires_at', '>', now());
+                    ->orWhere('expires_at', '>', now());
             })
             ->whereNull('revoked_at');
     }
@@ -303,9 +305,9 @@ class ApiKey extends Model
 
     public function scopeUnused($query, int $days = 30)
     {
-        return $query->where(function ($q) use ($days) {
+        return $query->where(function ($q) use ($days): void {
             $q->whereNull('last_used_at')
-              ->orWhere('last_used_at', '<=', now()->subDays($days));
+                ->orWhere('last_used_at', '<=', now()->subDays($days));
         });
     }
 
@@ -326,13 +328,13 @@ class ApiKey extends Model
 
         return array_map(
             fn ($perm) => $labels[$perm] ?? $perm,
-            $this->permissions ?? []
+            $this->permissions ?? [],
         );
     }
 
     public function getExpiresInAttribute(): ?string
     {
-        if (!$this->expires_at) {
+        if (! $this->expires_at) {
             return 'Never';
         }
 

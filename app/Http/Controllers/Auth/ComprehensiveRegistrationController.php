@@ -26,6 +26,8 @@ use Illuminate\Validation\Rules\Password;
 use Illuminate\Validation\ValidationException;
 use Illuminate\View\View;
 
+use function strlen;
+
 class ComprehensiveRegistrationController extends Controller
 {
     public function __construct(
@@ -82,7 +84,7 @@ class ComprehensiveRegistrationController extends Controller
             $this->handleLegalAcceptances($user, $validated['legal_acceptances'] ?? []);
 
             // Send email verification
-            if ($user instanceof \Illuminate\Contracts\Auth\MustVerifyEmail && !$user->hasVerifiedEmail()) {
+            if ($user instanceof \Illuminate\Contracts\Auth\MustVerifyEmail && ! $user->hasVerifiedEmail()) {
                 $user->sendEmailVerificationNotification();
             }
 
@@ -151,7 +153,7 @@ class ComprehensiveRegistrationController extends Controller
         $exists = User::where('email', $request->email)->exists();
 
         return response()->json([
-            'available' => !$exists,
+            'available' => ! $exists,
             'message'   => $exists ? 'This email is already registered.' : 'Email is available.',
         ]);
     }
@@ -166,7 +168,7 @@ class ComprehensiveRegistrationController extends Controller
         $exists = User::where('username', $request->username)->exists();
 
         return response()->json([
-            'available' => !$exists,
+            'available' => ! $exists,
             'message'   => $exists ? 'This username is already taken.' : 'Username is available.',
         ]);
     }
@@ -183,7 +185,7 @@ class ComprehensiveRegistrationController extends Controller
         $strength = $this->calculatePasswordStrength($request->password ?? '');
 
         return response()->json([
-            'valid'        => !$validator->fails(),
+            'valid'        => ! $validator->fails(),
             'strength'     => $strength,
             'errors'       => $validator->errors()->get('password'),
             'requirements' => $this->getPasswordRequirements(),
@@ -201,7 +203,7 @@ class ComprehensiveRegistrationController extends Controller
         $validator = Validator::make($request->all(), $rules);
 
         return response()->json([
-            'valid'  => !$validator->fails(),
+            'valid'  => ! $validator->fails(),
             'errors' => $validator->errors(),
         ]);
     }
@@ -278,7 +280,7 @@ class ComprehensiveRegistrationController extends Controller
      */
     private function handleLegalAcceptances(User $user, array $acceptances): void
     {
-        if (!class_exists(LegalDocument::class) || !class_exists(UserLegalAcceptance::class)) {
+        if (! class_exists(LegalDocument::class) || ! class_exists(UserLegalAcceptance::class)) {
             return; // Skip if legal document system is not available
         }
 

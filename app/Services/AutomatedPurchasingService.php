@@ -9,9 +9,15 @@ use App\Models\PurchaseAttempt;
 use App\Models\User;
 use App\Services\PaymentProcessors\PayPalPaymentProcessor;
 use App\Services\PaymentProcessors\StripePaymentProcessor;
+use Closure;
+use Exception;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Queue;
+
+use function array_slice;
+use function count;
+use function in_array;
 
 /**
  * Automated Purchasing System
@@ -62,7 +68,7 @@ class AutomatedPurchasingService
             $selectedTickets = $this->selectOptimalTickets($config, $availableTickets);
 
             if (empty($selectedTickets)) {
-                throw new \Exception('No tickets match purchase criteria');
+                throw new Exception('No tickets match purchase criteria');
             }
 
             // Execute lightning-fast purchase flow
@@ -83,7 +89,7 @@ class AutomatedPurchasingService
                 'execution_time'    => $executionTime,
                 'payment_method'    => $result['payment_method'],
             ];
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $executionTime = (microtime(TRUE) - $startTime) * 1000;
 
             $this->updatePurchaseAttempt($attemptId, 'failed', [
@@ -144,39 +150,39 @@ class AutomatedPurchasingService
     private function validatePurchaseConditions(AutoPurchaseConfig $config, array $tickets): void
     {
         // Check if config is active
-        if (!$config->is_active) {
-            throw new \Exception('Auto-purchase configuration is disabled');
+        if (! $config->is_active) {
+            throw new Exception('Auto-purchase configuration is disabled');
         }
 
         // Check budget limits
         $minPrice = min(array_column($tickets, 'price'));
         if ($minPrice > $config->max_price) {
-            throw new \Exception("Minimum ticket price (£{$minPrice}) exceeds budget limit (£{$config->max_price})");
+            throw new Exception("Minimum ticket price (£{$minPrice}) exceeds budget limit (£{$config->max_price})");
         }
 
         // Check quantity availability
         $maxAvailable = max(array_column($tickets, 'quantity'));
         if ($maxAvailable < $config->desired_quantity) {
-            throw new \Exception("Not enough tickets available ({$maxAvailable} < {$config->desired_quantity})");
+            throw new Exception("Not enough tickets available ({$maxAvailable} < {$config->desired_quantity})");
         }
 
         // Check time constraints
         if ($config->purchase_window_start && now()->lt($config->purchase_window_start)) {
-            throw new \Exception('Purchase window has not started yet');
+            throw new Exception('Purchase window has not started yet');
         }
 
         if ($config->purchase_window_end && now()->gt($config->purchase_window_end)) {
-            throw new \Exception('Purchase window has ended');
+            throw new Exception('Purchase window has ended');
         }
 
         // Check daily purchase limits
         if ($this->hasExceededDailyLimit($config)) {
-            throw new \Exception('Daily purchase limit exceeded');
+            throw new Exception('Daily purchase limit exceeded');
         }
 
         // Check payment method validity
-        if (!$this->validatePaymentMethod($config)) {
-            throw new \Exception('Payment method is invalid or expired');
+        if (! $this->validatePaymentMethod($config)) {
+            throw new Exception('Payment method is invalid or expired');
         }
     }
 
@@ -197,7 +203,7 @@ class AutomatedPurchasingService
             }
 
             // Section preferences
-            if (!empty($config->preferred_sections)) {
+            if (! empty($config->preferred_sections)) {
                 $sectionMatch = FALSE;
                 foreach ($config->preferred_sections as $preferredSection) {
                     if (stripos($ticket['section'] ?? '', $preferredSection) !== FALSE) {
@@ -206,14 +212,14 @@ class AutomatedPurchasingService
                         break;
                     }
                 }
-                if (!$sectionMatch) {
+                if (! $sectionMatch) {
                     return FALSE;
                 }
             }
 
             // Platform preferences
-            if (!empty($config->preferred_platforms) &&
-                !in_array($ticket['platform'], $config->preferred_platforms)) {
+            if (! empty($config->preferred_platforms)
+                && ! in_array($ticket['platform'], $config->preferred_platforms, TRUE)) {
                 return FALSE;
             }
 
@@ -243,12 +249,12 @@ class AutomatedPurchasingService
         $score += (1 - $priceRatio) * 0.4;
 
         // Platform preference score
-        if (in_array($ticket['platform'], $config->preferred_platforms ?? [])) {
+        if (in_array($ticket['platform'], $config->preferred_platforms ?? [], TRUE)) {
             $score += 0.3;
         }
 
         // Section preference score
-        if (!empty($config->preferred_sections)) {
+        if (! empty($config->preferred_sections)) {
             foreach ($config->preferred_sections as $preferredSection) {
                 if (stripos($ticket['section'] ?? '', $preferredSection) !== FALSE) {
                     $score += 0.2;
@@ -273,8 +279,8 @@ class AutomatedPurchasingService
     {
         $preloadData = Cache::get("auto_purchase_preload_{$config->id}");
 
-        if (!$preloadData) {
-            throw new \Exception('Purchase context not preloaded');
+        if (! $preloadData) {
+            throw new Exception('Purchase context not preloaded');
         }
 
         // Try each ticket option in parallel
@@ -297,21 +303,21 @@ class AutomatedPurchasingService
             }
         }
 
-        throw new \Exception('All purchase attempts failed');
+        throw new Exception('All purchase attempts failed');
     }
 
     /**
      * Create purchase promise for parallel execution
      */
-    private function createPurchasePromise(AutoPurchaseConfig $config, array $ticket, array $preloadData, string $attemptId, int $index): \Closure
+    private function createPurchasePromise(AutoPurchaseConfig $config, array $ticket, array $preloadData, string $attemptId, int $index): Closure
     {
         return function () use ($config, $ticket, $preloadData, $attemptId, $index) {
             try {
                 $platform = $ticket['platform'];
                 $purchaser = $this->getPlatformPurchaser($platform);
 
-                if (!$purchaser) {
-                    throw new \Exception("No purchaser available for platform: {$platform}");
+                if (! $purchaser) {
+                    throw new Exception("No purchaser available for platform: {$platform}");
                 }
 
                 $result = $purchaser->executePurchase([
@@ -333,7 +339,7 @@ class AutomatedPurchasingService
                     'transaction_id'      => $result['transaction_id'],
                     'confirmation_number' => $result['confirmation_number'],
                 ];
-            } catch (\Exception $e) {
+            } catch (Exception $e) {
                 return [
                     'success'  => FALSE,
                     'index'    => $index,
@@ -371,20 +377,20 @@ class AutomatedPurchasingService
     private function getPlatformPurchaser(string $platform): ?object
     {
         return match ($platform) {
-            'ticketmaster' => new \App\Services\PlatformPurchasers\TicketmasterPurchaser(),
-            'stubhub'      => new \App\Services\PlatformPurchasers\StubHubPurchaser(),
-            'seatgeek'     => new \App\Services\PlatformPurchasers\SeatGeekPurchaser(),
-            'vivid_seats'  => new \App\Services\PlatformPurchasers\VividSeatsPurchaser(),
-            'tickpick'     => new \App\Services\PlatformPurchasers\TickPickPurchaser(),
-            'gametime'     => new \App\Services\PlatformPurchasers\GametimePurchaser(),
-            default        => NULL
+            'ticketmaster' => new PlatformPurchasers\TicketmasterPurchaser(),
+            'stubhub'      => new PlatformPurchasers\StubHubPurchaser(),
+            'seatgeek'     => new PlatformPurchasers\SeatGeekPurchaser(),
+            'vivid_seats'  => new PlatformPurchasers\VividSeatsPurchaser(),
+            'tickpick'     => new PlatformPurchasers\TickPickPurchaser(),
+            'gametime'     => new PlatformPurchasers\GametimePurchaser(),
+            default        => NULL,
         };
     }
 
     /**
      * Attempt fallback purchase strategies
      */
-    private function attemptFallbackPurchase(AutoPurchaseConfig $config, array $tickets, \Exception $originalError): array
+    private function attemptFallbackPurchase(AutoPurchaseConfig $config, array $tickets, Exception $originalError): array
     {
         Log::info('Attempting fallback purchase strategies', [
             'config_id'      => $config->id,
@@ -408,7 +414,7 @@ class AutomatedPurchasingService
 
                     return $result;
                 }
-            } catch (\Exception $e) {
+            } catch (Exception $e) {
                 Log::warning('Fallback strategy failed', [
                     'strategy' => $strategy,
                     'error'    => $e->getMessage(),
@@ -433,13 +439,13 @@ class AutomatedPurchasingService
 
         $selectedTickets = $this->selectOptimalTickets($relaxedConfig, $tickets);
 
-        if (!empty($selectedTickets)) {
+        if (! empty($selectedTickets)) {
             $attemptId = $this->createPurchaseAttempt($relaxedConfig, $selectedTickets, 'fallback_relaxed');
 
             return $this->executeLightningPurchase($relaxedConfig, $selectedTickets, $attemptId);
         }
 
-        throw new \Exception('No tickets available with relaxed criteria');
+        throw new Exception('No tickets available with relaxed criteria');
     }
 
     /**
@@ -480,7 +486,7 @@ class AutomatedPurchasingService
     /**
      * Update purchase attempt with results
      */
-    private function updatePurchaseAttempt(string $attemptId, string $status, array $data, float $executionTime = NULL): void
+    private function updatePurchaseAttempt(string $attemptId, string $status, array $data, ?float $executionTime = NULL): void
     {
         PurchaseAttempt::where('attempt_id', $attemptId)->update([
             'status'            => $status,
@@ -505,7 +511,7 @@ class AutomatedPurchasingService
         ];
 
         // Use smart alerts service for notification
-        app(\App\Services\EnhancedSmartAlertsService::class)->sendEnhancedAlert($user, $notificationData);
+        app(EnhancedSmartAlertsService::class)->sendEnhancedAlert($user, $notificationData);
     }
 
     /**

@@ -8,6 +8,8 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
+use function in_array;
+
 /**
  * Notification Preference Model
  *
@@ -130,7 +132,7 @@ class NotificationPreference extends Model
         $urgencySettings = $this->urgency_settings ?? [];
         $enabledChannels = $urgencySettings[$urgency] ?? [];
 
-        return in_array($channel, $enabledChannels);
+        return in_array($channel, $enabledChannels, TRUE);
     }
 
     /**
@@ -140,7 +142,7 @@ class NotificationPreference extends Model
     {
         $quietHours = $this->quiet_hours ?? [];
 
-        if (!($quietHours['enabled'] ?? FALSE)) {
+        if (! ($quietHours['enabled'] ?? FALSE)) {
             return FALSE;
         }
 
@@ -170,7 +172,7 @@ class NotificationPreference extends Model
             'hour'    => $limits['max_per_hour'] ?? 20,
             'day'     => $limits['max_per_day'] ?? 100,
             'sms_day' => $limits['sms_max_per_day'] ?? 10,
-            default   => 20
+            default   => 20,
         };
     }
 
@@ -189,7 +191,7 @@ class NotificationPreference extends Model
      */
     public function updateLearningPreferences(array $behaviorData): void
     {
-        if (!($this->intelligent_delivery['learn_preferences'] ?? FALSE)) {
+        if (! ($this->intelligent_delivery['learn_preferences'] ?? FALSE)) {
             return;
         }
 

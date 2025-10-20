@@ -10,6 +10,8 @@ use Illuminate\Support\Facades\Http;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\Rules\Password;
 
+use function in_array;
+
 class ComprehensiveRegistrationRequest extends FormRequest
 {
     /**
@@ -23,7 +25,7 @@ class ComprehensiveRegistrationRequest extends FormRequest
     /**
      * Get the validation rules that apply to the request.
      *
-     * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>
+     * @return array<string, array<mixed>|\Illuminate\Contracts\Validation\ValidationRule|string>
      */
     public function rules(): array
     {
@@ -184,6 +186,48 @@ class ComprehensiveRegistrationRequest extends FormRequest
     }
 
     /**
+     * Configure the validator instance.
+     *
+     * @param mixed $validator
+     */
+    public function withValidator($validator): void
+    {
+        $validator->after(function ($validator): void {
+            // Additional custom validation logic can go here
+
+            // Validate reCAPTCHA if enabled
+            if (config('services.recaptcha.enabled')) {
+                $this->validateRecaptcha($validator);
+            }
+
+            // Custom business logic validation
+            $this->validateBusinessRules($validator);
+        });
+    }
+
+    /**
+     * Get the validated data with additional processing
+     */
+    public function validatedWithDefaults(): array
+    {
+        $validated = $this->validated();
+
+        // Set defaults
+        $validated['timezone'] ??= config('app.timezone');
+        $validated['language'] ??= config('app.locale');
+        $validated['marketing_emails'] ??= FALSE;
+        $validated['newsletter_subscription'] ??= FALSE;
+        $validated['enable_2fa'] ??= FALSE;
+
+        // Generate username if not provided
+        if (empty($validated['username'])) {
+            $validated['username'] = $this->generateUsername($validated['first_name'], $validated['last_name']);
+        }
+
+        return $validated;
+    }
+
+    /**
      * Prepare the data for validation.
      */
     protected function prepareForValidation(): void
@@ -218,31 +262,15 @@ class ComprehensiveRegistrationRequest extends FormRequest
     }
 
     /**
-     * Configure the validator instance.
-     */
-    public function withValidator($validator): void
-    {
-        $validator->after(function ($validator) {
-            // Additional custom validation logic can go here
-
-            // Validate reCAPTCHA if enabled
-            if (config('services.recaptcha.enabled')) {
-                $this->validateRecaptcha($validator);
-            }
-
-            // Custom business logic validation
-            $this->validateBusinessRules($validator);
-        });
-    }
-
-    /**
      * Validate reCAPTCHA response
+     *
+     * @param mixed $validator
      */
     private function validateRecaptcha($validator): void
     {
         $recaptchaResponse = $this->input('g-recaptcha-response');
 
-        if (!$recaptchaResponse) {
+        if (! $recaptchaResponse) {
             return; // Required validation will handle this
         }
 
@@ -254,59 +282,39 @@ class ComprehensiveRegistrationRequest extends FormRequest
 
         $result = $response->json();
 
-        if (!$result['success'] || ($result['score'] ?? 0) < config('services.recaptcha.minimum_score', 0.5)) {
+        if (! $result['success'] || ($result['score'] ?? 0) < config('services.recaptcha.minimum_score', 0.5)) {
             $validator->errors()->add('g-recaptcha-response', 'reCAPTCHA verification failed. Please try again.');
         }
     }
 
     /**
      * Apply custom business rules validation
+     *
+     * @param mixed $validator
      */
     private function validateBusinessRules($validator): void
     {
         // Example: Check if registration is currently allowed
-        if (!config('app.registration_enabled', TRUE)) {
+        if (! config('app.registration_enabled', TRUE)) {
             $validator->errors()->add('general', 'Registration is currently disabled. Please try again later.');
         }
 
         // Example: Validate role-specific requirements
         if ($this->role === User::ROLE_AGENT) {
             // Agents might require additional verification
-            if (!$this->phone) {
+            if (! $this->phone) {
                 $validator->errors()->add('phone', 'Phone number is required for business accounts.');
             }
         }
 
         // Example: Validate email domain restrictions (if any)
         $restrictedDomains = config('auth.restricted_email_domains', []);
-        if (!empty($restrictedDomains) && $this->email) {
+        if (! empty($restrictedDomains) && $this->email) {
             $domain = substr(strrchr($this->email, '@'), 1);
-            if (in_array($domain, $restrictedDomains)) {
+            if (in_array($domain, $restrictedDomains, TRUE)) {
                 $validator->errors()->add('email', 'Registration with this email domain is not allowed.');
             }
         }
-    }
-
-    /**
-     * Get the validated data with additional processing
-     */
-    public function validatedWithDefaults(): array
-    {
-        $validated = $this->validated();
-
-        // Set defaults
-        $validated['timezone'] = $validated['timezone'] ?? config('app.timezone');
-        $validated['language'] = $validated['language'] ?? config('app.locale');
-        $validated['marketing_emails'] = $validated['marketing_emails'] ?? FALSE;
-        $validated['newsletter_subscription'] = $validated['newsletter_subscription'] ?? FALSE;
-        $validated['enable_2fa'] = $validated['enable_2fa'] ?? FALSE;
-
-        // Generate username if not provided
-        if (empty($validated['username'])) {
-            $validated['username'] = $this->generateUsername($validated['first_name'], $validated['last_name']);
-        }
-
-        return $validated;
     }
 
     /**

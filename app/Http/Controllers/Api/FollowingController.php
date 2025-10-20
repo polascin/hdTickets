@@ -15,6 +15,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
 
+use function array_slice;
+
 /**
  * Team & Venue Following System API Controller
  *
@@ -34,9 +36,9 @@ class FollowingController extends Controller
         $data = Cache::remember("following_dashboard_{$user->id}_{$tab}", 300, function () use ($user, $tab) {
             if ($tab === 'following') {
                 return $this->getFollowingData($user);
-            } else {
-                return $this->getDiscoverData($user);
             }
+
+            return $this->getDiscoverData($user);
         });
 
         return response()->json([
@@ -73,15 +75,15 @@ class FollowingController extends Controller
                 break;
             case 'name':
             default:
-                $query->join('teams', function ($join) {
+                $query->join('teams', function ($join): void {
                     $join->on('followings.followable_id', '=', 'teams.id')
-                         ->where('followings.followable_type', Team::class);
+                        ->where('followings.followable_type', Team::class);
                 })
-                ->join('venues', function ($join) {
-                    $join->on('followings.followable_id', '=', 'venues.id')
-                         ->where('followings.followable_type', Venue::class);
-                })
-                ->orderByRaw('COALESCE(teams.name, venues.name)');
+                    ->join('venues', function ($join): void {
+                        $join->on('followings.followable_id', '=', 'venues.id')
+                            ->where('followings.followable_type', Venue::class);
+                    })
+                    ->orderByRaw('COALESCE(teams.name, venues.name)');
 
                 break;
         }
@@ -105,7 +107,8 @@ class FollowingController extends Controller
                     'notifications_enabled' => $follow->notifications_enabled,
                     'followed_at'           => $follow->created_at,
                 ];
-            } elseif ($item instanceof Venue) {
+            }
+            if ($item instanceof Venue) {
                 return [
                     'id'                    => $item->uuid,
                     'type'                  => 'venue',
@@ -244,7 +247,7 @@ class FollowingController extends Controller
             ->where('followable_id', $item->id)
             ->first();
 
-        if (!$following) {
+        if (! $following) {
             return response()->json([
                 'success' => FALSE,
                 'message' => 'Not following this ' . $type,
@@ -450,15 +453,17 @@ class FollowingController extends Controller
 
     /**
      * Get upcoming events for a team or venue
+     *
+     * @param mixed $item
      */
     private function getUpcomingEvents($item, string $type): array
     {
         $query = Event::where('date', '>=', now());
 
         if ($type === 'team') {
-            $query->where(function ($q) use ($item) {
+            $query->where(function ($q) use ($item): void {
                 $q->where('home_team', $item->name)
-                  ->orWhere('away_team', $item->name);
+                    ->orWhere('away_team', $item->name);
             });
         } else {
             $query->where('venue_id', $item->id);
@@ -472,6 +477,8 @@ class FollowingController extends Controller
 
     /**
      * Get recent activity for a team or venue
+     *
+     * @param mixed $item
      */
     private function getRecentActivity($item, string $type): array
     {
@@ -513,15 +520,17 @@ class FollowingController extends Controller
 
     /**
      * Get upcoming events count
+     *
+     * @param mixed $item
      */
     private function getUpcomingEventsCount($item, string $type): int
     {
         $query = Event::where('date', '>=', now());
 
         if ($type === 'team') {
-            $query->where(function ($q) use ($item) {
+            $query->where(function ($q) use ($item): void {
                 $q->where('home_team', $item->name)
-                  ->orWhere('away_team', $item->name);
+                    ->orWhere('away_team', $item->name);
             });
         } else {
             $query->where('venue_id', $item->id);

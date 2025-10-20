@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use DB;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -16,6 +17,17 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 class PriceAlert extends Model
 {
     use HasFactory;
+
+    /** Alert type constants */
+    public const TYPE_PRICE_DROP = 'price_drop';
+
+    public const TYPE_PRICE_DROP_PERCENTAGE = 'price_drop_percentage';
+
+    public const TYPE_ABSOLUTE_PRICE = 'absolute_price';
+
+    public const TYPE_BEST_DEAL = 'best_deal';
+
+    public const TYPE_INVENTORY_LOW = 'inventory_low';
 
     protected $fillable = [
         'user_id',
@@ -54,19 +66,6 @@ class PriceAlert extends Model
     ];
 
     /**
-     * Alert type constants
-     */
-    public const TYPE_PRICE_DROP = 'price_drop';
-
-    public const TYPE_PRICE_DROP_PERCENTAGE = 'price_drop_percentage';
-
-    public const TYPE_ABSOLUTE_PRICE = 'absolute_price';
-
-    public const TYPE_BEST_DEAL = 'best_deal';
-
-    public const TYPE_INVENTORY_LOW = 'inventory_low';
-
-    /**
      * Get the user that owns this alert
      */
     public function user(): BelongsTo
@@ -84,18 +83,22 @@ class PriceAlert extends Model
 
     /**
      * Scope for active alerts
+     *
+     * @param mixed $query
      */
     public function scopeActive($query)
     {
         return $query->where('is_active', TRUE)
-                    ->where(function ($q) {
-                        $q->whereNull('expires_at')
-                          ->orWhere('expires_at', '>', now());
-                    });
+            ->where(function ($q): void {
+                $q->whereNull('expires_at')
+                    ->orWhere('expires_at', '>', now());
+            });
     }
 
     /**
      * Scope for specific alert type
+     *
+     * @param mixed $query
      */
     public function scopeType($query, string $type)
     {
@@ -104,17 +107,21 @@ class PriceAlert extends Model
 
     /**
      * Scope for alerts that can be triggered (respecting intervals)
+     *
+     * @param mixed $query
      */
     public function scopeCanTrigger($query)
     {
-        return $query->where(function ($q) {
+        return $query->where(function ($q): void {
             $q->whereNull('last_triggered_at')
-              ->orWhereRaw('last_triggered_at <= DATE_SUB(NOW(), INTERVAL min_interval_minutes MINUTE)');
+                ->orWhereRaw('last_triggered_at <= DATE_SUB(NOW(), INTERVAL min_interval_minutes MINUTE)');
         });
     }
 
     /**
      * Scope for alerts under daily trigger limit
+     *
+     * @param mixed $query
      */
     public function scopeUnderDailyLimit($query)
     {
@@ -130,7 +137,7 @@ class PriceAlert extends Model
      */
     public function canTrigger(): bool
     {
-        if (!$this->is_active) {
+        if (! $this->is_active) {
             return FALSE;
         }
 
@@ -162,7 +169,7 @@ class PriceAlert extends Model
      */
     public function getTodayTriggerCount(): int
     {
-        return \DB::table('price_alert_triggers')
+        return DB::table('price_alert_triggers')
             ->where('price_alert_id', $this->id)
             ->whereDate('triggered_at', today())
             ->count();
@@ -181,58 +188,8 @@ class PriceAlert extends Model
             self::TYPE_ABSOLUTE_PRICE        => $currentPrice <= $this->target_price,
             self::TYPE_BEST_DEAL             => $this->checkBestDeal($priceData),
             self::TYPE_INVENTORY_LOW         => $this->checkLowInventory($priceData),
-            default                          => FALSE
+            default                          => FALSE,
         };
-    }
-
-    /**
-     * Check price drop condition
-     */
-    private function checkPriceDrop(float $currentPrice): bool
-    {
-        return $currentPrice <= $this->target_price;
-    }
-
-    /**
-     * Check percentage drop condition
-     */
-    private function checkPercentageDrop(float $currentPrice): bool
-    {
-        $basePrice = $this->baseline_price ?? $this->target_price;
-
-        if ($basePrice <= 0) {
-            return FALSE;
-        }
-
-        $dropPercentage = (($basePrice - $currentPrice) / $basePrice) * 100;
-
-        return $dropPercentage >= $this->target_percentage;
-    }
-
-    /**
-     * Check best deal condition
-     */
-    private function checkBestDeal(array $priceData): bool
-    {
-        // Compare with historical data
-        $historicalLow = PriceHistory::where('event_id', $this->event_id)
-            ->where('recorded_at', '>=', now()->subDays(30))
-            ->min('price_min') ?? PHP_FLOAT_MAX;
-
-        $currentPrice = $priceData['price_min'] ?? 0;
-
-        return $currentPrice <= $historicalLow * 1.05; // Within 5% of historical low
-    }
-
-    /**
-     * Check low inventory condition
-     */
-    private function checkLowInventory(array $priceData): bool
-    {
-        $inventory = $priceData['total_listings'] ?? $priceData['available_quantity'] ?? 0;
-        $threshold = $this->conditions['inventory_threshold'] ?? 10;
-
-        return $inventory <= $threshold;
     }
 
     /**
@@ -246,7 +203,7 @@ class PriceAlert extends Model
         ]);
 
         // Record trigger in separate table for analytics
-        \DB::table('price_alert_triggers')->insert([
+        DB::table('price_alert_triggers')->insert([
             'price_alert_id' => $this->id,
             'triggered_at'   => now(),
             'trigger_data'   => json_encode($priceData),
@@ -264,7 +221,7 @@ class PriceAlert extends Model
             return 0.0;
         }
 
-        $successfulTriggers = \DB::table('price_alert_triggers')
+        $successfulTriggers = DB::table('price_alert_triggers')
             ->where('price_alert_id', $this->id)
             ->whereJsonContains('trigger_data->user_acted', TRUE)
             ->count();
@@ -320,7 +277,7 @@ class PriceAlert extends Model
             self::TYPE_ABSOLUTE_PRICE        => "Alert when {$eventName} tickets reach £{$this->target_price}",
             self::TYPE_BEST_DEAL             => "Alert for best deals on {$eventName} tickets",
             self::TYPE_INVENTORY_LOW         => "Alert when {$eventName} ticket inventory is low",
-            default                          => "Price alert for {$eventName}"
+            default                          => "Price alert for {$eventName}",
         };
     }
 
@@ -385,5 +342,55 @@ class PriceAlert extends Model
             // Low effectiveness - reduce trigger frequency
             $this->update(['min_interval_minutes' => min(120, $this->min_interval_minutes + 15)]);
         }
+    }
+
+    /**
+     * Check price drop condition
+     */
+    private function checkPriceDrop(float $currentPrice): bool
+    {
+        return $currentPrice <= $this->target_price;
+    }
+
+    /**
+     * Check percentage drop condition
+     */
+    private function checkPercentageDrop(float $currentPrice): bool
+    {
+        $basePrice = $this->baseline_price ?? $this->target_price;
+
+        if ($basePrice <= 0) {
+            return FALSE;
+        }
+
+        $dropPercentage = (($basePrice - $currentPrice) / $basePrice) * 100;
+
+        return $dropPercentage >= $this->target_percentage;
+    }
+
+    /**
+     * Check best deal condition
+     */
+    private function checkBestDeal(array $priceData): bool
+    {
+        // Compare with historical data
+        $historicalLow = PriceHistory::where('event_id', $this->event_id)
+            ->where('recorded_at', '>=', now()->subDays(30))
+            ->min('price_min') ?? PHP_FLOAT_MAX;
+
+        $currentPrice = $priceData['price_min'] ?? 0;
+
+        return $currentPrice <= $historicalLow * 1.05; // Within 5% of historical low
+    }
+
+    /**
+     * Check low inventory condition
+     */
+    private function checkLowInventory(array $priceData): bool
+    {
+        $inventory = $priceData['total_listings'] ?? $priceData['available_quantity'] ?? 0;
+        $threshold = $this->conditions['inventory_threshold'] ?? 10;
+
+        return $inventory <= $threshold;
     }
 }

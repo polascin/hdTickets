@@ -39,7 +39,7 @@ class LoginEnhancementController extends Controller
         // Check if user exists
         $user = User::where('email', $email)->first();
 
-        if (!$user) {
+        if (! $user) {
             return response()->json([
                 'exists'  => FALSE,
                 'message' => 'Email not found',
@@ -53,7 +53,7 @@ class LoginEnhancementController extends Controller
                 'theme'              => $user->preferences['theme'] ?? 'light',
                 'language'           => $user->preferences['language'] ?? 'en',
                 'timezone'           => $user->preferences['timezone'] ?? 'UTC',
-                'two_factor_enabled' => !empty($user->two_factor_secret),
+                'two_factor_enabled' => ! empty($user->two_factor_secret),
                 'last_login'         => $user->last_login_at?->diffForHumans(),
             ],
         ]);
@@ -64,7 +64,7 @@ class LoginEnhancementController extends Controller
      */
     public function getSessionStatus(Request $request): JsonResponse
     {
-        if (!auth()->check()) {
+        if (! auth()->check()) {
             return response()->json([
                 'authenticated' => FALSE,
             ], 401);
@@ -195,28 +195,28 @@ class LoginEnhancementController extends Controller
             'lowercase'          => preg_match('/[a-z]/', $password),
             'numbers'            => preg_match('/\d/', $password),
             'symbols'            => preg_match('/[^A-Za-z0-9]/', $password),
-            'no_common_patterns' => !$this->hasCommonPatterns($password),
+            'no_common_patterns' => ! $this->hasCommonPatterns($password),
         ];
 
         $score = array_sum($checks);
 
         // Generate suggestions
-        if (!$checks['length']) {
+        if (! $checks['length']) {
             $suggestions[] = 'Use at least 8 characters';
         }
-        if (!$checks['uppercase']) {
+        if (! $checks['uppercase']) {
             $suggestions[] = 'Add uppercase letters (A-Z)';
         }
-        if (!$checks['lowercase']) {
+        if (! $checks['lowercase']) {
             $suggestions[] = 'Add lowercase letters (a-z)';
         }
-        if (!$checks['numbers']) {
+        if (! $checks['numbers']) {
             $suggestions[] = 'Add numbers (0-9)';
         }
-        if (!$checks['symbols']) {
+        if (! $checks['symbols']) {
             $suggestions[] = 'Add special characters (!@#$%^&*)';
         }
-        if (!$checks['no_common_patterns']) {
+        if (! $checks['no_common_patterns']) {
             $suggestions[] = 'Avoid common patterns like "123" or "abc"';
         }
 

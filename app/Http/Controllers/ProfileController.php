@@ -389,7 +389,7 @@ class ProfileController extends Controller
 
             $user = $request->user();
 
-            if (!Hash::check($request->current_password, $user->password)) {
+            if (! Hash::check($request->current_password, $user->password)) {
                 return response()->json([
                     'success' => FALSE,
                     'message' => 'Current password is incorrect.',
@@ -427,7 +427,7 @@ class ProfileController extends Controller
                 ->where('id', $sessionId)
                 ->first();
 
-            if (!$session) {
+            if (! $session) {
                 return response()->json([
                     'success' => FALSE,
                     'message' => 'Session not found.',
@@ -588,7 +588,7 @@ class ProfileController extends Controller
             $user = $request->user();
             $trustedDevices = $user->trusted_devices ?? [];
 
-            if (!isset($trustedDevices[$deviceIndex])) {
+            if (! isset($trustedDevices[$deviceIndex])) {
                 return response()->json([
                     'success' => FALSE,
                     'message' => 'Device not found.',
@@ -622,7 +622,7 @@ class ProfileController extends Controller
         try {
             $user = $request->user();
 
-            if (!$user->two_factor_secret) {
+            if (! $user->two_factor_secret) {
                 abort(404, 'Two-factor authentication is not enabled.');
             }
 
@@ -687,7 +687,7 @@ class ProfileController extends Controller
      */
     private function calculateSecurityScore($user, ?array $securityStatus = NULL): int
     {
-        if (!$securityStatus) {
+        if (! $securityStatus) {
             $securityStatus = [
                 'email_verified'     => (bool) $user->email_verified_at,
                 'two_factor_enabled' => (bool) $user->two_factor_secret,
@@ -726,7 +726,7 @@ class ProfileController extends Controller
         }
 
         // Phone number
-        if (!empty($user->phone)) {
+        if (! empty($user->phone)) {
             $score += 5;
         }
 
@@ -752,7 +752,7 @@ class ProfileController extends Controller
             ];
         }
 
-        if (!$securityStatus['email_verified']) {
+        if (! $securityStatus['email_verified']) {
             $recommendations[] = [
                 'type'        => 'security',
                 'priority'    => 'high',
@@ -764,7 +764,7 @@ class ProfileController extends Controller
             ];
         }
 
-        if (!$securityStatus['two_factor_enabled']) {
+        if (! $securityStatus['two_factor_enabled']) {
             $recommendations[] = [
                 'type'        => 'security',
                 'priority'    => 'medium',

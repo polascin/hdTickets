@@ -8,6 +8,9 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
+use function in_array;
+use function strlen;
+
 /**
  * WebhookLog Model
  *
@@ -79,35 +82,40 @@ class WebhookLog extends Model
     {
         if ($this->response_time <= 500) {
             return 'fast';
-        } elseif ($this->response_time <= 2000) {
-            return 'normal';
-        } elseif ($this->response_time <= 5000) {
-            return 'slow';
-        } else {
-            return 'very_slow';
         }
+        if ($this->response_time <= 2000) {
+            return 'normal';
+        }
+        if ($this->response_time <= 5000) {
+            return 'slow';
+        }
+
+        return 'very_slow';
     }
 
     public function getStatusCategory(): string
     {
         if ($this->response_code >= 200 && $this->response_code < 300) {
             return 'success';
-        } elseif ($this->response_code >= 300 && $this->response_code < 400) {
-            return 'redirect';
-        } elseif ($this->response_code >= 400 && $this->response_code < 500) {
-            return 'client_error';
-        } elseif ($this->response_code >= 500) {
-            return 'server_error';
-        } else {
-            return 'unknown';
         }
+        if ($this->response_code >= 300 && $this->response_code < 400) {
+            return 'redirect';
+        }
+        if ($this->response_code >= 400 && $this->response_code < 500) {
+            return 'client_error';
+        }
+        if ($this->response_code >= 500) {
+            return 'server_error';
+        }
+
+        return 'unknown';
     }
 
     // Error Analysis
 
     public function getErrorType(): ?string
     {
-        if (!$this->error_message) {
+        if (! $this->error_message) {
             return NULL;
         }
 
@@ -115,30 +123,35 @@ class WebhookLog extends Model
 
         if (str_contains($errorMessage, 'timeout')) {
             return 'timeout';
-        } elseif (str_contains($errorMessage, 'connection')) {
-            return 'connection';
-        } elseif (str_contains($errorMessage, 'ssl') || str_contains($errorMessage, 'certificate')) {
-            return 'ssl';
-        } elseif (str_contains($errorMessage, 'dns')) {
-            return 'dns';
-        } elseif ($this->response_code >= 500) {
-            return 'server_error';
-        } elseif ($this->response_code >= 400) {
-            return 'client_error';
-        } else {
-            return 'unknown';
         }
+        if (str_contains($errorMessage, 'connection')) {
+            return 'connection';
+        }
+        if (str_contains($errorMessage, 'ssl') || str_contains($errorMessage, 'certificate')) {
+            return 'ssl';
+        }
+        if (str_contains($errorMessage, 'dns')) {
+            return 'dns';
+        }
+        if ($this->response_code >= 500) {
+            return 'server_error';
+        }
+        if ($this->response_code >= 400) {
+            return 'client_error';
+        }
+
+        return 'unknown';
     }
 
     public function shouldRetry(): bool
     {
         // Don't retry client errors (4xx) except for 408, 429
         if ($this->response_code >= 400 && $this->response_code < 500) {
-            return in_array($this->response_code, [408, 429]);
+            return in_array($this->response_code, [408, 429], TRUE);
         }
 
         // Retry server errors (5xx) and network errors
-        return $this->response_code >= 500 || !$this->response_code;
+        return $this->response_code >= 500 || ! $this->response_code;
     }
 
     // Data Extraction
@@ -155,7 +168,7 @@ class WebhookLog extends Model
 
     public function hasResponseBody(): bool
     {
-        return !empty($this->response_body);
+        return ! empty($this->response_body);
     }
 
     // Scopes
@@ -226,9 +239,9 @@ class WebhookLog extends Model
     {
         if ($this->response_time < 1000) {
             return round($this->response_time) . 'ms';
-        } else {
-            return round($this->response_time / 1000, 2) . 's';
         }
+
+        return round($this->response_time / 1000, 2) . 's';
     }
 
     public function getStatusBadgeAttribute(): array
@@ -237,7 +250,7 @@ class WebhookLog extends Model
             'success' => ['class' => 'success', 'text' => 'Success'],
             'failed'  => ['class' => 'danger', 'text' => 'Failed'],
             'pending' => ['class' => 'warning', 'text' => 'Pending'],
-            default   => ['class' => 'secondary', 'text' => 'Unknown']
+            default   => ['class' => 'secondary', 'text' => 'Unknown'],
         };
     }
 
@@ -245,24 +258,27 @@ class WebhookLog extends Model
     {
         if ($this->response_code >= 200 && $this->response_code < 300) {
             return ['class' => 'success', 'text' => $this->response_code];
-        } elseif ($this->response_code >= 300 && $this->response_code < 400) {
-            return ['class' => 'info', 'text' => $this->response_code];
-        } elseif ($this->response_code >= 400 && $this->response_code < 500) {
-            return ['class' => 'warning', 'text' => $this->response_code];
-        } elseif ($this->response_code >= 500) {
-            return ['class' => 'danger', 'text' => $this->response_code];
-        } else {
-            return ['class' => 'secondary', 'text' => 'N/A'];
         }
+        if ($this->response_code >= 300 && $this->response_code < 400) {
+            return ['class' => 'info', 'text' => $this->response_code];
+        }
+        if ($this->response_code >= 400 && $this->response_code < 500) {
+            return ['class' => 'warning', 'text' => $this->response_code];
+        }
+        if ($this->response_code >= 500) {
+            return ['class' => 'danger', 'text' => $this->response_code];
+        }
+
+        return ['class' => 'secondary', 'text' => 'N/A'];
     }
 
     public function getAttemptBadgeAttribute(): array
     {
         if ($this->attempt_number === 1) {
             return ['class' => 'primary', 'text' => 'First'];
-        } else {
-            return ['class' => 'warning', 'text' => "Retry #{$this->attempt_number}"];
         }
+
+        return ['class' => 'warning', 'text' => "Retry #{$this->attempt_number}"];
     }
 
     public function getDeliveredAgoAttribute(): string
@@ -272,7 +288,7 @@ class WebhookLog extends Model
 
     public function getTruncatedErrorAttribute(): string
     {
-        if (!$this->error_message) {
+        if (! $this->error_message) {
             return '';
         }
 

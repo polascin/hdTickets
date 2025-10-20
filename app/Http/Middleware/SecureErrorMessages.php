@@ -28,7 +28,7 @@ class SecureErrorMessages
         $response = $next($request);
 
         // Only process authentication-related routes
-        if (!$this->isAuthRoute($request)) {
+        if (! $this->isAuthRoute($request)) {
             return $response;
         }
 
@@ -68,7 +68,7 @@ class SecureErrorMessages
     {
         $content = json_decode((string) $response->getContent(), TRUE);
 
-        if (!isset($content['errors'])) {
+        if (! isset($content['errors'])) {
             return $response;
         }
 

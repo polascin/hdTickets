@@ -1,7 +1,7 @@
 
 
-[1;37;40mCode Coverage Report Summary:[0m
-[30;42m  Classes:        (0/0)      [0m
-[30;42m  Methods:        (0/0)      [0m
-[30;42m  Lines:          (0/0)      [0m
+Code Coverage Report Summary:
+  Classes:        (0/0)
+  Methods:        (0/0)
+  Lines:          (0/0)
 

@@ -7,8 +7,12 @@ namespace App\Services;
 use App\Models\Event;
 use App\Models\PriceAlert;
 use App\Models\PriceHistory;
+use Exception;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
+
+use function array_slice;
+use function count;
 
 /**
  * Price Tracking Analytics Service
@@ -25,7 +29,7 @@ class PriceTrackingAnalyticsService
     private array $analyticsCache = [];
 
     public function __construct(
-        private EnhancedSmartAlertsService $alertsService
+        private EnhancedSmartAlertsService $alertsService,
     ) {
     }
 
@@ -69,13 +73,48 @@ class PriceTrackingAnalyticsService
                 'platform'    => $platform,
                 'price_range' => "{$normalizedData['price_min']}-{$normalizedData['price_max']}",
             ]);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             Log::error('Failed to record price data', [
                 'event_id'   => $event->id,
                 'error'      => $e->getMessage(),
                 'price_data' => $priceData,
             ]);
         }
+    }
+
+    /**
+     * Get comprehensive price analytics for event
+     */
+    public function getEventPriceAnalytics(Event $event, int $days = 30): array
+    {
+        $cacheKey = "event_analytics_{$event->id}_{$days}";
+
+        return Cache::remember($cacheKey, 900, function () use ($event, $days) {
+            $startDate = now()->subDays($days);
+
+            $priceHistory = PriceHistory::where('event_id', $event->id)
+                ->where('recorded_at', '>=', $startDate)
+                ->orderBy('recorded_at')
+                ->get();
+
+            if ($priceHistory->isEmpty()) {
+                return $this->getEmptyAnalytics();
+            }
+
+            return [
+                'event_id'                => $event->id,
+                'event_name'              => $event->name,
+                'analysis_period'         => $days,
+                'price_trends'            => $this->analyzePriceTrends($priceHistory),
+                'platform_comparison'     => $this->comparePlatformPrices($priceHistory),
+                'market_insights'         => $this->generateMarketInsights($priceHistory),
+                'price_predictions'       => $this->generatePricePredictions($event, $priceHistory),
+                'optimal_purchase_timing' => $this->calculateOptimalTiming($priceHistory),
+                'volatility_analysis'     => $this->analyzeVolatility($priceHistory),
+                'demand_patterns'         => $this->analyzeDemandPatterns($priceHistory),
+                'last_updated'            => now()->toISOString(),
+            ];
+        });
     }
 
     /**
@@ -90,7 +129,7 @@ class PriceTrackingAnalyticsService
         ], fn ($price) => $price > 0);
 
         if (empty($prices)) {
-            throw new \Exception('No valid prices in price data');
+            throw new Exception('No valid prices in price data');
         }
 
         $priceMin = min($prices);
@@ -292,8 +331,8 @@ class PriceTrackingAnalyticsService
         $alertType = $alert->alert_type;
 
         // Check if enough time has passed since last alert
-        if ($alert->last_triggered_at &&
-            $alert->last_triggered_at->diffInMinutes(now()) < ($alert->min_interval_minutes ?? 15)) {
+        if ($alert->last_triggered_at
+            && $alert->last_triggered_at->diffInMinutes(now()) < ($alert->min_interval_minutes ?? 15)) {
             return FALSE;
         }
 
@@ -302,7 +341,7 @@ class PriceTrackingAnalyticsService
             'price_drop_percentage' => $this->checkPercentageDrop($alert, $currentPrice),
             'absolute_price'        => $currentPrice <= $targetPrice,
             'best_deal'             => $this->isBestDeal($alert, $priceData),
-            default                 => FALSE
+            default                 => FALSE,
         };
     }
 
@@ -406,41 +445,6 @@ class PriceTrackingAnalyticsService
         $platform = $priceData['platform'] ?? 'Multiple platforms';
 
         return "🎯 PRICE ALERT: {$eventName} tickets now £{$currentPrice} on {$platform}! You save £{$savings}!";
-    }
-
-    /**
-     * Get comprehensive price analytics for event
-     */
-    public function getEventPriceAnalytics(Event $event, int $days = 30): array
-    {
-        $cacheKey = "event_analytics_{$event->id}_{$days}";
-
-        return Cache::remember($cacheKey, 900, function () use ($event, $days) {
-            $startDate = now()->subDays($days);
-
-            $priceHistory = PriceHistory::where('event_id', $event->id)
-                ->where('recorded_at', '>=', $startDate)
-                ->orderBy('recorded_at')
-                ->get();
-
-            if ($priceHistory->isEmpty()) {
-                return $this->getEmptyAnalytics();
-            }
-
-            return [
-                'event_id'                => $event->id,
-                'event_name'              => $event->name,
-                'analysis_period'         => $days,
-                'price_trends'            => $this->analyzePriceTrends($priceHistory),
-                'platform_comparison'     => $this->comparePlatformPrices($priceHistory),
-                'market_insights'         => $this->generateMarketInsights($priceHistory),
-                'price_predictions'       => $this->generatePricePredictions($event, $priceHistory),
-                'optimal_purchase_timing' => $this->calculateOptimalTiming($priceHistory),
-                'volatility_analysis'     => $this->analyzeVolatility($priceHistory),
-                'demand_patterns'         => $this->analyzeDemandPatterns($priceHistory),
-                'last_updated'            => now()->toISOString(),
-            ];
-        });
     }
 
     /**
@@ -640,9 +644,7 @@ class PriceTrackingAnalyticsService
             $sumX2 += $x * $x;
         }
 
-        $slope = ($n * $sumXY - $sumX * $sumY) / ($n * $sumX2 - $sumX * $sumX);
-
-        return $slope;
+        return ($n * $sumXY - $sumX * $sumY) / ($n * $sumX2 - $sumX * $sumX);
     }
 
     /**
@@ -705,9 +707,11 @@ class PriceTrackingAnalyticsService
     {
         if ($optimalHour && $optimalDay) {
             return "Best time to buy: {$optimalDay['day_name']} at {$optimalHour['hour']}:00 (historically lowest prices)";
-        } elseif ($optimalDay) {
+        }
+        if ($optimalDay) {
             return "Best day to buy: {$optimalDay['day_name']} (historically lower prices)";
-        } elseif ($optimalHour) {
+        }
+        if ($optimalHour) {
             return "Best time to buy: {$optimalHour['hour']}:00 (historically lower prices)";
         }
 
@@ -741,13 +745,11 @@ class PriceTrackingAnalyticsService
      */
     private function analyzeDemandPatterns(object $priceHistory): array
     {
-        $patterns = [
+        return [
             'inventory_trend'          => $this->analyzeInventoryTrend($priceHistory),
             'price_demand_correlation' => $this->analyzePriceDemandCorrelation($priceHistory),
             'peak_demand_times'        => $this->identifyPeakDemandTimes($priceHistory),
         ];
-
-        return $patterns;
     }
 
     // Helper methods for demand analysis
@@ -758,9 +760,11 @@ class PriceTrackingAnalyticsService
 
         if ($recent < $older * 0.8) {
             return 'decreasing_rapidly';
-        } elseif ($recent < $older * 0.95) {
+        }
+        if ($recent < $older * 0.95) {
             return 'decreasing';
-        } elseif ($recent > $older * 1.2) {
+        }
+        if ($recent > $older * 1.2) {
             return 'increasing';
         }
 
@@ -818,7 +822,7 @@ class PriceTrackingAnalyticsService
         $numerator = $n * $sumXY - $sumX * $sumY;
         $denominator = sqrt(($n * $sumX2 - $sumX * $sumX) * ($n * $sumY2 - $sumY * $sumY));
 
-        return $denominator != 0 ? round($numerator / $denominator, 3) : 0;
+        return $denominator !== 0 ? round($numerator / $denominator, 3) : 0;
     }
 
     /**

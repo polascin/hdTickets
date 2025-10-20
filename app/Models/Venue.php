@@ -59,6 +59,8 @@ class Venue extends Model
 
     /**
      * Scope for venues by city
+     *
+     * @param mixed $query
      */
     public function scopeByCity($query, string $city)
     {
@@ -67,6 +69,8 @@ class Venue extends Model
 
     /**
      * Scope for venues by type
+     *
+     * @param mixed $query
      */
     public function scopeByType($query, string $type)
     {
@@ -75,6 +79,8 @@ class Venue extends Model
 
     /**
      * Scope for large venues
+     *
+     * @param mixed $query
      */
     public function scopeLargeVenues($query)
     {
@@ -83,15 +89,19 @@ class Venue extends Model
 
     /**
      * Scope for popular venues
+     *
+     * @param mixed $query
      */
     public function scopePopular($query)
     {
         return $query->where('popularity_score', '>', 70)
-                     ->orderByDesc('popularity_score');
+            ->orderByDesc('popularity_score');
     }
 
     /**
      * Scope for most followed venues
+     *
+     * @param mixed $query
      */
     public function scopeMostFollowed($query)
     {

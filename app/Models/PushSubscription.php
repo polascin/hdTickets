@@ -38,6 +38,8 @@ class PushSubscription extends Model
 
     /**
      * Scope to get active subscriptions
+     *
+     * @param mixed $query
      */
     public function scopeActive($query)
     {
@@ -46,6 +48,8 @@ class PushSubscription extends Model
 
     /**
      * Scope to get recent subscriptions
+     *
+     * @param mixed $query
      */
     public function scopeRecent($query, int $days = 7)
     {

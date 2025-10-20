@@ -48,6 +48,8 @@ class Team extends Model
 
     /**
      * Scope for teams by sport
+     *
+     * @param mixed $query
      */
     public function scopeBySport($query, string $sport)
     {
@@ -56,6 +58,8 @@ class Team extends Model
 
     /**
      * Scope for teams by league
+     *
+     * @param mixed $query
      */
     public function scopeByLeague($query, string $league)
     {
@@ -64,15 +68,19 @@ class Team extends Model
 
     /**
      * Scope for popular teams
+     *
+     * @param mixed $query
      */
     public function scopePopular($query)
     {
         return $query->where('popularity_score', '>', 70)
-                     ->orderByDesc('popularity_score');
+            ->orderByDesc('popularity_score');
     }
 
     /**
      * Scope for most followed teams
+     *
+     * @param mixed $query
      */
     public function scopeMostFollowed($query)
     {

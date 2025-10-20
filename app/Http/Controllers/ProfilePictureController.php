@@ -103,7 +103,7 @@ class ProfilePictureController extends Controller
                     'original_filename' => $file->getClientOriginalName(),
                     'file_size'         => $file->getSize(),
                     'saved_sizes'       => array_keys($savedPictures),
-                    'cropped'           => !empty($cropData),
+                    'cropped'           => ! empty($cropData),
                 ],
                 $user,
             );
@@ -147,7 +147,7 @@ class ProfilePictureController extends Controller
             }
 
             $user = Auth::user();
-            if (!$user->profile_picture) {
+            if (! $user->profile_picture) {
                 return response()->json([
                     'success' => FALSE,
                     'message' => 'No profile picture found to crop.',
@@ -157,7 +157,7 @@ class ProfilePictureController extends Controller
             $cropData = json_decode((string) $request->input('crop_data'), TRUE);
 
             // Validate crop data structure
-            if (!$this->isValidCropData($cropData)) {
+            if (! $this->isValidCropData($cropData)) {
                 return response()->json([
                     'success' => FALSE,
                     'message' => 'Invalid crop data format.',
@@ -168,7 +168,7 @@ class ProfilePictureController extends Controller
             $currentPicturePath = str_replace('storage/', '', $user->profile_picture);
             $fullPath = storage_path('app/public/' . $currentPicturePath);
 
-            if (!file_exists($fullPath)) {
+            if (! file_exists($fullPath)) {
                 return response()->json([
                     'success' => FALSE,
                     'message' => 'Profile picture file not found.',
@@ -231,7 +231,7 @@ class ProfilePictureController extends Controller
     {
         try {
             $user = Auth::user();
-            if (!$user->profile_picture) {
+            if (! $user->profile_picture) {
                 return response()->json([
                     'success' => FALSE,
                     'message' => 'No profile picture found to delete.',
@@ -448,7 +448,7 @@ class ProfilePictureController extends Controller
         $requiredFields = ['x', 'y', 'width', 'height'];
 
         foreach ($requiredFields as $field) {
-            if (!isset($cropData[$field]) || !is_numeric($cropData[$field])) {
+            if (! isset($cropData[$field]) || ! is_numeric($cropData[$field])) {
                 return FALSE;
             }
         }

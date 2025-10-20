@@ -9,6 +9,9 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
+use function count;
+use function in_array;
+
 /**
  * Smart Alert Model
  *
@@ -39,6 +42,33 @@ class SmartAlert extends Model
     use HasFactory;
     use SoftDeletes;
 
+    /** Alert types */
+    public const ALERT_TYPES = [
+        'price_drop'       => 'Price Drop',
+        'availability'     => 'New Availability',
+        'instant_deal'     => 'Instant Deal',
+        'price_comparison' => 'Price Comparison',
+        'venue_alert'      => 'Venue Alert',
+        'league_alert'     => 'League Alert',
+        'keyword_alert'    => 'Keyword Alert',
+    ];
+
+    /** Notification channels */
+    public const NOTIFICATION_CHANNELS = [
+        'email'   => 'Email',
+        'sms'     => 'SMS',
+        'push'    => 'Push Notification',
+        'webhook' => 'Webhook',
+    ];
+
+    /** Priority levels */
+    public const PRIORITIES = [
+        'low'    => 'Low',
+        'medium' => 'Medium',
+        'high'   => 'High',
+        'urgent' => 'Urgent',
+    ];
+
     protected $fillable = [
         'user_id',
         'name',
@@ -67,39 +97,6 @@ class SmartAlert extends Model
     ];
 
     /**
-     * Alert types
-     */
-    public const ALERT_TYPES = [
-        'price_drop'       => 'Price Drop',
-        'availability'     => 'New Availability',
-        'instant_deal'     => 'Instant Deal',
-        'price_comparison' => 'Price Comparison',
-        'venue_alert'      => 'Venue Alert',
-        'league_alert'     => 'League Alert',
-        'keyword_alert'    => 'Keyword Alert',
-    ];
-
-    /**
-     * Notification channels
-     */
-    public const NOTIFICATION_CHANNELS = [
-        'email'   => 'Email',
-        'sms'     => 'SMS',
-        'push'    => 'Push Notification',
-        'webhook' => 'Webhook',
-    ];
-
-    /**
-     * Priority levels
-     */
-    public const PRIORITIES = [
-        'low'    => 'Low',
-        'medium' => 'Medium',
-        'high'   => 'High',
-        'urgent' => 'Urgent',
-    ];
-
-    /**
      * Get the user that owns the alert
      */
     public function user(): BelongsTo
@@ -112,13 +109,13 @@ class SmartAlert extends Model
      */
     public function canTrigger(): bool
     {
-        if (!$this->is_active) {
+        if (! $this->is_active) {
             return FALSE;
         }
 
         // Check cooldown period
-        if ($this->last_triggered_at &&
-            $this->last_triggered_at->addMinutes($this->cooldown_minutes)->isFuture()) {
+        if ($this->last_triggered_at
+            && $this->last_triggered_at->addMinutes($this->cooldown_minutes)->isFuture()) {
             return FALSE;
         }
 
@@ -135,7 +132,7 @@ class SmartAlert extends Model
      */
     public function getTriggersToday(): int
     {
-        if (!$this->last_triggered_at) {
+        if (! $this->last_triggered_at) {
             return 0;
         }
 
@@ -147,7 +144,7 @@ class SmartAlert extends Model
      */
     public function getAverageTriggersPerDay(): float
     {
-        if (!$this->created_at || $this->trigger_count === 0) {
+        if (! $this->created_at || $this->trigger_count === 0) {
             return 0.0;
         }
 
@@ -193,6 +190,62 @@ class SmartAlert extends Model
     }
 
     /**
+     * Get alert type label
+     */
+    public function getAlertTypeLabel(): string
+    {
+        return self::ALERT_TYPES[$this->alert_type] ?? $this->alert_type;
+    }
+
+    /**
+     * Get priority label
+     */
+    public function getPriorityLabel(): string
+    {
+        return self::PRIORITIES[$this->priority] ?? $this->priority;
+    }
+
+    /**
+     * Get notification channels labels
+     */
+    public function getNotificationChannelsLabels(): array
+    {
+        return array_map(function ($channel) {
+            return self::NOTIFICATION_CHANNELS[$channel] ?? $channel;
+        }, $this->notification_channels);
+    }
+
+    /**
+     * Scope: Active alerts
+     *
+     * @param mixed $query
+     */
+    public function scopeActive($query)
+    {
+        return $query->where('is_active', TRUE);
+    }
+
+    /**
+     * Scope: By alert type
+     *
+     * @param mixed $query
+     */
+    public function scopeOfType($query, string $type)
+    {
+        return $query->where('alert_type', $type);
+    }
+
+    /**
+     * Scope: By priority
+     *
+     * @param mixed $query
+     */
+    public function scopeByPriority($query, string $priority)
+    {
+        return $query->where('priority', $priority);
+    }
+
+    /**
      * Check price drop conditions
      */
     private function matchesPriceDropConditions(array $data, array $conditions): bool
@@ -205,8 +258,8 @@ class SmartAlert extends Model
         }
 
         // Check absolute threshold
-        if (isset($conditions['price_threshold']) &&
-            $currentPrice > $conditions['price_threshold']) {
+        if (isset($conditions['price_threshold'])
+            && $currentPrice > $conditions['price_threshold']) {
             return FALSE;
         }
 
@@ -227,7 +280,7 @@ class SmartAlert extends Model
     private function matchesAvailabilityConditions(array $data, array $conditions): bool
     {
         // Check event keywords
-        if (!empty($conditions['event_keywords'])) {
+        if (! empty($conditions['event_keywords'])) {
             $eventTitle = strtolower($data['event_title'] ?? '');
             foreach ($conditions['event_keywords'] as $keyword) {
                 if (str_contains($eventTitle, strtolower($keyword))) {
@@ -239,7 +292,7 @@ class SmartAlert extends Model
         }
 
         // Check venue keywords
-        if (!empty($conditions['venue_keywords'])) {
+        if (! empty($conditions['venue_keywords'])) {
             $venue = strtolower($data['venue'] ?? '');
             foreach ($conditions['venue_keywords'] as $keyword) {
                 if (str_contains($venue, strtolower($keyword))) {
@@ -251,7 +304,7 @@ class SmartAlert extends Model
         }
 
         // Check date range
-        if (!empty($conditions['date_range'])) {
+        if (! empty($conditions['date_range'])) {
             $eventDate = $data['event_date'] ?? NULL;
             if ($eventDate) {
                 $eventDate = \Carbon\Carbon::parse($eventDate);
@@ -286,14 +339,14 @@ class SmartAlert extends Model
 
         // Check limited quantity
         if (isset($conditions['limited_quantity']) && $conditions['limited_quantity']) {
-            if (!($data['is_limited_quantity'] ?? FALSE)) {
+            if (! ($data['is_limited_quantity'] ?? FALSE)) {
                 return FALSE;
             }
         }
 
         // Check time sensitivity
         if (isset($conditions['time_sensitive']) && $conditions['time_sensitive']) {
-            if (!($data['is_time_sensitive'] ?? FALSE)) {
+            if (! ($data['is_time_sensitive'] ?? FALSE)) {
                 return FALSE;
             }
         }
@@ -349,7 +402,7 @@ class SmartAlert extends Model
         $league = strtolower($data['league'] ?? '');
         $targetLeagues = array_map('strtolower', $conditions['leagues'] ?? []);
 
-        return in_array($league, $targetLeagues);
+        return in_array($league, $targetLeagues, TRUE);
     }
 
     /**
@@ -371,55 +424,5 @@ class SmartAlert extends Model
         }
 
         return FALSE;
-    }
-
-    /**
-     * Get alert type label
-     */
-    public function getAlertTypeLabel(): string
-    {
-        return self::ALERT_TYPES[$this->alert_type] ?? $this->alert_type;
-    }
-
-    /**
-     * Get priority label
-     */
-    public function getPriorityLabel(): string
-    {
-        return self::PRIORITIES[$this->priority] ?? $this->priority;
-    }
-
-    /**
-     * Get notification channels labels
-     */
-    public function getNotificationChannelsLabels(): array
-    {
-        return array_map(function ($channel) {
-            return self::NOTIFICATION_CHANNELS[$channel] ?? $channel;
-        }, $this->notification_channels);
-    }
-
-    /**
-     * Scope: Active alerts
-     */
-    public function scopeActive($query)
-    {
-        return $query->where('is_active', TRUE);
-    }
-
-    /**
-     * Scope: By alert type
-     */
-    public function scopeOfType($query, string $type)
-    {
-        return $query->where('alert_type', $type);
-    }
-
-    /**
-     * Scope: By priority
-     */
-    public function scopeByPriority($query, string $priority)
-    {
-        return $query->where('priority', $priority);
     }
 }

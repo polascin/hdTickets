@@ -5,8 +5,11 @@ declare(strict_types=1);
 namespace App\Console\Commands;
 
 use App\Services\EnhancedEventMonitoringService;
+use Exception;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Log;
+
+use function sprintf;
 
 /**
  * Enhanced Event Monitoring Command
@@ -24,7 +27,7 @@ class EnhancedMonitoringCommand extends Command
     protected $description = 'Run enhanced event monitoring with sub-second updates';
 
     public function __construct(
-        private EnhancedEventMonitoringService $monitoringService
+        private EnhancedEventMonitoringService $monitoringService,
     ) {
         parent::__construct();
     }
@@ -68,7 +71,7 @@ class EnhancedMonitoringCommand extends Command
                         '✅ Cycle %d completed in %.2fms | Avg: %.2fms',
                         $cycles,
                         $cycleTime,
-                        $totalResponseTime / $cycles
+                        $totalResponseTime / $cycles,
                     ));
                 }
 
@@ -81,10 +84,10 @@ class EnhancedMonitoringCommand extends Command
                         $progress,
                         $cycles,
                         $elapsed,
-                        $totalResponseTime / $cycles
+                        $totalResponseTime / $cycles,
                     ));
                 }
-            } catch (\Exception $e) {
+            } catch (Exception $e) {
                 $this->error('❌ Monitoring cycle failed: ' . $e->getMessage());
                 Log::error('Enhanced monitoring cycle failed', [
                     'error' => $e->getMessage(),

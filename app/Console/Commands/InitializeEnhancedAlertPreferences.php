@@ -95,7 +95,7 @@ class InitializeEnhancedAlertPreferences extends Command
                 ],
             );
 
-            if (!$dryRun) {
+            if (! $dryRun) {
                 DB::commit();
                 $this->info('💾 Changes committed to database');
             } else {
@@ -123,7 +123,7 @@ class InitializeEnhancedAlertPreferences extends Command
         // Check if user already has preferences
         $existingPreferences = UserPreference::where('user_id', $user->id)->count();
 
-        if ($existingPreferences > 0 && !$force) {
+        if ($existingPreferences > 0 && ! $force) {
             return 'skipped';
         }
 

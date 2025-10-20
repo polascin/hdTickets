@@ -10,8 +10,8 @@ return new class() extends Migration {
      */
     public function up(): void
     {
-        if (!Schema::hasTable('personal_access_tokens')) {
-            Schema::create('personal_access_tokens', function (Blueprint $table) {
+        if (! Schema::hasTable('personal_access_tokens')) {
+            Schema::create('personal_access_tokens', function (Blueprint $table): void {
                 $table->id();
                 $table->morphs('tokenable');
                 $table->string('name');

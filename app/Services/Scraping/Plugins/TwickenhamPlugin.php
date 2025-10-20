@@ -19,7 +19,7 @@ class TwickenhamPlugin extends BaseScraperPlugin
     #[Override]
     public function scrape(array $criteria): array
     {
-        if (!$this->enabled) {
+        if (! $this->enabled) {
             throw new Exception("{$this->pluginName} plugin is disabled");
         }
 
@@ -160,23 +160,23 @@ class TwickenhamPlugin extends BaseScraperPlugin
 
         $params = [];
 
-        if (!empty($criteria['keyword'])) {
+        if (! empty($criteria['keyword'])) {
             $params['search'] = urlencode((string) $criteria['keyword']);
         }
 
-        if (!empty($criteria['event_type'])) {
+        if (! empty($criteria['event_type'])) {
             $params['type'] = urlencode((string) $criteria['event_type']);
         }
 
-        if (!empty($criteria['competition'])) {
+        if (! empty($criteria['competition'])) {
             $params['competition'] = urlencode((string) $criteria['competition']);
         }
 
-        if (!empty($criteria['opponent'])) {
+        if (! empty($criteria['opponent'])) {
             $params['opponent'] = urlencode((string) $criteria['opponent']);
         }
 
-        if (!empty($criteria['date_range'])) {
+        if (! empty($criteria['date_range'])) {
             if (isset($criteria['date_range']['start'])) {
                 $params['date_from'] = $criteria['date_range']['start'];
             }

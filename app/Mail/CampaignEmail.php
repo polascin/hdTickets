@@ -30,7 +30,7 @@ class CampaignEmail extends Mailable implements ShouldQueue
     public function __construct(
         public MarketingCampaign $campaign,
         public User $user,
-        public array $content
+        public array $content,
     ) {
     }
 
@@ -42,7 +42,7 @@ class CampaignEmail extends Mailable implements ShouldQueue
         return new Envelope(
             subject: $this->content['subject'],
             from: config('mail.from.address', 'noreply@hdtickets.com'),
-            replyTo: config('mail.reply_to.address', 'support@hdtickets.com')
+            replyTo: config('mail.reply_to.address', 'support@hdtickets.com'),
         );
     }
 
@@ -61,7 +61,7 @@ class CampaignEmail extends Mailable implements ShouldQueue
                 'trackingPixelUrl' => $this->generateTrackingPixelUrl(),
                 'unsubscribeUrl'   => $this->generateUnsubscribeUrl(),
                 'clickTrackingUrl' => $this->generateClickTrackingUrl(),
-            ]
+            ],
         );
     }
 

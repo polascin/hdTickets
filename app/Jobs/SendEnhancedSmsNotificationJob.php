@@ -7,12 +7,16 @@ namespace App\Jobs;
 use App\Models\User;
 use App\Services\EnhancedSmartAlertsService;
 use App\Services\NotificationChannels\SmsNotificationService;
+use Exception;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Log;
+use Throwable;
+
+use function strlen;
 
 /**
  * Enhanced SMS Notification Job
@@ -35,20 +39,20 @@ class SendEnhancedSmsNotificationJob implements ShouldQueue
     public function __construct(
         private string $alertId,
         private User $user,
-        private array $alertData
+        private array $alertData,
     ) {
     }
 
     public function handle(
         SmsNotificationService $smsService,
-        EnhancedSmartAlertsService $alertsService
+        EnhancedSmartAlertsService $alertsService,
     ): void {
         $startTime = microtime(TRUE);
 
         try {
             // Validate phone number
             if (empty($this->user->phone)) {
-                throw new \Exception('User has no phone number');
+                throw new Exception('User has no phone number');
             }
 
             $message = $this->buildEnhancedMessage();
@@ -67,7 +71,7 @@ class SendEnhancedSmsNotificationJob implements ShouldQueue
                         'message_id'    => $result['message_id'] ?? NULL,
                         'cost'          => $result['cost'] ?? NULL,
                         'segments'      => $result['segments'] ?? 1,
-                    ]
+                    ],
                 );
 
                 Log::info('Enhanced SMS delivered', [
@@ -78,9 +82,9 @@ class SendEnhancedSmsNotificationJob implements ShouldQueue
                     'segments'      => $result['segments'] ?? 1,
                 ]);
             } else {
-                throw new \Exception($result['error'] ?? 'SMS delivery failed');
+                throw new Exception($result['error'] ?? 'SMS delivery failed');
             }
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $responseTime = (microtime(TRUE) - $startTime) * 1000;
 
             $alertsService->updateEnhancedDeliveryStatus(
@@ -91,7 +95,7 @@ class SendEnhancedSmsNotificationJob implements ShouldQueue
                     'error'         => $e->getMessage(),
                     'response_time' => $responseTime,
                     'attempt'       => $this->attempts(),
-                ]
+                ],
             );
 
             Log::error('Enhanced SMS failed', [
@@ -108,6 +112,20 @@ class SendEnhancedSmsNotificationJob implements ShouldQueue
                 $this->fail($e);
             }
         }
+    }
+
+    /**
+     * Handle job failure
+     */
+    public function failed(Throwable $exception): void
+    {
+        Log::error('Enhanced SMS job failed permanently', [
+            'alert_id' => $this->alertId,
+            'user_id'  => $this->user->id,
+            'phone'    => $this->maskPhoneNumber($this->user->phone ?? ''),
+            'error'    => $exception->getMessage(),
+            'attempts' => $this->attempts(),
+        ]);
     }
 
     /**
@@ -128,7 +146,7 @@ class SendEnhancedSmsNotificationJob implements ShouldQueue
             'new_listing'           => $this->buildNewListingMessage($prefix, $eventName),
             'availability_restored' => $this->buildAvailabilityMessage($prefix, $eventName),
             'low_inventory'         => $this->buildLowInventoryMessage($prefix, $eventName),
-            default                 => $this->buildGenericMessage($prefix, $eventName)
+            default                 => $this->buildGenericMessage($prefix, $eventName),
         };
 
         // Add call-to-action and link
@@ -155,7 +173,7 @@ class SendEnhancedSmsNotificationJob implements ShouldQueue
             'high'     => '⚡ ALERT',
             'medium'   => '📢',
             'low'      => '💡',
-            default    => '🎫'
+            default    => '🎫',
         };
     }
 
@@ -230,7 +248,7 @@ class SendEnhancedSmsNotificationJob implements ShouldQueue
             'new_listing'           => 'View tickets!',
             'availability_restored' => 'Get yours!',
             'low_inventory'         => 'Hurry!',
-            default                 => 'Check it!'
+            default                 => 'Check it!',
         };
     }
 
@@ -275,19 +293,5 @@ class SendEnhancedSmsNotificationJob implements ShouldQueue
         }
 
         return substr($phone, 0, 2) . str_repeat('*', strlen($phone) - 4) . substr($phone, -2);
-    }
-
-    /**
-     * Handle job failure
-     */
-    public function failed(\Throwable $exception): void
-    {
-        Log::error('Enhanced SMS job failed permanently', [
-            'alert_id' => $this->alertId,
-            'user_id'  => $this->user->id,
-            'phone'    => $this->maskPhoneNumber($this->user->phone ?? ''),
-            'error'    => $exception->getMessage(),
-            'attempts' => $this->attempts(),
-        ]);
     }
 }

@@ -47,7 +47,7 @@ class AlertEscalationService
         // Get escalation strategy based on priority
         $strategy = $this->getEscalationStrategy($priority);
 
-        if (!$strategy) {
+        if (! $strategy) {
             return; // No escalation needed
         }
 
@@ -87,7 +87,7 @@ class AlertEscalationService
     {
         try {
             // Check if escalation is still valid
-            if (!$this->isEscalationValid($escalation)) {
+            if (! $this->isEscalationValid($escalation)) {
                 $this->cancelEscalation($escalation, 'no_longer_valid');
 
                 return;
@@ -225,7 +225,7 @@ class AlertEscalationService
         $alert = $escalation->alert;
 
         // Check if alert is still active
-        if (!$alert || !$alert->is_active) {
+        if (! $alert || ! $alert->is_active) {
             return FALSE;
         }
 
@@ -243,7 +243,7 @@ class AlertEscalationService
         $alertData = json_decode($escalation->alert_data, TRUE);
         if (isset($alertData['ticket']['id'])) {
             $ticket = ScrapedTicket::find($alertData['ticket']['id']);
-            if (!$ticket || !$ticket->is_available) {
+            if (! $ticket || ! $ticket->is_available) {
                 return FALSE;
             }
         }
@@ -329,7 +329,7 @@ class AlertEscalationService
     {
         $lastActivity = Cache::get("user_activity:{$userId}");
 
-        if (!$lastActivity) {
+        if (! $lastActivity) {
             return FALSE;
         }
 
@@ -356,7 +356,7 @@ class AlertEscalationService
     protected function canSendSMS(User $user): bool
     {
         // Check if user has phone number and SMS enabled
-        return !empty($user->phone)
+        return ! empty($user->phone)
                && ($user->preferences['sms_alerts'] ?? FALSE);
     }
 
@@ -369,7 +369,7 @@ class AlertEscalationService
     protected function canCallUser(User $user): bool
     {
         // Check if user has phone and allows phone calls
-        return !empty($user->phone)
+        return ! empty($user->phone)
                && ($user->preferences['phone_alerts'] ?? FALSE)
                && $this->isWithinCallHours();
     }
@@ -382,8 +382,8 @@ class AlertEscalationService
      */
     protected function hasEmergencyContact(User $user): bool
     {
-        return !empty($user->emergency_contact_phone)
-               || !empty($user->emergency_contact_email);
+        return ! empty($user->emergency_contact_phone)
+               || ! empty($user->emergency_contact_email);
     }
 
     /**

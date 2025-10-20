@@ -12,6 +12,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 
+use function in_array;
+
 /**
  * Ticket Comparison Engine API Controller
  *
@@ -147,7 +149,7 @@ class TicketComparisonController extends Controller
                     DB::raw('MIN(current_price) as min_price'),
                     DB::raw('MAX(current_price) as max_price'),
                     DB::raw('AVG(CASE WHEN seller_rating > 0 THEN seller_rating END) as avg_rating'),
-                    DB::raw('SUM(CASE WHEN is_available = 1 THEN 1 ELSE 0 END) as available_count')
+                    DB::raw('SUM(CASE WHEN is_available = 1 THEN 1 ELSE 0 END) as available_count'),
                 )
                 ->get()
                 ->map(function ($platform) {
@@ -252,11 +254,11 @@ class TicketComparisonController extends Controller
         }
 
         // Apply filters
-        if (!empty($filters['platforms'])) {
+        if (! empty($filters['platforms'])) {
             $query->whereIn('platform', $filters['platforms']);
         }
 
-        if (!empty($filters['price_range'])) {
+        if (! empty($filters['price_range'])) {
             $priceRange = $filters['price_range'];
             if (isset($priceRange['min'])) {
                 $query->where('current_price', '>=', $priceRange['min']);
@@ -266,7 +268,7 @@ class TicketComparisonController extends Controller
             }
         }
 
-        if (!empty($filters['sections'])) {
+        if (! empty($filters['sections'])) {
             $query->whereIn('section', $filters['sections']);
         }
 
@@ -275,6 +277,8 @@ class TicketComparisonController extends Controller
 
     /**
      * Sort tickets by specified criteria
+     *
+     * @param mixed $query
      */
     private function sortTickets($query, string $sortBy)
     {
@@ -383,12 +387,12 @@ class TicketComparisonController extends Controller
 
         // Platform reliability factor
         $reliablePlatforms = ['Ticketmaster', 'StubHub', 'Viagogo'];
-        if (in_array($ticket->platform, $reliablePlatforms)) {
+        if (in_array($ticket->platform, $reliablePlatforms, TRUE)) {
             $score += 10;
         }
 
         // Availability factor
-        if (!$ticket->is_available) {
+        if (! $ticket->is_available) {
             $score = 0;
         }
 
@@ -400,7 +404,7 @@ class TicketComparisonController extends Controller
      */
     private function calculateMarkup(Ticket $ticket): float
     {
-        if (!$ticket->face_value || $ticket->face_value <= 0) {
+        if (! $ticket->face_value || $ticket->face_value <= 0) {
             return 0;
         }
 
@@ -411,6 +415,8 @@ class TicketComparisonController extends Controller
 
     /**
      * Get comparison summary
+     *
+     * @param mixed $tickets
      */
     private function getComparisonSummary($tickets): array
     {
@@ -442,11 +448,13 @@ class TicketComparisonController extends Controller
 
     /**
      * Find best value ticket
+     *
+     * @param mixed $tickets
      */
     private function findBestValue($tickets)
     {
         if ($tickets->isEmpty()) {
-            return NULL;
+            return;
         }
 
         $bestValue = $tickets->sortByDesc(function ($ticket) {
@@ -458,6 +466,8 @@ class TicketComparisonController extends Controller
 
     /**
      * Get platform comparison
+     *
+     * @param mixed $tickets
      */
     private function getPlatformComparison($tickets): array
     {
@@ -501,6 +511,8 @@ class TicketComparisonController extends Controller
 
     /**
      * Get side by side comparison
+     *
+     * @param mixed $tickets
      */
     private function getSideBySideComparison($tickets): array
     {
@@ -522,6 +534,8 @@ class TicketComparisonController extends Controller
 
     /**
      * Get recommendation based on comparison
+     *
+     * @param mixed $tickets
      */
     private function getRecommendation($tickets): array
     {
@@ -543,6 +557,8 @@ class TicketComparisonController extends Controller
 
     /**
      * Calculate potential savings
+     *
+     * @param mixed $tickets
      */
     private function calculateSavings($tickets): array
     {
@@ -561,6 +577,8 @@ class TicketComparisonController extends Controller
 
     /**
      * Additional helper methods for value analysis
+     *
+     * @param mixed $tickets
      */
     private function getPriceDistribution($tickets): array
     {

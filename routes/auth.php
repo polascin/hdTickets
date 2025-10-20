@@ -11,12 +11,12 @@ use App\Http\Controllers\Auth\NewPasswordController;
 use App\Http\Controllers\Auth\OAuthController;
 use App\Http\Controllers\Auth\PasswordController;
 use App\Http\Controllers\Auth\PasswordResetLinkController;
+use App\Http\Controllers\Auth\PublicRegistrationController;
+use App\Http\Controllers\Auth\PublicRegistrationValidationController;
 use App\Http\Controllers\Auth\RegisteredUserController;
 use App\Http\Controllers\Auth\TwoFactorController;
 use App\Http\Controllers\Auth\TwoFactorSetupController;
 use App\Http\Controllers\Auth\VerifyEmailController;
-use App\Http\Controllers\Auth\PublicRegistrationController;
-use App\Http\Controllers\Auth\PublicRegistrationValidationController;
 use App\Http\Middleware\EnhancedLoginSecurity;
 use Illuminate\Support\Facades\Route;
 
@@ -55,8 +55,8 @@ Route::middleware(['guest', EnhancedLoginSecurity::class])->group(function (): v
         ->name('register');
 
     Route::post('register', [ModernRegistrationController::class, 'store'])
-            ->name('register.store')
-            ->middleware(['throttle:register', 'recaptcha:register']);
+        ->name('register.store')
+        ->middleware(['throttle:register', 'recaptcha:register']);
 
     // Real-time validation endpoints
     Route::post('register/check-email', [ModernRegistrationController::class, 'checkEmail'])
@@ -72,7 +72,7 @@ Route::middleware(['guest', EnhancedLoginSecurity::class])->group(function (): v
         ->middleware('throttle:60,1');
 
     // Legacy registration routes (deprecated - keep for backward compatibility)
-    Route::prefix('register')->name('register.')->group(function () {
+    Route::prefix('register')->name('register.')->group(function (): void {
         // Admin-only registration
         Route::get('admin', [RegisteredUserController::class, 'create'])
             ->name('admin');
@@ -91,7 +91,7 @@ Route::middleware(['guest', EnhancedLoginSecurity::class])->group(function (): v
     Route::post('2fa/verify', [TwoFactorController::class, 'verify'])->name('2fa.verify');
 
     // Public Registration System (with phone verification)
-    Route::prefix('register/public')->name('register.public.')->group(function () {
+    Route::prefix('register/public')->name('register.public.')->group(function (): void {
         Route::get('/', [PublicRegistrationController::class, 'create'])->name('form');
 
         Route::post('/', [PublicRegistrationController::class, 'store'])

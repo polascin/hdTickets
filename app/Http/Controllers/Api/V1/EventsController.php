@@ -12,6 +12,7 @@ use App\Services\AutomatedPurchasingService;
 use App\Services\EnhancedEventMonitoringService;
 use App\Services\MultiEventManagementService;
 use App\Services\PriceTrackingAnalyticsService;
+use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -34,7 +35,7 @@ class EventsController extends Controller
         private EnhancedEventMonitoringService $monitoringService,
         private PriceTrackingAnalyticsService $priceAnalyticsService,
         private AutomatedPurchasingService $purchasingService,
-        private MultiEventManagementService $multiEventService
+        private MultiEventManagementService $multiEventService,
     ) {
         $this->middleware('auth:api');
         $this->middleware('throttle:api-general')->except(['webhook']);
@@ -86,20 +87,20 @@ class EventsController extends Controller
             }
 
             if ($request->filled('location')) {
-                $query->where(function ($q) use ($request) {
+                $query->where(function ($q) use ($request): void {
                     $location = $request->input('location');
                     $q->where('city', 'LIKE', "%{$location}%")
-                      ->orWhere('state', 'LIKE', "%{$location}%")
-                      ->orWhere('country', 'LIKE', "%{$location}%");
+                        ->orWhere('state', 'LIKE', "%{$location}%")
+                        ->orWhere('country', 'LIKE', "%{$location}%");
                 });
             }
 
             if ($request->filled('search')) {
                 $search = $request->input('search');
-                $query->where(function ($q) use ($search) {
+                $query->where(function ($q) use ($search): void {
                     $q->where('name', 'LIKE', "%{$search}%")
-                      ->orWhere('description', 'LIKE', "%{$search}%")
-                      ->orWhere('artist_name', 'LIKE', "%{$search}%");
+                        ->orWhere('description', 'LIKE', "%{$search}%")
+                        ->orWhere('artist_name', 'LIKE', "%{$search}%");
                 });
             }
 
@@ -110,7 +111,7 @@ class EventsController extends Controller
 
             // Paginate results
             $perPage = min($request->input('per_page', 20), 100);
-            $events = $query->with(['monitors' => function ($q) {
+            $events = $query->with(['monitors' => function ($q): void {
                 $q->where('user_id', Auth::id());
             }])->paginate($perPage);
 
@@ -128,7 +129,7 @@ class EventsController extends Controller
                     'location', 'min_price', 'max_price', 'search',
                 ]),
             ]);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return $this->errorResponse('Failed to retrieve events', ['error' => $e->getMessage()]);
         }
     }
@@ -143,10 +144,10 @@ class EventsController extends Controller
 
             // Load relationships
             $event->load([
-                'monitors' => function ($q) use ($user) {
+                'monitors' => function ($q) use ($user): void {
                     $q->where('user_id', $user->id);
                 },
-                'priceHistories' => function ($q) {
+                'priceHistories' => function ($q): void {
                     $q->orderByDesc('recorded_at')->limit(50);
                 },
             ]);
@@ -164,7 +165,7 @@ class EventsController extends Controller
                 'current_opportunities' => $this->identifyCurrentOpportunities($event),
                 'recommendations'       => $this->generateEventRecommendations($event, $user),
             ]);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return $this->errorResponse('Failed to retrieve event details', ['error' => $e->getMessage()]);
         }
     }
@@ -216,7 +217,7 @@ class EventsController extends Controller
                 'monitor'               => $monitor,
                 'estimated_first_check' => now()->addSeconds($config['check_interval']),
             ]);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return $this->errorResponse('Failed to start monitoring', ['error' => $e->getMessage()]);
         }
     }
@@ -234,10 +235,10 @@ class EventsController extends Controller
                 return $this->successResponse([
                     'message' => 'Event monitoring stopped successfully',
                 ]);
-            } else {
-                return $this->errorResponse('No active monitoring found for this event', [], 404);
             }
-        } catch (\Exception $e) {
+
+            return $this->errorResponse('No active monitoring found for this event', [], 404);
+        } catch (Exception $e) {
             return $this->errorResponse('Failed to stop monitoring', ['error' => $e->getMessage()]);
         }
     }
@@ -253,7 +254,7 @@ class EventsController extends Controller
                 ->where('event_id', $event->id)
                 ->first();
 
-            if (!$monitor) {
+            if (! $monitor) {
                 return $this->errorResponse('No monitoring configured for this event', [], 404);
             }
 
@@ -278,7 +279,7 @@ class EventsController extends Controller
             ];
 
             return $this->successResponse($status);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return $this->errorResponse('Failed to retrieve monitoring status', ['error' => $e->getMessage()]);
         }
     }
@@ -307,7 +308,7 @@ class EventsController extends Controller
                 ->where('event_id', $event->id)
                 ->first();
 
-            if (!$monitor) {
+            if (! $monitor) {
                 return $this->errorResponse('No monitoring configured for this event', [], 404);
             }
 
@@ -331,7 +332,7 @@ class EventsController extends Controller
                 'message' => 'Monitoring configuration updated successfully',
                 'monitor' => $monitor->fresh(),
             ]);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return $this->errorResponse('Failed to update monitoring configuration', ['error' => $e->getMessage()]);
         }
     }
@@ -362,11 +363,11 @@ class EventsController extends Controller
                 $user,
                 $period,
                 $includePredictions,
-                $includeComparisons
+                $includeComparisons,
             );
 
             return $this->successResponse($analytics);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return $this->errorResponse('Failed to retrieve price analytics', ['error' => $e->getMessage()]);
         }
     }
@@ -427,7 +428,7 @@ class EventsController extends Controller
                 'alert'                         => $alert,
                 'estimated_trigger_probability' => $this->calculateTriggerProbability($alert, $event),
             ]);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return $this->errorResponse('Failed to create price alert', ['error' => $e->getMessage()]);
         }
     }
@@ -470,7 +471,7 @@ class EventsController extends Controller
                 'config'                        => $config,
                 'estimated_success_probability' => $this->calculatePurchaseSuccessProbability($config, $event),
             ]);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return $this->errorResponse('Failed to configure auto-purchase', ['error' => $e->getMessage()]);
         }
     }
@@ -524,7 +525,7 @@ class EventsController extends Controller
                 'suggestions' => $searchResults['suggestions'],
                 'facets'      => $searchResults['facets'],
             ]);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return $this->errorResponse('Search failed', ['error' => $e->getMessage()]);
         }
     }
@@ -556,7 +557,7 @@ class EventsController extends Controller
             ->where('event_id', $event->id)
             ->first();
 
-        if (!$monitor) {
+        if (! $monitor) {
             return ['status' => 'not_monitored'];
         }
 

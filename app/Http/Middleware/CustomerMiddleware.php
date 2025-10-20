@@ -19,7 +19,7 @@ class CustomerMiddleware
      */
     public function handle(Request $request, Closure $next): Response
     {
-        if (!Auth::check()) {
+        if (! Auth::check()) {
             return redirect('login');
         }
 
@@ -27,7 +27,7 @@ class CustomerMiddleware
 
         // Allow customers and admins to access customer dashboard
         // Admins have hierarchical access to all dashboards
-        if (!$user->isCustomer() && !$user->isAdmin()) {
+        if (! $user->isCustomer() && ! $user->isAdmin()) {
             abort(403, 'Access denied. Customer role or admin privileges required.');
         }
 

@@ -68,7 +68,7 @@ class TicketApiManager
      */
     public function getEvent(string $platform, string $eventId): ?array
     {
-        if (!isset($this->clients[$platform])) {
+        if (! isset($this->clients[$platform])) {
             throw new Exception("API client for platform '{$platform}' not available");
         }
 

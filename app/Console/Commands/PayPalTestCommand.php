@@ -9,11 +9,11 @@ use App\Services\PayPal\PayPalSubscriptionService;
 use Exception;
 use Illuminate\Console\Command;
 
+use function strlen;
+
 class PayPalTestCommand extends Command
 {
-    /**
-     * The name and signature of the console command.
-     */
+    /** The name and signature of the console command. */
     protected $signature = 'paypal:test 
                            {--order : Test order creation}
                            {--subscription : Test subscription creation}
@@ -21,14 +21,12 @@ class PayPalTestCommand extends Command
                            {--amount=10.00 : Amount for test orders}
                            {--user-id= : User ID for subscription tests}';
 
-    /**
-     * The console command description.
-     */
+    /** The console command description. */
     protected $description = 'Test PayPal integration functionality';
 
     public function __construct(
         private PayPalService $paypalService,
-        private PayPalSubscriptionService $subscriptionService
+        private PayPalSubscriptionService $subscriptionService,
     ) {
         parent::__construct();
     }
@@ -120,7 +118,7 @@ class PayPalTestCommand extends Command
             $user = User::where('role', 'admin')->first() ?: User::first();
         }
 
-        if (!$user) {
+        if (! $user) {
             $this->error('No user found for testing. Please specify --user-id or create a user first.');
 
             return self::FAILURE;
@@ -128,7 +126,7 @@ class PayPalTestCommand extends Command
 
         // Find a payment plan
         $plan = PaymentPlan::where('is_active', TRUE)->first();
-        if (!$plan) {
+        if (! $plan) {
             $this->error('No active payment plan found for testing.');
 
             return self::FAILURE;
@@ -168,7 +166,7 @@ class PayPalTestCommand extends Command
         $this->info('Testing Webhook Signature Verification...');
 
         $webhookId = config('services.paypal.webhook_id');
-        if (!$webhookId) {
+        if (! $webhookId) {
             $this->warn('No webhook ID configured. Use --create-webhook in paypal:setup first.');
 
             return self::SUCCESS;

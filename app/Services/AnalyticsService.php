@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Redis;
 
 use function array_slice;
+use function in_array;
 
 class AnalyticsService
 {
@@ -314,6 +315,49 @@ class AnalyticsService
             ]);
 
             return [];
+        }
+    }
+
+    /**
+     * Get comprehensive market insights for users
+     *
+     * @param \App\Models\User $user User to generate insights for
+     *
+     * @return array<string, mixed> Market insights data
+     */
+    public function getMarketInsights($user): array
+    {
+        try {
+            $cacheKey = 'market_insights:' . $user->id;
+
+            return Cache::remember($cacheKey, 300, function () use ($user) {
+                return [
+                    'price_trends'         => $this->getPriceTrends(),
+                    'platform_performance' => $this->getPlatformPerformance(),
+                    'demand_analysis'      => $this->getDemandAnalysis(),
+                    'popular_categories'   => $this->getPopularCategories(),
+                    'seasonal_trends'      => $this->getSeasonalTrends(),
+                    'recommendation_score' => $this->calculateRecommendationScore($user),
+                    'market_summary'       => $this->getMarketSummary(),
+                    'user_positioning'     => $this->getUserMarketPositioning($user),
+                ];
+            });
+        } catch (Exception $e) {
+            Log::error('Failed to get market insights', [
+                'user_id' => $user->id ?? NULL,
+                'error'   => $e->getMessage(),
+            ]);
+
+            return [
+                'price_trends'         => [],
+                'platform_performance' => [],
+                'demand_analysis'      => [],
+                'popular_categories'   => [],
+                'seasonal_trends'      => [],
+                'recommendation_score' => 0,
+                'market_summary'       => 'Unable to load market data',
+                'user_positioning'     => 'Unknown',
+            ];
         }
     }
 
@@ -626,49 +670,6 @@ class AnalyticsService
     }
 
     /**
-     * Get comprehensive market insights for users
-     *
-     * @param \App\Models\User $user User to generate insights for
-     *
-     * @return array<string, mixed> Market insights data
-     */
-    public function getMarketInsights($user): array
-    {
-        try {
-            $cacheKey = 'market_insights:' . $user->id;
-
-            return Cache::remember($cacheKey, 300, function () use ($user) {
-                return [
-                    'price_trends'         => $this->getPriceTrends(),
-                    'platform_performance' => $this->getPlatformPerformance(),
-                    'demand_analysis'      => $this->getDemandAnalysis(),
-                    'popular_categories'   => $this->getPopularCategories(),
-                    'seasonal_trends'      => $this->getSeasonalTrends(),
-                    'recommendation_score' => $this->calculateRecommendationScore($user),
-                    'market_summary'       => $this->getMarketSummary(),
-                    'user_positioning'     => $this->getUserMarketPositioning($user),
-                ];
-            });
-        } catch (Exception $e) {
-            Log::error('Failed to get market insights', [
-                'user_id' => $user->id ?? NULL,
-                'error'   => $e->getMessage(),
-            ]);
-
-            return [
-                'price_trends'         => [],
-                'platform_performance' => [],
-                'demand_analysis'      => [],
-                'popular_categories'   => [],
-                'seasonal_trends'      => [],
-                'recommendation_score' => 0,
-                'market_summary'       => 'Unable to load market data',
-                'user_positioning'     => 'Unknown',
-            ];
-        }
-    }
-
-    /**
      * Get price trends analysis
      */
     private function getPriceTrends(): array
@@ -784,6 +785,8 @@ class AnalyticsService
 
     /**
      * Calculate recommendation score for user
+     *
+     * @param mixed $user
      */
     private function calculateRecommendationScore($user): float
     {
@@ -801,6 +804,8 @@ class AnalyticsService
 
     /**
      * Get user market positioning
+     *
+     * @param mixed $user
      */
     private function getUserMarketPositioning($user): string
     {
@@ -814,11 +819,11 @@ class AnalyticsService
     private function determineSeason(int $month): string
     {
         return match (TRUE) {
-            in_array($month, [12, 1, 2])  => 'Winter',
-            in_array($month, [3, 4, 5])   => 'Spring',
-            in_array($month, [6, 7, 8])   => 'Summer',
-            in_array($month, [9, 10, 11]) => 'Fall',
-            default                       => 'Spring'
+            in_array($month, [12, 1, 2], TRUE)  => 'Winter',
+            in_array($month, [3, 4, 5], TRUE)   => 'Spring',
+            in_array($month, [6, 7, 8], TRUE)   => 'Summer',
+            in_array($month, [9, 10, 11], TRUE) => 'Fall',
+            default                             => 'Spring',
         };
     }
 
@@ -832,7 +837,7 @@ class AnalyticsService
             'Spring' => 1.1,
             'Summer' => 0.9,
             'Fall'   => 1.3,
-            default  => 1.0
+            default  => 1.0,
         };
     }
 
@@ -846,7 +851,7 @@ class AnalyticsService
             'Spring' => ['March', 'April'],
             'Summer' => ['June', 'July'],
             'Fall'   => ['September', 'October'],
-            default  => []
+            default  => [],
         };
     }
 
@@ -860,7 +865,7 @@ class AnalyticsService
             'Spring' => ['Baseball', 'Basketball Playoffs', 'Spring Training'],
             'Summer' => ['Baseball', 'Outdoor Concerts', 'Racing'],
             'Fall'   => ['Football', 'Basketball Season Start', 'Playoff Events'],
-            default  => []
+            default  => [],
         };
     }
 

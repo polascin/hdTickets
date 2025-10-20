@@ -14,6 +14,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 
+use function array_slice;
+
 /**
  * Advanced Search & Filtering System API Controller
  *
@@ -200,12 +202,12 @@ class AdvancedSearchController extends Controller
 
         // Text search
         if ($searchTerm = $request->get('query')) {
-            $query->where(function ($q) use ($searchTerm) {
+            $query->where(function ($q) use ($searchTerm): void {
                 $q->where('event_name', 'LIKE', "%{$searchTerm}%")
-                  ->orWhere('venue', 'LIKE', "%{$searchTerm}%")
-                  ->orWhereHas('event', function ($eventQuery) use ($searchTerm) {
-                      $eventQuery->where('description', 'LIKE', "%{$searchTerm}%");
-                  });
+                    ->orWhere('venue', 'LIKE', "%{$searchTerm}%")
+                    ->orWhereHas('event', function ($eventQuery) use ($searchTerm): void {
+                        $eventQuery->where('description', 'LIKE', "%{$searchTerm}%");
+                    });
             });
         }
 
@@ -216,7 +218,7 @@ class AdvancedSearchController extends Controller
 
         // Team filters
         if ($teams = $request->get('teams')) {
-            $query->where(function ($q) use ($teams) {
+            $query->where(function ($q) use ($teams): void {
                 foreach ($teams as $team) {
                     $q->orWhere('event_name', 'LIKE', "%{$team}%");
                 }
@@ -330,6 +332,8 @@ class AdvancedSearchController extends Controller
 
     /**
      * Get sport facets
+     *
+     * @param mixed $query
      */
     private function getSportFacets($query): array
     {
@@ -350,6 +354,8 @@ class AdvancedSearchController extends Controller
 
     /**
      * Get venue facets
+     *
+     * @param mixed $query
      */
     private function getVenueFacets($query): array
     {
@@ -370,6 +376,8 @@ class AdvancedSearchController extends Controller
 
     /**
      * Get platform facets
+     *
+     * @param mixed $query
      */
     private function getPlatformFacets($query): array
     {
@@ -389,6 +397,8 @@ class AdvancedSearchController extends Controller
 
     /**
      * Get league facets
+     *
+     * @param mixed $query
      */
     private function getLeagueFacets($query): array
     {
@@ -410,6 +420,8 @@ class AdvancedSearchController extends Controller
 
     /**
      * Get price range facets
+     *
+     * @param mixed $query
      */
     private function getPriceRangeFacets($query): array
     {
@@ -431,6 +443,8 @@ class AdvancedSearchController extends Controller
 
     /**
      * Get date range facets
+     *
+     * @param mixed $query
      */
     private function getDateRangeFacets($query): array
     {
@@ -444,6 +458,8 @@ class AdvancedSearchController extends Controller
 
     /**
      * Get availability facets
+     *
+     * @param mixed $query
      */
     private function getAvailabilityFacets($query): array
     {

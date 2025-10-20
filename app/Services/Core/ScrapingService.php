@@ -50,7 +50,7 @@ class ScrapingService extends BaseService implements ScrapingInterface
         $startTime = microtime(TRUE);
 
         foreach ($this->enabledPlatforms as $platform) {
-            if (!$this->isPlatformEnabled($platform)) {
+            if (! $this->isPlatformEnabled($platform)) {
                 continue;
             }
 
@@ -125,7 +125,7 @@ class ScrapingService extends BaseService implements ScrapingInterface
     {
         $this->ensureInitialized();
 
-        if (!$this->isPlatformEnabled($platform)) {
+        if (! $this->isPlatformEnabled($platform)) {
             throw new InvalidArgumentException("Platform '{$platform}' is not enabled");
         }
 
@@ -154,7 +154,7 @@ class ScrapingService extends BaseService implements ScrapingInterface
      */
     public function enablePlatform(string $platform): void
     {
-        if (!in_array($platform, $this->enabledPlatforms, TRUE)) {
+        if (! in_array($platform, $this->enabledPlatforms, TRUE)) {
             $this->enabledPlatforms[] = $platform;
             $this->saveEnabledPlatforms();
         }
@@ -222,7 +222,7 @@ class ScrapingService extends BaseService implements ScrapingInterface
         $scheduleKey = "scraping_schedule_{$jobId}";
         $schedule = Cache::get($scheduleKey);
 
-        if (!$schedule) {
+        if (! $schedule) {
             return FALSE;
         }
 

@@ -5,12 +5,15 @@ declare(strict_types=1);
 namespace App\Models;
 
 use Carbon\Carbon;
+use Exception;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
+
+use function count;
 
 /**
  * EventGroup Model
@@ -99,7 +102,7 @@ class EventGroup extends Model
             ->join('price_histories', 'events.id', '=', 'price_histories.event_id')
             ->max('price_histories.recorded_at');
 
-        if (!$lastMonitorActivity && !$lastPriceUpdate) {
+        if (! $lastMonitorActivity && ! $lastPriceUpdate) {
             return NULL;
         }
 
@@ -234,7 +237,7 @@ class EventGroup extends Model
             $this->touch('last_modified_at');
 
             return TRUE;
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return FALSE;
         }
     }
@@ -247,7 +250,7 @@ class EventGroup extends Model
             $this->touch('last_modified_at');
 
             return TRUE;
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return FALSE;
         }
     }
@@ -260,7 +263,7 @@ class EventGroup extends Model
             ]);
 
             return TRUE;
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return FALSE;
         }
     }
@@ -275,7 +278,7 @@ class EventGroup extends Model
                     'custom_settings' => $settings,
                 ]);
                 $results[$eventId] = TRUE;
-            } catch (\Exception $e) {
+            } catch (Exception $e) {
                 $results[$eventId] = FALSE;
             }
         }
@@ -379,6 +382,35 @@ class EventGroup extends Model
         ];
     }
 
+    // Scopes
+
+    public function scopeActive($query)
+    {
+        return $query->where('is_active', TRUE);
+    }
+
+    public function scopeByCategory($query, string $category)
+    {
+        return $query->where('category', $category);
+    }
+
+    public function scopeByUser($query, User $user)
+    {
+        return $query->where('user_id', $user->id);
+    }
+
+    public function scopeWithEventCount($query)
+    {
+        return $query->withCount('events');
+    }
+
+    public function scopeWithActiveMonitors($query)
+    {
+        return $query->withCount(['eventMonitors' => function ($query): void {
+            $query->where('is_active', TRUE);
+        }]);
+    }
+
     // Private Helper Methods
 
     private function updateEventCount(): void
@@ -410,7 +442,7 @@ class EventGroup extends Model
         if ($recentActivity > 20) {
             $priority += 2;
         } elseif ($recentActivity > 10) {
-            $priority += 1;
+            ++$priority;
         }
 
         return min(10, max(1, $priority));
@@ -448,34 +480,5 @@ class EventGroup extends Model
         }
 
         return $recommendations;
-    }
-
-    // Scopes
-
-    public function scopeActive($query)
-    {
-        return $query->where('is_active', TRUE);
-    }
-
-    public function scopeByCategory($query, string $category)
-    {
-        return $query->where('category', $category);
-    }
-
-    public function scopeByUser($query, User $user)
-    {
-        return $query->where('user_id', $user->id);
-    }
-
-    public function scopeWithEventCount($query)
-    {
-        return $query->withCount('events');
-    }
-
-    public function scopeWithActiveMonitors($query)
-    {
-        return $query->withCount(['eventMonitors' => function ($query) {
-            $query->where('is_active', TRUE);
-        }]);
     }
 }

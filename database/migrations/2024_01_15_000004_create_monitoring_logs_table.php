@@ -7,7 +7,7 @@ use Illuminate\Support\Facades\Schema;
 return new class() extends Migration {
     public function up(): void
     {
-        Schema::create('monitoring_logs', function (Blueprint $table) {
+        Schema::create('monitoring_logs', function (Blueprint $table): void {
             $table->id();
             $table->foreignId('event_monitor_id')->constrained()->cascadeOnDelete();
             $table->enum('status', ['success', 'failed', 'timeout', 'error'])->default('success');

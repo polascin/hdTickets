@@ -247,9 +247,9 @@ class AlertService
             $suggestions = [];
 
             // Suggest sport-based alerts
-            if (!empty($preferences['favorite_sports'])) {
+            if (! empty($preferences['favorite_sports'])) {
                 foreach ($preferences['favorite_sports'] as $sport) {
-                    if (!$this->hasAlertForSport($existingAlerts, $sport)) {
+                    if (! $this->hasAlertForSport($existingAlerts, $sport)) {
                         $suggestions[] = [
                             'type'        => 'sport',
                             'name'        => "New {$sport} Events",
@@ -262,9 +262,9 @@ class AlertService
             }
 
             // Suggest team-based alerts
-            if (!empty($preferences['favorite_teams'])) {
+            if (! empty($preferences['favorite_teams'])) {
                 foreach ($preferences['favorite_teams'] as $team) {
-                    if (!$this->hasAlertForTeam($existingAlerts, $team)) {
+                    if (! $this->hasAlertForTeam($existingAlerts, $team)) {
                         $suggestions[] = [
                             'type'        => 'team',
                             'name'        => "{$team} Games",
@@ -277,7 +277,7 @@ class AlertService
             }
 
             // Suggest price drop alerts
-            if (!empty($preferences['price_range']['max'])) {
+            if (! empty($preferences['price_range']['max'])) {
                 $maxPrice = $preferences['price_range']['max'];
                 $suggestions[] = [
                     'type'        => 'price_drop',
@@ -470,7 +470,7 @@ class AlertService
             $parts[] = 'under $' . $criteria['max_price'];
         }
 
-        return !empty($parts) ? implode(' ', $parts) : 'Custom Alert';
+        return ! empty($parts) ? implode(' ', $parts) : 'Custom Alert';
     }
 
     protected function buildAlertCriteria(array $data): array

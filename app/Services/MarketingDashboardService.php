@@ -31,7 +31,7 @@ class MarketingDashboardService
     /**
      * Get comprehensive dashboard overview
      */
-    public function getDashboardOverview(User $user = NULL): array
+    public function getDashboardOverview(?User $user = NULL): array
     {
         $cacheKey = $user ? "dashboard_overview_user_{$user->id}" : 'dashboard_overview_global';
 
@@ -42,6 +42,130 @@ class MarketingDashboardService
 
             return $this->getAdminDashboard();
         });
+    }
+
+    /**
+     * Get real-time analytics data
+     */
+    public function getRealTimeAnalytics(): array
+    {
+        return Cache::remember('real_time_analytics', 60, function () {
+            return [
+                'active_sessions'   => $this->getActiveSessions(),
+                'current_api_usage' => $this->getCurrentAPIUsage(),
+                'live_monitors'     => EventMonitor::where('is_active', TRUE)->count(),
+                'recent_purchases'  => TicketPurchase::where('created_at', '>=', now()->subHour())->count(),
+                'system_load'       => $this->getSystemLoad(),
+                'response_times'    => $this->getAverageResponseTimes(),
+            ];
+        });
+    }
+
+    /**
+     * Get marketing campaign analytics
+     */
+    public function getCampaignAnalytics(?string $campaignId = NULL): array
+    {
+        if ($campaignId) {
+            return $this->getSpecificCampaignAnalytics($campaignId);
+        }
+
+        return [
+            'active_campaigns'     => $this->getActiveCampaigns(),
+            'campaign_performance' => $this->getAllCampaignPerformance(),
+            'conversion_funnels'   => $this->getConversionFunnels(),
+            'audience_insights'    => $this->getAudienceInsights(),
+            'roi_analysis'         => $this->getROIAnalysis(),
+        ];
+    }
+
+    /**
+     * Generate user engagement report
+     */
+    public function getUserEngagementReport(int $days = 30): array
+    {
+        $startDate = now()->subDays($days);
+
+        return [
+            'period' => [
+                'start' => $startDate->format('Y-m-d'),
+                'end'   => now()->format('Y-m-d'),
+                'days'  => $days,
+            ],
+            'overview' => [
+                'total_users'    => User::count(),
+                'active_users'   => User::where('last_activity_at', '>=', $startDate)->count(),
+                'engaged_users'  => $this->getEngagedUsers($startDate),
+                'retention_rate' => $this->getUserRetentionRate($days),
+            ],
+            'engagement_metrics' => [
+                'average_session_duration' => $this->getAverageSessionDuration($days),
+                'pages_per_session'        => $this->getPagesPerSession($days),
+                'bounce_rate'              => $this->getBounceRate($days),
+                'feature_adoption'         => $this->getFeatureAdoptionRates($days),
+            ],
+            'trends' => [
+                'daily_active_users'   => $this->getDailyActiveUsers($days),
+                'feature_usage_trends' => $this->getFeatureUsageTrends($days),
+                'engagement_scores'    => $this->getEngagementScores($days),
+            ],
+        ];
+    }
+
+    /**
+     * Get revenue analytics report
+     */
+    public function getRevenueReport(int $months = 12): array
+    {
+        $startDate = now()->subMonths($months);
+
+        return [
+            'period' => [
+                'start'  => $startDate->format('Y-m-d'),
+                'end'    => now()->format('Y-m-d'),
+                'months' => $months,
+            ],
+            'overview' => [
+                'total_revenue'     => $this->getTotalRevenue($startDate),
+                'recurring_revenue' => $this->getRecurringRevenue($startDate),
+                'one_time_revenue'  => $this->getOneTimeRevenue($startDate),
+                'growth_rate'       => $this->calculateGrowthRate($months),
+            ],
+            'metrics' => [
+                'mrr'               => $this->calculateMRR(),
+                'arr'               => $this->calculateARR(),
+                'arpu'              => $this->calculateARPU(),
+                'ltv'               => $this->calculateLifetimeValue(),
+                'churn_rate'        => $this->calculateChurnRate(),
+                'expansion_revenue' => $this->getExpansionRevenue($startDate),
+            ],
+            'breakdown' => [
+                'revenue_by_plan'  => $this->getRevenueByPlan($startDate),
+                'revenue_by_month' => $this->getMonthlyRevenueTrends($months),
+                'new_vs_expansion' => $this->getNewVsExpansionRevenue($startDate),
+            ],
+            'forecasting' => [
+                'next_month_projection' => $this->getRevenueProjection(1),
+                'quarterly_projection'  => $this->getRevenueProjection(3),
+                'annual_projection'     => $this->getRevenueProjection(12),
+            ],
+        ];
+    }
+
+    /**
+     * Generate automated marketing insights
+     */
+    public function getMarketingInsights(): array
+    {
+        return [
+            'user_segments'            => $this->getUserSegments(),
+            'conversion_opportunities' => $this->getConversionOpportunities(),
+            'churn_predictions'        => $this->getChurnPredictions(),
+            'upsell_opportunities'     => $this->getUpsellOpportunities(),
+            'campaign_recommendations' => $this->getCampaignRecommendations(),
+            'audience_insights'        => $this->getAudienceInsights(),
+            'behavioral_patterns'      => $this->getBehavioralPatterns(),
+        ];
     }
 
     /**
@@ -172,130 +296,6 @@ class MarketingDashboardService
         ];
     }
 
-    /**
-     * Get real-time analytics data
-     */
-    public function getRealTimeAnalytics(): array
-    {
-        return Cache::remember('real_time_analytics', 60, function () {
-            return [
-                'active_sessions'   => $this->getActiveSessions(),
-                'current_api_usage' => $this->getCurrentAPIUsage(),
-                'live_monitors'     => EventMonitor::where('is_active', TRUE)->count(),
-                'recent_purchases'  => TicketPurchase::where('created_at', '>=', now()->subHour())->count(),
-                'system_load'       => $this->getSystemLoad(),
-                'response_times'    => $this->getAverageResponseTimes(),
-            ];
-        });
-    }
-
-    /**
-     * Get marketing campaign analytics
-     */
-    public function getCampaignAnalytics(string $campaignId = NULL): array
-    {
-        if ($campaignId) {
-            return $this->getSpecificCampaignAnalytics($campaignId);
-        }
-
-        return [
-            'active_campaigns'     => $this->getActiveCampaigns(),
-            'campaign_performance' => $this->getAllCampaignPerformance(),
-            'conversion_funnels'   => $this->getConversionFunnels(),
-            'audience_insights'    => $this->getAudienceInsights(),
-            'roi_analysis'         => $this->getROIAnalysis(),
-        ];
-    }
-
-    /**
-     * Generate user engagement report
-     */
-    public function getUserEngagementReport(int $days = 30): array
-    {
-        $startDate = now()->subDays($days);
-
-        return [
-            'period' => [
-                'start' => $startDate->format('Y-m-d'),
-                'end'   => now()->format('Y-m-d'),
-                'days'  => $days,
-            ],
-            'overview' => [
-                'total_users'    => User::count(),
-                'active_users'   => User::where('last_activity_at', '>=', $startDate)->count(),
-                'engaged_users'  => $this->getEngagedUsers($startDate),
-                'retention_rate' => $this->getUserRetentionRate($days),
-            ],
-            'engagement_metrics' => [
-                'average_session_duration' => $this->getAverageSessionDuration($days),
-                'pages_per_session'        => $this->getPagesPerSession($days),
-                'bounce_rate'              => $this->getBounceRate($days),
-                'feature_adoption'         => $this->getFeatureAdoptionRates($days),
-            ],
-            'trends' => [
-                'daily_active_users'   => $this->getDailyActiveUsers($days),
-                'feature_usage_trends' => $this->getFeatureUsageTrends($days),
-                'engagement_scores'    => $this->getEngagementScores($days),
-            ],
-        ];
-    }
-
-    /**
-     * Get revenue analytics report
-     */
-    public function getRevenueReport(int $months = 12): array
-    {
-        $startDate = now()->subMonths($months);
-
-        return [
-            'period' => [
-                'start'  => $startDate->format('Y-m-d'),
-                'end'    => now()->format('Y-m-d'),
-                'months' => $months,
-            ],
-            'overview' => [
-                'total_revenue'     => $this->getTotalRevenue($startDate),
-                'recurring_revenue' => $this->getRecurringRevenue($startDate),
-                'one_time_revenue'  => $this->getOneTimeRevenue($startDate),
-                'growth_rate'       => $this->calculateGrowthRate($months),
-            ],
-            'metrics' => [
-                'mrr'               => $this->calculateMRR(),
-                'arr'               => $this->calculateARR(),
-                'arpu'              => $this->calculateARPU(),
-                'ltv'               => $this->calculateLifetimeValue(),
-                'churn_rate'        => $this->calculateChurnRate(),
-                'expansion_revenue' => $this->getExpansionRevenue($startDate),
-            ],
-            'breakdown' => [
-                'revenue_by_plan'  => $this->getRevenueByPlan($startDate),
-                'revenue_by_month' => $this->getMonthlyRevenueTrends($months),
-                'new_vs_expansion' => $this->getNewVsExpansionRevenue($startDate),
-            ],
-            'forecasting' => [
-                'next_month_projection' => $this->getRevenueProjection(1),
-                'quarterly_projection'  => $this->getRevenueProjection(3),
-                'annual_projection'     => $this->getRevenueProjection(12),
-            ],
-        ];
-    }
-
-    /**
-     * Generate automated marketing insights
-     */
-    public function getMarketingInsights(): array
-    {
-        return [
-            'user_segments'            => $this->getUserSegments(),
-            'conversion_opportunities' => $this->getConversionOpportunities(),
-            'churn_predictions'        => $this->getChurnPredictions(),
-            'upsell_opportunities'     => $this->getUpsellOpportunities(),
-            'campaign_recommendations' => $this->getCampaignRecommendations(),
-            'audience_insights'        => $this->getAudienceInsights(),
-            'behavioral_patterns'      => $this->getBehavioralPatterns(),
-        ];
-    }
-
     // Private helper methods for calculations
 
     private function calculateMonthlySavings(User $user): float
@@ -400,9 +400,9 @@ class MarketingDashboardService
                     ->sum('quantity'),
                 'monitors_active' => $user->eventMonitors()
                     ->whereDate('created_at', '<=', $date)
-                    ->where(function ($q) use ($date) {
+                    ->where(function ($q) use ($date): void {
                         $q->whereNull('deleted_at')
-                          ->orWhereDate('deleted_at', '>', $date);
+                            ->orWhereDate('deleted_at', '>', $date);
                     })
                     ->count(),
             ];
@@ -417,7 +417,7 @@ class MarketingDashboardService
         $subscription = $user->activeNewSubscription();
 
         // Plan upgrade recommendations
-        if (!$subscription || $subscription->plan_name === 'starter') {
+        if (! $subscription || $subscription->plan_name === 'starter') {
             $recommendations[] = [
                 'type'        => 'upgrade',
                 'title'       => 'Upgrade to Pro Plan',

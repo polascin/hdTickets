@@ -11,10 +11,12 @@ use Illuminate\Support\Facades\Auth;
 use Laravel\Socialite\Facades\Socialite;
 use Throwable;
 
+use function in_array;
+
 class OAuthController extends Controller
 {
     public function __construct(
-        protected OAuthUserService $oauthUserService
+        protected OAuthUserService $oauthUserService,
     ) {
     }
 
@@ -25,7 +27,7 @@ class OAuthController extends Controller
     {
         try {
             // Validate provider
-            if (!$this->isProviderSupported($provider)) {
+            if (! $this->isProviderSupported($provider)) {
                 return redirect()->route('login')
                     ->withErrors(['oauth' => 'Unsupported OAuth provider.']);
             }
@@ -55,7 +57,7 @@ class OAuthController extends Controller
     {
         try {
             // Validate provider
-            if (!$this->isProviderSupported($provider)) {
+            if (! $this->isProviderSupported($provider)) {
                 return redirect()->route('login')
                     ->withErrors(['oauth' => 'Unsupported OAuth provider.']);
             }
@@ -78,7 +80,7 @@ class OAuthController extends Controller
             // Get user data from OAuth provider
             $socialiteUser = Socialite::driver($provider)->user();
 
-            if (!$socialiteUser->getEmail()) {
+            if (! $socialiteUser->getEmail()) {
                 return redirect()->route('login')
                     ->withErrors(['oauth' => 'Email is required for registration. Please ensure your ' . ucfirst($provider) . ' account has a verified email.']);
             }
@@ -87,7 +89,7 @@ class OAuthController extends Controller
             $user = $this->oauthUserService->findOrCreateUser($socialiteUser, $provider);
 
             // Check if user account is active
-            if (!$user->is_active) {
+            if (! $user->is_active) {
                 return redirect()->route('login')
                     ->withErrors(['oauth' => 'Your account is deactivated. Please contact support.']);
             }
@@ -134,45 +136,11 @@ class OAuthController extends Controller
     }
 
     /**
-     * Check if OAuth provider is supported
-     */
-    protected function isProviderSupported(string $provider): bool
-    {
-        $supportedProviders = array_keys($this->oauthUserService->getSupportedProviders());
-
-        return in_array($provider, $supportedProviders);
-    }
-
-    /**
-     * Get redirect URL after successful login based on user role
-     */
-    protected function getPostLoginRedirectUrl($user): string
-    {
-        // Check if user is admin
-        if ($user->isAdmin()) {
-            return route('admin.dashboard');
-        }
-
-        // Check if user is agent
-        if ($user->isAgent()) {
-            return route('dashboard.agent');
-        }
-
-        // Check if user is customer
-        if ($user->isCustomer()) {
-            return route('dashboard.customer');
-        }
-
-        // Default fallback
-        return route('dashboard');
-    }
-
-    /**
      * Show OAuth account linking page (for logged-in users who want to link OAuth)
      */
     public function linkAccount(Request $request)
     {
-        if (!Auth::check()) {
+        if (! Auth::check()) {
             return redirect()->route('login');
         }
 
@@ -188,12 +156,12 @@ class OAuthController extends Controller
     public function linkCallback(string $provider, Request $request): RedirectResponse
     {
         try {
-            if (!Auth::check()) {
+            if (! Auth::check()) {
                 return redirect()->route('login')
                     ->withErrors(['oauth' => 'You must be logged in to link accounts.']);
             }
 
-            if (!$this->isProviderSupported($provider)) {
+            if (! $this->isProviderSupported($provider)) {
                 return redirect()->route('profile.security')
                     ->withErrors(['oauth' => 'Unsupported OAuth provider.']);
             }
@@ -203,9 +171,9 @@ class OAuthController extends Controller
 
             // Check if this OAuth account is already linked to another user
             $existingUser = User::where('provider', $provider)
-                              ->where('provider_id', $socialiteUser->getId())
-                              ->where('id', '!=', $currentUser->id)
-                              ->first();
+                ->where('provider_id', $socialiteUser->getId())
+                ->where('id', '!=', $currentUser->id)
+                ->first();
 
             if ($existingUser) {
                 return redirect()->route('profile.security')
@@ -250,14 +218,14 @@ class OAuthController extends Controller
     public function unlinkAccount(string $provider, Request $request): RedirectResponse
     {
         try {
-            if (!Auth::check()) {
+            if (! Auth::check()) {
                 return redirect()->route('login');
             }
 
             $user = Auth::user();
 
             // Ensure user has a password before unlinking OAuth (security measure)
-            if (!$user->password && $user->provider === $provider) {
+            if (! $user->password && $user->provider === $provider) {
                 return redirect()->route('profile.security')
                     ->withErrors(['oauth' => 'You must set a password before unlinking your ' . ucfirst($provider) . ' account.']);
             }
@@ -293,5 +261,41 @@ class OAuthController extends Controller
             return redirect()->route('profile.security')
                 ->withErrors(['oauth' => 'Failed to unlink ' . ucfirst($provider) . ' account. Please try again.']);
         }
+    }
+
+    /**
+     * Check if OAuth provider is supported
+     */
+    protected function isProviderSupported(string $provider): bool
+    {
+        $supportedProviders = array_keys($this->oauthUserService->getSupportedProviders());
+
+        return in_array($provider, $supportedProviders, TRUE);
+    }
+
+    /**
+     * Get redirect URL after successful login based on user role
+     *
+     * @param mixed $user
+     */
+    protected function getPostLoginRedirectUrl($user): string
+    {
+        // Check if user is admin
+        if ($user->isAdmin()) {
+            return route('admin.dashboard');
+        }
+
+        // Check if user is agent
+        if ($user->isAgent()) {
+            return route('dashboard.agent');
+        }
+
+        // Check if user is customer
+        if ($user->isCustomer()) {
+            return route('dashboard.customer');
+        }
+
+        // Default fallback
+        return route('dashboard');
     }
 }

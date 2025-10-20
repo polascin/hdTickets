@@ -177,16 +177,16 @@ class ScheduledReport extends Model
      */
     public function isDue(): bool
     {
-        if (!$this->is_active) {
+        if (! $this->is_active) {
             return FALSE;
         }
 
         $lastRun = $this->getLastRunTime();
 
         return match ($this->type) {
-            self::TYPE_DAILY   => !$lastRun instanceof Carbon || $lastRun->lt(now()->startOfDay()),
-            self::TYPE_WEEKLY  => !$lastRun instanceof Carbon || $lastRun->lt(now()->startOfWeek()),
-            self::TYPE_MONTHLY => !$lastRun instanceof Carbon || $lastRun->lt(now()->startOfMonth()),
+            self::TYPE_DAILY   => ! $lastRun instanceof Carbon || $lastRun->lt(now()->startOfDay()),
+            self::TYPE_WEEKLY  => ! $lastRun instanceof Carbon || $lastRun->lt(now()->startOfWeek()),
+            self::TYPE_MONTHLY => ! $lastRun instanceof Carbon || $lastRun->lt(now()->startOfMonth()),
             // For custom schedules, would need to parse the cron expression
             // This is a simplified implementation
             self::TYPE_CUSTOM => TRUE,
@@ -199,7 +199,7 @@ class ScheduledReport extends Model
      */
     public function getLastRunTime(): ?Carbon
     {
-        if (!isset($this->statistics['last_run'])) {
+        if (! isset($this->statistics['last_run'])) {
             return NULL;
         }
 
@@ -211,7 +211,7 @@ class ScheduledReport extends Model
      */
     public function getLastSuccessfulRunTime(): ?Carbon
     {
-        if (!isset($this->statistics['last_successful_run'])) {
+        if (! isset($this->statistics['last_successful_run'])) {
             return NULL;
         }
 
@@ -278,7 +278,7 @@ class ScheduledReport extends Model
      */
     public function getNextRunTime(): ?Carbon
     {
-        if (!$this->is_active) {
+        if (! $this->is_active) {
             return NULL;
         }
 
@@ -343,7 +343,7 @@ class ScheduledReport extends Model
      */
     public function addSection(string $section): void
     {
-        if (!$this->includesSection($section)) {
+        if (! $this->includesSection($section)) {
             $sections = $this->sections;
             $sections[] = $section;
             $this->sections = $sections;
@@ -363,7 +363,7 @@ class ScheduledReport extends Model
      */
     public function addRecipient(string $email): void
     {
-        if (!in_array($email, $this->recipients, TRUE)) {
+        if (! in_array($email, $this->recipients, TRUE)) {
             $recipients = $this->recipients;
             $recipients[] = $email;
             $this->recipients = $recipients;

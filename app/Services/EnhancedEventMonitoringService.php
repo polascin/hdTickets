@@ -10,10 +10,14 @@ use App\Models\User;
 use App\Services\NotificationChannels\PushNotificationService;
 use App\Services\NotificationChannels\SmsNotificationService;
 use Carbon\Carbon;
+use Exception;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
+
+use function array_slice;
+use function count;
 
 /**
  * Enhanced Event Monitoring Service
@@ -81,14 +85,63 @@ class EnhancedEventMonitoringService
 
             $changes = $this->detectInstantChanges($monitor, $platformData);
 
-            if (!empty($changes)) {
+            if (! empty($changes)) {
                 $this->processInstantAlerts($monitor, $changes, $platformData);
             }
 
             $this->updateMonitorWithSubSecondData($monitor, $platformData, $startTime);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->handleMonitoringError($monitor, $e->getMessage());
         }
+    }
+
+    /**
+     * Get enhanced real-time dashboard data
+     */
+    public function getEnhancedRealtimeData(User $user): array
+    {
+        $userMonitors = EventMonitor::where('user_id', $user->id)
+            ->where('is_active', TRUE)
+            ->with('event')
+            ->orderBy('priority', 'desc')
+            ->get();
+
+        $realtimeData = [];
+        $totalResponseTime = 0;
+        $platformStats = [];
+
+        foreach ($userMonitors as $monitor) {
+            $cacheKey = "instant_event_{$monitor->event->id}";
+            $eventData = Cache::get($cacheKey);
+
+            if ($eventData) {
+                $realtimeData[] = $eventData;
+                $totalResponseTime += $monitor->last_response_time ?? 0;
+
+                // Count platform statistics
+                foreach ($eventData['platforms'] as $platform => $data) {
+                    $platformStats[$platform] = ($platformStats[$platform] ?? 0) + count($data);
+                }
+            }
+        }
+
+        return [
+            'events'   => $realtimeData,
+            'monitors' => [
+                'total'    => $userMonitors->count(),
+                'active'   => $userMonitors->where('status', 'active')->count(),
+                'critical' => $userMonitors->where('priority', 'critical')->count(),
+                'high'     => $userMonitors->where('priority', 'high')->count(),
+            ],
+            'performance' => [
+                'average_response_time' => $userMonitors->count() > 0 ? round($totalResponseTime / $userMonitors->count(), 2) : 0,
+                'uptime_percentage'     => $this->calculateUptimePercentage($user),
+                'alerts_sent_today'     => $this->getAlertsCountToday($user),
+                'last_updated'          => now()->toISOString(),
+            ],
+            'platform_stats' => $platformStats,
+            'global_feed'    => Cache::get('instant_global_feed', []),
+        ];
     }
 
     /**
@@ -113,7 +166,7 @@ class EnhancedEventMonitoringService
         foreach ($responses as $platform => $response) {
             if ($response->successful()) {
                 $data = $this->parseEventData($platform, $response->json());
-                if (!empty($data)) {
+                if (! empty($data)) {
                     $platformData[$platform] = $data;
                 }
             }
@@ -158,7 +211,7 @@ class EnhancedEventMonitoringService
             'vivid_seats'  => '/listings?q=' . urlencode($event->name),
             'tickpick'     => '/api/events/search?q=' . urlencode($event->name),
             'gametime'     => '/api/search?query=' . urlencode($event->name),
-            default        => '/search?q=' . urlencode($event->name)
+            default        => '/search?q=' . urlencode($event->name),
         };
     }
 
@@ -174,7 +227,7 @@ class EnhancedEventMonitoringService
             'vivid_seats'  => $this->parseVividSeatsDataEnhanced($data),
             'tickpick'     => $this->parseTickPickDataEnhanced($data),
             'gametime'     => $this->parseGametimeDataEnhanced($data),
-            default        => $this->parseGenericDataEnhanced($data)
+            default        => $this->parseGenericDataEnhanced($data),
         };
     }
 
@@ -427,7 +480,7 @@ class EnhancedEventMonitoringService
                 $lastEvent = collect($lastPlatformData)->firstWhere('external_id', $event['external_id']);
 
                 // New listing detected
-                if (!$lastEvent) {
+                if (! $lastEvent) {
                     $changes[] = [
                         'type'     => 'new_listing',
                         'platform' => $platform,
@@ -440,7 +493,7 @@ class EnhancedEventMonitoringService
                 }
 
                 // Availability change
-                if ($event['available'] && !$lastEvent['available']) {
+                if ($event['available'] && ! $lastEvent['available']) {
                     $changes[] = [
                         'type'     => 'availability_restored',
                         'platform' => $platform,
@@ -458,7 +511,7 @@ class EnhancedEventMonitoringService
                         'event'     => $event,
                         'old_event' => $lastEvent,
                         'urgency'   => 'medium',
-                        'message'   => "💰 PRICE DROP: {$event['name']} now ${event['price_min']} (was ${lastEvent['price_min']})",
+                        'message'   => "💰 PRICE DROP: {$event['name']} now {$event['price_min']} (was {$lastEvent['price_min']})",
                     ];
                 }
 
@@ -543,9 +596,9 @@ class EnhancedEventMonitoringService
                     ]),
                     'sms'   => $this->smsService->send($user->phone, $message),
                     'email' => $this->sendInstantEmail($user, $message, $change),
-                    default => NULL
+                    default => NULL,
                 };
-            } catch (\Exception $e) {
+            } catch (Exception $e) {
                 Log::error("Failed to send urgent {$channel} notification", [
                     'user_id' => $user->id,
                     'error'   => $e->getMessage(),
@@ -574,10 +627,10 @@ class EnhancedEventMonitoringService
      */
     private function sendInstantEmail(User $user, string $message, array $change): void
     {
-        Mail::send('emails.instant-alert', compact('message', 'change'), function ($mail) use ($user, $change) {
+        Mail::send('emails.instant-alert', compact('message', 'change'), function ($mail) use ($user, $change): void {
             $mail->to($user->email)
-                 ->subject("🚨 URGENT: HD Tickets Alert - {$change['type']}")
-                 ->priority(1); // High priority
+                ->subject("🚨 URGENT: HD Tickets Alert - {$change['type']}")
+                ->priority(1); // High priority
         });
     }
 
@@ -623,9 +676,9 @@ class EnhancedEventMonitoringService
             'total_listings'     => count($allEvents),
             'available_listings' => count($availableEvents),
             'platforms_count'    => count($eventData),
-            'lowest_price'       => !empty($prices) ? min($prices) : NULL,
-            'highest_price'      => !empty($prices) ? max($prices) : NULL,
-            'average_price'      => !empty($prices) ? round(array_sum($prices) / count($prices), 2) : NULL,
+            'lowest_price'       => ! empty($prices) ? min($prices) : NULL,
+            'highest_price'      => ! empty($prices) ? max($prices) : NULL,
+            'average_price'      => ! empty($prices) ? round(array_sum($prices) / count($prices), 2) : NULL,
             'total_tickets'      => array_sum(array_column($availableEvents, 'total_tickets')),
         ];
     }
@@ -669,59 +722,10 @@ class EnhancedEventMonitoringService
             'high'     => 1,       // 1 second
             'medium'   => 5,     // 5 seconds
             'low'      => 30,       // 30 seconds
-            default    => 10      // 10 seconds
+            default    => 10,      // 10 seconds
         };
 
         return now()->addSeconds($interval);
-    }
-
-    /**
-     * Get enhanced real-time dashboard data
-     */
-    public function getEnhancedRealtimeData(User $user): array
-    {
-        $userMonitors = EventMonitor::where('user_id', $user->id)
-            ->where('is_active', TRUE)
-            ->with('event')
-            ->orderBy('priority', 'desc')
-            ->get();
-
-        $realtimeData = [];
-        $totalResponseTime = 0;
-        $platformStats = [];
-
-        foreach ($userMonitors as $monitor) {
-            $cacheKey = "instant_event_{$monitor->event->id}";
-            $eventData = Cache::get($cacheKey);
-
-            if ($eventData) {
-                $realtimeData[] = $eventData;
-                $totalResponseTime += $monitor->last_response_time ?? 0;
-
-                // Count platform statistics
-                foreach ($eventData['platforms'] as $platform => $data) {
-                    $platformStats[$platform] = ($platformStats[$platform] ?? 0) + count($data);
-                }
-            }
-        }
-
-        return [
-            'events'   => $realtimeData,
-            'monitors' => [
-                'total'    => $userMonitors->count(),
-                'active'   => $userMonitors->where('status', 'active')->count(),
-                'critical' => $userMonitors->where('priority', 'critical')->count(),
-                'high'     => $userMonitors->where('priority', 'high')->count(),
-            ],
-            'performance' => [
-                'average_response_time' => $userMonitors->count() > 0 ? round($totalResponseTime / $userMonitors->count(), 2) : 0,
-                'uptime_percentage'     => $this->calculateUptimePercentage($user),
-                'alerts_sent_today'     => $this->getAlertsCountToday($user),
-                'last_updated'          => now()->toISOString(),
-            ],
-            'platform_stats' => $platformStats,
-            'global_feed'    => Cache::get('instant_global_feed', []),
-        ];
     }
 
     /**

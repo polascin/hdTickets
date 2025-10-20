@@ -13,6 +13,9 @@ use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Queue;
 
+use function count;
+use function in_array;
+
 /**
  * Enhanced Smart Alerts Service
  *
@@ -76,6 +79,51 @@ class EnhancedSmartAlertsService
     }
 
     /**
+     * Update delivery status with enhanced tracking
+     */
+    public function updateEnhancedDeliveryStatus(string $alertId, string $channel, string $status, array $metadata = []): void
+    {
+        $alert = Cache::get("enhanced_alert_{$alertId}");
+        if (! $alert) {
+            return;
+        }
+
+        $alert['delivery_attempts'][] = [
+            'channel'       => $channel,
+            'status'        => $status,
+            'timestamp'     => now(),
+            'metadata'      => $metadata,
+            'response_time' => $metadata['response_time'] ?? NULL,
+        ];
+
+        // Update overall status
+        $this->updateOverallAlertStatus($alert, $alertId);
+
+        // Track for intelligent delivery learning
+        $this->trackDeliveryForLearning($alertId, $channel, $status, $metadata);
+
+        Cache::put("enhanced_alert_{$alertId}", $alert, 86400);
+    }
+
+    /**
+     * Get enhanced alert analytics
+     */
+    public function getEnhancedAlertAnalytics(User $user, ?Carbon $startDate = NULL, ?Carbon $endDate = NULL): array
+    {
+        $startDate ??= now()->subDays(30);
+        $endDate ??= now();
+
+        return [
+            'total_alerts'          => $this->getAlertCount($user->id, $startDate, $endDate),
+            'delivery_performance'  => $this->getDeliveryPerformance($user->id, $startDate, $endDate),
+            'channel_effectiveness' => $this->getChannelEffectiveness($user->id, $startDate, $endDate),
+            'engagement_metrics'    => $this->getEngagementMetrics($user->id, $startDate, $endDate),
+            'intelligent_insights'  => $this->getIntelligentInsights($user->id, $startDate, $endDate),
+            'rate_limit_stats'      => $this->getRateLimitStats($user->id, $startDate, $endDate),
+        ];
+    }
+
+    /**
      * Determine optimal channels based on user preferences and context
      */
     private function determineOptimalChannels(User $user, string $urgency, array $alertData): array
@@ -114,7 +162,7 @@ class EnhancedSmartAlertsService
         return Cache::remember($cacheKey, 3600, function () use ($user) {
             $prefs = NotificationPreference::where('user_id', $user->id)->first();
 
-            if (!$prefs) {
+            if (! $prefs) {
                 // Create intelligent default preferences
                 $prefs = NotificationPreference::create([
                     'user_id'          => $user->id,
@@ -163,7 +211,7 @@ class EnhancedSmartAlertsService
     {
         $available = ['email']; // Email always available
 
-        if (!empty($user->phone)) {
+        if (! empty($user->phone)) {
             $available[] = 'sms';
         }
 
@@ -171,7 +219,7 @@ class EnhancedSmartAlertsService
             $available[] = 'push';
         }
 
-        if (!empty($user->webhook_url)) {
+        if (! empty($user->webhook_url)) {
             $available[] = 'webhook';
         }
 
@@ -339,7 +387,7 @@ class EnhancedSmartAlertsService
 
         foreach ($channels as $channel) {
             // Skip certain channels during quiet hours
-            if ($isQuietHours && !in_array($channel, ['email'])) {
+            if ($isQuietHours && ! in_array($channel, ['email'], TRUE)) {
                 continue;
             }
 
@@ -350,8 +398,8 @@ class EnhancedSmartAlertsService
                 $delay = $this->getChannelDelay($channel, $urgency);
 
                 Queue::later($delay, $job)
-                     ->onQueue("priority_{$priority}")
-                     ->onConnection('redis');
+                    ->onQueue("priority_{$priority}")
+                    ->onConnection('redis');
             }
         }
 
@@ -380,7 +428,7 @@ class EnhancedSmartAlertsService
             'sms'     => 5,       // 5 seconds delay
             'email'   => 10,    // 10 seconds delay
             'webhook' => 15,  // 15 seconds delay
-            default   => 0
+            default   => 0,
         };
     }
 
@@ -394,7 +442,7 @@ class EnhancedSmartAlertsService
             'sms'     => new \App\Jobs\SendEnhancedSmsNotificationJob($alertId, $user, $alertData),
             'email'   => new \App\Jobs\SendEnhancedEmailNotificationJob($alertId, $user, $alertData),
             'webhook' => new \App\Jobs\SendEnhancedWebhookNotificationJob($alertId, $user, $alertData),
-            default   => NULL
+            default   => NULL,
         };
     }
 
@@ -404,14 +452,14 @@ class EnhancedSmartAlertsService
     private function isQuietHours(User $user, string $urgency): bool
     {
         // Critical and high alerts bypass quiet hours
-        if (in_array($urgency, ['critical', 'high'])) {
+        if (in_array($urgency, ['critical', 'high'], TRUE)) {
             return FALSE;
         }
 
         $preferences = $this->getEnhancedUserPreferences($user);
         $quietHours = $preferences['quiet_hours'];
 
-        if (!($quietHours['enabled'] ?? FALSE)) {
+        if (! ($quietHours['enabled'] ?? FALSE)) {
             return FALSE;
         }
 
@@ -465,43 +513,16 @@ class EnhancedSmartAlertsService
     }
 
     /**
-     * Update delivery status with enhanced tracking
-     */
-    public function updateEnhancedDeliveryStatus(string $alertId, string $channel, string $status, array $metadata = []): void
-    {
-        $alert = Cache::get("enhanced_alert_{$alertId}");
-        if (!$alert) {
-            return;
-        }
-
-        $alert['delivery_attempts'][] = [
-            'channel'       => $channel,
-            'status'        => $status,
-            'timestamp'     => now(),
-            'metadata'      => $metadata,
-            'response_time' => $metadata['response_time'] ?? NULL,
-        ];
-
-        // Update overall status
-        $this->updateOverallAlertStatus($alert, $alertId);
-
-        // Track for intelligent delivery learning
-        $this->trackDeliveryForLearning($alertId, $channel, $status, $metadata);
-
-        Cache::put("enhanced_alert_{$alertId}", $alert, 86400);
-    }
-
-    /**
      * Update overall alert status
      */
     private function updateOverallAlertStatus(array &$alert, string $alertId): void
     {
         $deliveryStatuses = array_column($alert['delivery_attempts'], 'status');
 
-        if (in_array('delivered', $deliveryStatuses)) {
+        if (in_array('delivered', $deliveryStatuses, TRUE)) {
             $alert['status'] = 'delivered';
             $alert['delivered_at'] = now();
-        } elseif (in_array('failed', $deliveryStatuses) && count($alert['delivery_attempts']) >= count($alert['channels'])) {
+        } elseif (in_array('failed', $deliveryStatuses, TRUE) && count($alert['delivery_attempts']) >= count($alert['channels'])) {
             $alert['status'] = 'failed';
             $alert['failed_at'] = now();
         }
@@ -539,26 +560,8 @@ class EnhancedSmartAlertsService
             'medium'   => 5,
             'low'      => 3,
             'info'     => 1,
-            default    => 5
+            default    => 5,
         };
-    }
-
-    /**
-     * Get enhanced alert analytics
-     */
-    public function getEnhancedAlertAnalytics(User $user, Carbon $startDate = NULL, Carbon $endDate = NULL): array
-    {
-        $startDate = $startDate ?? now()->subDays(30);
-        $endDate = $endDate ?? now();
-
-        return [
-            'total_alerts'          => $this->getAlertCount($user->id, $startDate, $endDate),
-            'delivery_performance'  => $this->getDeliveryPerformance($user->id, $startDate, $endDate),
-            'channel_effectiveness' => $this->getChannelEffectiveness($user->id, $startDate, $endDate),
-            'engagement_metrics'    => $this->getEngagementMetrics($user->id, $startDate, $endDate),
-            'intelligent_insights'  => $this->getIntelligentInsights($user->id, $startDate, $endDate),
-            'rate_limit_stats'      => $this->getRateLimitStats($user->id, $startDate, $endDate),
-        ];
     }
 
     // Private helper methods for analytics and machine learning

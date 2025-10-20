@@ -10,6 +10,9 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Str;
+
+use function in_array;
 
 /**
  * Webhook Model
@@ -102,7 +105,7 @@ class Webhook extends Model
                 ->where('status', 'success')
                 ->where('response_time', '>', 0)
                 ->avg('response_time') ?? 0.0,
-            2
+            2,
         );
     }
 
@@ -123,7 +126,7 @@ class Webhook extends Model
 
     public function getStatus(): string
     {
-        if (!$this->is_active) {
+        if (! $this->is_active) {
             return 'disabled';
         }
 
@@ -135,16 +138,17 @@ class Webhook extends Model
 
         if ($recentSuccessRate >= 95) {
             return 'healthy';
-        } elseif ($recentSuccessRate >= 80) {
-            return 'degraded';
-        } else {
-            return 'failing';
         }
+        if ($recentSuccessRate >= 80) {
+            return 'degraded';
+        }
+
+        return 'failing';
     }
 
     public function getHealthScore(): float
     {
-        if (!$this->is_active) {
+        if (! $this->is_active) {
             return 0.0;
         }
 
@@ -175,13 +179,13 @@ class Webhook extends Model
 
     public function subscribesToEvent(string $eventType): bool
     {
-        return in_array($eventType, $this->events ?? []);
+        return in_array($eventType, $this->events ?? [], TRUE);
     }
 
     public function addEvent(string $eventType): bool
     {
         $events = $this->events ?? [];
-        if (!in_array($eventType, $events)) {
+        if (! in_array($eventType, $events, TRUE)) {
             $events[] = $eventType;
 
             return $this->update(['events' => $events]);
@@ -205,7 +209,7 @@ class Webhook extends Model
             'system_notification', 'ticket_available', 'price_drop',
         ];
 
-        $filteredEvents = array_filter($events, fn ($event) => in_array($event, $validEvents));
+        $filteredEvents = array_filter($events, fn ($event) => in_array($event, $validEvents, TRUE));
 
         return $this->update(['events' => array_values(array_unique($filteredEvents))]);
     }
@@ -241,7 +245,7 @@ class Webhook extends Model
         return match ($strategy) {
             'linear'      => $baseDelay * $attemptNumber,
             'exponential' => $baseDelay * (2 ** ($attemptNumber - 1)),
-            default       => $baseDelay
+            default       => $baseDelay,
         };
     }
 
@@ -265,7 +269,7 @@ class Webhook extends Model
         // Filter out potentially dangerous headers
         $forbiddenHeaders = ['authorization', 'cookie', 'x-forwarded-for'];
         $filteredHeaders = array_filter($headers, function ($key) use ($forbiddenHeaders) {
-            return !in_array(strtolower($key), $forbiddenHeaders);
+            return ! in_array(strtolower($key), $forbiddenHeaders, TRUE);
         }, ARRAY_FILTER_USE_KEY);
 
         return $this->update(['custom_headers' => $filteredHeaders]);
@@ -282,7 +286,7 @@ class Webhook extends Model
 
     public function regenerateSecret(): string
     {
-        $newSecret = \Str::random(32);
+        $newSecret = Str::random(32);
         $this->update(['secret' => $newSecret]);
 
         return $newSecret;
@@ -406,7 +410,7 @@ class Webhook extends Model
 
         return array_map(
             fn ($event) => $labels[$event] ?? $event,
-            $this->events ?? []
+            $this->events ?? [],
         );
     }
 

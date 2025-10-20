@@ -194,7 +194,7 @@ Route::prefix('system')->name('api.system.')->middleware(['throttle:60,1'])->gro
 |--------------------------------------------------------------------------
 */
 
-if (!app()->environment('production')) {
+if (! app()->environment('production')) {
     Route::prefix('dev')->name('api.dev.')->middleware(['auth:sanctum'])->group(function (): void {
         // Test alert generation
         Route::post('/test-alert', function () {
