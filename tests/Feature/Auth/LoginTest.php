@@ -26,7 +26,7 @@ class LoginTest extends TestCase
         $response = $this->get('/login');
 
         $response->assertStatus(200);
-        $response->assertViewIs('auth.login-enhanced');
+        $response->assertViewIs('auth.modern-login');
         $response->assertSee('HD Tickets');
         $response->assertSee('Sports Events Entry Tickets');
         $response->assertSee('Sign In');

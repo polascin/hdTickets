@@ -22,7 +22,7 @@ class AuthenticatedSessionController extends Controller
      */
     public function create(): View
     {
-        return view('auth.login-enhanced');
+        return view('auth.modern-login');
     }
 
     /**
