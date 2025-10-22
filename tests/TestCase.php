@@ -60,8 +60,13 @@ abstract class TestCase extends BaseTestCase
         config(['services.external_apis_enabled' => FALSE]);
 
         // Configure test-specific database settings
-        config(['database.default' => 'sqlite']);
-        config(['database.connections.sqlite.database' => ':memory:']);
+        // Use MySQL if specified in environment, otherwise default to SQLite
+        if (env('DB_CONNECTION') === 'mysql') {
+            config(['database.default' => 'mysql']);
+        } else {
+            config(['database.default' => 'sqlite']);
+            config(['database.connections.sqlite.database' => ':memory:']);
+        }
 
         // Configure test-specific settings
         config(['app.debug' => TRUE]);

@@ -3,8 +3,8 @@
 namespace Tests\Feature;
 
 use App\Models\PaymentPlan;
+use App\Models\ScrapedTicket;
 use App\Models\Subscription;
-use App\Models\Ticket;
 use App\Models\TicketAlert;
 use App\Models\User;
 use App\Models\UserPreference;
@@ -67,30 +67,32 @@ class ModernCustomerDashboardTest extends TestCase
      */
     public function dashboard_stats_ajax_endpoint_returns_correct_data(): void
     {
-        // Create test tickets for the customer
-        Ticket::factory()->count(5)->create([
-            'requester_id' => $this->customer->id,
+        // Create test scraped tickets for the customer
+        ScrapedTicket::factory()->count(5)->create([
             'is_available' => TRUE,
-            'price'        => 100.00,
+            'status'       => 'active',
+            'min_price'    => 100.00,
+            'max_price'    => 120.00,
             'created_at'   => now()->subHours(2),
         ]);
 
-        Ticket::factory()->count(3)->create([
-            'requester_id' => $this->customer->id,
+        ScrapedTicket::factory()->count(3)->create([
             'is_available' => TRUE,
-            'price'        => 150.00,
+            'status'       => 'active',
+            'min_price'    => 150.00,
+            'max_price'    => 170.00,
             'created_at'   => now(),
         ]);
 
         // Create alerts
         TicketAlert::factory()->count(4)->create([
-            'user_id'   => $this->customer->id,
-            'is_active' => TRUE,
+            'user_id' => $this->customer->id,
+            'status'  => 'active',
         ]);
 
         TicketAlert::factory()->count(2)->create([
             'user_id'      => $this->customer->id,
-            'is_active'    => TRUE,
+            'status'       => 'active',
             'triggered_at' => now()->subHours(1),
         ]);
 
@@ -116,10 +118,10 @@ class ModernCustomerDashboardTest extends TestCase
      */
     public function dashboard_tickets_ajax_endpoint_returns_paginated_results(): void
     {
-        // Create 25 tickets for pagination test
-        Ticket::factory()->count(25)->create([
-            'requester_id' => $this->customer->id,
+        // Create 25 scraped tickets for pagination test
+        ScrapedTicket::factory()->count(25)->create([
             'is_available' => TRUE,
+            'status'       => 'active',
         ]);
 
         $response = $this->actingAs($this->customer)
@@ -145,15 +147,15 @@ class ModernCustomerDashboardTest extends TestCase
     {
         // Create alerts for this customer
         $customerAlerts = TicketAlert::factory()->count(3)->create([
-            'user_id'   => $this->customer->id,
-            'is_active' => TRUE,
+            'user_id' => $this->customer->id,
+            'status'  => 'active',
         ]);
 
         // Create alerts for another user (should not appear)
         $otherUser = User::factory()->create(['role' => User::ROLE_CUSTOMER]);
         TicketAlert::factory()->count(2)->create([
-            'user_id'   => $otherUser->id,
-            'is_active' => TRUE,
+            'user_id' => $otherUser->id,
+            'status'  => 'active',
         ]);
 
         $response = $this->actingAs($this->customer)
@@ -190,11 +192,13 @@ class ModernCustomerDashboardTest extends TestCase
             ]),
         ]);
 
-        // Create some tickets matching preferences
-        Ticket::factory()->count(3)->create([
+        // Create some scraped tickets matching preferences
+        ScrapedTicket::factory()->count(3)->create([
             'event_type'   => 'Basketball',
-            'price'        => 250.00,
+            'min_price'    => 250.00,
+            'max_price'    => 300.00,
             'is_available' => TRUE,
+            'status'       => 'active',
         ]);
 
         $response = $this->actingAs($this->customer)
@@ -422,6 +426,9 @@ class ModernCustomerDashboardTest extends TestCase
         Subscription::create([
             'user_id'                => $this->customer->id,
             'payment_plan_id'        => $paymentPlan->id,
+            'plan_name'              => 'test-plan',
+            'price'                  => 19.99,
+            'currency'               => 'USD',
             'stripe_subscription_id' => 'sub_test_123',
             'status'                 => 'active',
             'current_period_start'   => now()->subDays(10),

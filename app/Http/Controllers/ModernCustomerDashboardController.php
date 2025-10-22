@@ -52,7 +52,22 @@ class ModernCustomerDashboardController extends Controller
         // Get comprehensive dashboard data with caching
         $dashboardData = $this->getDashboardData($user);
 
-        return view('dashboard.customer-modern', $dashboardData);
+        // Standardise data contract with backward compatibility aliases
+        $standardisedData = [
+            'user' => $dashboardData['user'],
+            'statistics' => $dashboardData['statistics'],
+            'active_alerts' => $dashboardData['active_alerts'],
+            'recent_tickets' => $dashboardData['recent_tickets'],
+            'recommendations' => $dashboardData['recommendations'],
+            'market_insights' => $dashboardData['market_insights'],
+            'quick_actions' => $dashboardData['quick_actions'],
+            'subscription_status' => $dashboardData['subscription_status'],
+            // Backward compatibility aliases
+            'stats' => $dashboardData['statistics'],
+            'alerts' => $dashboardData['active_alerts'],
+        ];
+
+        return view('dashboard.customer-modern', $standardisedData);
     }
 
     /**
@@ -334,9 +349,10 @@ class ModernCustomerDashboardController extends Controller
                 ->orderBy('created_at', 'desc')
                 ->limit(10)
                 ->get()
-                ->map(function ($alert) {
+                ->map(function ($alert) use ($user) {
                     return [
                         'id'           => $alert->id,
+                        'user_id'      => $user->id, // Include user_id as required
                         'title'        => $alert->event_name ?? $alert->keyword,
                         'criteria'     => $alert->criteria,
                         'status'       => $alert->is_triggered ? 'triggered' : 'active',

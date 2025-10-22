@@ -215,7 +215,7 @@
         <!-- Navigation Menu -->
         <nav class="space-y-2">
           <button type="button" @click="activeTab = 'dashboard'"
-            class="w-full flex items-center px-4 py-3 text-gray-700 rounded-lg transition-colors text-left"
+            class="w-full flex items-center px-4 py-3 text-gray-700 rounded-lg transition-colours text-left"
             :class="activeTab === 'dashboard' ? 'bg-blue-50 text-blue-700' : 'hover:bg-gray-50'">
             <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -225,7 +225,7 @@
           </button>
 
           <button type="button" @click="activeTab = 'tickets'"
-            class="w-full flex items-center px-4 py-3 text-gray-700 rounded-lg transition-colors text-left"
+            class="w-full flex items-center px-4 py-3 text-gray-700 rounded-lg transition-colours text-left"
             :class="activeTab === 'tickets' ? 'bg-blue-50 text-blue-700' : 'hover:bg-gray-50'">
             <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -236,7 +236,7 @@
           </button>
 
           <button type="button" @click="activeTab = 'alerts'"
-            class="w-full flex items-center px-4 py-3 text-gray-700 rounded-lg transition-colors text-left"
+            class="w-full flex items-center px-4 py-3 text-gray-700 rounded-lg transition-colours text-left"
             :class="activeTab === 'alerts' ? 'bg-blue-50 text-blue-700' : 'hover:bg-gray-50'">
             <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -248,7 +248,7 @@
           </button>
 
           <button type="button" @click="activeTab = 'recommendations'"
-            class="w-full flex items-center px-4 py-3 text-gray-700 rounded-lg transition-colors text-left"
+            class="w-full flex items-center px-4 py-3 text-gray-700 rounded-lg transition-colours text-left"
             :class="activeTab === 'recommendations' ? 'bg-blue-50 text-blue-700' : 'hover:bg-gray-50'">
             <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -265,7 +265,7 @@
           <div class="space-y-2">
             @foreach ($quick_actions as $action)
               <a href="{{ $action['url'] }}"
-                class="flex items-center px-4 py-2 text-sm text-gray-600 rounded-lg hover:bg-gray-50 hover:text-gray-900 transition-colors">
+                class="flex items-center px-4 py-2 text-sm text-gray-600 rounded-lg hover:bg-gray-50 hover:text-gray-900 transition-colours">
                 <div
                   class="w-8 h-8 rounded-lg flex items-center justify-center mr-3 bg-{{ $action['color'] }}-100 text-{{ $action['color'] }}-600">
                   <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">

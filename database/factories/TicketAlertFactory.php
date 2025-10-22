@@ -25,16 +25,24 @@ class TicketAlertFactory extends Factory
     {
         return [
             'user_id'             => User::factory(),
-            'name'                => fake()->sentence,
-            'keywords'            => fake()->words(3, TRUE),
-            'platform'            => fake()->randomElement(['stubhub', 'ticketmaster', 'viagogo']),
+            'sports_event_id'     => null,
+            'alert_name'          => fake()->sentence,
             'max_price'           => fake()->randomFloat(2, 50, 500),
-            'currency'            => 'USD',
-            'filters'             => json_encode(['criteria' => 'example']),
+            'min_price'           => fake()->randomFloat(2, 10, 40),
+            'min_quantity'        => fake()->numberBetween(1, 4),
+            'preferred_sections'  => json_encode(['Lower Bowl', 'Upper Bowl']),
+            'platforms'           => json_encode(['stubhub', 'ticketmaster']),
+            'status'              => fake()->randomElement(['active', 'paused', 'triggered', 'expired']),
+            'priority_score'      => fake()->numberBetween(1, 100),
+            'escalation_level'    => fake()->numberBetween(0, 3),
+            'success_rate'        => fake()->randomFloat(4, 0, 1),
+            'channel_preferences' => json_encode(['email' => true, 'sms' => false]),
             'email_notifications' => TRUE,
             'sms_notifications'   => FALSE,
-            'status'              => fake()->randomElement(['active', 'paused', 'triggered', 'expired']),
+            'auto_purchase'       => FALSE,
+            'last_checked_at'     => fake()->dateTimeBetween('-1 week', 'now'),
             'triggered_at'        => fake()->boolean(30) ? now()->subDays(fake()->numberBetween(0, 30)) : NULL,
+            'matches_found'       => fake()->numberBetween(0, 10),
         ];
     }
 }

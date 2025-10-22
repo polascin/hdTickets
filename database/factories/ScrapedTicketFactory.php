@@ -21,7 +21,7 @@ class ScrapedTicketFactory extends Factory
     public function definition(): array
     {
         $platforms = ['stubhub', 'ticketmaster', 'viagogo', 'funzone', 'seatgeek', 'vivid_seats'];
-        $currencies = ['USD', 'GBP', 'EUR', 'CZK', 'SKK'];
+        $currencies = ['USD', 'GBP', 'EUR', 'CAD', 'AUD'];
         $availability = ['high', 'medium', 'low', 'sold_out'];
 
         // Generate realistic team names
