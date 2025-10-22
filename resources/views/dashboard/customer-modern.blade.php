@@ -4,7 +4,7 @@
 @section('description', 'Modern sports ticket monitoring dashboard with real-time updates')
 
 @push('styles')
-  @vite(['resources/css/dashboard-modern.css'])
+  @vite(['resources/css/app.css'])
   <style>
     /* Enhanced custom dashboard styles */
     .glass-card {
