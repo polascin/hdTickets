@@ -7,7 +7,7 @@ The HD Tickets login page is designed as a secure, accessible, and user-friendly
 ## Component Structure
 
 ### File Locations
-- **Main Template**: `resources/views/auth/login.blade.php`
+- **Main Template**: `resources/views/auth/modern-login.blade.php`
 - **Layout**: `resources/views/layouts/guest.blade.php`
 - **Styles**: `resources/css/auth/login.css`, `public/css/hd-accessibility.css`
 - **JavaScript**: `public/js/auth-security.js`
