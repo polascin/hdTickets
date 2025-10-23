@@ -8,7 +8,7 @@ use Exception;
 
 /**
  * Stripe Payment Processor Service
- * 
+ *
  * Handles Stripe payment processing for sports event ticket purchases
  */
 class StripePaymentProcessor
@@ -33,13 +33,13 @@ class StripePaymentProcessor
     public function validatePaymentMethod(array $paymentMethod): bool
     {
         // TODO: Implement payment method validation
-        return false;
+        return FALSE;
     }
 
     /**
      * Refund payment
      */
-    public function refundPayment(string $paymentId, float $amount = null): array
+    public function refundPayment(string $paymentId, ?float $amount = NULL): array
     {
         // TODO: Implement payment refund
         throw new Exception('StripePaymentProcessor refund not yet implemented');

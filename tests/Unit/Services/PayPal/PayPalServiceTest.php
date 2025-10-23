@@ -11,10 +11,10 @@ use PayPalCheckoutSdk\Orders\OrdersCaptureRequest;
 use PayPalCheckoutSdk\Orders\OrdersCreateRequest;
 use PayPalCheckoutSdk\Orders\OrdersGetRequest;
 use PayPalCheckoutSdk\Payments\CapturesRefundRequest;
+use PHPUnit\Framework\Attributes\Test;
 use ReflectionClass;
 use Tests\TestCase;
 
-use PHPUnit\Framework\Attributes\Test;
 class PayPalServiceTest extends TestCase
 {
     private PayPalService $paypalService;

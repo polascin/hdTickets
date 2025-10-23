@@ -36,7 +36,7 @@ abstract class TestCase extends BaseTestCase
         $this->configureTestEnvironment();
 
         // Ensure migrations are run (RefreshDatabase may not always run migrations)
-        $this->artisan('migrate', ['--force' => true]);
+        $this->artisan('migrate', ['--force' => TRUE]);
 
         // Initialize test data factory
         $this->testDataFactory = new TestDataFactory();

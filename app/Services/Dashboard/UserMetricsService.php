@@ -11,6 +11,8 @@ use Exception;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
 
+use function is_array;
+
 /**
  * UserMetricsService - User-specific Analytics and Metrics
  *

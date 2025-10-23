@@ -3,7 +3,6 @@
 namespace Tests\Feature;
 
 use PHPUnit\Framework\Attributes\Test;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
 /**
@@ -14,31 +13,29 @@ use Tests\TestCase;
  */
 class IosCompatibilityTest extends TestCase
 {
-    /**
-     * Common iOS user agent strings for testing
-     */
+    /** Common iOS user agent strings for testing */
     protected array $iosUserAgents = [
         // iPhone with iOS 15
         'iphone_ios15' => 'Mozilla/5.0 (iPhone; CPU iPhone OS 15_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/15.0 Mobile/15E148 Safari/604.1',
-        
+
         // iPhone with iOS 16
         'iphone_ios16' => 'Mozilla/5.0 (iPhone; CPU iPhone OS 16_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.0 Mobile/15E148 Safari/604.1',
-        
+
         // iPhone with iOS 17
         'iphone_ios17' => 'Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.0 Mobile/15E148 Safari/604.1',
-        
+
         // iPhone with iOS 18
         'iphone_ios18' => 'Mozilla/5.0 (iPhone; CPU iPhone OS 18_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.0 Mobile/15E148 Safari/604.1',
-        
+
         // iPad with iOS 15
         'ipad_ios15' => 'Mozilla/5.0 (iPad; CPU OS 15_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/15.0 Mobile/15E148 Safari/604.1',
-        
+
         // iPad with iOS 17
         'ipad_ios17' => 'Mozilla/5.0 (iPad; CPU OS 17_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.0 Mobile/15E148 Safari/604.1',
-        
+
         // iPod Touch
         'ipod' => 'Mozilla/5.0 (iPod touch; CPU iPhone OS 16_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.0 Mobile/15E148 Safari/604.1',
-        
+
         // Malformed but valid iOS user agent
         'malformed' => 'Mozilla/5.0 (iPhone; CPU iPhone OS 17_0_1 like Mac OS X) AppleWebKit/605.1.15',
     ];
@@ -146,10 +143,10 @@ class IosCompatibilityTest extends TestCase
         ])->get('/');
 
         $response->assertSuccessful();
-        
+
         // Check that CSP header exists
         $this->assertNotNull($response->headers->get('Content-Security-Policy'));
-        
+
         // Verify iOS-compatible directives are present
         $csp = $response->headers->get('Content-Security-Policy');
         $this->assertStringContainsString("default-src 'self'", $csp);
@@ -161,12 +158,12 @@ class IosCompatibilityTest extends TestCase
     {
         foreach (['iphone_ios17', 'ipad_ios17'] as $deviceKey) {
             $userAgent = $this->iosUserAgents[$deviceKey];
-            
+
             $response = $this->withHeaders([
                 'User-Agent' => $userAgent,
-                'Accept' => 'application/json',
+                'Accept'     => 'application/json',
             ])->post('/login', [
-                'email' => 'test@example.com',
+                'email'    => 'test@example.com',
                 'password' => 'password123',
             ]);
 
@@ -206,7 +203,7 @@ class IosCompatibilityTest extends TestCase
             // Security middleware should not block or cause errors
             $this->assertTrue(
                 $response->isSuccessful() || $response->isRedirection(),
-                "Security middleware blocked iOS device ({$name})"
+                "Security middleware blocked iOS device ({$name})",
             );
         }
     }
@@ -215,9 +212,12 @@ class IosCompatibilityTest extends TestCase
     public function ios_error_tracking_middleware_is_registered(): void
     {
         $middlewareClasses = app('router')->getMiddleware();
-        
-        $this->assertArrayHasKey('ios.error.tracker', $middlewareClasses, 
-            'IosErrorTracker middleware is not registered');
+
+        $this->assertArrayHasKey(
+            'ios.error.tracker',
+            $middlewareClasses,
+            'IosErrorTracker middleware is not registered',
+        );
     }
 
     #[Test]
@@ -256,7 +256,7 @@ class IosCompatibilityTest extends TestCase
     {
         // Simulate GeoIP API being unavailable by using local IP
         $response = $this->withHeaders([
-            'User-Agent' => $this->iosUserAgents['iphone_ios17'],
+            'User-Agent'      => $this->iosUserAgents['iphone_ios17'],
             'X-Forwarded-For' => '127.0.0.1',
         ])->get('/');
 
@@ -269,7 +269,7 @@ class IosCompatibilityTest extends TestCase
     protected function createRequest(string $uri, string $method = 'GET', array $headers = []): \Illuminate\Http\Request
     {
         $request = \Illuminate\Http\Request::create($uri, $method);
-        
+
         foreach ($headers as $key => $value) {
             $request->headers->set($key, $value);
         }

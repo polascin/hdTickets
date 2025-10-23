@@ -12,7 +12,9 @@ class TicketAlertObserverTest extends TestCase
 {
     use RefreshDatabase;
 
-    /** @test */
+    /**
+     * @test
+     */
     public function it_flushes_user_active_alerts_cache_on_alert_created(): void
     {
         $user = User::factory()->create();

@@ -65,8 +65,8 @@ class ModernCustomerDashboardController extends Controller
             'subscription_status'  => $dashboardData['subscription_status'],
             'feature_flags'        => $dashboardData['feature_flags'],
             // Backward compatibility aliases
-            'stats'   => $dashboardData['statistics'],
-            'alerts'  => $dashboardData['active_alerts'],
+            'stats'  => $dashboardData['statistics'],
+            'alerts' => $dashboardData['active_alerts'],
         ];
 
         return view('dashboard.customer-modern', $standardisedData);
@@ -94,8 +94,8 @@ class ModernCustomerDashboardController extends Controller
             'data'      => $stats,
             'timestamp' => now()->toISOString(),
         ])->header('Cache-Control', 'no-store, no-cache, must-revalidate, private')
-          ->header('Pragma', 'no-cache')
-          ->header('X-Content-Type-Options', 'nosniff');
+            ->header('Pragma', 'no-cache')
+            ->header('X-Content-Type-Options', 'nosniff');
     }
 
     /**
@@ -137,8 +137,8 @@ class ModernCustomerDashboardController extends Controller
                 ],
             ],
         ])->header('Cache-Control', 'no-store, no-cache, must-revalidate, private')
-          ->header('Pragma', 'no-cache')
-          ->header('X-Content-Type-Options', 'nosniff');
+            ->header('Pragma', 'no-cache')
+            ->header('X-Content-Type-Options', 'nosniff');
     }
 
     /**
@@ -162,8 +162,8 @@ class ModernCustomerDashboardController extends Controller
             'success' => TRUE,
             'data'    => $alerts,
         ])->header('Cache-Control', 'no-store, no-cache, must-revalidate, private')
-          ->header('Pragma', 'no-cache')
-          ->header('X-Content-Type-Options', 'nosniff');
+            ->header('Pragma', 'no-cache')
+            ->header('X-Content-Type-Options', 'nosniff');
     }
 
     /**
@@ -188,8 +188,8 @@ class ModernCustomerDashboardController extends Controller
                 'success' => TRUE,
                 'data'    => $recommendations,
             ])->header('Cache-Control', 'no-store, no-cache, must-revalidate, private')
-              ->header('Pragma', 'no-cache')
-              ->header('X-Content-Type-Options', 'nosniff');
+                ->header('Pragma', 'no-cache')
+                ->header('X-Content-Type-Options', 'nosniff');
         } catch (Exception $e) {
             Log::error('Failed to get recommendations: ' . $e->getMessage());
 
@@ -198,8 +198,8 @@ class ModernCustomerDashboardController extends Controller
                 'error'   => 'Failed to load recommendations',
                 'data'    => $this->getFallbackRecommendations(),
             ])->header('Cache-Control', 'no-store, no-cache, must-revalidate, private')
-              ->header('Pragma', 'no-cache')
-              ->header('X-Content-Type-Options', 'nosniff');
+                ->header('Pragma', 'no-cache')
+                ->header('X-Content-Type-Options', 'nosniff');
         }
     }
 
@@ -225,8 +225,8 @@ class ModernCustomerDashboardController extends Controller
                 'success' => TRUE,
                 'data'    => $insights,
             ])->header('Cache-Control', 'no-store, no-cache, must-revalidate, private')
-              ->header('Pragma', 'no-cache')
-              ->header('X-Content-Type-Options', 'nosniff');
+                ->header('Pragma', 'no-cache')
+                ->header('X-Content-Type-Options', 'nosniff');
         } catch (Exception $e) {
             Log::error('Failed to get market insights: ' . $e->getMessage());
 
@@ -235,8 +235,8 @@ class ModernCustomerDashboardController extends Controller
                 'error'   => 'Failed to load market insights',
                 'data'    => [],
             ])->header('Cache-Control', 'no-store, no-cache, must-revalidate, private')
-              ->header('Pragma', 'no-cache')
-              ->header('X-Content-Type-Options', 'nosniff');
+                ->header('Pragma', 'no-cache')
+                ->header('X-Content-Type-Options', 'nosniff');
         }
     }
 
@@ -261,10 +261,10 @@ class ModernCustomerDashboardController extends Controller
             $totalCount = $this->getTotalTicketsCount();
 
             return [
-                'user'                => $user->load(['subscription', 'preferences']),
-                'statistics'          => $this->getDashboardStatistics($user),
-                'recent_tickets'      => $tickets,
-                'initial_tickets_page'=> [
+                'user'                 => $user->load(['subscription', 'preferences']),
+                'statistics'           => $this->getDashboardStatistics($user),
+                'recent_tickets'       => $tickets,
+                'initial_tickets_page' => [
                     'tickets'    => $tickets,
                     'pagination' => [
                         'current_page' => 1,
@@ -279,9 +279,9 @@ class ModernCustomerDashboardController extends Controller
                 'quick_actions'       => $this->getQuickActions($user),
                 'subscription_status' => $this->getSubscriptionStatus($user),
                 'feature_flags'       => [
-                    'realtime'        => true,
-                    'infinite_scroll' => true,
-                    'animations'      => true,
+                    'realtime'        => TRUE,
+                    'infinite_scroll' => TRUE,
+                    'animations'      => TRUE,
                 ],
             ];
         });
@@ -546,36 +546,36 @@ class ModernCustomerDashboardController extends Controller
     {
         try {
             // Prefer new subscription system if present, otherwise fallback to legacy
-            $newSub        = $user->activeNewSubscription();
-            $legacySub     = $user->currentSubscription()->first();
-            $latestNewSub  = \App\Models\Subscription::where('user_id', $user->id)
+            $newSub = $user->activeNewSubscription();
+            $legacySub = $user->currentSubscription()->first();
+            $latestNewSub = \App\Models\Subscription::where('user_id', $user->id)
                 ->orderByDesc('created_at')
                 ->first();
-            $effective     = $newSub ?: ($legacySub ?: $latestNewSub);
+            $effective = $newSub ?: ($legacySub ?: $latestNewSub);
 
             $hasActiveLegacy = $user->hasActiveSubscription();
-            $hasActiveNew    = $newSub !== null && in_array($newSub->status, [
+            $hasActiveNew = $newSub !== NULL && in_array($newSub->status, [
                 \App\Models\Subscription::STATUS_ACTIVE,
                 \App\Models\Subscription::STATUS_TRIALING,
                 \App\Models\Subscription::STATUS_CANCEL_AT_PERIOD_END,
-            ], true);
-            $hasActiveLatest = $latestNewSub !== null && in_array($latestNewSub->status, [
+            ], TRUE);
+            $hasActiveLatest = $latestNewSub !== NULL && in_array($latestNewSub->status, [
                 \App\Models\Subscription::STATUS_ACTIVE,
                 \App\Models\Subscription::STATUS_TRIALING,
                 \App\Models\Subscription::STATUS_CANCEL_AT_PERIOD_END,
-            ], true);
+            ], TRUE);
 
             $hasActive = $hasActiveNew || $hasActiveLegacy || $hasActiveLatest;
             if (! $hasActive) {
                 $hasActive = \App\Models\Subscription::where('user_id', $user->id)->exists();
             }
-            $status    = $effective?->status ?? 'free';
-            $isTrial   = $status === \App\Models\Subscription::STATUS_TRIALING;
+            $status = $effective?->status ?? 'free';
+            $isTrial = $status === \App\Models\Subscription::STATUS_TRIALING;
 
             return [
                 // New contract
                 'is_active'      => $hasActive,
-'plan_name'      => $effective?->plan_name ?? 'Free Trial',
+                'plan_name'      => $effective?->plan_name ?? 'Free Trial',
                 'next_billing'   => $effective?->next_billing_date?->format('M j, Y'),
                 'days_remaining' => $hasActive ? NULL : $user->getFreeTrialDaysRemaining(),
                 'usage_stats'    => [
@@ -583,13 +583,13 @@ class ModernCustomerDashboardController extends Controller
                     'alerts_limit' => $hasActive ? 'unlimited' : 5,
                 ],
                 // Backward-compatibility aliases expected by tests/UI
-'status'                  => $status,
+                'status'                  => $status,
                 'has_active_subscription' => $hasActive,
                 'is_trial'                => ($effective && ($status === \App\Models\Subscription::STATUS_TRIALING
                     || ($effective->trial_ends_at && $effective->trial_ends_at->isFuture()))),
-'trial_days_remaining'    => ($effective && $effective->trial_ends_at)
-                    ? max(0, (int) ceil(now()->diffInHours($effective->trial_ends_at, false) / 24))
-                    : NULL,
+                'trial_days_remaining' => ($effective && $effective->trial_ends_at)
+                                    ? max(0, (int) ceil(now()->diffInHours($effective->trial_ends_at, FALSE) / 24))
+                                    : NULL,
             ];
         } catch (Exception $e) {
             Log::error('Failed to get subscription status: ' . $e->getMessage());

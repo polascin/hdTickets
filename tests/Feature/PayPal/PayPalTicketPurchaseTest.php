@@ -11,11 +11,11 @@ use App\Services\PayPal\PayPalService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\Response;
 use Mockery;
+use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
 use function in_array;
 
-use PHPUnit\Framework\Attributes\Test;
 class PayPalTicketPurchaseTest extends TestCase
 {
     use RefreshDatabase;

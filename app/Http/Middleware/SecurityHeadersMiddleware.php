@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
 use Log;
 use Symfony\Component\HttpFoundation\Response;
+use Throwable;
 
 use function count;
 use function is_array;
@@ -81,7 +82,7 @@ class SecurityHeadersMiddleware
             $this->recordRequestMetrics($request, $response);
 
             return $response;
-        } catch (\Throwable $e) {
+        } catch (Throwable $e) {
             Log::error('SecurityHeadersMiddleware error', [
                 'error'      => $e->getMessage(),
                 'trace'      => $e->getTraceAsString(),
@@ -272,7 +273,7 @@ class SecurityHeadersMiddleware
             Log::debug('Final CSP String length:', ['length' => strlen($finalCSP), 'preview' => substr($finalCSP, 0, 100) . '...']);
 
             return $finalCSP;
-        } catch (\Throwable $e) {
+        } catch (Throwable $e) {
             Log::error('Error building CSP policy', [
                 'error' => $e->getMessage(),
                 'trace' => $e->getTraceAsString(),

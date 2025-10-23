@@ -5,12 +5,13 @@ namespace Tests\Unit\Services;
 use App\Models\User;
 use App\Services\AnalyticsService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
-use PHPUnit\Framework\Attributes\Test;
 class AnalyticsServiceMarketInsightsTest extends TestCase
 {
     use RefreshDatabase;
+
     #[Test]
     public function market_insights_returns_expected_contract(): void
     {

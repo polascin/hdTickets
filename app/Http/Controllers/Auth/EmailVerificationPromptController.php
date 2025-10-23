@@ -25,6 +25,6 @@ class EmailVerificationPromptController extends Controller
             return redirect()->intended(route('dashboard', absolute: FALSE));
         }
 
-        return view('auth.new-verify-email');
+        return view('auth.modern-verify-email');
     }
 }

@@ -285,14 +285,6 @@ Route::middleware(['auth', 'verified'])->prefix('dashboard')->name('dashboard.')
         ->name('scraper'); // Route: dashboard.scraper
 
     /*
-         * Responsive Design System Example Dashboard
-         * Purpose: Showcase the new responsive design system capabilities
-         * Access: Any authenticated user (demo purposes)
-         * Features: All responsive components, touch interactions, container queries
-         */
-    Route::get('/responsive-example', fn () => view('examples.responsive-dashboard'))->name('responsive-example'); // Route: dashboard.responsive-example
-
-    /*
          * IMAP Email Monitoring Dashboard
          * Purpose: Monitor and manage email-based sports event ticket discovery
          * Access: Users with 'admin' or 'agent' role
@@ -346,14 +338,6 @@ Route::middleware(['auth', 'verified'])->prefix('dashboard')->name('dashboard.')
             return response()->download($path);
         })->name('download');
     });
-
-    /*
-         * React Features Dashboard
-         * Purpose: Advanced React-based features showcase and management
-         * Access: All authenticated users (customers, agents, admins)
-         * Features: Smart monitoring, advanced search, following, comparison, calendar, notifications, history, social proof
-         */
-    Route::get('/react-features', fn () => view('dashboard.react-features'))->name('react-features');
 
     /*
          * Personal Analytics Dashboard
@@ -884,22 +868,6 @@ Route::get('/dashboard-test', function () {
         ]);
     }
 })->name('dashboard.test');
-
-// Customer Dashboard Test Route
-Route::get('/dashboard/customer-test', [App\Http\Controllers\CustomerDashboardTestController::class, 'index'])
-    ->middleware(['auth', 'verified'])
-    ->name('dashboard.customer.test');
-
-Route::get('/customer-test', function () {
-    $user = User::where('role', 'customer')->first();
-    if (! $user) {
-        return response()->json(['error' => 'Customer user not found']);
-    }
-
-    \Auth::login($user);
-
-    return redirect('/dashboard/customer');
-})->name('customer.test');
 
 // UI/UX Showcase Routes
 Route::get('/ui-showcase', fn () => view('ui-showcase'))->name('ui.showcase');

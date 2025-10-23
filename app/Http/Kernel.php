@@ -17,6 +17,7 @@ use App\Http\Middleware\IosErrorTracker;
 use App\Http\Middleware\PreventRequestsDuringMaintenance;
 use App\Http\Middleware\PreventScraperWebAccess;
 use App\Http\Middleware\RedirectIfAuthenticated;
+use App\Http\Middleware\RequestIdMiddleware;
 use App\Http\Middleware\RoleMiddleware;
 use App\Http\Middleware\ScraperMiddleware;
 use App\Http\Middleware\SecurityHeadersMiddleware;
@@ -47,7 +48,6 @@ use Illuminate\Session\Middleware\AuthenticateSession;
 use Illuminate\Session\Middleware\StartSession;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
 use Laravel\Sanctum\Http\Middleware\EnsureFrontendRequestsAreStateful;
-use App\Http\Middleware\RequestIdMiddleware;
 
 class Kernel extends HttpKernel
 {

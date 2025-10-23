@@ -45,9 +45,8 @@ use App\Http\Controllers\Api\AnalyticsController;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\BusinessIntelligenceApiController;
 use App\Http\Controllers\Api\CategoryController;
-use App\Http\Controllers\Api\DashboardController;
 use App\Http\Controllers\Api\CustomerDashboardApiController;
-use App\Http\Middleware\CustomerMiddleware;
+use App\Http\Controllers\Api\DashboardController;
 use App\Http\Controllers\Api\EnhancedAnalyticsController;
 use App\Http\Controllers\Api\FollowingController;
 use App\Http\Controllers\Api\ImapMonitoringController;
@@ -61,8 +60,8 @@ use App\Http\Controllers\Api\StubHubController;
 use App\Http\Controllers\Api\TicketComparisonController;
 use App\Http\Controllers\Api\TicketController;
 use App\Http\Controllers\Api\TicketCriteriaController;
-// Import React Feature API Controllers
 use App\Http\Controllers\Api\TicketmasterController;
+// Import React Feature API Controllers
 use App\Http\Controllers\Api\TicketMonitoringController;
 use App\Http\Controllers\Api\TickPickController;
 use App\Http\Controllers\Api\ViagogoController;
@@ -74,11 +73,12 @@ use App\Http\Controllers\EnhancedDashboardController;
 use App\Http\Controllers\HealthController;
 use App\Http\Controllers\MarketingDashboardController;
 use App\Http\Controllers\RecommendationController;
-// Marketing Dashboard Controllers
 use App\Http\Controllers\TicketApiController;
+// Marketing Dashboard Controllers
 use App\Http\Controllers\UserPreferencesController;
 use App\Http\Middleware\Api\ApiRateLimit;
 use App\Http\Middleware\Api\CheckApiRole;
+use App\Http\Middleware\CustomerMiddleware;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;

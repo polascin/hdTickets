@@ -2,11 +2,11 @@
 
 namespace App\Providers;
 
-use Illuminate\Support\ServiceProvider;
 use App\Models\ScrapedTicket;
 use App\Models\TicketAlert;
 use App\Observers\ScrapedTicketObserver;
 use App\Observers\TicketAlertObserver;
+use Illuminate\Support\ServiceProvider;
 use Override;
 
 class AppServiceProvider extends ServiceProvider

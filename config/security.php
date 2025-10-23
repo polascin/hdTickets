@@ -68,11 +68,11 @@ return [
             'data:',
             'blob:', // iOS Safari video/audio support
         ],
-        'frame-src'                 => ["'none'"],
-        'frame-ancestors'           => ["'none'"],
-        'object-src'                => ["'none'"],
-        'base-uri'                  => ["'self'"],
-        'form-action'               => ["'self'"],
+        'frame-src'       => ["'none'"],
+        'frame-ancestors' => ["'none'"],
+        'object-src'      => ["'none'"],
+        'base-uri'        => ["'self'"],
+        'form-action'     => ["'self'"],
         // Disable upgrade-insecure-requests for iOS compatibility
         // iOS Safari can have issues with this directive in certain scenarios
         'upgrade-insecure-requests' => env('CSP_UPGRADE_INSECURE', FALSE),

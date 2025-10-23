@@ -2,11 +2,10 @@
 
 namespace Database\Factories;
 
-use Illuminate\Support\Facades\DB;
-
 use App\Models\TicketAlert;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
+use Illuminate\Support\Facades\DB;
 
 /**
  * @extends Factory<TicketAlert>
@@ -29,25 +28,25 @@ class TicketAlertFactory extends Factory
         $sportsEventId = DB::table('sports_events')->value('id');
         if (! $sportsEventId) {
             $sportsEventId = DB::table('sports_events')->insertGetId([
-                'name'               => 'Test Event',
-                'venue'              => 'Test Venue',
-                'city'               => 'Test City',
-                'country'            => 'USA',
-                'event_date'         => now()->toDateString(),
-                'event_time'         => '20:00:00',
-                'category'           => 'football',
-                'league'             => 'NFL',
-                'home_team'          => 'Home Team',
-                'away_team'          => 'Away Team',
-                'status'             => 'scheduled',
-                'is_monitored'       => true,
-                'ticket_platforms'   => json_encode(['ticketmaster', 'stubhub']),
-                'min_price'          => 50.00,
-                'max_price'          => 200.00,
-                'total_tickets'      => 1000,
-                'available_tickets'  => 500,
-                'created_at'         => now(),
-                'updated_at'         => now(),
+                'name'              => 'Test Event',
+                'venue'             => 'Test Venue',
+                'city'              => 'Test City',
+                'country'           => 'USA',
+                'event_date'        => now()->toDateString(),
+                'event_time'        => '20:00:00',
+                'category'          => 'football',
+                'league'            => 'NFL',
+                'home_team'         => 'Home Team',
+                'away_team'         => 'Away Team',
+                'status'            => 'scheduled',
+                'is_monitored'      => TRUE,
+                'ticket_platforms'  => json_encode(['ticketmaster', 'stubhub']),
+                'min_price'         => 50.00,
+                'max_price'         => 200.00,
+                'total_tickets'     => 1000,
+                'available_tickets' => 500,
+                'created_at'        => now(),
+                'updated_at'        => now(),
             ]);
         }
 
@@ -64,7 +63,7 @@ class TicketAlertFactory extends Factory
             'priority_score'      => fake()->numberBetween(1, 100),
             'escalation_level'    => fake()->numberBetween(0, 3),
             'success_rate'        => fake()->randomFloat(4, 0, 1),
-            'channel_preferences' => json_encode(['email' => true, 'sms' => false]),
+            'channel_preferences' => json_encode(['email' => TRUE, 'sms' => FALSE]),
             'email_notifications' => TRUE,
             'sms_notifications'   => FALSE,
             'auto_purchase'       => FALSE,

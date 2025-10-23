@@ -9,6 +9,8 @@ use Illuminate\Support\Facades\Log;
 use Override;
 use Throwable;
 
+use function get_class;
+
 class Handler extends ExceptionHandler
 {
     /**
@@ -65,17 +67,17 @@ class Handler extends ExceptionHandler
             $deviceInfo = UserAgentHelper::getDeviceInfo($request);
 
             Log::error('Exception on iOS device', [
-                'exception'       => get_class($e),
-                'message'         => $e->getMessage(),
-                'file'            => $e->getFile(),
-                'line'            => $e->getLine(),
-                'ios_version'     => $deviceInfo['ios_version'],
-                'safari_version'  => $deviceInfo['safari_version'],
-                'device_type'     => $deviceInfo['device_type'],
-                'user_agent'      => UserAgentHelper::sanitise($deviceInfo['user_agent'] ?? null),
-                'url'             => $request->fullUrl(),
-                'method'          => $request->method(),
-                'ip'              => $request->ip(),
+                'exception'      => get_class($e),
+                'message'        => $e->getMessage(),
+                'file'           => $e->getFile(),
+                'line'           => $e->getLine(),
+                'ios_version'    => $deviceInfo['ios_version'],
+                'safari_version' => $deviceInfo['safari_version'],
+                'device_type'    => $deviceInfo['device_type'],
+                'user_agent'     => UserAgentHelper::sanitise($deviceInfo['user_agent'] ?? NULL),
+                'url'            => $request->fullUrl(),
+                'method'         => $request->method(),
+                'ip'             => $request->ip(),
             ]);
         } catch (Throwable $loggingError) {
             // Don't let logging failures prevent error reporting

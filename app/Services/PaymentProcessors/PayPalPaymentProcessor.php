@@ -8,7 +8,7 @@ use Exception;
 
 /**
  * PayPal Payment Processor Service
- * 
+ *
  * Handles PayPal payment processing for sports event ticket purchases
  */
 class PayPalPaymentProcessor
@@ -33,13 +33,13 @@ class PayPalPaymentProcessor
     public function validatePaymentMethod(array $paymentMethod): bool
     {
         // TODO: Implement payment method validation
-        return false;
+        return FALSE;
     }
 
     /**
      * Refund payment
      */
-    public function refundPayment(string $paymentId, float $amount = null): array
+    public function refundPayment(string $paymentId, ?float $amount = NULL): array
     {
         // TODO: Implement payment refund
         throw new Exception('PayPalPaymentProcessor refund not yet implemented');

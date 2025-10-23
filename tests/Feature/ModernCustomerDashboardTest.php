@@ -11,9 +11,9 @@ use App\Models\UserPreference;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Support\Facades\DB;
+use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
-use PHPUnit\Framework\Attributes\Test;
 class ModernCustomerDashboardTest extends TestCase
 {
     use RefreshDatabase;
@@ -191,19 +191,19 @@ class ModernCustomerDashboardTest extends TestCase
     public function dashboard_recommendations_endpoint_returns_personalized_data(): void
     {
         // Create user preferences using preference service
-        \App\Models\UserPreference::setValue(
+        UserPreference::setValue(
             $this->customer->id,
             'tickets',
             'preferred_events',
             ['Basketball', 'Football'],
-            'json'
+            'json',
         );
-        \App\Models\UserPreference::setValue(
+        UserPreference::setValue(
             $this->customer->id,
             'tickets',
             'max_price_range',
             ['min' => 100, 'max' => 500],
-            'json'
+            'json',
         );
 
         // Create some scraped tickets matching preferences
@@ -392,6 +392,25 @@ class ModernCustomerDashboardTest extends TestCase
         $response->assertSee('csrf-token', FALSE);
     }
 
+    #[Test]
+    public function ajax_endpoints_require_ajax_header(): void
+    {
+        $this->actingAs($this->customer);
+
+        $endpoints = [
+            '/ajax/customer-dashboard/stats',
+            '/ajax/customer-dashboard/tickets',
+            '/ajax/customer-dashboard/alerts',
+            '/ajax/customer-dashboard/recommendations',
+            '/ajax/customer-dashboard/market-insights',
+        ];
+
+        foreach ($endpoints as $endpoint) {
+            $response = $this->get($endpoint); // no X-Requested-With header
+            $response->assertStatus(403);
+        }
+    }
+
     protected function setUp(): void
     {
         parent::setUp();
@@ -444,24 +463,5 @@ class ModernCustomerDashboardTest extends TestCase
             'current_period_start'   => now()->subDays(10),
             'current_period_end'     => now()->addDays(20),
         ]);
-    }
-
-    #[Test]
-    public function ajax_endpoints_require_ajax_header(): void
-    {
-        $this->actingAs($this->customer);
-
-        $endpoints = [
-            '/ajax/customer-dashboard/stats',
-            '/ajax/customer-dashboard/tickets',
-            '/ajax/customer-dashboard/alerts',
-            '/ajax/customer-dashboard/recommendations',
-            '/ajax/customer-dashboard/market-insights',
-        ];
-
-        foreach ($endpoints as $endpoint) {
-            $response = $this->get($endpoint); // no X-Requested-With header
-            $response->assertStatus(403);
-        }
     }
 }

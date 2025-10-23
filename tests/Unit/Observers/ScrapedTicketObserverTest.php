@@ -11,7 +11,9 @@ class ScrapedTicketObserverTest extends TestCase
 {
     use RefreshDatabase;
 
-    /** @test */
+    /**
+     * @test
+     */
     public function it_flushes_stats_caches_on_scraped_ticket_created(): void
     {
         // Prime caches
@@ -22,7 +24,7 @@ class ScrapedTicketObserverTest extends TestCase
 
         // Act: create a ScrapedTicket (triggers observer)
         ScrapedTicket::factory()->create([
-            'is_available' => true,
+            'is_available' => TRUE,
             'status'       => 'active',
         ]);
 

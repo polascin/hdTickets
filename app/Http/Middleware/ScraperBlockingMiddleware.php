@@ -11,27 +11,23 @@ use Symfony\Component\HttpFoundation\Response;
 
 /**
  * Scraper Blocking Middleware
- * 
+ *
  * Blocks known scraping user agents and headless browser signals
  * for sports event ticket monitoring system protection
  */
 class ScraperBlockingMiddleware
 {
-    /**
-     * Known bot/scraper user agent patterns
-     */
+    /** Known bot/scraper user agent patterns */
     private array $botPatterns = [
         'bot', 'crawler', 'spider', 'scraper', 'parser', 'extractor',
         'curl', 'wget', 'python', 'java', 'go-http', 'node-fetch',
         'headlesschrome', 'phantomjs', 'selenium', 'playwright',
-        'puppeteer', 'chromedriver', 'webdriver', 'automation'
+        'puppeteer', 'chromedriver', 'webdriver', 'automation',
     ];
 
-    /**
-     * Headless browser detection signals
-     */
+    /** Headless browser detection signals */
     private array $headlessSignals = [
-        'headless', 'phantom', 'electron', 'nightmare', 'splash'
+        'headless', 'phantom', 'electron', 'nightmare', 'splash',
     ];
 
     /**
@@ -40,13 +36,14 @@ class ScraperBlockingMiddleware
     public function handle(Request $request, Closure $next): Response
     {
         $userAgent = strtolower($request->userAgent() ?? '');
-        
+
         // Check for empty user agent (common scraper pattern)
         if (empty($userAgent)) {
             $this->logBlockedRequest($request, 'Empty user agent');
+
             return response()->json([
-                'error' => 'Access denied',
-                'message' => 'Invalid request headers'
+                'error'   => 'Access denied',
+                'message' => 'Invalid request headers',
             ], 403);
         }
 
@@ -54,9 +51,10 @@ class ScraperBlockingMiddleware
         foreach ($this->botPatterns as $pattern) {
             if (str_contains($userAgent, $pattern)) {
                 $this->logBlockedRequest($request, "Bot pattern detected: {$pattern}");
+
                 return response()->json([
-                    'error' => 'Access denied',
-                    'message' => 'Automated access not permitted'
+                    'error'   => 'Access denied',
+                    'message' => 'Automated access not permitted',
                 ], 403);
             }
         }
@@ -65,9 +63,10 @@ class ScraperBlockingMiddleware
         foreach ($this->headlessSignals as $signal) {
             if (str_contains($userAgent, $signal)) {
                 $this->logBlockedRequest($request, "Headless signal detected: {$signal}");
+
                 return response()->json([
-                    'error' => 'Access denied',
-                    'message' => 'Automated browser access not permitted'
+                    'error'   => 'Access denied',
+                    'message' => 'Automated browser access not permitted',
                 ], 403);
             }
         }
@@ -75,16 +74,17 @@ class ScraperBlockingMiddleware
         // Check for common automation headers
         $automationHeaders = [
             'HTTP_X_REQUESTED_WITH' => 'automation',
-            'HTTP_X_AUTOMATION' => true,
-            'HTTP_X_SCRAPER' => true,
+            'HTTP_X_AUTOMATION'     => TRUE,
+            'HTTP_X_SCRAPER'        => TRUE,
         ];
 
         foreach ($automationHeaders as $header => $value) {
             if ($request->header($header) === $value) {
                 $this->logBlockedRequest($request, "Automation header detected: {$header}");
+
                 return response()->json([
-                    'error' => 'Access denied',
-                    'message' => 'Automated access headers not permitted'
+                    'error'   => 'Access denied',
+                    'message' => 'Automated access headers not permitted',
                 ], 403);
             }
         }
@@ -98,11 +98,11 @@ class ScraperBlockingMiddleware
     private function logBlockedRequest(Request $request, string $reason): void
     {
         Log::warning('Scraper access blocked', [
-            'ip' => $request->ip(),
+            'ip'         => $request->ip(),
             'user_agent' => $request->userAgent(),
-            'url' => $request->fullUrl(),
-            'reason' => $reason,
-            'headers' => $request->headers->all()
+            'url'        => $request->fullUrl(),
+            'reason'     => $reason,
+            'headers'    => $request->headers->all(),
         ]);
     }
 }

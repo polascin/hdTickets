@@ -12,9 +12,9 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Log;
 use Mockery;
+use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
-use PHPUnit\Framework\Attributes\Test;
 class PayPalSubscriptionTest extends TestCase
 {
     use RefreshDatabase;

@@ -3,8 +3,6 @@
 namespace Tests\Unit\Services;
 
 use App\Jobs\SendDelayedNotification;
-use PHPUnit\Framework\Attributes\DataProvider;
-use PHPUnit\Framework\Attributes\Test;
 use App\Mail\BulkNotification;
 use App\Mail\PaymentFailure;
 use App\Mail\PurchaseConfirmation;
@@ -18,6 +16,8 @@ use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Facades\Queue;
 use Mockery;
 use Override;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
 class NotificationServiceTest extends TestCase
