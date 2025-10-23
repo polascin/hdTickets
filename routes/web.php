@@ -91,16 +91,17 @@ Route::get('/', function () {
         return redirect()->route('dashboard');
     }
 
-    // If not logged in, show modern welcome page directly
-    return app(WelcomeController::class)->modernWelcome(request());
+    // If not logged in, show welcome page
+    return app(WelcomeController::class)->index(request());
 })->name('root');
 
 // Welcome page - Public landing page for sports events ticket monitoring
 Route::get('/home', [WelcomeController::class, 'index'])->name('home');
-Route::get('/welcome', [WelcomeController::class, 'modernWelcome'])->name('welcome');
+Route::get('/welcome', [WelcomeController::class, 'index'])->name('welcome');
+
+// Alternative welcome page variants for A/B testing
 Route::get('/welcome/modern', [WelcomeController::class, 'modernWelcome'])->name('welcome.modern');
 Route::get('/welcome/enhanced', [WelcomeController::class, 'enhancedWelcome'])->name('welcome.enhanced');
-Route::get('/welcome/legacy', [WelcomeController::class, 'newWelcome'])->name('welcome.legacy');
 
 // API endpoint for welcome page stats
 Route::get('/api/welcome-stats', [WelcomeController::class, 'stats'])->name('api.welcome.stats');
