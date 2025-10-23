@@ -175,6 +175,8 @@ class WelcomeController extends Controller
             $data['featured_tickets'] = $this->getFeaturedTickets();
             $data['platform_integrations'] = $this->getPlatformIntegrations();
             $data['user_testimonials'] = $this->getUserTestimonials();
+            $data['security_features'] = $this->getSecurityFeatures();
+            $data['technology_stack'] = $this->getTechnologyStack();
 
             return view('welcome-modern', $data);
         } catch (Exception $e) {
@@ -240,7 +242,7 @@ class WelcomeController extends Controller
     protected function getABTestVariant(Request $request)
     {
         // Check if A/B testing is enabled
-        if (! config('app.ab_testing_enabled', FALSE)) {
+        if (!config('app.ab_testing_enabled', FALSE)) {
             return;
         }
 
