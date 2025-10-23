@@ -331,7 +331,7 @@ Route::middleware(['auth', 'verified'])->prefix('dashboard')->name('dashboard.')
         // Download route for exports
         Route::get('/download/{file}', function (string $file) {
             $path = storage_path('app/analytics/exports/' . $file);
-            if (! file_exists($path)) {
+            if (!file_exists($path)) {
                 abort(404);
             }
 
@@ -454,7 +454,14 @@ Route::middleware(['auth', 'verified', 'throttle:60,1'])->prefix('ajax')->name('
     Route::get('tickets/search', [TicketLazyLoadController::class, 'searchTickets'])->name('tickets.search');
     Route::get('tickets/load-more', [TicketLazyLoadController::class, 'loadMore'])->name('tickets.load-more');
 
-    // Modern Customer Dashboard AJAX endpoints
+    // Basic Dashboard AJAX endpoints (simplified customer dashboard)
+    Route::prefix('dashboard')->group(function (): void {
+        Route::get('/stats', [DashboardController::class, 'getStats'])->name('dashboard.stats');
+        Route::get('/tickets', [DashboardController::class, 'getTickets'])->name('dashboard.tickets');
+        Route::get('/alerts', [DashboardController::class, 'getAlerts'])->name('dashboard.alerts');
+    });
+
+    // Modern Customer Dashboard AJAX endpoints (advanced features)
     Route::middleware([CustomerMiddleware::class])->prefix('customer-dashboard')->group(function (): void {
         Route::get('/stats', [ModernCustomerDashboardController::class, 'getStats'])->name('customer-dashboard.stats');
         Route::get('/tickets', [ModernCustomerDashboardController::class, 'getTickets'])->name('customer-dashboard.tickets');
@@ -462,8 +469,6 @@ Route::middleware(['auth', 'verified', 'throttle:60,1'])->prefix('ajax')->name('
         Route::get('/recommendations', [ModernCustomerDashboardController::class, 'getRecommendations'])->name('customer-dashboard.recommendations');
         Route::get('/market-insights', [ModernCustomerDashboardController::class, 'getMarketInsights'])->name('customer-dashboard.market-insights');
     });
-
-    Route::get('dashboard/stats', [TicketLazyLoadController::class, 'loadDashboardStats'])->name('dashboard.stats');
 
     // Dashboard dynamic content endpoints
     Route::get('dashboard/live-tickets', [App\Http\Controllers\Ajax\DashboardController::class, 'liveTickets'])
@@ -848,7 +853,7 @@ require __DIR__ . '/admin.php';
 
 Route::get('/dashboard-test', function () {
     $user = User::where('role', 'admin')->first();
-    if (! $user) {
+    if (!$user) {
         return response()->json(['error' => 'Admin user not found']);
     }
 
