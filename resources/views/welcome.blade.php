@@ -46,7 +46,8 @@
         font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
         line-height: 1.6;
         color: #1f2937;
-        background-color: #ffffff;
+        min-height: 100%;
+        background: linear-gradient(180deg, #f3f4f6 0%, #e5e7eb 100%);
         margin: 0;
         padding: 0;
       }
@@ -92,6 +93,7 @@
     <section class="welcome-hero">
       <div class="welcome-container">
         <div class="welcome-hero-content">
+          <x-application-logo size="xl" class="welcome-hero-logo" />
           <h1 class="welcome-hero-title">Never Miss the Perfect Ticket</h1>
           <p class="welcome-hero-subtitle">
             Smart monitoring, instant alerts, and automated purchasing for sports events.

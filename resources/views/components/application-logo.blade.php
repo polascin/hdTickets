@@ -13,13 +13,13 @@
 @endphp
 
 <div class="hd-logo-container {{ $class }}" {{ $attributes->except(['class', 'size', 'lazy']) }}>
-  <!-- Enhanced SVG Logo with dark mode support -->
-  <img src="{{ asset('images/logo-hdtickets-enhanced.svg') }}" alt="HD Tickets - Sports Event Tickets Platform"
+  <!-- HD Tickets PNG Logo (requested as primary) -->
+  <img src="{{ asset('assets/images/hdTicketsLogo.png') }}" alt="HD Tickets - Sports Event Tickets Platform"
     class="hd-logo {{ $logoClass }}" loading="{{ $loadingAttr }}" decoding="async" width="128" height="128" />
 
-  <!-- Fallback for older browsers or when SVG fails -->
+  <!-- Noscript fallback uses PNG as well -->
   <noscript>
-    <img src="{{ asset('assets/images/hdTicketsLogo.webp') }}" alt="HD Tickets - Sports Event Tickets Platform"
+    <img src="{{ asset('assets/images/hdTicketsLogo.png') }}" alt="HD Tickets - Sports Event Tickets Platform"
       class="hd-logo {{ $logoClass }}" width="128" height="128" />
   </noscript>
 </div>
