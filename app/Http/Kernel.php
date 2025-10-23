@@ -47,6 +47,7 @@ use Illuminate\Session\Middleware\AuthenticateSession;
 use Illuminate\Session\Middleware\StartSession;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
 use Laravel\Sanctum\Http\Middleware\EnsureFrontendRequestsAreStateful;
+use App\Http\Middleware\RequestIdMiddleware;
 
 class Kernel extends HttpKernel
 {
@@ -70,7 +71,8 @@ class Kernel extends HttpKernel
      * @var array<int, class-string|string>
      */
     protected $middleware = [
-        // \App\Http\Middleware\TrustHosts::class,
+        // \\App\\Http\\Middleware\\TrustHosts::class,
+        RequestIdMiddleware::class,
         IosErrorTracker::class, // Track iOS errors early in the stack
         SecurityHeadersMiddleware::class, // Move to top
         TrustProxies::class,

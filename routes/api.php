@@ -46,6 +46,8 @@ use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\BusinessIntelligenceApiController;
 use App\Http\Controllers\Api\CategoryController;
 use App\Http\Controllers\Api\DashboardController;
+use App\Http\Controllers\Api\CustomerDashboardApiController;
+use App\Http\Middleware\CustomerMiddleware;
 use App\Http\Controllers\Api\EnhancedAnalyticsController;
 use App\Http\Controllers\Api\FollowingController;
 use App\Http\Controllers\Api\ImapMonitoringController;
@@ -192,6 +194,21 @@ Route::prefix('v1/tickets')->middleware([ApiRateLimit::class . ':api,120,1'])->n
 
 /*
 |--------------------------------------------------------------------------
+| Backward-compatible Dashboard API Routes (no version prefix)
+|--------------------------------------------------------------------------
+|
+| Provides the simplified API used by legacy tests and clients:
+| /api/dashboard/stats, /api/dashboard/tickets, /api/dashboard/recommendations
+|
+*/
+Route::prefix('dashboard')->middleware(['auth'])->group(function (): void {
+    Route::get('/stats', [CustomerDashboardApiController::class, 'stats']);
+    Route::get('/tickets', [CustomerDashboardApiController::class, 'tickets']);
+    Route::get('/recommendations', [CustomerDashboardApiController::class, 'recommendations']);
+});
+
+/*
+|--------------------------------------------------------------------------
 | Enhanced Dashboard API Routes
 |--------------------------------------------------------------------------
 |
@@ -199,7 +216,7 @@ Route::prefix('v1/tickets')->middleware([ApiRateLimit::class . ':api,120,1'])->n
 | Provides data for statistics, recommendations, notifications, and more
 |
 */
-Route::prefix('v1/dashboard')->middleware(['auth', ApiRateLimit::class . ':api,120,1'])->name('api.dashboard.')->group(function (): void {
+Route::prefix('v1/dashboard')->middleware(['auth', CustomerMiddleware::class, ApiRateLimit::class . ':api,120,1'])->name('api.dashboard.')->group(function (): void {
     /*
        * Real-time Dashboard Data Endpoint
        * Purpose: Fetch current dashboard statistics and recent tickets

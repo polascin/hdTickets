@@ -62,6 +62,7 @@ export function modernCustomerDashboard() {
       this.setupEventListeners();
       this.setupMobileHandling();
       this.setupInfiniteScroll();
+      this.setupIntersectionObserver();
       this.setupRealTimeIntegration();
       this.startAutoRefresh();
 
@@ -91,6 +92,43 @@ export function modernCustomerDashboard() {
           this.tickets = JSON.parse(ticketsElement.dataset.tickets);
         } catch (e) {
           console.warn('Failed to parse initial tickets:', e);
+        }
+      }
+
+      const pageEl = document.querySelector('[data-pagination]');
+      if (pageEl) {
+        try {
+          const pg = JSON.parse(pageEl.dataset.pagination);
+          if (pg && typeof pg === 'object') {
+            this.currentPage = pg.current_page || this.currentPage;
+            this.hasMoreTickets = pg.last_page ? (this.currentPage < pg.last_page) : this.hasMoreTickets;
+          }
+        } catch (e) {
+          console.warn('Failed to parse initial pagination:', e);
+        }
+      }
+
+      const insightsEl = document.querySelector('[data-insights]');
+      if (insightsEl) {
+        try {
+          this.marketInsights = JSON.parse(insightsEl.dataset.insights);
+        } catch (e) {
+          console.warn('Failed to parse initial insights:', e);
+        }
+      }
+
+      const flagsEl = document.querySelector('[data-flags]');
+      if (flagsEl) {
+        try {
+          const flags = JSON.parse(flagsEl.dataset.flags);
+          if (flags && typeof flags === 'object') {
+            // Optionally toggle features
+            if (flags.infinite_scroll === false) {
+              this.hasMoreTickets = false;
+            }
+          }
+        } catch (e) {
+          console.warn('Failed to parse feature flags:', e);
         }
       }
     },
@@ -193,7 +231,7 @@ export function modernCustomerDashboard() {
     },
 
     /**
-     * Setup infinite scroll for tickets
+     * Setup infinite scroll for tickets (scroll fallback)
      */
     setupInfiniteScroll() {
       // Add scroll listener for infinite loading
@@ -213,6 +251,24 @@ export function modernCustomerDashboard() {
           }
         }, 100);
       });
+    },
+
+    /**
+     * IntersectionObserver-based infinite scroll for better performance
+     */
+    setupIntersectionObserver() {
+      const sentinel = document.getElementById('tickets-sentinel');
+      if (!('IntersectionObserver' in window) || !sentinel) return;
+
+      const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting && this.activeTab === 'tickets' && this.hasMoreTickets && !this.loadingMore) {
+            this.loadMoreTickets();
+          }
+        });
+      }, { root: null, rootMargin: '0px', threshold: 0.1 });
+
+      observer.observe(sentinel);
     },
 
     /**

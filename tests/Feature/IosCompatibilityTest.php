@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use PHPUnit\Framework\Attributes\Test;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -42,7 +43,7 @@ class IosCompatibilityTest extends TestCase
         'malformed' => 'Mozilla/5.0 (iPhone; CPU iPhone OS 17_0_1 like Mac OS X) AppleWebKit/605.1.15',
     ];
 
-    /** @test */
+    #[Test]
     public function ios_devices_can_access_welcome_page(): void
     {
         foreach ($this->iosUserAgents as $name => $userAgent) {
@@ -55,7 +56,7 @@ class IosCompatibilityTest extends TestCase
         }
     }
 
-    /** @test */
+    #[Test]
     public function ios_devices_can_access_login_page(): void
     {
         foreach ($this->iosUserAgents as $name => $userAgent) {
@@ -68,7 +69,7 @@ class IosCompatibilityTest extends TestCase
         }
     }
 
-    /** @test */
+    #[Test]
     public function ios_devices_can_access_register_page(): void
     {
         foreach ($this->iosUserAgents as $name => $userAgent) {
@@ -81,7 +82,7 @@ class IosCompatibilityTest extends TestCase
         }
     }
 
-    /** @test */
+    #[Test]
     public function ios_devices_are_not_flagged_as_bots(): void
     {
         foreach ($this->iosUserAgents as $name => $userAgent) {
@@ -95,7 +96,7 @@ class IosCompatibilityTest extends TestCase
         }
     }
 
-    /** @test */
+    #[Test]
     public function middleware_handles_ios_user_agents_without_errors(): void
     {
         foreach ($this->iosUserAgents as $name => $userAgent) {
@@ -108,7 +109,7 @@ class IosCompatibilityTest extends TestCase
         }
     }
 
-    /** @test */
+    #[Test]
     public function null_user_agent_does_not_cause_500_error(): void
     {
         $response = $this->withHeaders([
@@ -118,7 +119,7 @@ class IosCompatibilityTest extends TestCase
         $this->assertNotEquals(500, $response->status(), 'Null user agent caused 500 error');
     }
 
-    /** @test */
+    #[Test]
     public function malicious_user_agent_does_not_cause_500_error(): void
     {
         $maliciousUserAgents = [
@@ -137,7 +138,7 @@ class IosCompatibilityTest extends TestCase
         }
     }
 
-    /** @test */
+    #[Test]
     public function csp_headers_are_compatible_with_ios(): void
     {
         $response = $this->withHeaders([
@@ -155,7 +156,7 @@ class IosCompatibilityTest extends TestCase
         $this->assertStringContainsString('img-src', $csp);
     }
 
-    /** @test */
+    #[Test]
     public function ios_devices_can_make_post_requests(): void
     {
         foreach (['iphone_ios17', 'ipad_ios17'] as $deviceKey) {
@@ -174,7 +175,7 @@ class IosCompatibilityTest extends TestCase
         }
     }
 
-    /** @test */
+    #[Test]
     public function ios_safari_can_load_assets(): void
     {
         // Test that critical assets load without errors
@@ -194,7 +195,7 @@ class IosCompatibilityTest extends TestCase
         }
     }
 
-    /** @test */
+    #[Test]
     public function security_middleware_does_not_block_ios(): void
     {
         foreach ($this->iosUserAgents as $name => $userAgent) {
@@ -210,7 +211,7 @@ class IosCompatibilityTest extends TestCase
         }
     }
 
-    /** @test */
+    #[Test]
     public function ios_error_tracking_middleware_is_registered(): void
     {
         $middlewareClasses = app('router')->getMiddleware();
@@ -219,7 +220,7 @@ class IosCompatibilityTest extends TestCase
             'IosErrorTracker middleware is not registered');
     }
 
-    /** @test */
+    #[Test]
     public function user_agent_helper_correctly_detects_ios_devices(): void
     {
         $request = $this->createRequest('/', 'GET', [
@@ -235,7 +236,7 @@ class IosCompatibilityTest extends TestCase
         $this->assertNotNull($deviceInfo['ios_version']);
     }
 
-    /** @test */
+    #[Test]
     public function user_agent_helper_handles_null_gracefully(): void
     {
         $request = $this->createRequest('/', 'GET', [
@@ -250,7 +251,7 @@ class IosCompatibilityTest extends TestCase
         $this->assertIsArray($deviceInfo);
     }
 
-    /** @test */
+    #[Test]
     public function geoip_api_failures_do_not_cause_500_errors(): void
     {
         // Simulate GeoIP API being unavailable by using local IP

@@ -167,7 +167,12 @@
 
 @section('content')
   <div class="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100" x-data="modernCustomerDashboard()"
-    x-init="init()" x-cloak>
+    x-init="init()" x-cloak
+    data-stats='@json($statistics)'
+    data-tickets='@json($initial_tickets_page["tickets"] ?? $recent_tickets ?? [])'
+    data-pagination='@json($initial_tickets_page["pagination"] ?? [])'
+    data-insights='@json($market_insights ?? [])'
+    data-flags='@json($feature_flags ?? [])' >
 
     <!-- Mobile Menu Button -->
     <div class="md:hidden fixed top-4 left-4 z-50">
@@ -522,7 +527,10 @@
                     </button>
                   </div>
 
-                  <!-- Load More Button -->
+                  <!-- Infinite Scroll Sentinel -->
+                  <div id="tickets-sentinel" class="h-6 w-full" aria-hidden="true"></div>
+
+                  <!-- Load More Button (accessible fallback) -->
                   <div x-show="hasMoreTickets && tickets.length > 0" class="text-center mt-6">
                     <button @click="loadMoreTickets()" 
                             class="px-6 py-3 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors"

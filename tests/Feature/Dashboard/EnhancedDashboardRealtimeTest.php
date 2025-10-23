@@ -8,13 +8,12 @@ use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
+use PHPUnit\Framework\Attributes\Test;
 class EnhancedDashboardRealtimeTest extends TestCase
 {
     use RefreshDatabase;
 
-    /**
-     * @test
-     */
+    #[Test]
     public function customer_user_can_fetch_realtime_dashboard_data(): void
     {
         $user = User::factory()->create([
@@ -44,9 +43,7 @@ class EnhancedDashboardRealtimeTest extends TestCase
             ->assertJson(['success' => TRUE]);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function unauthenticated_user_is_rejected(): void
     {
         $this->getJson('/api/v1/dashboard/realtime')

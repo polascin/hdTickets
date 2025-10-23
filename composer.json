@@ -48,7 +48,6 @@
   },
   "require-dev": {
     "laravel/breeze": "^2.3",
-    "phpunit/phpunit": "^11.5",
     "mockery/mockery": "^1.6",
     "fakerphp/faker": "^1.24",
     "laravel/pint": "^1.25",
@@ -65,7 +64,9 @@
     "rector/rector": "^2.0",
     "driftingly/rector-laravel": "^2.0",
     "phpoffice/phpspreadsheet": "^1.29",
-    "php-cs-fixer/shim": "^3.9"
+    "php-cs-fixer/shim": "^3.9",
+    "pestphp/pest": "^2.36",
+    "pestphp/pest-plugin-laravel": "^2.0"
   },
   "autoload": {
     "psr-4": {
@@ -138,8 +139,20 @@
     "quality-metrics": [
       "./vendor/bin/phpmetrics --report-html=storage/quality/metrics app/"
     ],
+    "test": [
+      "vendor/bin/pest"
+    ],
+    "test:dashboard": [
+      "vendor/bin/pest --filter=ModernCustomerDashboardTest"
+    ],
     "test-coverage": [
-      "./vendor/bin/phpunit --coverage-html storage/quality/coverage"
+      "XDEBUG_MODE=coverage vendor/bin/pest --coverage"
+    ],
+    "migrate-test-annotations": [
+      "php tools/migrate-test-annotations.php"
+    ],
+    "check-test-attributes": [
+      "php tools/check-no-test-annotations.php"
     ],
     "full-quality-check": [
       "@code-quality",
@@ -158,7 +171,8 @@
   "prefer-stable": true,
   "config": {
     "allow-plugins": {
-      "php-http/discovery": true
+      "php-http/discovery": true,
+      "pestphp/pest-plugin": true
     }
   }
 }

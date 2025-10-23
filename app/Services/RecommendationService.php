@@ -197,7 +197,7 @@ class RecommendationService
         } catch (Exception $e) {
             Log::error('Failed to get base tickets: ' . $e->getMessage());
 
-            return collect();
+            return new Collection();
         }
     }
 

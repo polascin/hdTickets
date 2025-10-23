@@ -3,6 +3,10 @@
 namespace App\Providers;
 
 use Illuminate\Support\ServiceProvider;
+use App\Models\ScrapedTicket;
+use App\Models\TicketAlert;
+use App\Observers\ScrapedTicketObserver;
+use App\Observers\TicketAlertObserver;
 use Override;
 
 class AppServiceProvider extends ServiceProvider
@@ -27,5 +31,7 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        ScrapedTicket::observe(ScrapedTicketObserver::class);
+        TicketAlert::observe(TicketAlertObserver::class);
     }
 }

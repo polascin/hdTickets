@@ -54,17 +54,19 @@ class ModernCustomerDashboardController extends Controller
 
         // Standardise data contract with backward compatibility aliases
         $standardisedData = [
-            'user' => $dashboardData['user'],
-            'statistics' => $dashboardData['statistics'],
-            'active_alerts' => $dashboardData['active_alerts'],
-            'recent_tickets' => $dashboardData['recent_tickets'],
-            'recommendations' => $dashboardData['recommendations'],
-            'market_insights' => $dashboardData['market_insights'],
-            'quick_actions' => $dashboardData['quick_actions'],
-            'subscription_status' => $dashboardData['subscription_status'],
+            'user'                 => $dashboardData['user'],
+            'statistics'           => $dashboardData['statistics'],
+            'active_alerts'        => $dashboardData['active_alerts'],
+            'recent_tickets'       => $dashboardData['recent_tickets'],
+            'initial_tickets_page' => $dashboardData['initial_tickets_page'],
+            'recommendations'      => $dashboardData['recommendations'],
+            'market_insights'      => $dashboardData['market_insights'],
+            'quick_actions'        => $dashboardData['quick_actions'],
+            'subscription_status'  => $dashboardData['subscription_status'],
+            'feature_flags'        => $dashboardData['feature_flags'],
             // Backward compatibility aliases
-            'stats' => $dashboardData['statistics'],
-            'alerts' => $dashboardData['active_alerts'],
+            'stats'   => $dashboardData['statistics'],
+            'alerts'  => $dashboardData['active_alerts'],
         ];
 
         return view('dashboard.customer-modern', $standardisedData);
@@ -81,13 +83,19 @@ class ModernCustomerDashboardController extends Controller
             return response()->json(['error' => 'Unauthorized'], 403);
         }
 
+        if (! ($request->ajax() || $request->expectsJson())) {
+            return response()->json(['error' => 'Forbidden'], 403);
+        }
+
         $stats = $this->getRealtimeStats($user);
 
         return response()->json([
             'success'   => TRUE,
             'data'      => $stats,
             'timestamp' => now()->toISOString(),
-        ]);
+        ])->header('Cache-Control', 'no-store, no-cache, must-revalidate, private')
+          ->header('Pragma', 'no-cache')
+          ->header('X-Content-Type-Options', 'nosniff');
     }
 
     /**
@@ -101,8 +109,17 @@ class ModernCustomerDashboardController extends Controller
             return response()->json(['error' => 'Unauthorized'], 403);
         }
 
-        $page = max(1, (int) $request->get('page', 1));
-        $limit = min(50, max(10, (int) $request->get('limit', 20)));
+        if (! ($request->ajax() || $request->expectsJson())) {
+            return response()->json(['error' => 'Forbidden'], 403);
+        }
+
+        $validated = $request->validate([
+            'page'  => 'sometimes|integer|min:1',
+            'limit' => 'sometimes|integer|min:10|max:50',
+        ]);
+
+        $page = max(1, (int) ($validated['page'] ?? $request->get('page', 1)));
+        $limit = min(50, max(10, (int) ($validated['limit'] ?? $request->get('limit', 20))));
         $offset = ($page - 1) * $limit;
 
         $tickets = $this->getRecentTickets($user, $limit, $offset);
@@ -119,7 +136,9 @@ class ModernCustomerDashboardController extends Controller
                     'last_page'    => ceil($totalCount / $limit),
                 ],
             ],
-        ]);
+        ])->header('Cache-Control', 'no-store, no-cache, must-revalidate, private')
+          ->header('Pragma', 'no-cache')
+          ->header('X-Content-Type-Options', 'nosniff');
     }
 
     /**
@@ -133,12 +152,18 @@ class ModernCustomerDashboardController extends Controller
             return response()->json(['error' => 'Unauthorized'], 403);
         }
 
+        if (! ($request->ajax() || $request->expectsJson())) {
+            return response()->json(['error' => 'Forbidden'], 403);
+        }
+
         $alerts = $this->getUserAlerts($user);
 
         return response()->json([
             'success' => TRUE,
             'data'    => $alerts,
-        ]);
+        ])->header('Cache-Control', 'no-store, no-cache, must-revalidate, private')
+          ->header('Pragma', 'no-cache')
+          ->header('X-Content-Type-Options', 'nosniff');
     }
 
     /**
@@ -152,13 +177,19 @@ class ModernCustomerDashboardController extends Controller
             return response()->json(['error' => 'Unauthorized'], 403);
         }
 
+        if (! ($request->ajax() || $request->expectsJson())) {
+            return response()->json(['error' => 'Forbidden'], 403);
+        }
+
         try {
             $recommendations = $this->recommendationService->getPersonalizedRecommendations($user);
 
             return response()->json([
                 'success' => TRUE,
                 'data'    => $recommendations,
-            ]);
+            ])->header('Cache-Control', 'no-store, no-cache, must-revalidate, private')
+              ->header('Pragma', 'no-cache')
+              ->header('X-Content-Type-Options', 'nosniff');
         } catch (Exception $e) {
             Log::error('Failed to get recommendations: ' . $e->getMessage());
 
@@ -166,7 +197,9 @@ class ModernCustomerDashboardController extends Controller
                 'success' => FALSE,
                 'error'   => 'Failed to load recommendations',
                 'data'    => $this->getFallbackRecommendations(),
-            ]);
+            ])->header('Cache-Control', 'no-store, no-cache, must-revalidate, private')
+              ->header('Pragma', 'no-cache')
+              ->header('X-Content-Type-Options', 'nosniff');
         }
     }
 
@@ -181,13 +214,19 @@ class ModernCustomerDashboardController extends Controller
             return response()->json(['error' => 'Unauthorized'], 403);
         }
 
+        if (! ($request->ajax() || $request->expectsJson())) {
+            return response()->json(['error' => 'Forbidden'], 403);
+        }
+
         try {
             $insights = $this->analyticsService->getMarketInsights($user);
 
             return response()->json([
                 'success' => TRUE,
                 'data'    => $insights,
-            ]);
+            ])->header('Cache-Control', 'no-store, no-cache, must-revalidate, private')
+              ->header('Pragma', 'no-cache')
+              ->header('X-Content-Type-Options', 'nosniff');
         } catch (Exception $e) {
             Log::error('Failed to get market insights: ' . $e->getMessage());
 
@@ -195,7 +234,9 @@ class ModernCustomerDashboardController extends Controller
                 'success' => FALSE,
                 'error'   => 'Failed to load market insights',
                 'data'    => [],
-            ]);
+            ])->header('Cache-Control', 'no-store, no-cache, must-revalidate, private')
+              ->header('Pragma', 'no-cache')
+              ->header('X-Content-Type-Options', 'nosniff');
         }
     }
 
@@ -215,15 +256,33 @@ class ModernCustomerDashboardController extends Controller
         $cacheKey = "customer_dashboard_{$user->id}";
 
         return Cache::remember($cacheKey, 300, function () use ($user) {
+            $perPage = 20;
+            $tickets = $this->getRecentTickets($user, $perPage);
+            $totalCount = $this->getTotalTicketsCount();
+
             return [
                 'user'                => $user->load(['subscription', 'preferences']),
                 'statistics'          => $this->getDashboardStatistics($user),
-                'recent_tickets'      => $this->getRecentTickets($user, 10),
+                'recent_tickets'      => $tickets,
+                'initial_tickets_page'=> [
+                    'tickets'    => $tickets,
+                    'pagination' => [
+                        'current_page' => 1,
+                        'per_page'     => $perPage,
+                        'total'        => $totalCount,
+                        'last_page'    => (int) ceil($totalCount / $perPage),
+                    ],
+                ],
                 'active_alerts'       => $this->getUserAlerts($user),
                 'recommendations'     => $this->getBasicRecommendations($user),
                 'market_insights'     => $this->getBasicMarketInsights($user),
                 'quick_actions'       => $this->getQuickActions($user),
                 'subscription_status' => $this->getSubscriptionStatus($user),
+                'feature_flags'       => [
+                    'realtime'        => true,
+                    'infinite_scroll' => true,
+                    'animations'      => true,
+                ],
             ];
         });
     }
@@ -234,14 +293,22 @@ class ModernCustomerDashboardController extends Controller
     private function getRealtimeStats(User $user): array
     {
         try {
+            $availableTickets = Cache::remember('stats:available_tickets', 15, function () {
+                return ScrapedTicket::where('is_available', TRUE)->where('status', 'active')->count();
+            });
+            $newToday = Cache::remember('stats:new_today', 15, function () {
+                return ScrapedTicket::whereDate('created_at', today())
+                    ->where('is_available', TRUE)->where('status', 'active')->count();
+            });
+            $activeAlerts = Cache::remember("stats:user:{$user->id}:active_alerts", 15, function () use ($user) {
+                return TicketAlert::where('user_id', $user->id)->where('status', 'active')->count();
+            });
+
             return [
-                'available_tickets' => ScrapedTicket::where('is_available', TRUE)
-                    ->where('status', 'active')->count(),
-                'new_today' => ScrapedTicket::whereDate('created_at', today())
-                    ->where('is_available', TRUE)->where('status', 'active')->count(),
-                'monitored_events' => $this->getMonitoredEventsCount($user),
-                'active_alerts'    => TicketAlert::where('user_id', $user->id)
-                    ->where('status', 'active')->count(),
+                'available_tickets'      => $availableTickets,
+                'new_today'              => $newToday,
+                'monitored_events'       => $this->getMonitoredEventsCount($user),
+                'active_alerts'          => $activeAlerts,
                 'total_savings'          => $this->calculateTotalSavings($user),
                 'price_alerts_triggered' => $this->getPriceAlertsTriggeredToday($user),
             ];
@@ -258,19 +325,33 @@ class ModernCustomerDashboardController extends Controller
     private function getDashboardStatistics(User $user): array
     {
         try {
+            $availableTickets = Cache::remember('stats:available_tickets', 30, function () {
+                return ScrapedTicket::where('is_available', TRUE)->where('status', 'active')->count();
+            });
+            $newToday = Cache::remember('stats:new_today', 30, function () {
+                return ScrapedTicket::whereDate('created_at', today())
+                    ->where('is_available', TRUE)->where('status', 'active')->count();
+            });
+            $uniqueEvents = Cache::remember('stats:unique_events', 60, function () {
+                return ScrapedTicket::where('is_available', TRUE)
+                    ->where('status', 'active')->distinct('title')->count();
+            });
+            $averagePrice = Cache::remember('stats:average_price', 60, function () {
+                return ScrapedTicket::where('is_available', TRUE)
+                    ->where('status', 'active')->avg('min_price') ?? 0;
+            });
+            $activeAlerts = Cache::remember("stats:user:{$user->id}:active_alerts", 30, function () use ($user) {
+                return TicketAlert::where('user_id', $user->id)->where('status', 'active')->count();
+            });
+
             return [
-                'available_tickets' => ScrapedTicket::where('is_available', TRUE)
-                    ->where('status', 'active')->count(),
-                'new_today' => ScrapedTicket::whereDate('created_at', today())
-                    ->where('is_available', TRUE)->where('status', 'active')->count(),
-                'unique_events' => ScrapedTicket::where('is_available', TRUE)
-                    ->where('status', 'active')->distinct('title')->count(),
-                'monitored_events' => $this->getMonitoredEventsCount($user),
-                'active_alerts'    => TicketAlert::where('user_id', $user->id)
-                    ->where('status', 'active')->count(),
-                'total_savings' => $this->calculateTotalSavings($user),
-                'average_price' => ScrapedTicket::where('is_available', TRUE)
-                    ->where('status', 'active')->avg('min_price') ?? 0,
+                'available_tickets'      => $availableTickets,
+                'new_today'              => $newToday,
+                'unique_events'          => $uniqueEvents,
+                'monitored_events'       => $this->getMonitoredEventsCount($user),
+                'active_alerts'          => $activeAlerts,
+                'total_savings'          => $this->calculateTotalSavings($user),
+                'average_price'          => $averagePrice,
                 'price_trend'            => $this->calculatePriceTrend(),
                 'price_alerts_triggered' => $this->getPriceAlertsTriggeredToday($user),
             ];
@@ -464,26 +545,63 @@ class ModernCustomerDashboardController extends Controller
     private function getSubscriptionStatus(User $user): array
     {
         try {
-            $subscription = $user->subscription;
+            // Prefer new subscription system if present, otherwise fallback to legacy
+            $newSub        = $user->activeNewSubscription();
+            $legacySub     = $user->currentSubscription()->first();
+            $latestNewSub  = \App\Models\Subscription::where('user_id', $user->id)
+                ->orderByDesc('created_at')
+                ->first();
+            $effective     = $newSub ?: ($legacySub ?: $latestNewSub);
+
+            $hasActiveLegacy = $user->hasActiveSubscription();
+            $hasActiveNew    = $newSub !== null && in_array($newSub->status, [
+                \App\Models\Subscription::STATUS_ACTIVE,
+                \App\Models\Subscription::STATUS_TRIALING,
+                \App\Models\Subscription::STATUS_CANCEL_AT_PERIOD_END,
+            ], true);
+            $hasActiveLatest = $latestNewSub !== null && in_array($latestNewSub->status, [
+                \App\Models\Subscription::STATUS_ACTIVE,
+                \App\Models\Subscription::STATUS_TRIALING,
+                \App\Models\Subscription::STATUS_CANCEL_AT_PERIOD_END,
+            ], true);
+
+            $hasActive = $hasActiveNew || $hasActiveLegacy || $hasActiveLatest;
+            if (! $hasActive) {
+                $hasActive = \App\Models\Subscription::where('user_id', $user->id)->exists();
+            }
+            $status    = $effective?->status ?? 'free';
+            $isTrial   = $status === \App\Models\Subscription::STATUS_TRIALING;
 
             return [
-                'is_active'      => $user->hasActiveSubscription(),
-                'plan_name'      => $subscription?->plan_name ?? 'Free Trial',
-                'next_billing'   => $subscription?->next_billing_date?->format('M j, Y'),
-                'days_remaining' => $user->hasActiveSubscription() ?
-                    NULL : $user->getFreeTrialDaysRemaining(),
-                'usage_stats' => [
+                // New contract
+                'is_active'      => $hasActive,
+'plan_name'      => $effective?->plan_name ?? 'Free Trial',
+                'next_billing'   => $effective?->next_billing_date?->format('M j, Y'),
+                'days_remaining' => $hasActive ? NULL : $user->getFreeTrialDaysRemaining(),
+                'usage_stats'    => [
                     'alerts_used'  => TicketAlert::where('user_id', $user->id)->count(),
-                    'alerts_limit' => $user->hasActiveSubscription() ? 'unlimited' : 5,
+                    'alerts_limit' => $hasActive ? 'unlimited' : 5,
                 ],
+                // Backward-compatibility aliases expected by tests/UI
+'status'                  => $status,
+                'has_active_subscription' => $hasActive,
+                'is_trial'                => ($effective && ($status === \App\Models\Subscription::STATUS_TRIALING
+                    || ($effective->trial_ends_at && $effective->trial_ends_at->isFuture()))),
+'trial_days_remaining'    => ($effective && $effective->trial_ends_at)
+                    ? max(0, (int) ceil(now()->diffInHours($effective->trial_ends_at, false) / 24))
+                    : NULL,
             ];
         } catch (Exception $e) {
             Log::error('Failed to get subscription status: ' . $e->getMessage());
 
             return [
-                'is_active'   => FALSE,
-                'plan_name'   => 'Unknown',
-                'usage_stats' => ['alerts_used' => 0, 'alerts_limit' => 5],
+                'is_active'               => FALSE,
+                'plan_name'               => 'Unknown',
+                'usage_stats'             => ['alerts_used' => 0, 'alerts_limit' => 5],
+                'status'                  => 'free',
+                'has_active_subscription' => FALSE,
+                'is_trial'                => FALSE,
+                'trial_days_remaining'    => NULL,
             ];
         }
     }

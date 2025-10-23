@@ -14,15 +14,14 @@ use PayPalCheckoutSdk\Payments\CapturesRefundRequest;
 use ReflectionClass;
 use Tests\TestCase;
 
+use PHPUnit\Framework\Attributes\Test;
 class PayPalServiceTest extends TestCase
 {
     private PayPalService $paypalService;
 
     private MockInterface $mockClient;
 
-    /**
-     * @test
-     */
+    #[Test]
     public function it_creates_paypal_order_successfully(): void
     {
         // Arrange
@@ -68,9 +67,7 @@ class PayPalServiceTest extends TestCase
         $this->assertStringContains('ORDER123456', $result['approve_link']);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function it_handles_order_creation_failure(): void
     {
         // Arrange
@@ -90,9 +87,7 @@ class PayPalServiceTest extends TestCase
         $this->paypalService->createOrder($orderData);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function it_captures_paypal_order_successfully(): void
     {
         // Arrange
@@ -137,9 +132,7 @@ class PayPalServiceTest extends TestCase
         $this->assertEquals('USD', $result['currency']);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function it_handles_order_capture_failure(): void
     {
         // Arrange
@@ -156,9 +149,7 @@ class PayPalServiceTest extends TestCase
         $this->paypalService->captureOrder($orderId);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function it_retrieves_order_details_successfully(): void
     {
         // Arrange
@@ -202,9 +193,7 @@ class PayPalServiceTest extends TestCase
         $this->assertEquals('john.doe@example.com', $result['payer']['email_address']);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function it_processes_refund_successfully(): void
     {
         // Arrange
@@ -244,9 +233,7 @@ class PayPalServiceTest extends TestCase
         $this->assertEquals('USD', $result['currency']);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function it_handles_refund_failure(): void
     {
         // Arrange
@@ -269,9 +256,7 @@ class PayPalServiceTest extends TestCase
         $this->paypalService->refundOrder($captureId, $refundData);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function it_verifies_webhook_signature_successfully(): void
     {
         // Arrange
@@ -299,9 +284,7 @@ class PayPalServiceTest extends TestCase
         $this->assertIsBool($result);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function it_handles_invalid_webhook_signature(): void
     {
         // Arrange
@@ -319,9 +302,7 @@ class PayPalServiceTest extends TestCase
         $this->assertFalse($result);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function it_handles_paypal_client_initialization(): void
     {
         // Arrange - Create new service to test initialization
@@ -340,9 +321,7 @@ class PayPalServiceTest extends TestCase
         $this->assertInstanceOf(PayPalService::class, $liveService);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function it_validates_order_data_before_creation(): void
     {
         // Arrange
@@ -357,9 +336,7 @@ class PayPalServiceTest extends TestCase
         $this->paypalService->createOrder($invalidOrderData);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function it_handles_network_errors_gracefully(): void
     {
         // Arrange
@@ -386,9 +363,7 @@ class PayPalServiceTest extends TestCase
         $this->paypalService->createOrder($orderData);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function it_formats_error_responses_correctly(): void
     {
         // Arrange
@@ -416,9 +391,7 @@ class PayPalServiceTest extends TestCase
         $this->paypalService->createOrder($orderData);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function it_logs_api_interactions(): void
     {
         // This test would verify that API interactions are properly logged

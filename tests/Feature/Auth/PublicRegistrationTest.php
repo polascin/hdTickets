@@ -14,6 +14,7 @@ use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\URL;
 use Tests\TestCase;
 
+use PHPUnit\Framework\Attributes\Test;
 /**
  * Public Registration Feature Tests
  *
@@ -30,9 +31,7 @@ class PublicRegistrationTest extends TestCase
     use RefreshDatabase;
     use WithFaker;
 
-    /**
-     * @test
-     */
+    #[Test]
     public function it_displays_the_public_registration_form(): void
     {
         $response = $this->get(route('register.public.create'));
@@ -48,9 +47,7 @@ class PublicRegistrationTest extends TestCase
         $response->assertSee('Privacy Policy');
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function it_registers_a_customer_and_sends_verification_notification(): void
     {
         $userData = [
@@ -97,9 +94,7 @@ class PublicRegistrationTest extends TestCase
         $response->assertRedirect(route('verification.notice'));
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function it_requires_legal_acceptances(): void
     {
         $userData = [
@@ -119,9 +114,7 @@ class PublicRegistrationTest extends TestCase
         $this->assertGuest();
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function it_enforces_password_rules(): void
     {
         $testCases = [
@@ -165,9 +158,7 @@ class PublicRegistrationTest extends TestCase
         }
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function it_rejects_duplicate_email(): void
     {
         // Create existing user
@@ -189,9 +180,7 @@ class PublicRegistrationTest extends TestCase
         $this->assertDatabaseCount('users', 1); // Only the original user
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function it_assigns_customer_role_by_default(): void
     {
         $userData = [
@@ -210,9 +199,7 @@ class PublicRegistrationTest extends TestCase
         $this->assertEquals('customer', $user->role);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function it_redirects_to_twofactor_step_when_enabled(): void
     {
         // Enable 2FA prompt in configuration
@@ -234,9 +221,7 @@ class PublicRegistrationTest extends TestCase
         $response->assertRedirect(route('register.twofactor.show'));
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function it_handles_twofactor_setup_flow(): void
     {
         // Create and login a user
@@ -273,9 +258,7 @@ class PublicRegistrationTest extends TestCase
         $response->assertSessionHas('status');
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function it_allows_skipping_twofactor_and_shows_verification_notice(): void
     {
         $user = User::factory()->create();
@@ -287,9 +270,7 @@ class PublicRegistrationTest extends TestCase
         $response->assertSessionHas('info');
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function it_verifies_email_with_signed_url(): void
     {
         $user = User::factory()->create([
@@ -314,9 +295,7 @@ class PublicRegistrationTest extends TestCase
         $response->assertRedirect(route('dashboard'));
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function it_respects_rate_limiting_on_registration(): void
     {
         $userData = [
@@ -344,9 +323,7 @@ class PublicRegistrationTest extends TestCase
         }
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function it_ignores_honeypot_field(): void
     {
         $userData = [
@@ -366,9 +343,7 @@ class PublicRegistrationTest extends TestCase
         $this->assertDatabaseHas('users', ['email' => 'john.doe@example.com']);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function it_rejects_filled_honeypot_field(): void
     {
         $userData = [
@@ -388,9 +363,7 @@ class PublicRegistrationTest extends TestCase
         $this->assertDatabaseMissing('users', ['email' => 'bot@example.com']);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function it_handles_validation_errors_gracefully(): void
     {
         $response = $this->post(route('register.public.store'), []);
@@ -407,9 +380,7 @@ class PublicRegistrationTest extends TestCase
         $this->assertGuest();
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function it_stores_marketing_preferences_correctly(): void
     {
         // Test with marketing opt-in
@@ -443,9 +414,7 @@ class PublicRegistrationTest extends TestCase
         ]);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function it_redirects_authenticated_users_away_from_registration(): void
     {
         $user = User::factory()->create();
@@ -456,9 +425,7 @@ class PublicRegistrationTest extends TestCase
         $response->assertRedirect(route('dashboard'));
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function it_handles_email_verification_resend_with_throttling(): void
     {
         $user = User::factory()->create([
@@ -480,9 +447,7 @@ class PublicRegistrationTest extends TestCase
         $response->assertStatus(429); // Too Many Requests
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function it_combines_first_and_last_name_into_name_field(): void
     {
         $userData = [
@@ -505,9 +470,7 @@ class PublicRegistrationTest extends TestCase
         $this->assertEquals('Smith', $user->last_name);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function registration_form_has_proper_csrf_protection(): void
     {
         // Attempt registration without CSRF token

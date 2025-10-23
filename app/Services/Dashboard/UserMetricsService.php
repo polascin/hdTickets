@@ -232,7 +232,7 @@ class UserMetricsService
     public function getPersonalizationData(User $user): array
     {
         try {
-            $preferences = $user->preferences ?? [];
+            $preferences = is_array($user->preferences) ? $user->preferences : [];
 
             return [
                 'favorite_sports'       => $preferences['favorite_sports'] ?? [],
@@ -580,7 +580,7 @@ class UserMetricsService
         ];
     }
 
-    protected function calculatePersonalizationScore(array $preferences): int
+    protected function calculatePersonalizationScore($preferences): int
     {
         $score = 0;
 

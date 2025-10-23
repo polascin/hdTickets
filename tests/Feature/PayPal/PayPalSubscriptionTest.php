@@ -14,6 +14,7 @@ use Illuminate\Support\Facades\Log;
 use Mockery;
 use Tests\TestCase;
 
+use PHPUnit\Framework\Attributes\Test;
 class PayPalSubscriptionTest extends TestCase
 {
     use RefreshDatabase;
@@ -24,9 +25,7 @@ class PayPalSubscriptionTest extends TestCase
 
     private PaymentPlan $annualPlan;
 
-    /**
-     * @test
-     */
+    #[Test]
     public function user_can_access_subscription_checkout_page(): void
     {
         // Act
@@ -40,9 +39,7 @@ class PayPalSubscriptionTest extends TestCase
         $response->assertSee('Credit/Debit Card');
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function user_can_create_paypal_subscription_via_api(): void
     {
         // Arrange
@@ -83,9 +80,7 @@ class PayPalSubscriptionTest extends TestCase
         ]);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function paypal_subscription_approval_creates_subscription(): void
     {
         // Arrange
@@ -119,9 +114,7 @@ class PayPalSubscriptionTest extends TestCase
         ]);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function paypal_subscription_activation_updates_status(): void
     {
         // Arrange
@@ -166,9 +159,7 @@ class PayPalSubscriptionTest extends TestCase
         ]);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function user_can_cancel_paypal_subscription(): void
     {
         // Arrange
@@ -202,9 +193,7 @@ class PayPalSubscriptionTest extends TestCase
         ]);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function paypal_webhook_handles_subscription_created(): void
     {
         // Arrange
@@ -235,9 +224,7 @@ class PayPalSubscriptionTest extends TestCase
         $response->assertJson(['status' => 'success']);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function paypal_webhook_handles_subscription_activated(): void
     {
         // Arrange
@@ -276,9 +263,7 @@ class PayPalSubscriptionTest extends TestCase
         ]);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function paypal_webhook_handles_subscription_cancelled(): void
     {
         // Arrange
@@ -317,9 +302,7 @@ class PayPalSubscriptionTest extends TestCase
         ]);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function paypal_webhook_handles_subscription_payment_completed(): void
     {
         // Arrange
@@ -361,9 +344,7 @@ class PayPalSubscriptionTest extends TestCase
         ]);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function paypal_webhook_handles_subscription_payment_failed(): void
     {
         // Arrange
@@ -409,9 +390,7 @@ class PayPalSubscriptionTest extends TestCase
         ]);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function invalid_webhook_signature_is_rejected(): void
     {
         // Arrange
@@ -431,9 +410,7 @@ class PayPalSubscriptionTest extends TestCase
         $response->assertStatus(Response::HTTP_UNAUTHORIZED);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function user_can_view_current_subscription(): void
     {
         // Arrange
@@ -465,9 +442,7 @@ class PayPalSubscriptionTest extends TestCase
         ]);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function user_can_view_subscription_history(): void
     {
         // Arrange
@@ -517,9 +492,7 @@ class PayPalSubscriptionTest extends TestCase
         $this->assertCount(2, $responseData['subscriptions']);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function subscription_requires_authentication(): void
     {
         // Act & Assert
@@ -534,9 +507,7 @@ class PayPalSubscriptionTest extends TestCase
             ->assertStatus(Response::HTTP_UNAUTHORIZED);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function subscription_validation_prevents_invalid_data(): void
     {
         // Act & Assert - Missing plan type

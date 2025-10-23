@@ -3,6 +3,8 @@
 namespace Tests\Unit\Services;
 
 use App\Jobs\SendDelayedNotification;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Test;
 use App\Mail\BulkNotification;
 use App\Mail\PaymentFailure;
 use App\Mail\PurchaseConfirmation;
@@ -16,7 +18,6 @@ use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Facades\Queue;
 use Mockery;
 use Override;
-use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
 class NotificationServiceTest extends TestCase
@@ -468,14 +469,8 @@ class NotificationServiceTest extends TestCase
         ];
     }
 
-    /**
-     * @test
-     *
-     * @dataProvider notificationChannelProvider
-     *
-     * @param mixed $channel
-     * @param mixed $isValid
-     */
+    #[Test]
+    #[DataProvider('notificationChannelProvider')]
     public function it_validates_notification_channels(string $channel, bool $isValid): void
     {
         $result = $this->notificationService->isValidNotificationChannel($channel);

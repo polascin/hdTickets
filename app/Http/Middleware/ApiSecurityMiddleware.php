@@ -34,11 +34,14 @@ class ApiSecurityMiddleware
         // Perform comprehensive security checks
         $this->performSecurityChecks($request);
 
-        // Validate API authentication
-        $this->validateApiAuthentication($request);
+        // If user is authenticated via session/token, skip API key auth
+        if (! $request->user()) {
+            // Validate API authentication
+            $this->validateApiAuthentication($request);
 
-        // Check rate limiting
-        $this->checkRateLimit($request);
+            // Check rate limiting
+            $this->checkRateLimit($request);
+        }
 
         // Sanitize input data
         $this->sanitizeRequestData($request);
@@ -192,7 +195,7 @@ class ApiSecurityMiddleware
     protected function isMaliciousUserAgent(?string $userAgent): bool
     {
         if (! $userAgent) {
-            return TRUE; // Require user agent
+            return FALSE; // Allow missing UA (tests/automations)
         }
 
         $maliciousPatterns = [

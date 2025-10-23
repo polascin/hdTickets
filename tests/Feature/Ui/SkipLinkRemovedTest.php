@@ -2,20 +2,18 @@
 
 namespace Tests\Feature\Ui;
 
+use PHPUnit\Framework\Attributes\Test;
+
 class SkipLinkRemovedTest extends UiNoDbTestCase
 {
-    /**
-     * @test
-     */
+    #[Test]
     public function legal_index_view_does_not_render_skip_link(): void
     {
         $html = view('legal.index')->render();
         $this->assertStringNotContainsString('Skip to main content', $html);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function legal_show_view_does_not_render_skip_link_for_terms(): void
     {
         $doc = (object) [
@@ -29,9 +27,7 @@ class SkipLinkRemovedTest extends UiNoDbTestCase
         $this->assertStringNotContainsString('Skip to main content', $html);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function legal_show_view_does_not_render_skip_link_for_privacy(): void
     {
         $doc = (object) [

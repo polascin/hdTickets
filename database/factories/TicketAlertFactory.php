@@ -2,6 +2,8 @@
 
 namespace Database\Factories;
 
+use Illuminate\Support\Facades\DB;
+
 use App\Models\TicketAlert;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
@@ -23,9 +25,35 @@ class TicketAlertFactory extends Factory
      */
     public function definition(): array
     {
+        // Ensure we have a valid sports_event_id to satisfy FK constraints
+        $sportsEventId = DB::table('sports_events')->value('id');
+        if (! $sportsEventId) {
+            $sportsEventId = DB::table('sports_events')->insertGetId([
+                'name'               => 'Test Event',
+                'venue'              => 'Test Venue',
+                'city'               => 'Test City',
+                'country'            => 'USA',
+                'event_date'         => now()->toDateString(),
+                'event_time'         => '20:00:00',
+                'category'           => 'football',
+                'league'             => 'NFL',
+                'home_team'          => 'Home Team',
+                'away_team'          => 'Away Team',
+                'status'             => 'scheduled',
+                'is_monitored'       => true,
+                'ticket_platforms'   => json_encode(['ticketmaster', 'stubhub']),
+                'min_price'          => 50.00,
+                'max_price'          => 200.00,
+                'total_tickets'      => 1000,
+                'available_tickets'  => 500,
+                'created_at'         => now(),
+                'updated_at'         => now(),
+            ]);
+        }
+
         return [
             'user_id'             => User::factory(),
-            'sports_event_id'     => null,
+            'sports_event_id'     => (int) $sportsEventId,
             'alert_name'          => fake()->sentence,
             'max_price'           => fake()->randomFloat(2, 50, 500),
             'min_price'           => fake()->randomFloat(2, 10, 40),

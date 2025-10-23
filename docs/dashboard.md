@@ -9,13 +9,14 @@ This document describes the customer dashboard (sports ticket monitoring/purchas
 
 ## Architecture Overview
 - Blade views: canonical customer dashboard served at /dashboard/customer
-  - Canonical view: resources/views/dashboard/customer-v3.blade.php
-  - Legacy variants (customer.blade.php, customer-enhanced*.blade.php) are deprecated
-- Controller: EnhancedDashboardController rendering the enhanced dashboard view
+  - Canonical view: resources/views/dashboard/customer-modern.blade.php
+  - Legacy variants (dashboards/customer.blade.php, dashboard/customer-v2*.blade.php) are deprecated
+- Controller: ModernCustomerDashboardController (route: GET /dashboard/customer)
 - Frontend stack: Blade + Alpine.js + Tailwind CSS + custom CSS (glass theme)
 - Real-time: Laravel Echo + broadcasting (with polling fallback)
-  - Realtime endpoint: GET /api/v1/dashboard/realtime (route name: api.dashboard.realtime)
-  - Auth: Sanctum stateful (cookie-based) + verified email + role: customer, admin
+  - Hydration: data-stats, data-tickets, data-pagination, data-insights, data-flags
+  - Feature flags: realtime, infinite_scroll, animations
+  - Auth: session + verified + role: customer or admin; scraper denied
 - Data: Aggregated metrics from services (AnalyticsService, RecommendationService, etc.)
 
 ## Key UI Modules
@@ -29,15 +30,23 @@ This document describes the customer dashboard (sports ticket monitoring/purchas
 - Notifications: toast/messages for updates
 
 ## Data Sources and API Contracts
-- Dashboard tiles endpoint: returns key-value metrics for each tile
-- Tickets endpoint: paginated list filtered by query parameters
-- Recommendations endpoint: list of recommended tickets for the user
-- Alerts endpoint: CRUD for user alerts
-- Subscription info: from User model helpers (ticket limits, usage, free trial days)
+- AJAX namespace: /ajax/customer-dashboard/* (requires AJAX or expectsJson)
+  - GET /stats → { success, data: { available_tickets, new_today, monitored_events, active_alerts, total_savings, price_alerts_triggered }, timestamp }
+  - GET /tickets?page=&limit= → { success, data: { tickets: [...], pagination: { current_page, per_page, total, last_page } } }
+  - GET /alerts → { success, data: [ { id, user_id, title, criteria, status, created_at, last_checked } ] }
+  - GET /recommendations → { success, data: [ ... ] }
+  - GET /market-insights → { success, data: { price_trends, platform_performance, demand_analysis, popular_categories, seasonal_trends, recommendation_score, market_summary, user_positioning } }
+- View contract (Blade):
+  - statistics (alias: stats), active_alerts (alias: alerts)
+  - recent_tickets and initial_tickets_page { tickets, pagination }
+  - market_insights, quick_actions, subscription_status, feature_flags
+- Subscription info: via controller getSubscriptionStatus() with aliases:
+  - status, has_active_subscription, is_trial, trial_days_remaining; plan_name, next_billing, usage_stats
 
 All endpoints should:
 - Require authentication
 - Enforce role-based authorization (customer/admin ok; scraper denied)
+- Require AJAX or expectsJson and respond with no-store caching headers
 - Respect rate limiting and return consistent JSON shapes
 
 ## Real-time Updates
@@ -57,8 +66,9 @@ All endpoints should:
 - Keyboard navigable filter controls
 
 ## Performance
-- Lazy render large grids; defer non-critical JS
-- Cache expensive queries; paginate aggressively
+- Lazy render large grids; defer non-critical JS; IntersectionObserver sentinel for infinite scroll
+- Cache expensive queries; paginate aggressively; short-lived caches for stats
+- Cache invalidation via model observers for ScrapedTicket and TicketAlert
 - Minimize reflow: use transforms for animations; avoid heavy blur on mobile
 
 ## Troubleshooting
@@ -75,6 +85,8 @@ All endpoints should:
 ## Deployment Checklist
 - npm run build and asset versioning
 - artisan config:cache/route:cache/view:cache
+- php artisan migrate (ensures subscriptions, alerts, scraped_tickets schema is current)
 - Horizon running and monitored
 - SSL/TLS, security headers, and rate limiting in place
+- Warm caches for dashboard aggregates if needed
 

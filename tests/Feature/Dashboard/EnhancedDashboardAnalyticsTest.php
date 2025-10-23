@@ -8,13 +8,12 @@ use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
+use PHPUnit\Framework\Attributes\Test;
 class EnhancedDashboardAnalyticsTest extends TestCase
 {
     use RefreshDatabase;
 
-    /**
-     * @test
-     */
+    #[Test]
     public function customer_user_can_fetch_analytics_data(): void
     {
         $user = User::factory()->create([
@@ -50,9 +49,7 @@ class EnhancedDashboardAnalyticsTest extends TestCase
             ->assertJson(['success' => TRUE]);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function unauthenticated_user_cannot_fetch_analytics(): void
     {
         $this->getJson('/api/v1/dashboard/analytics-data')

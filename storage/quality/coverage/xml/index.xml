@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <phpunit xmlns="https://schema.phpunit.de/coverage/1.0">
-  <build time="Wed Oct 22 14:44:10 UTC 2025" phpunit="11.5.42" coverage="11.0.11">
+  <build time="Thu Oct 23 10:58:14 UTC 2025" phpunit="10.5.36" coverage="10.1.16">
     <runtime name="PHP" version="8.3.26" url="https://www.php.net/"/>
     <driver name="pcov" version="1.0.12"/>
   </build>
