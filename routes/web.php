@@ -805,6 +805,9 @@ Route::get('health', [HealthController::class, 'index'])->name('health.index');
 Route::get('health/database', [HealthController::class, 'database'])->name('health.database');
 Route::get('health/redis', [HealthController::class, 'redis'])->name('health.redis');
 
+// Lightweight liveness endpoint for load balancers (always 200 if app is up)
+Route::get('healthz', [\App\Http\Controllers\HealthCheckController::class, 'basic'])->name('healthz');
+
 // Production Health Check Routes (Comprehensive Monitoring)
 Route::get('health/production', [ProductionHealthController::class, 'comprehensive'])
     ->name('health.production');
