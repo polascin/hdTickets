@@ -18,7 +18,7 @@ class EmailVerificationNotificationController extends Controller
     public function store(Request $request): RedirectResponse
     {
         $user = $request->user();
-        if (! $user) {
+        if (!$user) {
             return redirect()->route('login');
         }
 

@@ -27,7 +27,7 @@ class CustomerDashboardApiController extends Controller
      */
     public function stats(Request $request): JsonResponse
     {
-        if (! $user = Auth::user()) {
+        if (!$user = Auth::user()) {
             return response()->json(['success' => FALSE, 'message' => 'Unauthenticated'], 401);
         }
 
@@ -73,7 +73,7 @@ class CustomerDashboardApiController extends Controller
      */
     public function tickets(Request $request): JsonResponse
     {
-        if (! Auth::check()) {
+        if (!Auth::check()) {
             return response()->json(['success' => FALSE, 'message' => 'Unauthenticated'], 401);
         }
 
@@ -104,7 +104,7 @@ class CustomerDashboardApiController extends Controller
             $sort = $request->get('sort', 'created_at:desc');
             [$field, $dir] = array_pad(explode(':', $sort), 2, 'desc');
             $allowed = ['created_at', 'price', 'event_date', 'min_price', 'max_price'];
-            if (! in_array($field, $allowed, TRUE)) {
+            if (!in_array($field, $allowed, TRUE)) {
                 $field = 'created_at';
             }
             $dir = strtolower($dir) === 'asc' ? 'asc' : 'desc';
@@ -198,7 +198,7 @@ class CustomerDashboardApiController extends Controller
      */
     public function recommendations(): JsonResponse
     {
-        if (! $user = Auth::user()) {
+        if (!$user = Auth::user()) {
             return response()->json(['success' => FALSE, 'message' => 'Unauthenticated'], 401);
         }
 
@@ -269,7 +269,7 @@ class CustomerDashboardApiController extends Controller
 
     private function getUserAlertKeywords(?int $userId): array
     {
-        if (! $userId) {
+        if (!$userId) {
             return [];
         }
 

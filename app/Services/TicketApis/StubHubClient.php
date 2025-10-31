@@ -29,7 +29,7 @@ class StubHubClient extends BaseWebScrapingClient
     public function searchEvents(array $criteria): array
     {
         // Try API first if credentials are available
-        if (! empty($this->config['api_key']) && ! empty($this->config['app_token'])) {
+        if (!empty($this->config['api_key']) && !empty($this->config['app_token'])) {
             try {
                 return $this->searchEventsViaApi($criteria);
             } catch (Exception $e) {
@@ -75,7 +75,7 @@ class StubHubClient extends BaseWebScrapingClient
     public function getEvent(string $eventId): array
     {
         // Try API first if available
-        if (! empty($this->config['api_key'])) {
+        if (!empty($this->config['api_key'])) {
             try {
                 return $this->getEventViaApi($eventId);
             } catch (Exception $e) {
@@ -167,11 +167,11 @@ class StubHubClient extends BaseWebScrapingClient
             'Content-Type' => 'application/json',
         ];
 
-        if (! empty($this->config['api_key'])) {
+        if (!empty($this->config['api_key'])) {
             $headers['Authorization'] = 'Bearer ' . $this->config['api_key'];
         }
 
-        if (! empty($this->config['app_token'])) {
+        if (!empty($this->config['app_token'])) {
             $headers['X-SH-Application-Token'] = $this->config['app_token'];
         }
 
@@ -247,7 +247,7 @@ class StubHubClient extends BaseWebScrapingClient
                         }
 
                         $event = $this->extractEventFromNode($node);
-                        if (! empty($event['name'])) {
+                        if (!empty($event['name'])) {
                             $events[] = $event;
                             $count++;
                         }
@@ -582,7 +582,7 @@ class StubHubClient extends BaseWebScrapingClient
             return 'soldout';
         }
 
-        if (! empty($eventData['ticket_count']) && $eventData['ticket_count'] > 0) {
+        if (!empty($eventData['ticket_count']) && $eventData['ticket_count'] > 0) {
             return 'onsale';
         }
 
@@ -608,7 +608,7 @@ class StubHubClient extends BaseWebScrapingClient
     #[Override]
     protected function normalizeUrl(string $url, ?string $baseUrl = NULL): string
     {
-        if (! str_starts_with($url, 'http')) {
+        if (!str_starts_with($url, 'http')) {
             return 'https://www.stubhub.com' . $url;
         }
 

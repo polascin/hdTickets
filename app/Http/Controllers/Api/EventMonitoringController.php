@@ -112,7 +112,7 @@ class EventMonitoringController extends Controller
         $query = DB::table('event_processing_failures')
             ->orderBy('failed_at', 'desc');
 
-        if (! $resolved) {
+        if (!$resolved) {
             $query->where('is_resolved', FALSE);
         }
 

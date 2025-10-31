@@ -2,12 +2,11 @@
 
 /**
  * Migrate @test annotations to #[Test] attributes
- * 
+ *
  * This script finds all files with @test annotations and replaces them
  * with our custom #[Test] attributes from Hdtickets\Test\Attributes namespace.
  */
-
-function migrateTestAnnotations(string $testsDir): void 
+function migrateTestAnnotations(string $testsDir): void
 {
     $files = new RecursiveIteratorIterator(
         new RecursiveDirectoryIterator($testsDir),
@@ -25,18 +24,18 @@ function migrateTestAnnotations(string $testsDir): void
         $filePath = $file->getRealPath();
         $content = file_get_contents($filePath);
         $originalContent = $content;
-        
+
         // Skip if already has Test import or no @test annotations
-        if (strpos($content, '@test') === false) {
+        if (strpos($content, '@test') === FALSE) {
             continue;
         }
 
         // Add use statement if not present
-        if (strpos($content, 'use Hdtickets\\Test\\Attributes\\Test;') === false) {
+        if (strpos($content, 'use Hdtickets\\Test\\Attributes\\Test;') === FALSE) {
             // Find the namespace line and add the import after existing use statements
             if (preg_match('/^namespace\s+[^;]+;\s*$/m', $content, $matches, PREG_OFFSET_CAPTURE)) {
                 $namespaceEnd = $matches[0][1] + strlen($matches[0][0]);
-                
+
                 // Find where to insert the use statement
                 $insertPos = $namespaceEnd;
                 if (preg_match('/^use\s+[^;]+;\s*$/m', $content, $useMatches, PREG_OFFSET_CAPTURE, $namespaceEnd)) {
@@ -51,11 +50,11 @@ function migrateTestAnnotations(string $testsDir): void
                     // No existing use statements, add after namespace
                     $insertPos = $namespaceEnd;
                 }
-                
+
                 $content = substr_replace(
-                    $content, 
-                    "\nuse Hdtickets\\Test\\Attributes\\Test;", 
-                    $insertPos, 
+                    $content,
+                    "\nuse Hdtickets\\Test\\Attributes\\Test;",
+                    $insertPos,
                     0
                 );
             }
@@ -78,7 +77,7 @@ function migrateTestAnnotations(string $testsDir): void
             -1,
             $count2
         );
-        
+
         // Handle more complex docblocks with @test
         $content = preg_replace(
             '/(\s*)\/\*\*\s*\n(\s*\*[^\n]*\n)*?\s*\*\s*@test\s*\n(\s*\*[^\n]*\n)*?\s*\*\/\s*\n/m',
@@ -89,7 +88,7 @@ function migrateTestAnnotations(string $testsDir): void
         );
 
         $totalCount = $count1 + $count2 + $count3;
-        
+
         if ($totalCount > 0) {
             file_put_contents($filePath, $content);
             $migratedFiles++;

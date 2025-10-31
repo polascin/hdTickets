@@ -31,7 +31,7 @@ class IosErrorTracker
         // Check if this is an iOS request
         $isIOS = UserAgentHelper::isIOS($request);
 
-        if (! $isIOS) {
+        if (!$isIOS) {
             // Not an iOS device, continue without extra tracking
             return $next($request);
         }

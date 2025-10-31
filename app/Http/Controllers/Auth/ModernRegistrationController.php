@@ -105,7 +105,7 @@ class ModernRegistrationController extends Controller
         $exists = User::where('email', $request->email)->exists();
 
         return response()->json([
-            'available' => ! $exists,
+            'available' => !$exists,
             'message'   => $exists ? 'This email is already registered.' : 'Email is available.',
         ]);
     }
@@ -147,7 +147,7 @@ class ModernRegistrationController extends Controller
 
         $rules = $this->getFieldValidationRules($field);
 
-        if (! $rules) {
+        if (!$rules) {
             return response()->json(['valid' => FALSE, 'message' => 'Invalid field']);
         }
 

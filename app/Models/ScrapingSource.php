@@ -205,7 +205,7 @@ class ScrapingSource extends Model
      */
     public function toggle(): bool
     {
-        return $this->update(['enabled' => ! $this->enabled]);
+        return $this->update(['enabled' => !$this->enabled]);
     }
 
     /**

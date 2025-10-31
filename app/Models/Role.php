@@ -74,7 +74,7 @@ class Role extends Model
             $permission = Permission::where('name', $permission)->first();
         }
 
-        if (! $permission) {
+        if (!$permission) {
             return FALSE;
         }
 
@@ -101,7 +101,7 @@ class Role extends Model
             $permission = Permission::where('name', $permission)->first();
         }
 
-        if (! $permission) {
+        if (!$permission) {
             return FALSE;
         }
 

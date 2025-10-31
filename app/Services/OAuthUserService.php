@@ -53,7 +53,7 @@ class OAuthUserService
      */
     public function setPasswordForOAuthUser(User $user, string $password): bool
     {
-        if (! $user->provider) {
+        if (!$user->provider) {
             return FALSE; // Not an OAuth user
         }
 
@@ -70,7 +70,7 @@ class OAuthUserService
      */
     public function canLoginWithProvider(User $user, string $provider): bool
     {
-        if (! $user->is_active) {
+        if (!$user->is_active) {
             return FALSE;
         }
 
@@ -174,7 +174,7 @@ class OAuthUserService
         // Update last activity
         $updates['last_activity_at'] = now();
 
-        if (! empty($updates)) {
+        if (!empty($updates)) {
             $user->update($updates);
         }
     }

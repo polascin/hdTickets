@@ -247,7 +247,7 @@ class FollowingController extends Controller
             ->where('followable_id', $item->id)
             ->first();
 
-        if (! $following) {
+        if (!$following) {
             return response()->json([
                 'success' => FALSE,
                 'message' => 'Not following this ' . $type,

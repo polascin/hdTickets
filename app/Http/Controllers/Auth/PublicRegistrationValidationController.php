@@ -91,7 +91,7 @@ class PublicRegistrationValidationController extends Controller
 
         return response()->json([
             'success'   => TRUE,
-            'available' => ! $exists,
+            'available' => !$exists,
             'email'     => $email,
             'message'   => $exists
                 ? 'This email address is already registered'
@@ -128,19 +128,19 @@ class PublicRegistrationValidationController extends Controller
     {
         // Add email uniqueness check if email is being validated
         if ($request->has('email')) {
-            $validator->sometimes('email', 'unique:users,email', fn ($input): bool => $request->has('email') && ! empty($request->input('email')));
+            $validator->sometimes('email', 'unique:users,email', fn ($input): bool => $request->has('email') && !empty($request->input('email')));
         }
 
         // Add password confirmation check if both password fields are present
         if ($request->has('password') && $request->has('password_confirmation')) {
-            $validator->sometimes('password_confirmation', 'same:password', fn ($input): true => $request->has('password') && $request->has('password_confirmation'));
+            $validator->sometimes('password_confirmation', 'same:password', fn ($input): TRUE => $request->has('password') && $request->has('password_confirmation'));
         }
 
         // Phone format validation enhancement
-        if ($request->has('phone') && ! empty($request->input('phone'))) {
+        if ($request->has('phone') && !empty($request->input('phone'))) {
             $validator->sometimes('phone', function ($attribute, $value, $fail): void {
                 // More detailed E.164 format validation
-                if (! preg_match('/^\+?[1-9]\d{1,14}$/', $value)) {
+                if (!preg_match('/^\+?[1-9]\d{1,14}$/', $value)) {
                     $fail('Please enter a valid phone number with country code (e.g., +1234567890).');
                 }
             });
@@ -160,9 +160,9 @@ class PublicRegistrationValidationController extends Controller
 
             $feedback[$field] = [
                 'value'   => $value,
-                'valid'   => ! $hasError,
+                'valid'   => !$hasError,
                 'error'   => $hasError ? $errors[$field][0] : NULL,
-                'touched' => ! empty($value),
+                'touched' => !empty($value),
             ];
 
             // Add field-specific enhancements
@@ -173,7 +173,7 @@ class PublicRegistrationValidationController extends Controller
 
                     break;
                 case 'phone':
-                    if (! empty($value)) {
+                    if (!empty($value)) {
                         $cleaned = preg_replace('/[^\d+]/', '', (string) $value);
                         $feedback[$field]['cleaned'] = $cleaned;
                         $feedback[$field]['format_valid'] = preg_match('/^\+?[1-9]\d{1,14}$/', $cleaned);
@@ -181,7 +181,7 @@ class PublicRegistrationValidationController extends Controller
 
                     break;
                 case 'password':
-                    if (! empty($value)) {
+                    if (!empty($value)) {
                         $assessment = $this->assessPasswordStrength($value);
                         $feedback[$field]['strength'] = $assessment;
                     }
@@ -225,23 +225,23 @@ class PublicRegistrationValidationController extends Controller
         $missing = [];
         $suggestions = [];
 
-        if (! $requirements['min_length']) {
+        if (!$requirements['min_length']) {
             $missing[] = 'At least 8 characters';
             $suggestions[] = 'Use at least 8 characters';
         }
-        if (! $requirements['has_lowercase']) {
+        if (!$requirements['has_lowercase']) {
             $missing[] = 'One lowercase letter';
             $suggestions[] = 'Include lowercase letters (a-z)';
         }
-        if (! $requirements['has_uppercase']) {
+        if (!$requirements['has_uppercase']) {
             $missing[] = 'One uppercase letter';
             $suggestions[] = 'Include uppercase letters (A-Z)';
         }
-        if (! $requirements['has_numbers']) {
+        if (!$requirements['has_numbers']) {
             $missing[] = 'One number';
             $suggestions[] = 'Include numbers (0-9)';
         }
-        if (! $requirements['has_special']) {
+        if (!$requirements['has_special']) {
             $missing[] = 'One special character';
             $suggestions[] = 'Include special characters (!@#$%^&*)';
         }

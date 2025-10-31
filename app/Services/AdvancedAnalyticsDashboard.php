@@ -39,13 +39,13 @@ class AdvancedAnalyticsDashboard
                     $filters['end_date'] ?? Carbon::now(),
                 ]);
 
-            if (! empty($filters['platforms'])) {
+            if (!empty($filters['platforms'])) {
                 $query->whereHas('ticket', function ($q) use ($filters): void {
                     $q->whereIn('platform', $filters['platforms']);
                 });
             }
 
-            if (! empty($filters['categories'])) {
+            if (!empty($filters['categories'])) {
                 $query->whereHas('ticket', function ($q) use ($filters): void {
                     $q->whereIn('category', $filters['categories']);
                 });

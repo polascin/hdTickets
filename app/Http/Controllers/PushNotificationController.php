@@ -121,7 +121,7 @@ class PushNotificationController extends Controller
                 ->where('endpoint', $request->input('endpoint'))
                 ->first();
 
-            if (! $subscription) {
+            if (!$subscription) {
                 return response()->json([
                     'success' => FALSE,
                     'message' => 'Subscription not found',
@@ -156,7 +156,7 @@ class PushNotificationController extends Controller
     {
         $vapidKey = config('services.webpush.vapid_public_key');
 
-        if (! $vapidKey) {
+        if (!$vapidKey) {
             return response()->json([
                 'success' => FALSE,
                 'message' => 'VAPID key not configured',

@@ -101,7 +101,7 @@ class CampaignEmail extends Model
      */
     public function markAsOpened(): void
     {
-        if (! $this->wasOpened()) {
+        if (!$this->wasOpened()) {
             $this->update([
                 'opened_at' => now(),
                 'status'    => self::STATUS_OPENED,
@@ -114,7 +114,7 @@ class CampaignEmail extends Model
      */
     public function markAsClicked(): void
     {
-        if (! $this->wasClicked()) {
+        if (!$this->wasClicked()) {
             $this->update([
                 'clicked_at' => now(),
                 'status'     => self::STATUS_CLICKED,

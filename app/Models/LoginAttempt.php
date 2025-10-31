@@ -44,7 +44,7 @@ class LoginAttempt extends Model
      */
     public function wasFailed(): bool
     {
-        return ! $this->success;
+        return !$this->success;
     }
 
     /**

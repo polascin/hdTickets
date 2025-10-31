@@ -19,13 +19,13 @@ class ScraperMiddleware
      */
     public function handle(Request $request, Closure $next): Response
     {
-        if (! Auth::check()) {
+        if (!Auth::check()) {
             return response()->json(['message' => 'Unauthorized'], 401);
         }
 
         $user = Auth::user();
         // Scrapers should be allowed for API routes, but not for web routes
-        if (! $user->isScraper() && ! $user->isAdmin()) {
+        if (!$user->isScraper() && !$user->isAdmin()) {
             return response()->json(['message' => 'Forbidden. Scraper role required.'], 403);
         }
 

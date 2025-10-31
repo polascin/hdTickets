@@ -60,7 +60,7 @@ class AdminController extends Controller
                 ]);
 
             // Apply search filter
-            if ($request->has('search') && ! empty($request->search)) {
+            if ($request->has('search') && !empty($request->search)) {
                 $search = $request->search;
                 $query->where(function ($q) use ($search): void {
                     $q->where('name', 'like', "%{$search}%")
@@ -592,7 +592,7 @@ class AdminController extends Controller
             $period = $request->get('period', '30d');
             $analytics = Cache::get("analytics_{$period}");
 
-            if (! $analytics) {
+            if (!$analytics) {
                 // Generate fresh analytics data
                 $request->merge(['period' => $period]);
                 $response = $this->getAnalytics($request);
@@ -641,7 +641,7 @@ class AdminController extends Controller
         foreach ($settings as $key => $value) {
             $fullKey = $prefix ? "{$prefix}.{$key}" : $key;
 
-            if (is_array($value) && ! in_array($key, ['sources', 'templates'], TRUE)) {
+            if (is_array($value) && !in_array($key, ['sources', 'templates'], TRUE)) {
                 $this->saveSettingsRecursive($value, $fullKey);
             } else {
                 SystemSetting::updateOrCreate(

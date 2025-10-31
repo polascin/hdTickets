@@ -162,7 +162,7 @@ class Subscription extends Model
      */
     public function daysRemainingInPeriod(): int
     {
-        if (! $this->current_period_end) {
+        if (!$this->current_period_end) {
             return 0;
         }
 
@@ -174,7 +174,7 @@ class Subscription extends Model
      */
     public function trialDaysRemaining(): int
     {
-        if (! $this->trial_ends_at || $this->trial_ends_at->isPast()) {
+        if (!$this->trial_ends_at || $this->trial_ends_at->isPast()) {
             return 0;
         }
 

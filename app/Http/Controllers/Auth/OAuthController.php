@@ -27,7 +27,7 @@ class OAuthController extends Controller
     {
         try {
             // Validate provider
-            if (! $this->isProviderSupported($provider)) {
+            if (!$this->isProviderSupported($provider)) {
                 return redirect()->route('login')
                     ->withErrors(['oauth' => 'Unsupported OAuth provider.']);
             }
@@ -57,7 +57,7 @@ class OAuthController extends Controller
     {
         try {
             // Validate provider
-            if (! $this->isProviderSupported($provider)) {
+            if (!$this->isProviderSupported($provider)) {
                 return redirect()->route('login')
                     ->withErrors(['oauth' => 'Unsupported OAuth provider.']);
             }
@@ -80,7 +80,7 @@ class OAuthController extends Controller
             // Get user data from OAuth provider
             $socialiteUser = Socialite::driver($provider)->user();
 
-            if (! $socialiteUser->getEmail()) {
+            if (!$socialiteUser->getEmail()) {
                 return redirect()->route('login')
                     ->withErrors(['oauth' => 'Email is required for registration. Please ensure your ' . ucfirst($provider) . ' account has a verified email.']);
             }
@@ -89,7 +89,7 @@ class OAuthController extends Controller
             $user = $this->oauthUserService->findOrCreateUser($socialiteUser, $provider);
 
             // Check if user account is active
-            if (! $user->is_active) {
+            if (!$user->is_active) {
                 return redirect()->route('login')
                     ->withErrors(['oauth' => 'Your account is deactivated. Please contact support.']);
             }
@@ -140,7 +140,7 @@ class OAuthController extends Controller
      */
     public function linkAccount(Request $request)
     {
-        if (! Auth::check()) {
+        if (!Auth::check()) {
             return redirect()->route('login');
         }
 
@@ -156,12 +156,12 @@ class OAuthController extends Controller
     public function linkCallback(string $provider, Request $request): RedirectResponse
     {
         try {
-            if (! Auth::check()) {
+            if (!Auth::check()) {
                 return redirect()->route('login')
                     ->withErrors(['oauth' => 'You must be logged in to link accounts.']);
             }
 
-            if (! $this->isProviderSupported($provider)) {
+            if (!$this->isProviderSupported($provider)) {
                 return redirect()->route('profile.security')
                     ->withErrors(['oauth' => 'Unsupported OAuth provider.']);
             }
@@ -218,14 +218,14 @@ class OAuthController extends Controller
     public function unlinkAccount(string $provider, Request $request): RedirectResponse
     {
         try {
-            if (! Auth::check()) {
+            if (!Auth::check()) {
                 return redirect()->route('login');
             }
 
             $user = Auth::user();
 
             // Ensure user has a password before unlinking OAuth (security measure)
-            if (! $user->password && $user->provider === $provider) {
+            if (!$user->password && $user->provider === $provider) {
                 return redirect()->route('profile.security')
                     ->withErrors(['oauth' => 'You must set a password before unlinking your ' . ucfirst($provider) . ' account.']);
             }

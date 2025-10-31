@@ -12,7 +12,7 @@ return new class() extends Migration {
     {
         if (Schema::hasTable('legal_documents')) {
             Schema::table('legal_documents', function (Blueprint $table): void {
-                if (! Schema::hasColumn('legal_documents', 'summary')) {
+                if (!Schema::hasColumn('legal_documents', 'summary')) {
                     $table->text('summary')->nullable()->after('content');
                 }
             });

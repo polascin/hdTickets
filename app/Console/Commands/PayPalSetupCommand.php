@@ -172,7 +172,7 @@ class PayPalSetupCommand extends Command
     {
         $webhookUrl = $this->option('webhook-url') ?: $this->ask('Enter webhook URL', url('/webhooks/paypal'));
 
-        if (! $webhookUrl) {
+        if (!$webhookUrl) {
             $this->error('Webhook URL is required');
 
             return self::FAILURE;

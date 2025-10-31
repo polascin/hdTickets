@@ -26,7 +26,7 @@ class EnhancedLoginSecurity
     public function handle(Request $request, Closure $next): Response
     {
         // Skip for non-login requests
-        if (! $this->isLoginRequest($request)) {
+        if (!$this->isLoginRequest($request)) {
             return $next($request);
         }
 
@@ -57,7 +57,7 @@ class EnhancedLoginSecurity
     {
         $fingerprint = $request->input('device_fingerprint');
 
-        if (! $fingerprint) {
+        if (!$fingerprint) {
             Log::warning('Login attempt without device fingerprint', [
                 'ip'         => $request->ip(),
                 'user_agent' => $request->userAgent(),
@@ -82,7 +82,7 @@ class EnhancedLoginSecurity
             // Validate fingerprint structure
             $requiredFields = ['userAgent', 'language', 'platform', 'timezone', 'screen', 'canvas'];
             foreach ($requiredFields as $field) {
-                if (! isset($decoded[$field])) {
+                if (!isset($decoded[$field])) {
                     throw new InvalidArgumentException("Missing fingerprint field: {$field}");
                 }
             }
@@ -93,7 +93,7 @@ class EnhancedLoginSecurity
                 $cacheKey = "user_fingerprint:{$email}";
                 $storedFingerprints = Cache::get($cacheKey, []);
 
-                if (! in_array($fingerprint, $storedFingerprints, TRUE)) {
+                if (!in_array($fingerprint, $storedFingerprints, TRUE)) {
                     $storedFingerprints[] = $fingerprint;
                     Cache::put($cacheKey, array_slice($storedFingerprints, -5), now()->addMonths(3));
 
@@ -148,7 +148,7 @@ class EnhancedLoginSecurity
         $ip = $request->ip();
         $email = $request->input('email');
 
-        if (! $email) {
+        if (!$email) {
             return;
         }
 
@@ -158,7 +158,7 @@ class EnhancedLoginSecurity
 
         $currentLocation = $this->getLocationFromIP($ip);
 
-        if (! empty($knownLocations) && $currentLocation) {
+        if (!empty($knownLocations) && $currentLocation) {
             $isKnownLocation = FALSE;
 
             foreach ($knownLocations as $location) {
@@ -169,7 +169,7 @@ class EnhancedLoginSecurity
                 }
             }
 
-            if (! $isKnownLocation) {
+            if (!$isKnownLocation) {
                 Log::warning('Login from unusual location', [
                     'email'           => $email,
                     'ip'              => $ip,
@@ -261,7 +261,7 @@ class EnhancedLoginSecurity
     private function getCountryFromIP(string $ip): string
     {
         // Skip for local/private IPs
-        if (! filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE)) {
+        if (!filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE)) {
             return 'Local';
         }
 
@@ -306,7 +306,7 @@ class EnhancedLoginSecurity
 
             $data = json_decode($response, TRUE);
 
-            if (! is_array($data) || ! isset($data['country'])) {
+            if (!is_array($data) || !isset($data['country'])) {
                 Log::debug('Invalid GeoIP API response', [
                     'ip'       => $ip,
                     'response' => substr($response, 0, 200),
@@ -338,7 +338,7 @@ class EnhancedLoginSecurity
     private function getLocationFromIP(string $ip): ?array
     {
         // Skip for local/private IPs
-        if (! filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE)) {
+        if (!filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE)) {
             return NULL;
         }
 
@@ -383,7 +383,7 @@ class EnhancedLoginSecurity
 
             $data = json_decode($response, TRUE);
 
-            if (! is_array($data)) {
+            if (!is_array($data)) {
                 Log::debug('Invalid GeoIP location API response', [
                     'ip'       => $ip,
                     'response' => substr($response, 0, 200),

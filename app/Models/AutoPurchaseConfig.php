@@ -99,11 +99,11 @@ class AutoPurchaseConfig extends Model
      */
     public function canAttemptPurchase(): bool
     {
-        if (! $this->is_active) {
+        if (!$this->is_active) {
             return FALSE;
         }
 
-        if (! $this->isWithinPurchaseWindow()) {
+        if (!$this->isWithinPurchaseWindow()) {
             return FALSE;
         }
 
@@ -276,20 +276,20 @@ class AutoPurchaseConfig extends Model
      */
     public function needsContextPreloading(): bool
     {
-        if (! ($this->advanced_settings['auto_preload_context'] ?? TRUE)) {
+        if (!($this->advanced_settings['auto_preload_context'] ?? TRUE)) {
             return FALSE;
         }
 
         $cacheKey = "auto_purchase_preload_{$this->id}";
         $preloadData = \Illuminate\Support\Facades\Cache::get($cacheKey);
 
-        if (! $preloadData) {
+        if (!$preloadData) {
             return TRUE;
         }
 
         // Check if preload data is older than 30 minutes
         $preloadedAt = $preloadData['preloaded_at'] ?? NULL;
-        if (! $preloadedAt || now()->diffInMinutes($preloadedAt) > 30) {
+        if (!$preloadedAt || now()->diffInMinutes($preloadedAt) > 30) {
             return TRUE;
         }
 

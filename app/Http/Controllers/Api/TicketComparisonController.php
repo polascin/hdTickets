@@ -254,11 +254,11 @@ class TicketComparisonController extends Controller
         }
 
         // Apply filters
-        if (! empty($filters['platforms'])) {
+        if (!empty($filters['platforms'])) {
             $query->whereIn('platform', $filters['platforms']);
         }
 
-        if (! empty($filters['price_range'])) {
+        if (!empty($filters['price_range'])) {
             $priceRange = $filters['price_range'];
             if (isset($priceRange['min'])) {
                 $query->where('current_price', '>=', $priceRange['min']);
@@ -268,7 +268,7 @@ class TicketComparisonController extends Controller
             }
         }
 
-        if (! empty($filters['sections'])) {
+        if (!empty($filters['sections'])) {
             $query->whereIn('section', $filters['sections']);
         }
 
@@ -392,7 +392,7 @@ class TicketComparisonController extends Controller
         }
 
         // Availability factor
-        if (! $ticket->is_available) {
+        if (!$ticket->is_available) {
             $score = 0;
         }
 
@@ -404,7 +404,7 @@ class TicketComparisonController extends Controller
      */
     private function calculateMarkup(Ticket $ticket): float
     {
-        if (! $ticket->face_value || $ticket->face_value <= 0) {
+        if (!$ticket->face_value || $ticket->face_value <= 0) {
             return 0;
         }
 

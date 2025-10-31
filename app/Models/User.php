@@ -455,7 +455,7 @@ class User extends Authenticatable implements MustVerifyEmail
      */
     public function canAccessSystem(): bool
     {
-        return ! $this->isScraper();
+        return !$this->isScraper();
     }
 
     /**
@@ -466,7 +466,7 @@ class User extends Authenticatable implements MustVerifyEmail
      */
     public function canLoginToWeb(): bool
     {
-        return ! $this->isScraper();
+        return !$this->isScraper();
     }
 
     /**
@@ -514,7 +514,7 @@ class User extends Authenticatable implements MustVerifyEmail
      */
     public function isUsernameUnique($username, $excludeId = NULL): bool
     {
-        return ! static::uniqueUsername($username, $excludeId)->exists();
+        return !static::uniqueUsername($username, $excludeId)->exists();
     }
 
     /**
@@ -567,7 +567,7 @@ class User extends Authenticatable implements MustVerifyEmail
      */
     public function getLastLoginInfo(): array
     {
-        if (! $this->last_login_at) {
+        if (!$this->last_login_at) {
             return [
                 'formatted'  => 'Never logged in',
                 'datetime'   => NULL,
@@ -660,13 +660,13 @@ class User extends Authenticatable implements MustVerifyEmail
     public function getProfileCompletion(): array
     {
         $fields = [
-            'name'               => ! empty($this->name),
-            'surname'            => ! empty($this->surname),
-            'phone'              => ! empty($this->phone),
-            'bio'                => ! empty($this->bio),
-            'profile_picture'    => ! empty($this->profile_picture),
-            'timezone'           => ! empty($this->timezone),
-            'language'           => ! empty($this->language),
+            'name'               => !empty($this->name),
+            'surname'            => !empty($this->surname),
+            'phone'              => !empty($this->phone),
+            'bio'                => !empty($this->bio),
+            'profile_picture'    => !empty($this->profile_picture),
+            'timezone'           => !empty($this->timezone),
+            'language'           => !empty($this->language),
             'two_factor_enabled' => $this->two_factor_enabled ?? FALSE,
         ];
 
@@ -687,7 +687,7 @@ class User extends Authenticatable implements MustVerifyEmail
             'percentage'       => $completionPercentage,
             'status'           => $status,
             'completed_fields' => $completedFields,
-            'missing_fields'   => array_keys(array_filter($fields, fn (bool $value): bool => ! $value)),
+            'missing_fields'   => array_keys(array_filter($fields, fn (bool $value): bool => !$value)),
             'total_fields'     => count($fields),
             'completed_count'  => count($completedFields),
             'is_complete'      => $completionPercentage >= 90,
@@ -716,7 +716,7 @@ class User extends Authenticatable implements MustVerifyEmail
         return [
             'picture_url'  => $pictureUrl,
             'initials'     => $initials,
-            'has_picture'  => ! empty($this->profile_picture),
+            'has_picture'  => !empty($this->profile_picture),
             'full_name'    => $this->full_name,
             'display_name' => ($this->full_name ?: $this->username) ?: $this->email,
             'bio'          => $this->bio,
@@ -733,7 +733,7 @@ class User extends Authenticatable implements MustVerifyEmail
      */
     public function getProfilePictureSizes(): array
     {
-        if (! $this->profile_picture || ! $this->id) {
+        if (!$this->profile_picture || !$this->id) {
             return [];
         }
 
@@ -996,7 +996,7 @@ class User extends Authenticatable implements MustVerifyEmail
     {
         try {
             // Check if subscriptions table exists
-            if (! $this->subscriptions()->getModel()->getConnection()->getSchemaBuilder()->hasTable('user_subscriptions')) {
+            if (!$this->subscriptions()->getModel()->getConnection()->getSchemaBuilder()->hasTable('user_subscriptions')) {
                 return FALSE; // No subscriptions table means no subscriptions
             }
 
@@ -1041,7 +1041,7 @@ class User extends Authenticatable implements MustVerifyEmail
     {
         $plan = $this->getCurrentPlan();
 
-        if (! $plan) {
+        if (!$plan) {
             return FALSE; // No plan = no access
         }
 
@@ -1063,7 +1063,7 @@ class User extends Authenticatable implements MustVerifyEmail
     {
         $plan = $this->getCurrentPlan();
 
-        if (! $plan || $plan->hasUnlimitedTickets()) {
+        if (!$plan || $plan->hasUnlimitedTickets()) {
             return -1; // Unlimited
         }
 
@@ -1373,7 +1373,7 @@ class User extends Authenticatable implements MustVerifyEmail
     {
         $plan = $this->getCurrentPlan();
 
-        if (! $plan) {
+        if (!$plan) {
             // Free trial default limit
             return (int) config('subscription.default_ticket_limit', 100);
         }

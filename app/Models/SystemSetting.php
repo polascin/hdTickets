@@ -61,7 +61,7 @@ class SystemSetting extends Model
     {
         $setting = static::where('key', $key)->first();
 
-        if (! $setting) {
+        if (!$setting) {
             return $default;
         }
 

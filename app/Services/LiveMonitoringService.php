@@ -213,7 +213,7 @@ class LiveMonitoringService
                     'livenation'   => 'https://www.livenation.co.uk',
                 ];
 
-                if (! isset($urls[$platform])) {
+                if (!isset($urls[$platform])) {
                     return ['status' => 'unknown', 'response_time' => NULL];
                 }
 

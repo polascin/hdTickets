@@ -97,7 +97,7 @@ class TicketAlert extends Model
         $keywords = strtolower($this->keywords);
         $eventTitle = strtolower($ticket->event_title);
 
-        if (! str_contains($eventTitle, $keywords)) {
+        if (!str_contains($eventTitle, $keywords)) {
             return FALSE;
         }
 
@@ -116,7 +116,7 @@ class TicketAlert extends Model
             foreach ($this->filters as $key => $value) {
                 switch ($key) {
                     case 'venue':
-                        if (! str_contains(strtolower((string) $ticket->venue), strtolower($value))) {
+                        if (!str_contains(strtolower((string) $ticket->venue), strtolower($value))) {
                             return FALSE;
                         }
 
@@ -128,7 +128,7 @@ class TicketAlert extends Model
 
                         break;
                     case 'section':
-                        if ($ticket->section && ! str_contains(strtolower($ticket->section), strtolower($value))) {
+                        if ($ticket->section && !str_contains(strtolower($ticket->section), strtolower($value))) {
                             return FALSE;
                         }
 
@@ -172,7 +172,7 @@ class TicketAlert extends Model
     protected function platformDisplayName(): Attribute
     {
         return Attribute::make(get: function (): string {
-            if (! $this->platform) {
+            if (!$this->platform) {
                 return 'All Platforms';
             }
 

@@ -138,7 +138,7 @@ class TicketReadModelProjection implements ProjectionInterface
             ->where('ticket_id', $event->ticketId->getValue())
             ->first();
 
-        if (! $ticket) {
+        if (!$ticket) {
             Log::warning('Attempting to update price for non-existent ticket', [
                 'ticket_id' => $event->ticketId->getValue(),
             ]);
@@ -172,7 +172,7 @@ class TicketReadModelProjection implements ProjectionInterface
             ->where('ticket_id', $event->ticketId->getValue())
             ->first();
 
-        if (! $ticket) {
+        if (!$ticket) {
             Log::warning('Attempting to update availability for non-existent ticket', [
                 'ticket_id' => $event->ticketId->getValue(),
             ]);
@@ -211,7 +211,7 @@ class TicketReadModelProjection implements ProjectionInterface
             ->where('ticket_id', $event->ticketId->getValue())
             ->first();
 
-        if (! $ticket) {
+        if (!$ticket) {
             Log::warning('Attempting to mark non-existent ticket as sold out', [
                 'ticket_id' => $event->ticketId->getValue(),
             ]);

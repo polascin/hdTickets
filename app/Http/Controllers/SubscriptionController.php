@@ -143,7 +143,7 @@ class SubscriptionController extends Controller
             $user = Auth::user();
             $currentSubscription = $user->activeSubscription();
 
-            if (! $currentSubscription) {
+            if (!$currentSubscription) {
                 return response()->json([
                     'success' => FALSE,
                     'message' => 'No active subscription found. Create a subscription first.',
@@ -281,7 +281,7 @@ class SubscriptionController extends Controller
             $user = Auth::user();
             $subscription = $user->activeSubscription();
 
-            if (! $subscription) {
+            if (!$subscription) {
                 return response()->json([
                     'success' => TRUE,
                     'data'    => [

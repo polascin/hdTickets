@@ -144,7 +144,7 @@ class TicketPurchaseRequest extends FormRequest
             $user = Auth::user();
             $ticket = $this->route('ticket');
 
-            if (! $ticket) {
+            if (!$ticket) {
                 return;
             }
 
@@ -184,7 +184,7 @@ class TicketPurchaseRequest extends FormRequest
      */
     private function validateTicketAvailability($validator, $ticket): void
     {
-        if (! $ticket->is_available) {
+        if (!$ticket->is_available) {
             $validator->errors()->add('ticket', 'This ticket is no longer available for purchase.');
 
             return;
@@ -208,7 +208,7 @@ class TicketPurchaseRequest extends FormRequest
      */
     private function validateUserLimits($validator, $user): void
     {
-        if (! $user) {
+        if (!$user) {
             $validator->errors()->add('user', 'Authentication required for ticket purchase.');
 
             return;
@@ -225,13 +225,13 @@ class TicketPurchaseRequest extends FormRequest
         if ($user->isCustomer()) {
             $subscription = $user->subscription;
 
-            if (! $subscription) {
+            if (!$subscription) {
                 $validator->errors()->add('subscription', 'An active subscription is required to purchase tickets.');
 
                 return;
             }
 
-            if (! $subscription->isActive() && ! $subscription->isInFreeTrial()) {
+            if (!$subscription->isActive() && !$subscription->isInFreeTrial()) {
                 $validator->errors()->add(
                     'subscription',
                     'Your subscription is not active. Please renew to continue purchasing tickets.',

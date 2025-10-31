@@ -73,8 +73,8 @@ class ApiKey extends Model
     public function isValid(): bool
     {
         return $this->is_active
-            && ! $this->isExpired()
-            && ! $this->isRevoked();
+            && !$this->isExpired()
+            && !$this->isRevoked();
     }
 
     public function isExpired(): bool
@@ -95,7 +95,7 @@ class ApiKey extends Model
 
     public function hasAnyPermission(array $permissions): bool
     {
-        return ! empty(array_intersect($permissions, $this->permissions ?? []))
+        return !empty(array_intersect($permissions, $this->permissions ?? []))
             || in_array('admin', $this->permissions ?? [], TRUE);
     }
 
@@ -134,7 +134,7 @@ class ApiKey extends Model
 
     public function isRateLimited(): bool
     {
-        if (! $this->rate_limit) {
+        if (!$this->rate_limit) {
             return FALSE;
         }
 
@@ -145,7 +145,7 @@ class ApiKey extends Model
 
     public function getRemainingRequests(): int
     {
-        if (! $this->rate_limit) {
+        if (!$this->rate_limit) {
             return PHP_INT_MAX;
         }
 
@@ -166,7 +166,7 @@ class ApiKey extends Model
             return 'expired';
         }
 
-        if (! $this->is_active) {
+        if (!$this->is_active) {
             return 'inactive';
         }
 
@@ -179,7 +179,7 @@ class ApiKey extends Model
 
     public function getHealthScore(): float
     {
-        if (! $this->isValid()) {
+        if (!$this->isValid()) {
             return 0.0;
         }
 
@@ -334,7 +334,7 @@ class ApiKey extends Model
 
     public function getExpiresInAttribute(): ?string
     {
-        if (! $this->expires_at) {
+        if (!$this->expires_at) {
             return 'Never';
         }
 

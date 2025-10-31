@@ -172,9 +172,9 @@ class EmailTemplate extends Model
         $availableVars = array_merge($availableVars, $commonVars);
 
         // Check for undefined variables (skip validation during seeding)
-        if (! app()->runningInConsole()) {
+        if (!app()->runningInConsole()) {
             foreach ($extractedVars as $var) {
-                if (! in_array($var, $availableVars, TRUE)) {
+                if (!in_array($var, $availableVars, TRUE)) {
                     $errors[] = "Undefined variable: {{$var}}";
                 }
             }
@@ -234,7 +234,7 @@ class EmailTemplate extends Model
      */
     public function toggle(): bool
     {
-        return $this->update(['active' => ! $this->active]);
+        return $this->update(['active' => !$this->active]);
     }
 
     /**
@@ -271,7 +271,7 @@ class EmailTemplate extends Model
         // Validate before saving
         static::saving(function ($model): void {
             $errors = $model->validateSyntax();
-            if (! empty($errors)) {
+            if (!empty($errors)) {
                 throw new InvalidArgumentException('Template validation failed: ' . implode(', ', $errors));
             }
         });

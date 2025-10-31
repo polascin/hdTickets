@@ -142,7 +142,7 @@ class NotificationPreference extends Model
     {
         $quietHours = $this->quiet_hours ?? [];
 
-        if (! ($quietHours['enabled'] ?? FALSE)) {
+        if (!($quietHours['enabled'] ?? FALSE)) {
             return FALSE;
         }
 
@@ -191,7 +191,7 @@ class NotificationPreference extends Model
      */
     public function updateLearningPreferences(array $behaviorData): void
     {
-        if (! ($this->intelligent_delivery['learn_preferences'] ?? FALSE)) {
+        if (!($this->intelligent_delivery['learn_preferences'] ?? FALSE)) {
             return;
         }
 

@@ -350,7 +350,7 @@ class TicketMonitoringController extends Controller
      */
     private function getTicketStatus(Ticket $ticket): string
     {
-        if (! $ticket->is_available) {
+        if (!$ticket->is_available) {
             return 'sold_out';
         }
 

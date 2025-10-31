@@ -145,7 +145,7 @@ final readonly class SportCategory implements Stringable
         }
 
         $normalizedCategory = strtoupper(trim($category));
-        if (! in_array($normalizedCategory, self::VALID_CATEGORIES, TRUE)) {
+        if (!in_array($normalizedCategory, self::VALID_CATEGORIES, TRUE)) {
             throw new InvalidArgumentException(
                 sprintf(
                     'Invalid sport category: %s. Valid categories: %s',

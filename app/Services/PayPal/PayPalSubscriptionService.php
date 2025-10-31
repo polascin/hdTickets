@@ -105,7 +105,7 @@ class PayPalSubscriptionService
             // Find local subscription
             $subscription = UserSubscription::where('paypal_subscription_id', $paypalSubscriptionId)->first();
 
-            if (! $subscription) {
+            if (!$subscription) {
                 Log::error('Local subscription not found for PayPal subscription', [
                     'paypal_subscription_id' => $paypalSubscriptionId,
                 ]);
@@ -160,7 +160,7 @@ class PayPalSubscriptionService
     public function cancelSubscription(UserSubscription $subscription, string $reason = 'User requested cancellation'): bool
     {
         try {
-            if (! $subscription->paypal_subscription_id) {
+            if (!$subscription->paypal_subscription_id) {
                 throw new Exception('Not a PayPal subscription');
             }
 
@@ -205,7 +205,7 @@ class PayPalSubscriptionService
     public function synchroniseSubscription(UserSubscription $subscription): bool
     {
         try {
-            if (! $subscription->paypal_subscription_id) {
+            if (!$subscription->paypal_subscription_id) {
                 return FALSE;
             }
 
@@ -248,7 +248,7 @@ class PayPalSubscriptionService
         try {
             $subscription = UserSubscription::where('paypal_subscription_id', $paypalSubscriptionId)->first();
 
-            if (! $subscription) {
+            if (!$subscription) {
                 Log::warning('Renewal webhook for unknown subscription', [
                     'paypal_subscription_id' => $paypalSubscriptionId,
                 ]);

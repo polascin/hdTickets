@@ -126,7 +126,7 @@ class Webhook extends Model
 
     public function getStatus(): string
     {
-        if (! $this->is_active) {
+        if (!$this->is_active) {
             return 'disabled';
         }
 
@@ -148,7 +148,7 @@ class Webhook extends Model
 
     public function getHealthScore(): float
     {
-        if (! $this->is_active) {
+        if (!$this->is_active) {
             return 0.0;
         }
 
@@ -185,7 +185,7 @@ class Webhook extends Model
     public function addEvent(string $eventType): bool
     {
         $events = $this->events ?? [];
-        if (! in_array($eventType, $events, TRUE)) {
+        if (!in_array($eventType, $events, TRUE)) {
             $events[] = $eventType;
 
             return $this->update(['events' => $events]);
@@ -269,7 +269,7 @@ class Webhook extends Model
         // Filter out potentially dangerous headers
         $forbiddenHeaders = ['authorization', 'cookie', 'x-forwarded-for'];
         $filteredHeaders = array_filter($headers, function ($key) use ($forbiddenHeaders) {
-            return ! in_array(strtolower($key), $forbiddenHeaders, TRUE);
+            return !in_array(strtolower($key), $forbiddenHeaders, TRUE);
         }, ARRAY_FILTER_USE_KEY);
 
         return $this->update(['custom_headers' => $filteredHeaders]);

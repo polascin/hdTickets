@@ -18,7 +18,7 @@ class LiverpoolFCPlugin extends BaseScraperPlugin
     #[Override]
     public function scrape(array $criteria): array
     {
-        if (! $this->enabled) {
+        if (!$this->enabled) {
             throw new Exception("{$this->pluginName} plugin is disabled");
         }
 
@@ -109,7 +109,7 @@ class LiverpoolFCPlugin extends BaseScraperPlugin
         // Liverpool FC specific URL structure
         $baseSearchUrl = $this->baseUrl . '/tickets';
 
-        if (! empty($criteria['keyword'])) {
+        if (!empty($criteria['keyword'])) {
             $baseSearchUrl .= '?search=' . urlencode((string) $criteria['keyword']);
         }
 

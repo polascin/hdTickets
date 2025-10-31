@@ -126,7 +126,7 @@ class EventPredictionService
         foreach ($events as $event) {
             $artistName = $this->extractArtistName($event->event_name);
 
-            if (! isset($artistPatterns[$artistName])) {
+            if (!isset($artistPatterns[$artistName])) {
                 $artistPatterns[$artistName] = [
                     'events'       => [],
                     'venues'       => [],

@@ -177,7 +177,7 @@ class CaptchaService
     public function isEnabled(): bool
     {
         return config('services.captcha.enabled', FALSE)
-               && ! empty(config('services.captcha.service'));
+               && !empty(config('services.captcha.service'));
     }
 
     /**
@@ -241,7 +241,7 @@ class CaptchaService
     protected function solve2CaptchaRecaptchaV2(string $siteKey, string $pageUrl, array $options = []): ?string
     {
         $apiKey = config('services.captcha.2captcha.api_key');
-        if (! $apiKey) {
+        if (!$apiKey) {
             Log::error('2captcha API key not configured');
 
             return NULL;
@@ -297,7 +297,7 @@ class CaptchaService
     protected function solve2CaptchaRecaptchaV3(string $siteKey, string $pageUrl, string $action, float $minScore): ?string
     {
         $apiKey = config('services.captcha.2captcha.api_key');
-        if (! $apiKey) {
+        if (!$apiKey) {
             Log::error('2captcha API key not configured');
 
             return NULL;
@@ -347,7 +347,7 @@ class CaptchaService
     protected function solve2CaptchaImage(string $imageBase64, array $options = []): ?string
     {
         $apiKey = config('services.captcha.2captcha.api_key');
-        if (! $apiKey) {
+        if (!$apiKey) {
             Log::error('2captcha API key not configured');
 
             return NULL;
@@ -450,7 +450,7 @@ class CaptchaService
     protected function solveAntiCaptchaRecaptchaV2(string $siteKey, string $pageUrl, array $options = []): ?string
     {
         $apiKey = config('services.captcha.anticaptcha.api_key');
-        if (! $apiKey) {
+        if (!$apiKey) {
             Log::error('Anti-Captcha API key not configured');
 
             return NULL;
@@ -547,7 +547,7 @@ class CaptchaService
     protected function get2CaptchaBalance(): ?float
     {
         $apiKey = config('services.captcha.2captcha.api_key');
-        if (! $apiKey) {
+        if (!$apiKey) {
             return NULL;
         }
 
@@ -578,7 +578,7 @@ class CaptchaService
     protected function getAntiCaptchaBalance(): ?float
     {
         $apiKey = config('services.captcha.anticaptcha.api_key');
-        if (! $apiKey) {
+        if (!$apiKey) {
             return NULL;
         }
 
@@ -614,7 +614,7 @@ class CaptchaService
     protected function report2CaptchaBad(string $captchaId): bool
     {
         $apiKey = config('services.captcha.2captcha.api_key');
-        if (! $apiKey) {
+        if (!$apiKey) {
             return FALSE;
         }
 

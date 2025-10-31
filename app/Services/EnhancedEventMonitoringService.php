@@ -85,7 +85,7 @@ class EnhancedEventMonitoringService
 
             $changes = $this->detectInstantChanges($monitor, $platformData);
 
-            if (! empty($changes)) {
+            if (!empty($changes)) {
                 $this->processInstantAlerts($monitor, $changes, $platformData);
             }
 
@@ -166,7 +166,7 @@ class EnhancedEventMonitoringService
         foreach ($responses as $platform => $response) {
             if ($response->successful()) {
                 $data = $this->parseEventData($platform, $response->json());
-                if (! empty($data)) {
+                if (!empty($data)) {
                     $platformData[$platform] = $data;
                 }
             }
@@ -480,7 +480,7 @@ class EnhancedEventMonitoringService
                 $lastEvent = collect($lastPlatformData)->firstWhere('external_id', $event['external_id']);
 
                 // New listing detected
-                if (! $lastEvent) {
+                if (!$lastEvent) {
                     $changes[] = [
                         'type'     => 'new_listing',
                         'platform' => $platform,
@@ -493,7 +493,7 @@ class EnhancedEventMonitoringService
                 }
 
                 // Availability change
-                if ($event['available'] && ! $lastEvent['available']) {
+                if ($event['available'] && !$lastEvent['available']) {
                     $changes[] = [
                         'type'     => 'availability_restored',
                         'platform' => $platform,
@@ -676,9 +676,9 @@ class EnhancedEventMonitoringService
             'total_listings'     => count($allEvents),
             'available_listings' => count($availableEvents),
             'platforms_count'    => count($eventData),
-            'lowest_price'       => ! empty($prices) ? min($prices) : NULL,
-            'highest_price'      => ! empty($prices) ? max($prices) : NULL,
-            'average_price'      => ! empty($prices) ? round(array_sum($prices) / count($prices), 2) : NULL,
+            'lowest_price'       => !empty($prices) ? min($prices) : NULL,
+            'highest_price'      => !empty($prices) ? max($prices) : NULL,
+            'average_price'      => !empty($prices) ? round(array_sum($prices) / count($prices), 2) : NULL,
             'total_tickets'      => array_sum(array_column($availableEvents, 'total_tickets')),
         ];
     }

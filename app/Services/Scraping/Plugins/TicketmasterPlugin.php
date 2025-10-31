@@ -22,7 +22,7 @@ class TicketmasterPlugin extends BaseScraperPlugin
     #[Override]
     public function scrape(array $criteria): array
     {
-        if (! $this->enabled) {
+        if (!$this->enabled) {
             throw new Exception("{$this->pluginName} plugin is disabled");
         }
 
@@ -193,40 +193,40 @@ class TicketmasterPlugin extends BaseScraperPlugin
         ];
 
         // Add keyword search
-        if (! empty($criteria['keyword'])) {
+        if (!empty($criteria['keyword'])) {
             $params['keyword'] = $criteria['keyword'];
         }
 
         // Add city filter
-        if (! empty($criteria['city'])) {
+        if (!empty($criteria['city'])) {
             $params['city'] = $criteria['city'];
         }
 
         // Add venue filter
-        if (! empty($criteria['venue'])) {
+        if (!empty($criteria['venue'])) {
             $params['venue'] = $criteria['venue'];
         }
 
         // Add date range
-        if (! empty($criteria['date_from'])) {
+        if (!empty($criteria['date_from'])) {
             $params['startDateTime'] = Carbon::parse($criteria['date_from'])->toISOString();
         } else {
             $params['startDateTime'] = now()->toISOString(); // Default to today
         }
 
-        if (! empty($criteria['date_to'])) {
+        if (!empty($criteria['date_to'])) {
             $params['endDateTime'] = Carbon::parse($criteria['date_to'])->toISOString();
         }
 
         // Add country code
-        if (! empty($criteria['country_code'])) {
+        if (!empty($criteria['country_code'])) {
             $params['countryCode'] = strtoupper((string) $criteria['country_code']);
         } else {
             $params['countryCode'] = 'US'; // Default to US
         }
 
         // Add specific sport classification
-        if (! empty($criteria['sport'])) {
+        if (!empty($criteria['sport'])) {
             $params['subGenre'] = $criteria['sport'];
         }
 
@@ -240,7 +240,7 @@ class TicketmasterPlugin extends BaseScraperPlugin
     {
         $data = json_decode($response, TRUE);
 
-        if (! isset($data['_embedded']['events'])) {
+        if (!isset($data['_embedded']['events'])) {
             Log::info('No events found in Ticketmaster response');
 
             return [];
@@ -467,7 +467,7 @@ class TicketmasterPlugin extends BaseScraperPlugin
             ])
             ->get($url);
 
-        if (! $response->successful()) {
+        if (!$response->successful()) {
             throw new Exception("Ticketmaster API request failed: HTTP {$response->status()}");
         }
 

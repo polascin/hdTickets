@@ -2,12 +2,11 @@
 
 /**
  * Fix imports to use PHPUnit\Framework\Attributes instead of custom attributes
- * 
+ *
  * Since PHPUnit 11.x already supports attributes natively and the project
  * was already using them, we'll continue with PHPUnit's standard attributes.
  */
-
-function fixPhpunitImports(string $testsDir): void 
+function fixPhpunitImports(string $testsDir): void
 {
     $files = new RecursiveIteratorIterator(
         new RecursiveDirectoryIterator($testsDir),
@@ -24,14 +23,14 @@ function fixPhpunitImports(string $testsDir): void
         $filePath = $file->getRealPath();
         $content = file_get_contents($filePath);
         $originalContent = $content;
-        
+
         // Replace custom imports with PHPUnit imports
         $content = str_replace(
             'use Hdtickets\\Test\\Attributes\\Test;',
             'use PHPUnit\\Framework\\Attributes\\Test;',
             $content
         );
-        
+
         $content = str_replace(
             'use Hdtickets\\Test\\Attributes\\DataProvider;',
             'use PHPUnit\\Framework\\Attributes\\DataProvider;',

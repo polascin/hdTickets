@@ -145,7 +145,7 @@ class SubscriptionService
         array $options = [],
     ): array {
         $plan = $this->getPlan($planName);
-        if (! $plan) {
+        if (!$plan) {
             throw new InvalidArgumentException("Invalid plan: {$planName}");
         }
 
@@ -221,12 +221,12 @@ class SubscriptionService
         array $options = [],
     ): array {
         $currentSubscription = $user->activeSubscription();
-        if (! $currentSubscription) {
+        if (!$currentSubscription) {
             throw new Exception('No active subscription found');
         }
 
         $newPlan = $this->getPlan($newPlanName);
-        if (! $newPlan) {
+        if (!$newPlan) {
             throw new InvalidArgumentException("Invalid plan: {$newPlanName}");
         }
 
@@ -296,7 +296,7 @@ class SubscriptionService
         ?string $reason = NULL,
     ): array {
         $subscription = $user->activeSubscription();
-        if (! $subscription) {
+        if (!$subscription) {
             throw new Exception('No active subscription found');
         }
 
@@ -375,7 +375,7 @@ class SubscriptionService
     public function resumeSubscription(User $user): array
     {
         $subscription = $user->activeSubscription();
-        if (! $subscription || $subscription->status !== 'cancel_at_period_end') {
+        if (!$subscription || $subscription->status !== 'cancel_at_period_end') {
             throw new Exception('No subscription pending cancellation found');
         }
 
@@ -420,7 +420,7 @@ class SubscriptionService
     {
         $plan = $this->getPlan($user->subscription_plan ?? 'free');
 
-        if (! $plan) {
+        if (!$plan) {
             return FALSE;
         }
 
@@ -434,7 +434,7 @@ class SubscriptionService
     {
         $plan = $this->getPlan($user->subscription_plan ?? 'free');
 
-        if (! $plan) {
+        if (!$plan) {
             return $this->getFreePlanLimits();
         }
 
@@ -449,7 +449,7 @@ class SubscriptionService
         $limits = $this->getUserLimits($user);
         $limitKey = $resource . '_limit';
 
-        if (! isset($limits[$limitKey])) {
+        if (!isset($limits[$limitKey])) {
             return FALSE;
         }
 
@@ -465,7 +465,7 @@ class SubscriptionService
     {
         $subscription = $user->activeSubscription();
 
-        if (! $subscription) {
+        if (!$subscription) {
             return [
                 'plan'              => 'Free',
                 'status'            => 'free',
@@ -496,7 +496,7 @@ class SubscriptionService
     {
         $subscription = Subscription::where('stripe_subscription_id', $stripeSubscriptionId)->first();
 
-        if (! $subscription) {
+        if (!$subscription) {
             Log::warning('Failed payment for unknown subscription', ['stripe_id' => $stripeSubscriptionId]);
 
             return;

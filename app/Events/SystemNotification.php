@@ -43,7 +43,7 @@ class SystemNotification implements ShouldBroadcast
 
         foreach ($this->targetUsers as $user) {
             // Check if user should receive this notification based on their settings
-            if (! $this->shouldNotifyUser($user)) {
+            if (!$this->shouldNotifyUser($user)) {
                 continue;
             }
 
@@ -312,7 +312,7 @@ class SystemNotification implements ShouldBroadcast
         }
 
         // Don't send system notifications to scrapers unless specifically targeted
-        if (! $this->specificUsers && ! $this->targetRole) {
+        if (!$this->specificUsers && !$this->targetRole) {
             $query->where('role', '!=', 'scraper');
         }
 
@@ -326,7 +326,7 @@ class SystemNotification implements ShouldBroadcast
     {
         $settings = $user->notificationSettings;
 
-        if (! $settings || ! $settings->system_alerts_enabled) {
+        if (!$settings || !$settings->system_alerts_enabled) {
             return FALSE;
         }
 

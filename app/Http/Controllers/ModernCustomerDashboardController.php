@@ -45,7 +45,7 @@ class ModernCustomerDashboardController extends Controller
     {
         $user = Auth::user();
 
-        if (! $user || ! $this->isAuthorizedUser($user)) {
+        if (!$user || !$this->isAuthorizedUser($user)) {
             abort(403, 'Access denied. Customer access required.');
         }
 
@@ -79,11 +79,11 @@ class ModernCustomerDashboardController extends Controller
     {
         $user = Auth::user();
 
-        if (! $user || ! $this->isAuthorizedUser($user)) {
+        if (!$user || !$this->isAuthorizedUser($user)) {
             return response()->json(['error' => 'Unauthorized'], 403);
         }
 
-        if (! ($request->ajax() || $request->expectsJson())) {
+        if (!($request->ajax() || $request->expectsJson())) {
             return response()->json(['error' => 'Forbidden'], 403);
         }
 
@@ -105,11 +105,11 @@ class ModernCustomerDashboardController extends Controller
     {
         $user = Auth::user();
 
-        if (! $user || ! $this->isAuthorizedUser($user)) {
+        if (!$user || !$this->isAuthorizedUser($user)) {
             return response()->json(['error' => 'Unauthorized'], 403);
         }
 
-        if (! ($request->ajax() || $request->expectsJson())) {
+        if (!($request->ajax() || $request->expectsJson())) {
             return response()->json(['error' => 'Forbidden'], 403);
         }
 
@@ -148,11 +148,11 @@ class ModernCustomerDashboardController extends Controller
     {
         $user = Auth::user();
 
-        if (! $user || ! $this->isAuthorizedUser($user)) {
+        if (!$user || !$this->isAuthorizedUser($user)) {
             return response()->json(['error' => 'Unauthorized'], 403);
         }
 
-        if (! ($request->ajax() || $request->expectsJson())) {
+        if (!($request->ajax() || $request->expectsJson())) {
             return response()->json(['error' => 'Forbidden'], 403);
         }
 
@@ -173,11 +173,11 @@ class ModernCustomerDashboardController extends Controller
     {
         $user = Auth::user();
 
-        if (! $user || ! $this->isAuthorizedUser($user)) {
+        if (!$user || !$this->isAuthorizedUser($user)) {
             return response()->json(['error' => 'Unauthorized'], 403);
         }
 
-        if (! ($request->ajax() || $request->expectsJson())) {
+        if (!($request->ajax() || $request->expectsJson())) {
             return response()->json(['error' => 'Forbidden'], 403);
         }
 
@@ -210,11 +210,11 @@ class ModernCustomerDashboardController extends Controller
     {
         $user = Auth::user();
 
-        if (! $user || ! $this->isAuthorizedUser($user)) {
+        if (!$user || !$this->isAuthorizedUser($user)) {
             return response()->json(['error' => 'Unauthorized'], 403);
         }
 
-        if (! ($request->ajax() || $request->expectsJson())) {
+        if (!($request->ajax() || $request->expectsJson())) {
             return response()->json(['error' => 'Forbidden'], 403);
         }
 
@@ -566,7 +566,7 @@ class ModernCustomerDashboardController extends Controller
             ], TRUE);
 
             $hasActive = $hasActiveNew || $hasActiveLegacy || $hasActiveLatest;
-            if (! $hasActive) {
+            if (!$hasActive) {
                 $hasActive = \App\Models\Subscription::where('user_id', $user->id)->exists();
             }
             $status = $effective?->status ?? 'free';

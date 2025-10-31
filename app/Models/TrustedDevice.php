@@ -41,7 +41,7 @@ class TrustedDevice extends Model
      */
     public function isTrusted(): bool
     {
-        return ! $this->isExpired();
+        return !$this->isExpired();
     }
 
     /**
@@ -94,13 +94,13 @@ class TrustedDevice extends Model
     public function getBrowserName(): string
     {
         $userAgent = strtolower($this->user_agent);
-        if (str_contains($userAgent, 'chrome') && ! str_contains($userAgent, 'edg')) {
+        if (str_contains($userAgent, 'chrome') && !str_contains($userAgent, 'edg')) {
             return 'Chrome';
         }
         if (str_contains($userAgent, 'firefox')) {
             return 'Firefox';
         }
-        if (str_contains($userAgent, 'safari') && ! str_contains($userAgent, 'chrome')) {
+        if (str_contains($userAgent, 'safari') && !str_contains($userAgent, 'chrome')) {
             return 'Safari';
         }
         if (str_contains($userAgent, 'edg')) {

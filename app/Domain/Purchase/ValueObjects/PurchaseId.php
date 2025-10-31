@@ -61,7 +61,7 @@ final readonly class PurchaseId implements Stringable
             throw new InvalidArgumentException('Purchase ID must be a valid string with max 255 characters');
         }
 
-        if (! preg_match('/^[a-zA-Z0-9_-]+$/', $value)) {
+        if (!preg_match('/^[a-zA-Z0-9_-]+$/', $value)) {
             throw new InvalidArgumentException('Purchase ID must contain only alphanumeric characters, underscores, and hyphens');
         }
     }

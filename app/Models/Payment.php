@@ -183,7 +183,7 @@ class Payment extends Model
      */
     public function getFormattedRefundAmount(): string
     {
-        if (! $this->refund_amount) {
+        if (!$this->refund_amount) {
             return '$0.00';
         }
 
