@@ -1451,6 +1451,11 @@
     text-shadow: 0 0 8px rgba(220, 38, 38, 0.4);
   }
 }
+
+/* Notification System */
+.notification {
+  position: fixed;
+  top: 1rem;
   right: 1rem;
   z-index: 50;
   padding: 1rem;
