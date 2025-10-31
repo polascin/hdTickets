@@ -4,165 +4,7 @@
 @section('description', 'Modern sports ticket monitoring dashboard with real-time updates')
 
 @push('styles')
-  @vite(['resources/css/app.css'])
-  <style>
-    /* Enhanced custom dashboard styles */
-    .glass-card {
-      background: rgba(255, 255, 255, 0.95);
-      backdrop-filter: blur(20px);
-      border: 1px solid rgba(255, 255, 255, 0.2);
-      border-radius: 16px;
-      box-shadow: 
-        0 8px 32px rgba(31, 38, 135, 0.15),
-        inset 0 1px 0 rgba(255, 255, 255, 0.3);
-    }
-
-    .stat-card {
-      transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-      position: relative;
-      overflow: hidden;
-    }
-
-    .stat-card::before {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: -100%;
-      width: 100%;
-      height: 2px;
-      background: linear-gradient(90deg, #3b82f6, #8b5cf6, #06b6d4);
-      transition: left 0.6s ease;
-    }
-
-    .stat-card:hover {
-      transform: translateY(-4px) scale(1.02);
-      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.15);
-    }
-
-    .stat-card:hover::before {
-      left: 100%;
-    }
-
-    .trend-up {
-      color: #059669;
-      background-color: #d1fae5;
-      animation: pulse-success 2s infinite;
-    }
-
-    .trend-down {
-      color: #dc2626;
-      background-color: #fee2e2;
-      animation: pulse-danger 2s infinite;
-    }
-
-    .trend-stable {
-      color: #4b5563;
-      background-color: #f3f4f6;
-    }
-
-    @keyframes pulse-success {
-      0%, 100% { box-shadow: 0 0 0 0 rgba(5, 150, 105, 0.4); }
-      50% { box-shadow: 0 0 0 6px rgba(5, 150, 105, 0); }
-    }
-
-    @keyframes pulse-danger {
-      0%, 100% { box-shadow: 0 0 0 0 rgba(220, 38, 38, 0.4); }
-      50% { box-shadow: 0 0 0 6px rgba(220, 38, 38, 0); }
-    }
-
-    .sidebar {
-      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-      box-shadow: 2px 0 20px rgba(0, 0, 0, 0.1);
-    }
-
-    .nav-item {
-      position: relative;
-      overflow: hidden;
-    }
-
-    .nav-item::before {
-      content: '';
-      position: absolute;
-      left: 0;
-      top: 0;
-      bottom: 0;
-      width: 3px;
-      background: linear-gradient(to bottom, #3b82f6, #8b5cf6);
-      transform: scaleY(0);
-      transition: transform 0.2s ease;
-    }
-
-    .nav-item.active::before {
-      transform: scaleY(1);
-    }
-
-    .loading-skeleton {
-      background: linear-gradient(90deg, #f3f4f6 25%, #e5e7eb 50%, #f3f4f6 75%);
-      background-size: 200% 100%;
-      animation: skeleton-loading 1.5s infinite;
-    }
-
-    @keyframes skeleton-loading {
-      0% { background-position: 200% 0; }
-      100% { background-position: -200% 0; }
-    }
-
-    .error-state {
-      background: linear-gradient(135deg, #fef2f2 0%, #fee2e2 100%);
-      border-color: #fca5a5;
-    }
-
-    .success-state {
-      background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
-      border-color: #86efac;
-    }
-
-    /* Mobile optimizations */
-    @media (max-width: 768px) {
-      .sidebar {
-        transform: translateX(-100%);
-        z-index: 50;
-      }
-
-      .sidebar.open {
-        transform: translateX(0);
-      }
-
-      .main-content {
-        padding: 1rem;
-      }
-
-      .stat-card {
-        margin-bottom: 1rem;
-      }
-
-      .dashboard-grid {
-        grid-template-columns: 1fr;
-        gap: 1rem;
-      }
-    }
-
-    /* Dark mode support */
-    @media (prefers-color-scheme: dark) {
-      .glass-card {
-        background: rgba(30, 41, 59, 0.8);
-        border-color: rgba(255, 255, 255, 0.1);
-      }
-    }
-
-    /* Reduced motion support */
-    @media (prefers-reduced-motion: reduce) {
-      .stat-card,
-      .sidebar,
-      .nav-item {
-        transition: none;
-      }
-      
-      .loading-skeleton {
-        animation: none;
-      }
-    }
-  </style>
+  @vite(['resources/css/app.css', 'resources/css/dashboard-modern.css'])
 @endpush
 
 @section('content')
@@ -220,7 +62,7 @@
         <!-- Navigation Menu -->
         <nav class="space-y-2">
           <button type="button" @click="activeTab = 'dashboard'"
-            class="w-full flex items-center px-4 py-3 text-gray-700 rounded-lg transition-colours text-left"
+            class="w-full flex items-center px-4 py-3 text-gray-700 rounded-lg transition-colors text-left"
             :class="activeTab === 'dashboard' ? 'bg-blue-50 text-blue-700' : 'hover:bg-gray-50'">
             <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -230,7 +72,7 @@
           </button>
 
           <button type="button" @click="activeTab = 'tickets'"
-            class="w-full flex items-center px-4 py-3 text-gray-700 rounded-lg transition-colours text-left"
+            class="w-full flex items-center px-4 py-3 text-gray-700 rounded-lg transition-colors text-left"
             :class="activeTab === 'tickets' ? 'bg-blue-50 text-blue-700' : 'hover:bg-gray-50'">
             <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -241,7 +83,7 @@
           </button>
 
           <button type="button" @click="activeTab = 'alerts'"
-            class="w-full flex items-center px-4 py-3 text-gray-700 rounded-lg transition-colours text-left"
+            class="w-full flex items-center px-4 py-3 text-gray-700 rounded-lg transition-colors text-left"
             :class="activeTab === 'alerts' ? 'bg-blue-50 text-blue-700' : 'hover:bg-gray-50'">
             <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -253,7 +95,7 @@
           </button>
 
           <button type="button" @click="activeTab = 'recommendations'"
-            class="w-full flex items-center px-4 py-3 text-gray-700 rounded-lg transition-colours text-left"
+            class="w-full flex items-center px-4 py-3 text-gray-700 rounded-lg transition-colors text-left"
             :class="activeTab === 'recommendations' ? 'bg-blue-50 text-blue-700' : 'hover:bg-gray-50'">
             <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -270,7 +112,7 @@
           <div class="space-y-2">
             @foreach ($quick_actions as $action)
               <a href="{{ $action['url'] }}"
-                class="flex items-center px-4 py-2 text-sm text-gray-600 rounded-lg hover:bg-gray-50 hover:text-gray-900 transition-colours">
+                class="flex items-center px-4 py-2 text-sm text-gray-600 rounded-lg hover:bg-gray-50 hover:text-gray-900 transition-colors">
                 <div
                   class="w-8 h-8 rounded-lg flex items-center justify-center mr-3 bg-{{ $action['color'] }}-100 text-{{ $action['color'] }}-600">
                   <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">

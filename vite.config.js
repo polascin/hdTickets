@@ -15,6 +15,7 @@ export default defineConfig({
         // Dashboard assets
         'resources/js/dashboard/index.js',
         'resources/js/dashboard/modern-customer-dashboard.js',
+        'resources/css/dashboard-modern.css',
         // Ticket system assets
         'resources/js/tickets/index.js',
         'resources/js/tickets/TicketFilters.js',

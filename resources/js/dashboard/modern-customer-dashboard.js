@@ -56,8 +56,6 @@ export function modernCustomerDashboard() {
      * Initialize the dashboard
      */
     init() {
-      console.log('🚀 Initializing Modern Customer Dashboard');
-
       this.initializeData();
       this.setupEventListeners();
       this.setupMobileHandling();
@@ -68,8 +66,6 @@ export function modernCustomerDashboard() {
 
       // Load initial data with retry logic
       this.loadAllDataWithRetry();
-
-      console.log('✅ Dashboard initialization complete');
     },
 
     /**
@@ -299,12 +295,10 @@ export function modernCustomerDashboard() {
       // Connection status changes
       window.realTimeDashboard.on('connected', () => {
         this.isRealTimeConnected = true;
-        console.log('✅ Real-time dashboard connected');
       });
 
       window.realTimeDashboard.on('disconnected', () => {
         this.isRealTimeConnected = false;
-        console.log('❌ Real-time dashboard disconnected');
       });
 
       // Dashboard data updates
