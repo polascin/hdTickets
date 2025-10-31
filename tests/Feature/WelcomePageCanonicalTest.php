@@ -74,7 +74,7 @@ test('welcome page uses British English spelling', function () {
     
     $response->assertOk();
     $response->assertSee('favourite');
-    $response->assertSee('Personalised');
+    $response->assertSee('personalised');
 });
 
 test('welcome page contains domain-correct copy', function () {
