@@ -270,7 +270,7 @@ class ComprehensiveRegistrationRequest extends FormRequest
     {
         $recaptchaResponse = $this->input('g-recaptcha-response');
 
-        if (! $recaptchaResponse) {
+        if (!$recaptchaResponse) {
             return; // Required validation will handle this
         }
 
@@ -282,7 +282,7 @@ class ComprehensiveRegistrationRequest extends FormRequest
 
         $result = $response->json();
 
-        if (! $result['success'] || ($result['score'] ?? 0) < config('services.recaptcha.minimum_score', 0.5)) {
+        if (!$result['success'] || ($result['score'] ?? 0) < config('services.recaptcha.minimum_score', 0.5)) {
             $validator->errors()->add('g-recaptcha-response', 'reCAPTCHA verification failed. Please try again.');
         }
     }
@@ -295,21 +295,21 @@ class ComprehensiveRegistrationRequest extends FormRequest
     private function validateBusinessRules($validator): void
     {
         // Example: Check if registration is currently allowed
-        if (! config('app.registration_enabled', TRUE)) {
+        if (!config('app.registration_enabled', TRUE)) {
             $validator->errors()->add('general', 'Registration is currently disabled. Please try again later.');
         }
 
         // Example: Validate role-specific requirements
         if ($this->role === User::ROLE_AGENT) {
             // Agents might require additional verification
-            if (! $this->phone) {
+            if (!$this->phone) {
                 $validator->errors()->add('phone', 'Phone number is required for business accounts.');
             }
         }
 
         // Example: Validate email domain restrictions (if any)
         $restrictedDomains = config('auth.restricted_email_domains', []);
-        if (! empty($restrictedDomains) && $this->email) {
+        if (!empty($restrictedDomains) && $this->email) {
             $domain = substr(strrchr($this->email, '@'), 1);
             if (in_array($domain, $restrictedDomains, TRUE)) {
                 $validator->errors()->add('email', 'Registration with this email domain is not allowed.');

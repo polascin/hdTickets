@@ -203,7 +203,7 @@ class SmartAlertsController extends Controller
         }
 
         try {
-            $alert->update(['is_active' => ! $alert->is_active]);
+            $alert->update(['is_active' => !$alert->is_active]);
 
             return response()->json([
                 'success'   => TRUE,

@@ -110,7 +110,7 @@ class ProfileAnalyticsService
         }
 
         // Security recommendations
-        if (! $user->two_factor_secret) {
+        if (!$user->two_factor_secret) {
             $recommendations[] = [
                 'type'        => 'security',
                 'priority'    => 'high',

@@ -71,7 +71,7 @@ class MultiEventManagementService
                 $event = Event::findOrFail($eventId);
 
                 // Check if user has permission to monitor this event
-                if (! $this->canUserMonitorEvent($group->user, $event)) {
+                if (!$this->canUserMonitorEvent($group->user, $event)) {
                     $results[] = [
                         'event_id' => $eventId,
                         'success'  => FALSE,
@@ -257,7 +257,7 @@ class MultiEventManagementService
 
         foreach ($eventIds as $eventId) {
             $event = Event::find($eventId);
-            if (! $event) {
+            if (!$event) {
                 continue;
             }
 
@@ -314,7 +314,7 @@ class MultiEventManagementService
 
         foreach ($userRules as $ruleId) {
             $rule = Cache::get("automation_rule_{$ruleId}");
-            if (! $rule || ! $rule['is_active']) {
+            if (!$rule || !$rule['is_active']) {
                 continue;
             }
 

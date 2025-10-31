@@ -79,7 +79,7 @@ class DeviceTrustService
             ->where('device_fingerprint', $deviceFingerprint)
             ->first();
 
-        if (! $device) {
+        if (!$device) {
             return [
                 'trusted'     => FALSE,
                 'trust_level' => 'untrusted',
@@ -176,7 +176,7 @@ class DeviceTrustService
             ->where('id', $deviceId)
             ->first();
 
-        if (! $device) {
+        if (!$device) {
             return FALSE;
         }
 
@@ -220,7 +220,7 @@ class DeviceTrustService
             })
             ->first();
 
-        if (! $device) {
+        if (!$device) {
             return FALSE;
         }
 
@@ -291,7 +291,7 @@ class DeviceTrustService
             $deviceFingerprint = $this->generateDeviceFingerprint($request);
             $deviceTrust = $this->isDeviceTrusted($user, $deviceFingerprint);
 
-            if (! $deviceTrust['trusted']) {
+            if (!$deviceTrust['trusted']) {
                 $riskScore += 20;
                 $risk['risk_factors'][] = 'Unknown device';
             }
@@ -499,7 +499,7 @@ class DeviceTrustService
         // Get current location
         $currentLocation = $this->getLocationData($ip);
 
-        if (! $currentLocation) {
+        if (!$currentLocation) {
             return FALSE;
         }
 

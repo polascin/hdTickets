@@ -683,7 +683,7 @@ class TicketScrapingController extends Controller
 
             return response()->json([
                 'success'       => TRUE,
-                'is_bookmarked' => ! empty($isBookmarked['attached']),
+                'is_bookmarked' => !empty($isBookmarked['attached']),
                 'message'       => empty($isBookmarked['attached'])
                     ? 'Bookmark removed successfully'
                     : 'Ticket bookmarked successfully',
@@ -822,7 +822,7 @@ class TicketScrapingController extends Controller
      */
     protected function isTicketBookmarked(ScrapedTicket $ticket): bool
     {
-        if (! Auth::check()) {
+        if (!Auth::check()) {
             return FALSE;
         }
 

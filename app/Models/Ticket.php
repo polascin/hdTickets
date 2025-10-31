@@ -523,7 +523,7 @@ class Ticket extends Model
     public function addTag(string $tag): bool
     {
         $tags = $this->tags ?? [];
-        if (! in_array($tag, $tags, TRUE)) {
+        if (!in_array($tag, $tags, TRUE)) {
             $tags[] = $tag;
 
             return $this->update(['tags' => $tags]);

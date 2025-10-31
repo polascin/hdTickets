@@ -26,7 +26,7 @@ class TicketAlertFactory extends Factory
     {
         // Ensure we have a valid sports_event_id to satisfy FK constraints
         $sportsEventId = DB::table('sports_events')->value('id');
-        if (! $sportsEventId) {
+        if (!$sportsEventId) {
             $sportsEventId = DB::table('sports_events')->insertGetId([
                 'name'              => 'Test Event',
                 'venue'             => 'Test Venue',

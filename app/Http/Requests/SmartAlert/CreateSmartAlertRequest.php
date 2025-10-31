@@ -156,12 +156,12 @@ class CreateSmartAlertRequest extends FormRequest
     private function validatePriceDropConditions($validator, array $conditions): void
     {
         if (isset($conditions['price_threshold'])
-            && (! is_numeric($conditions['price_threshold']) || $conditions['price_threshold'] < 0)) {
+            && (!is_numeric($conditions['price_threshold']) || $conditions['price_threshold'] < 0)) {
             $validator->errors()->add('trigger_conditions.price_threshold', 'Price threshold must be a valid positive number.');
         }
 
         if (isset($conditions['percentage_drop'])
-            && (! is_numeric($conditions['percentage_drop']) || $conditions['percentage_drop'] < 0 || $conditions['percentage_drop'] > 100)) {
+            && (!is_numeric($conditions['percentage_drop']) || $conditions['percentage_drop'] < 0 || $conditions['percentage_drop'] > 100)) {
             $validator->errors()->add('trigger_conditions.percentage_drop', 'Percentage drop must be between 0 and 100.');
         }
     }
@@ -173,27 +173,27 @@ class CreateSmartAlertRequest extends FormRequest
      */
     private function validateAvailabilityConditions($validator, array $conditions): void
     {
-        if (isset($conditions['event_keywords']) && ! is_array($conditions['event_keywords'])) {
+        if (isset($conditions['event_keywords']) && !is_array($conditions['event_keywords'])) {
             $validator->errors()->add('trigger_conditions.event_keywords', 'Event keywords must be an array.');
         }
 
-        if (isset($conditions['venue_keywords']) && ! is_array($conditions['venue_keywords'])) {
+        if (isset($conditions['venue_keywords']) && !is_array($conditions['venue_keywords'])) {
             $validator->errors()->add('trigger_conditions.venue_keywords', 'Venue keywords must be an array.');
         }
 
         if (isset($conditions['date_range'])) {
-            if (! is_array($conditions['date_range'])) {
+            if (!is_array($conditions['date_range'])) {
                 $validator->errors()->add('trigger_conditions.date_range', 'Date range must be an array.');
             } else {
                 if (isset($conditions['date_range']['start'])
                     && $conditions['date_range']['start']
-                    && ! strtotime($conditions['date_range']['start'])) {
+                    && !strtotime($conditions['date_range']['start'])) {
                     $validator->errors()->add('trigger_conditions.date_range.start', 'Invalid start date format.');
                 }
 
                 if (isset($conditions['date_range']['end'])
                     && $conditions['date_range']['end']
-                    && ! strtotime($conditions['date_range']['end'])) {
+                    && !strtotime($conditions['date_range']['end'])) {
                     $validator->errors()->add('trigger_conditions.date_range.end', 'Invalid end date format.');
                 }
             }
@@ -208,7 +208,7 @@ class CreateSmartAlertRequest extends FormRequest
     private function validateInstantDealConditions($validator, array $conditions): void
     {
         if (isset($conditions['discount_percentage'])
-            && (! is_numeric($conditions['discount_percentage']) || $conditions['discount_percentage'] < 0 || $conditions['discount_percentage'] > 100)) {
+            && (!is_numeric($conditions['discount_percentage']) || $conditions['discount_percentage'] < 0 || $conditions['discount_percentage'] > 100)) {
             $validator->errors()->add('trigger_conditions.discount_percentage', 'Discount percentage must be between 0 and 100.');
         }
     }
@@ -220,12 +220,12 @@ class CreateSmartAlertRequest extends FormRequest
      */
     private function validatePriceComparisonConditions($validator, array $conditions): void
     {
-        if (! isset($conditions['platforms']) || ! is_array($conditions['platforms']) || count($conditions['platforms']) < 2) {
+        if (!isset($conditions['platforms']) || !is_array($conditions['platforms']) || count($conditions['platforms']) < 2) {
             $validator->errors()->add('trigger_conditions.platforms', 'At least 2 platforms must be selected for price comparison.');
         }
 
         if (isset($conditions['price_difference_threshold'])
-            && (! is_numeric($conditions['price_difference_threshold']) || $conditions['price_difference_threshold'] < 0)) {
+            && (!is_numeric($conditions['price_difference_threshold']) || $conditions['price_difference_threshold'] < 0)) {
             $validator->errors()->add('trigger_conditions.price_difference_threshold', 'Price difference threshold must be a positive number.');
         }
     }
@@ -237,7 +237,7 @@ class CreateSmartAlertRequest extends FormRequest
      */
     private function validateVenueConditions($validator, array $conditions): void
     {
-        if (! isset($conditions['venues']) || ! is_array($conditions['venues']) || empty($conditions['venues'])) {
+        if (!isset($conditions['venues']) || !is_array($conditions['venues']) || empty($conditions['venues'])) {
             $validator->errors()->add('trigger_conditions.venues', 'At least one venue must be specified.');
         }
     }
@@ -249,7 +249,7 @@ class CreateSmartAlertRequest extends FormRequest
      */
     private function validateLeagueConditions($validator, array $conditions): void
     {
-        if (! isset($conditions['leagues']) || ! is_array($conditions['leagues']) || empty($conditions['leagues'])) {
+        if (!isset($conditions['leagues']) || !is_array($conditions['leagues']) || empty($conditions['leagues'])) {
             $validator->errors()->add('trigger_conditions.leagues', 'At least one league must be specified.');
         }
     }
@@ -261,7 +261,7 @@ class CreateSmartAlertRequest extends FormRequest
      */
     private function validateKeywordConditions($validator, array $conditions): void
     {
-        if (! isset($conditions['keywords']) || ! is_array($conditions['keywords']) || empty($conditions['keywords'])) {
+        if (!isset($conditions['keywords']) || !is_array($conditions['keywords']) || empty($conditions['keywords'])) {
             $validator->errors()->add('trigger_conditions.keywords', 'At least one keyword must be specified.');
         }
     }
@@ -279,7 +279,7 @@ class CreateSmartAlertRequest extends FormRequest
         // Validate SMS settings if SMS channel is selected
         if (in_array('sms', $channels, TRUE) && isset($settings['sms'])) {
             if (isset($settings['sms']['phone_number'])
-                && ! preg_match('/^\+[1-9]\d{1,14}$/', $settings['sms']['phone_number'])) {
+                && !preg_match('/^\+[1-9]\d{1,14}$/', $settings['sms']['phone_number'])) {
                 $validator->errors()->add('notification_settings.sms.phone_number', 'Invalid phone number format. Use international format (+1234567890).');
             }
         }
@@ -287,7 +287,7 @@ class CreateSmartAlertRequest extends FormRequest
         // Validate webhook settings if webhook channel is selected
         if (in_array('webhook', $channels, TRUE) && isset($settings['webhook'])) {
             if (isset($settings['webhook']['url'])
-                && ! filter_var($settings['webhook']['url'], FILTER_VALIDATE_URL)) {
+                && !filter_var($settings['webhook']['url'], FILTER_VALIDATE_URL)) {
                 $validator->errors()->add('notification_settings.webhook.url', 'Invalid webhook URL format.');
             }
         }

@@ -137,7 +137,7 @@ class PriceAlert extends Model
      */
     public function canTrigger(): bool
     {
-        if (! $this->is_active) {
+        if (!$this->is_active) {
             return FALSE;
         }
 

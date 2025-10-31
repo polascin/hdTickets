@@ -179,7 +179,7 @@ class TicketApiController extends Controller
     public function bookmarkToggle(Request $request): JsonResponse
     {
         try {
-            if (! Auth::check()) {
+            if (!Auth::check()) {
                 return response()->json([
                     'success'  => FALSE,
                     'message'  => 'Authentication required',
@@ -272,7 +272,7 @@ class TicketApiController extends Controller
                 ->where('status', 'active')
                 ->first();
 
-            if (! $ticket) {
+            if (!$ticket) {
                 return response()->json([
                     'success' => FALSE,
                     'message' => 'Ticket not found or inactive',
@@ -337,7 +337,7 @@ class TicketApiController extends Controller
      */
     public function testPriceChange(Request $request, int $ticketId): JsonResponse
     {
-        if (! app()->environment(['local', 'staging'])) {
+        if (!app()->environment(['local', 'staging'])) {
             return response()->json([
                 'success' => FALSE,
                 'message' => 'Test endpoints only available in development',
@@ -347,7 +347,7 @@ class TicketApiController extends Controller
         try {
             $ticket = DB::table('scraped_tickets')->where('id', $ticketId)->first();
 
-            if (! $ticket) {
+            if (!$ticket) {
                 return response()->json([
                     'success' => FALSE,
                     'message' => 'Ticket not found',
@@ -413,7 +413,7 @@ class TicketApiController extends Controller
             ->where('status', 'active');
 
         // Apply filters
-        if (! empty($filters['keywords'])) {
+        if (!empty($filters['keywords'])) {
             $keywords = $filters['keywords'];
             $query->where(function ($q) use ($keywords): void {
                 $q->where('event_name', 'LIKE', "%{$keywords}%")
@@ -423,39 +423,39 @@ class TicketApiController extends Controller
             });
         }
 
-        if (! empty($filters['sport_type'])) {
+        if (!empty($filters['sport_type'])) {
             $query->where('sport_type', $filters['sport_type']);
         }
 
-        if (! empty($filters['venue'])) {
+        if (!empty($filters['venue'])) {
             $query->where('venue', 'LIKE', "%{$filters['venue']}%");
         }
 
-        if (! empty($filters['city'])) {
+        if (!empty($filters['city'])) {
             $query->where('city', 'LIKE', "%{$filters['city']}%");
         }
 
-        if (! empty($filters['date_from'])) {
+        if (!empty($filters['date_from'])) {
             $query->where('event_date', '>=', $filters['date_from']);
         }
 
-        if (! empty($filters['date_to'])) {
+        if (!empty($filters['date_to'])) {
             $query->where('event_date', '<=', $filters['date_to']);
         }
 
-        if (! empty($filters['price_min'])) {
+        if (!empty($filters['price_min'])) {
             $query->where('price', '>=', $filters['price_min']);
         }
 
-        if (! empty($filters['price_max'])) {
+        if (!empty($filters['price_max'])) {
             $query->where('price', '<=', $filters['price_max']);
         }
 
-        if (! empty($filters['availability_only'])) {
+        if (!empty($filters['availability_only'])) {
             $query->where('availability_status', 'available');
         }
 
-        if (! empty($filters['platform'])) {
+        if (!empty($filters['platform'])) {
             $query->where('platform_name', $filters['platform']);
         }
 

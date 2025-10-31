@@ -39,7 +39,7 @@ class PushNotificationService
      */
     public function send(User $user, array $payload): bool
     {
-        if (! $this->isConfigured()) {
+        if (!$this->isConfigured()) {
             Log::warning('Push notification service not configured');
 
             return FALSE;
@@ -79,7 +79,7 @@ class PushNotificationService
      */
     public function sendToSubscription(PushSubscription $subscription, array $payload): bool
     {
-        if (! $this->isConfigured() || $this->webPush === NULL) {
+        if (!$this->isConfigured() || $this->webPush === NULL) {
             Log::warning('Push notification service not configured for subscription');
 
             return FALSE;
@@ -162,13 +162,13 @@ class PushNotificationService
         $query = PushSubscription::query()->with('user');
 
         // Apply criteria filters
-        if (! empty($criteria['user_roles'])) {
+        if (!empty($criteria['user_roles'])) {
             $query->whereHas('user', function ($q) use ($criteria): void {
                 $q->whereIn('role', $criteria['user_roles']);
             });
         }
 
-        if (! empty($criteria['created_after'])) {
+        if (!empty($criteria['created_after'])) {
             $query->where('created_at', '>=', $criteria['created_after']);
         }
 
@@ -321,7 +321,7 @@ class PushNotificationService
      */
     private function isConfigured(): bool
     {
-        return ! empty($this->config['vapid']['public_key'])
-               && ! empty($this->config['vapid']['private_key']);
+        return !empty($this->config['vapid']['public_key'])
+               && !empty($this->config['vapid']['private_key']);
     }
 }

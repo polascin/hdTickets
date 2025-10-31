@@ -13,7 +13,7 @@ use Illuminate\Support\Facades\Cache;
 
 /**
  * Customer Dashboard Controller
- * 
+ *
  * Simplified customer dashboard for basic ticket monitoring.
  * For advanced features, see ModernCustomerDashboardController.
  */
@@ -33,8 +33,8 @@ class DashboardController extends Controller
         $recentTickets = $this->getRecentTickets();
 
         return view('dashboard', [
-            'user' => $user,
-            'stats' => $stats,
+            'user'          => $user,
+            'stats'         => $stats,
             'recentTickets' => $recentTickets,
         ]);
     }
@@ -46,14 +46,14 @@ class DashboardController extends Controller
     {
         $user = Auth::user();
         if (!$user) {
-            return response()->json(['success' => false, 'message' => 'Unauthenticated'], 401);
+            return response()->json(['success' => FALSE, 'message' => 'Unauthenticated'], 401);
         }
 
         $stats = $this->getDashboardStats($user);
 
         return response()->json([
-            'success' => true,
-            'data' => $stats,
+            'success'   => TRUE,
+            'data'      => $stats,
             'timestamp' => now()->toISOString(),
         ]);
     }
@@ -65,30 +65,30 @@ class DashboardController extends Controller
     {
         $user = Auth::user();
         if (!$user) {
-            return response()->json(['success' => false, 'message' => 'Unauthenticated'], 401);
+            return response()->json(['success' => FALSE, 'message' => 'Unauthenticated'], 401);
         }
 
         $page = max(1, (int) $request->get('page', 1));
         $limit = min(50, max(10, (int) $request->get('limit', 20)));
-        
+
         $tickets = ScrapedTicket::with(['category'])
-            ->where('is_available', true)
+            ->where('is_available', TRUE)
             ->latest('scraped_at')
             ->skip(($page - 1) * $limit)
             ->take($limit)
             ->get();
-        
-        $total = ScrapedTicket::where('is_available', true)->count();
+
+        $total = ScrapedTicket::where('is_available', TRUE)->count();
 
         return response()->json([
-            'success' => true,
-            'data' => [
-                'tickets' => $tickets,
+            'success' => TRUE,
+            'data'    => [
+                'tickets'    => $tickets,
                 'pagination' => [
                     'current_page' => $page,
-                    'per_page' => $limit,
-                    'total' => $total,
-                    'last_page' => ceil($total / $limit),
+                    'per_page'     => $limit,
+                    'total'        => $total,
+                    'last_page'    => ceil($total / $limit),
                 ],
             ],
             'timestamp' => now()->toISOString(),
@@ -102,7 +102,7 @@ class DashboardController extends Controller
     {
         $user = Auth::user();
         if (!$user) {
-            return response()->json(['success' => false, 'message' => 'Unauthenticated'], 401);
+            return response()->json(['success' => FALSE, 'message' => 'Unauthenticated'], 401);
         }
 
         $alerts = TicketAlert::where('user_id', $user->id)
@@ -113,8 +113,8 @@ class DashboardController extends Controller
             ->get();
 
         return response()->json([
-            'success' => true,
-            'data' => $alerts,
+            'success'   => TRUE,
+            'data'      => $alerts,
             'timestamp' => now()->toISOString(),
         ]);
     }
@@ -134,8 +134,8 @@ class DashboardController extends Controller
                 'alerts_today' => TicketAlert::where('user_id', $user->id)
                     ->whereDate('created_at', today())
                     ->count(),
-                'price_drops' => 0,
-                'available_now' => ScrapedTicket::where('is_available', true)->count(),
+                'price_drops'   => 0,
+                'available_now' => ScrapedTicket::where('is_available', TRUE)->count(),
             ];
         });
     }
@@ -146,7 +146,7 @@ class DashboardController extends Controller
     private function getRecentTickets()
     {
         return ScrapedTicket::with(['category'])
-            ->where('is_available', true)
+            ->where('is_available', TRUE)
             ->latest('scraped_at')
             ->take(10)
             ->get();

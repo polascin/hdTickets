@@ -77,7 +77,7 @@ class MarketingDashboardController extends Controller
             $user = Auth::user();
 
             // Check if user has admin role
-            if (! $user->hasRole('admin')) {
+            if (!$user->hasRole('admin')) {
                 return response()->json([
                     'success' => FALSE,
                     'message' => 'Unauthorized access',
@@ -173,7 +173,7 @@ class MarketingDashboardController extends Controller
             $user = Auth::user();
 
             // Check if user has admin role
-            if (! $user->hasRole('admin')) {
+            if (!$user->hasRole('admin')) {
                 return response()->json([
                     'success' => FALSE,
                     'message' => 'Unauthorized access',
@@ -219,7 +219,7 @@ class MarketingDashboardController extends Controller
             $user = Auth::user();
 
             // Check if user has admin or marketing role
-            if (! $user->hasRole(['admin', 'marketing'])) {
+            if (!$user->hasRole(['admin', 'marketing'])) {
                 return response()->json([
                     'success' => FALSE,
                     'message' => 'Unauthorized access',
@@ -266,7 +266,7 @@ class MarketingDashboardController extends Controller
             $user = Auth::user();
 
             // Check if user has admin or marketing role
-            if (! $user->hasRole(['admin', 'marketing'])) {
+            if (!$user->hasRole(['admin', 'marketing'])) {
                 return response()->json([
                     'success' => FALSE,
                     'message' => 'Unauthorized access',
@@ -407,7 +407,7 @@ class MarketingDashboardController extends Controller
             ]);
 
             // Check permissions based on data type
-            if (in_array($validated['data_type'], ['admin', 'revenue'], TRUE) && ! $user->hasRole('admin')) {
+            if (in_array($validated['data_type'], ['admin', 'revenue'], TRUE) && !$user->hasRole('admin')) {
                 return response()->json([
                     'success' => FALSE,
                     'message' => 'Unauthorized access',
@@ -461,7 +461,7 @@ class MarketingDashboardController extends Controller
             $targetUserId = $validated['user_id'] ?? $user->id;
 
             // If requesting another user's data, check admin permission
-            if ($targetUserId !== $user->id && ! $user->hasRole('admin')) {
+            if ($targetUserId !== $user->id && !$user->hasRole('admin')) {
                 return response()->json([
                     'success' => FALSE,
                     'message' => 'Unauthorized access',
@@ -593,7 +593,7 @@ class MarketingDashboardController extends Controller
         $path = storage_path('app/exports/' . $filename);
 
         // Ensure directory exists
-        if (! file_exists(dirname($path))) {
+        if (!file_exists(dirname($path))) {
             mkdir(dirname($path), 0o755, TRUE);
         }
 
@@ -674,11 +674,11 @@ class MarketingDashboardController extends Controller
         ];
 
         foreach ($timeline as $date => $activities) {
-            if (! empty($activities)) {
+            if (!empty($activities)) {
                 $summary['total_days_active']++;
 
                 $dailyTotal = array_sum(array_column($activities, 'count'));
-                if (! $summary['most_active_day'] || $dailyTotal > $summary['most_active_day']['total']) {
+                if (!$summary['most_active_day'] || $dailyTotal > $summary['most_active_day']['total']) {
                     $summary['most_active_day'] = ['date' => $date, 'total' => $dailyTotal];
                 }
 
@@ -700,7 +700,7 @@ class MarketingDashboardController extends Controller
         // Flatten the array for CSV format
         $flattened = $this->flattenArray($data);
 
-        if (! empty($flattened)) {
+        if (!empty($flattened)) {
             // Write headers
             fputcsv($file, array_keys($flattened[0]));
 

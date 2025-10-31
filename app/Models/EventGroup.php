@@ -102,7 +102,7 @@ class EventGroup extends Model
             ->join('price_histories', 'events.id', '=', 'price_histories.event_id')
             ->max('price_histories.recorded_at');
 
-        if (! $lastMonitorActivity && ! $lastPriceUpdate) {
+        if (!$lastMonitorActivity && !$lastPriceUpdate) {
             return NULL;
         }
 

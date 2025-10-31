@@ -158,7 +158,7 @@ class CampaignManagementController extends Controller
      */
     public function update(Request $request, MarketingCampaign $campaign): JsonResponse
     {
-        if (! $campaign->isEditable()) {
+        if (!$campaign->isEditable()) {
             return response()->json([
                 'success' => FALSE,
                 'message' => 'Campaign cannot be edited in current status',
@@ -211,7 +211,7 @@ class CampaignManagementController extends Controller
      */
     public function launch(MarketingCampaign $campaign): JsonResponse
     {
-        if (! $campaign->canBeLaunched()) {
+        if (!$campaign->canBeLaunched()) {
             return response()->json([
                 'success' => FALSE,
                 'message' => 'Campaign cannot be launched in current status',
@@ -246,7 +246,7 @@ class CampaignManagementController extends Controller
      */
     public function pause(MarketingCampaign $campaign): JsonResponse
     {
-        if (! $campaign->canBePaused()) {
+        if (!$campaign->canBePaused()) {
             return response()->json([
                 'success' => FALSE,
                 'message' => 'Campaign cannot be paused in current status',
@@ -351,7 +351,7 @@ class CampaignManagementController extends Controller
      */
     public function destroy(MarketingCampaign $campaign): JsonResponse
     {
-        if (! in_array($campaign->status, [MarketingCampaign::STATUS_DRAFT, MarketingCampaign::STATUS_CANCELLED], TRUE)) {
+        if (!in_array($campaign->status, [MarketingCampaign::STATUS_DRAFT, MarketingCampaign::STATUS_CANCELLED], TRUE)) {
             return response()->json([
                 'success' => FALSE,
                 'message' => 'Only draft or cancelled campaigns can be deleted',

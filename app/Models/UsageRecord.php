@@ -202,7 +202,7 @@ class UsageRecord extends Model
     public static function getCurrentPeriodUsage(User $user, string $resourceType): int
     {
         $subscription = $user->activeSubscription();
-        if (! $subscription) {
+        if (!$subscription) {
             return 0;
         }
 
@@ -220,7 +220,7 @@ class UsageRecord extends Model
     public static function getCurrentPeriodSummary(User $user): array
     {
         $subscription = $user->activeSubscription();
-        if (! $subscription) {
+        if (!$subscription) {
             return [];
         }
 
@@ -251,7 +251,7 @@ class UsageRecord extends Model
     public static function hasExceededLimit(User $user, string $resourceType): bool
     {
         $subscription = $user->activeSubscription();
-        if (! $subscription) {
+        if (!$subscription) {
             return TRUE; // No subscription = free tier limits
         }
 
@@ -271,7 +271,7 @@ class UsageRecord extends Model
     public static function getRemainingQuota(User $user, string $resourceType): int
     {
         $subscription = $user->activeSubscription();
-        if (! $subscription) {
+        if (!$subscription) {
             return 0;
         }
 
@@ -302,7 +302,7 @@ class UsageRecord extends Model
      */
     public function scopeCurrentBillingPeriod($query, ?Subscription $subscription = NULL)
     {
-        if (! $subscription) {
+        if (!$subscription) {
             return $query->whereNull('id'); // Return empty result
         }
 
@@ -335,7 +335,7 @@ class UsageRecord extends Model
 
     private static function getCurrentBillingPeriod(?Subscription $subscription): array
     {
-        if (! $subscription) {
+        if (!$subscription) {
             // For free tier, use monthly periods starting from account creation
             $start = now()->startOfMonth();
             $end = now()->endOfMonth();

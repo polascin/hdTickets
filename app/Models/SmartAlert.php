@@ -109,7 +109,7 @@ class SmartAlert extends Model
      */
     public function canTrigger(): bool
     {
-        if (! $this->is_active) {
+        if (!$this->is_active) {
             return FALSE;
         }
 
@@ -132,7 +132,7 @@ class SmartAlert extends Model
      */
     public function getTriggersToday(): int
     {
-        if (! $this->last_triggered_at) {
+        if (!$this->last_triggered_at) {
             return 0;
         }
 
@@ -144,7 +144,7 @@ class SmartAlert extends Model
      */
     public function getAverageTriggersPerDay(): float
     {
-        if (! $this->created_at || $this->trigger_count === 0) {
+        if (!$this->created_at || $this->trigger_count === 0) {
             return 0.0;
         }
 
@@ -280,7 +280,7 @@ class SmartAlert extends Model
     private function matchesAvailabilityConditions(array $data, array $conditions): bool
     {
         // Check event keywords
-        if (! empty($conditions['event_keywords'])) {
+        if (!empty($conditions['event_keywords'])) {
             $eventTitle = strtolower($data['event_title'] ?? '');
             foreach ($conditions['event_keywords'] as $keyword) {
                 if (str_contains($eventTitle, strtolower($keyword))) {
@@ -292,7 +292,7 @@ class SmartAlert extends Model
         }
 
         // Check venue keywords
-        if (! empty($conditions['venue_keywords'])) {
+        if (!empty($conditions['venue_keywords'])) {
             $venue = strtolower($data['venue'] ?? '');
             foreach ($conditions['venue_keywords'] as $keyword) {
                 if (str_contains($venue, strtolower($keyword))) {
@@ -304,7 +304,7 @@ class SmartAlert extends Model
         }
 
         // Check date range
-        if (! empty($conditions['date_range'])) {
+        if (!empty($conditions['date_range'])) {
             $eventDate = $data['event_date'] ?? NULL;
             if ($eventDate) {
                 $eventDate = \Carbon\Carbon::parse($eventDate);
@@ -339,14 +339,14 @@ class SmartAlert extends Model
 
         // Check limited quantity
         if (isset($conditions['limited_quantity']) && $conditions['limited_quantity']) {
-            if (! ($data['is_limited_quantity'] ?? FALSE)) {
+            if (!($data['is_limited_quantity'] ?? FALSE)) {
                 return FALSE;
             }
         }
 
         // Check time sensitivity
         if (isset($conditions['time_sensitive']) && $conditions['time_sensitive']) {
-            if (! ($data['is_time_sensitive'] ?? FALSE)) {
+            if (!($data['is_time_sensitive'] ?? FALSE)) {
                 return FALSE;
             }
         }

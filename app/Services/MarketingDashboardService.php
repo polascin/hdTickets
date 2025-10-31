@@ -417,7 +417,7 @@ class MarketingDashboardService
         $subscription = $user->activeNewSubscription();
 
         // Plan upgrade recommendations
-        if (! $subscription || $subscription->plan_name === 'starter') {
+        if (!$subscription || $subscription->plan_name === 'starter') {
             $recommendations[] = [
                 'type'        => 'upgrade',
                 'title'       => 'Upgrade to Pro Plan',

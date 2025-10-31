@@ -85,7 +85,7 @@ class SocialProofController extends Controller
             ];
         });
 
-        if (! $data) {
+        if (!$data) {
             return response()->json([
                 'success' => FALSE,
                 'message' => 'No social proof data found for the specified event',
@@ -241,7 +241,7 @@ class SocialProofController extends Controller
     {
         $user = Auth::user();
 
-        if (! $user) {
+        if (!$user) {
             return response()->json([
                 'success' => FALSE,
                 'message' => 'Authentication required',
@@ -274,7 +274,7 @@ class SocialProofController extends Controller
     {
         $ticket = Ticket::where('uuid', $ticketId)->first();
 
-        if (! $ticket) {
+        if (!$ticket) {
             return response()->json([
                 'success' => FALSE,
                 'message' => 'Ticket not found',
@@ -834,7 +834,7 @@ class SocialProofController extends Controller
     private function calculateTimePressure($tickets): string
     {
         $firstTicket = $tickets->first();
-        if (! $firstTicket || ! $firstTicket->event_date) {
+        if (!$firstTicket || !$firstTicket->event_date) {
             return 'none';
         }
 

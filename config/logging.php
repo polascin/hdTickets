@@ -62,7 +62,7 @@ return [
                 $channels = explode(',', (string) env('LOG_STACK_CHANNELS', 'single,performance'));
                 $perfEnabled = (bool) env('PERFORMANCE_LOGGING', FALSE);
                 $logsWritable = @is_writable(storage_path('logs'));
-                if (! $perfEnabled || ! $logsWritable) {
+                if (!$perfEnabled || !$logsWritable) {
                     $channels = array_filter($channels, fn ($c) => trim($c) !== 'performance');
                 }
                 // Ensure at least one channel remains

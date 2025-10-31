@@ -193,7 +193,7 @@ class EventMonitor extends Model
     {
         try {
             $platforms = $this->platforms ?? [];
-            if (! in_array($platform, $platforms, TRUE)) {
+            if (!in_array($platform, $platforms, TRUE)) {
                 $platforms[] = $platform;
                 $this->update(['platforms' => $platforms]);
             }
@@ -278,7 +278,7 @@ class EventMonitor extends Model
 
     public function isOverdue(): bool
     {
-        if (! $this->is_active || ! $this->last_check_at) {
+        if (!$this->is_active || !$this->last_check_at) {
             return FALSE;
         }
 
@@ -289,7 +289,7 @@ class EventMonitor extends Model
 
     public function getNextCheckTime(): ?Carbon
     {
-        if (! $this->is_active || ! $this->last_check_at) {
+        if (!$this->is_active || !$this->last_check_at) {
             return NULL;
         }
 
@@ -298,12 +298,12 @@ class EventMonitor extends Model
 
     public function shouldBeChecked(): bool
     {
-        if (! $this->is_active) {
+        if (!$this->is_active) {
             return FALSE;
         }
 
         // If never checked, should be checked
-        if (! $this->last_check_at) {
+        if (!$this->last_check_at) {
             return TRUE;
         }
 

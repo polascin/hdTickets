@@ -84,7 +84,7 @@ class EnhancedSmartAlertsService
     public function updateEnhancedDeliveryStatus(string $alertId, string $channel, string $status, array $metadata = []): void
     {
         $alert = Cache::get("enhanced_alert_{$alertId}");
-        if (! $alert) {
+        if (!$alert) {
             return;
         }
 
@@ -162,7 +162,7 @@ class EnhancedSmartAlertsService
         return Cache::remember($cacheKey, 3600, function () use ($user) {
             $prefs = NotificationPreference::where('user_id', $user->id)->first();
 
-            if (! $prefs) {
+            if (!$prefs) {
                 // Create intelligent default preferences
                 $prefs = NotificationPreference::create([
                     'user_id'          => $user->id,
@@ -211,7 +211,7 @@ class EnhancedSmartAlertsService
     {
         $available = ['email']; // Email always available
 
-        if (! empty($user->phone)) {
+        if (!empty($user->phone)) {
             $available[] = 'sms';
         }
 
@@ -219,7 +219,7 @@ class EnhancedSmartAlertsService
             $available[] = 'push';
         }
 
-        if (! empty($user->webhook_url)) {
+        if (!empty($user->webhook_url)) {
             $available[] = 'webhook';
         }
 
@@ -387,7 +387,7 @@ class EnhancedSmartAlertsService
 
         foreach ($channels as $channel) {
             // Skip certain channels during quiet hours
-            if ($isQuietHours && ! in_array($channel, ['email'], TRUE)) {
+            if ($isQuietHours && !in_array($channel, ['email'], TRUE)) {
                 continue;
             }
 
@@ -459,7 +459,7 @@ class EnhancedSmartAlertsService
         $preferences = $this->getEnhancedUserPreferences($user);
         $quietHours = $preferences['quiet_hours'];
 
-        if (! ($quietHours['enabled'] ?? FALSE)) {
+        if (!($quietHours['enabled'] ?? FALSE)) {
             return FALSE;
         }
 

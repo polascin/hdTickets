@@ -115,7 +115,7 @@ class WebhookLog extends Model
 
     public function getErrorType(): ?string
     {
-        if (! $this->error_message) {
+        if (!$this->error_message) {
             return NULL;
         }
 
@@ -151,7 +151,7 @@ class WebhookLog extends Model
         }
 
         // Retry server errors (5xx) and network errors
-        return $this->response_code >= 500 || ! $this->response_code;
+        return $this->response_code >= 500 || !$this->response_code;
     }
 
     // Data Extraction
@@ -168,7 +168,7 @@ class WebhookLog extends Model
 
     public function hasResponseBody(): bool
     {
-        return ! empty($this->response_body);
+        return !empty($this->response_body);
     }
 
     // Scopes
@@ -288,7 +288,7 @@ class WebhookLog extends Model
 
     public function getTruncatedErrorAttribute(): string
     {
-        if (! $this->error_message) {
+        if (!$this->error_message) {
             return '';
         }
 

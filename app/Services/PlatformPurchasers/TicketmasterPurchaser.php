@@ -53,21 +53,21 @@ class TicketmasterPurchaser
             // Step 2: Add tickets to cart (lightning fast)
             $cartResult = $this->addToCart($ticket, $quantity, $session);
 
-            if (! $cartResult['success']) {
+            if (!$cartResult['success']) {
                 throw new Exception('Failed to add tickets to cart: ' . $cartResult['error']);
             }
 
             // Step 3: Apply user payment method
             $paymentResult = $this->applyPaymentMethod($user, $session, $preloadData);
 
-            if (! $paymentResult['success']) {
+            if (!$paymentResult['success']) {
                 throw new Exception('Failed to apply payment method: ' . $paymentResult['error']);
             }
 
             // Step 4: Execute checkout
             $checkoutResult = $this->executeCheckout($session, $user);
 
-            if (! $checkoutResult['success']) {
+            if (!$checkoutResult['success']) {
                 throw new Exception('Checkout failed: ' . $checkoutResult['error']);
             }
 
@@ -201,7 +201,7 @@ class TicketmasterPurchaser
             $paymentMethods = $preloadData['payment_methods'] ?? [];
             $primaryPayment = $paymentMethods[0] ?? NULL;
 
-            if (! $primaryPayment) {
+            if (!$primaryPayment) {
                 return [
                     'success' => FALSE,
                     'error'   => 'No payment method available',

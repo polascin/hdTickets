@@ -64,7 +64,7 @@ class EnhancedDashboardController extends Controller
     {
         $user = Auth::user();
 
-        if (! $user || ! $this->isAuthorizedUser($user)) {
+        if (!$user || !$this->isAuthorizedUser($user)) {
             abort(403, 'Access denied. Customer or admin role required.');
         }
 
@@ -90,7 +90,7 @@ class EnhancedDashboardController extends Controller
     {
         $user = Auth::user();
 
-        if (! $user || ! $this->isAuthorizedUser($user)) {
+        if (!$user || !$this->isAuthorizedUser($user)) {
             return response()->json([
                 'success' => FALSE,
                 'error'   => 'Authentication required',
@@ -167,7 +167,7 @@ class EnhancedDashboardController extends Controller
     public function getAnalytics(Request $request): JsonResponse
     {
         $user = Auth::user();
-        if (! $user || ! $this->isAuthorizedUser($user)) {
+        if (!$user || !$this->isAuthorizedUser($user)) {
             return Response::json(['success' => FALSE, 'error' => 'Authentication required'], 401);
         }
         $payload = $this->analyticsService->buildAnalytics($user);

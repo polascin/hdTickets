@@ -284,7 +284,7 @@ class TicketScrapingService
             ];
         }
 
-        if (! $ticket->is_available || ! $ticket->ticket_url) {
+        if (!$ticket->is_available || !$ticket->ticket_url) {
             return [
                 'success' => FALSE,
                 'message' => 'Ticket no longer available',
@@ -406,7 +406,7 @@ class TicketScrapingService
     protected function searchTicketmaster(string $keyword, array $filters = [])
     {
         try {
-            if (! $this->platforms['ticketmaster']['api_key']) {
+            if (!$this->platforms['ticketmaster']['api_key']) {
                 Log::warning('Ticketmaster API key not configured');
 
                 return [];
@@ -571,7 +571,7 @@ class TicketScrapingService
      */
     protected function generateMockViagogo(string $keyword, array $filters): array
     {
-        if (! str_contains(strtolower($keyword), 'manchester')) {
+        if (!str_contains(strtolower($keyword), 'manchester')) {
             return [];
         }
 

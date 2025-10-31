@@ -266,7 +266,7 @@ class SecurityEvent extends Model
     protected function formattedLocation(): Attribute
     {
         return Attribute::make(get: function () {
-            if (! $this->location || ! is_array($this->location)) {
+            if (!$this->location || !is_array($this->location)) {
                 return 'Unknown Location';
             }
             if (isset($this->location['city'], $this->location['country'])) {

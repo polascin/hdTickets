@@ -150,7 +150,7 @@ class AutomatedPurchasingService
     private function validatePurchaseConditions(AutoPurchaseConfig $config, array $tickets): void
     {
         // Check if config is active
-        if (! $config->is_active) {
+        if (!$config->is_active) {
             throw new Exception('Auto-purchase configuration is disabled');
         }
 
@@ -181,7 +181,7 @@ class AutomatedPurchasingService
         }
 
         // Check payment method validity
-        if (! $this->validatePaymentMethod($config)) {
+        if (!$this->validatePaymentMethod($config)) {
             throw new Exception('Payment method is invalid or expired');
         }
     }
@@ -203,7 +203,7 @@ class AutomatedPurchasingService
             }
 
             // Section preferences
-            if (! empty($config->preferred_sections)) {
+            if (!empty($config->preferred_sections)) {
                 $sectionMatch = FALSE;
                 foreach ($config->preferred_sections as $preferredSection) {
                     if (stripos($ticket['section'] ?? '', $preferredSection) !== FALSE) {
@@ -212,14 +212,14 @@ class AutomatedPurchasingService
                         break;
                     }
                 }
-                if (! $sectionMatch) {
+                if (!$sectionMatch) {
                     return FALSE;
                 }
             }
 
             // Platform preferences
-            if (! empty($config->preferred_platforms)
-                && ! in_array($ticket['platform'], $config->preferred_platforms, TRUE)) {
+            if (!empty($config->preferred_platforms)
+                && !in_array($ticket['platform'], $config->preferred_platforms, TRUE)) {
                 return FALSE;
             }
 
@@ -254,7 +254,7 @@ class AutomatedPurchasingService
         }
 
         // Section preference score
-        if (! empty($config->preferred_sections)) {
+        if (!empty($config->preferred_sections)) {
             foreach ($config->preferred_sections as $preferredSection) {
                 if (stripos($ticket['section'] ?? '', $preferredSection) !== FALSE) {
                     $score += 0.2;
@@ -279,7 +279,7 @@ class AutomatedPurchasingService
     {
         $preloadData = Cache::get("auto_purchase_preload_{$config->id}");
 
-        if (! $preloadData) {
+        if (!$preloadData) {
             throw new Exception('Purchase context not preloaded');
         }
 
@@ -316,7 +316,7 @@ class AutomatedPurchasingService
                 $platform = $ticket['platform'];
                 $purchaser = $this->getPlatformPurchaser($platform);
 
-                if (! $purchaser) {
+                if (!$purchaser) {
                     throw new Exception("No purchaser available for platform: {$platform}");
                 }
 
@@ -439,7 +439,7 @@ class AutomatedPurchasingService
 
         $selectedTickets = $this->selectOptimalTickets($relaxedConfig, $tickets);
 
-        if (! empty($selectedTickets)) {
+        if (!empty($selectedTickets)) {
             $attemptId = $this->createPurchaseAttempt($relaxedConfig, $selectedTickets, 'fallback_relaxed');
 
             return $this->executeLightningPurchase($relaxedConfig, $selectedTickets, $attemptId);

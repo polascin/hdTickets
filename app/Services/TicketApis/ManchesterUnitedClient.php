@@ -161,7 +161,7 @@ class ManchesterUnitedClient extends BaseWebScrapingClient
 
                     $fixture = $this->extractFixtureFromNode($node);
                     // Filter by keyword if provided
-                    if (! empty($fixture['name']) && ($keyword === '' || $keyword === '0' || stripos((string) $fixture['name'], $keyword) !== FALSE || stripos((string) $fixture['opponent'], $keyword) !== FALSE)) {
+                    if (!empty($fixture['name']) && ($keyword === '' || $keyword === '0' || stripos((string) $fixture['name'], $keyword) !== FALSE || stripos((string) $fixture['opponent'], $keyword) !== FALSE)) {
                         $fixtures[] = $fixture;
                         $count++;
                     }

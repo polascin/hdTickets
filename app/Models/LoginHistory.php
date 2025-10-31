@@ -126,7 +126,7 @@ class LoginHistory extends Model
     protected function riskLevel(): Attribute
     {
         return Attribute::make(get: function (): string {
-            if (! $this->is_suspicious) {
+            if (!$this->is_suspicious) {
                 return 'low';
             }
             $flagCount = is_array($this->suspicious_flags) ? count($this->suspicious_flags) : 0;

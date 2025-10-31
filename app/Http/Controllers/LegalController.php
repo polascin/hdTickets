@@ -29,7 +29,7 @@ class LegalController extends Controller
     {
         $document = LegalDocument::getActive($type);
 
-        if (! $document instanceof LegalDocument) {
+        if (!$document instanceof LegalDocument) {
             abort(404, 'Legal document not found');
         }
 

@@ -69,8 +69,8 @@ class UserAgentHelper
 
         // Safari contains "Safari" but not "Chrome" or "Chromium"
         return str_contains($userAgent, 'safari')
-               && ! str_contains($userAgent, 'chrome')
-               && ! str_contains($userAgent, 'chromium');
+               && !str_contains($userAgent, 'chrome')
+               && !str_contains($userAgent, 'chromium');
     }
 
     /**
@@ -82,7 +82,7 @@ class UserAgentHelper
     {
         $userAgent = self::get($request);
 
-        if ($userAgent === NULL || ! self::isIOS($request)) {
+        if ($userAgent === NULL || !self::isIOS($request)) {
             return NULL;
         }
 
@@ -114,7 +114,7 @@ class UserAgentHelper
     {
         $userAgent = self::get($request);
 
-        if ($userAgent === NULL || ! self::isSafari($request)) {
+        if ($userAgent === NULL || !self::isSafari($request)) {
             return NULL;
         }
 
@@ -235,7 +235,7 @@ class UserAgentHelper
      */
     public static function logIOSRequest(Request $request, string $context = 'general'): void
     {
-        if (! self::isIOS($request)) {
+        if (!self::isIOS($request)) {
             return;
         }
 

@@ -29,7 +29,7 @@ class CampaignAccess
     {
         $user = $request->user();
 
-        if (! $user) {
+        if (!$user) {
             return response()->json([
                 'success' => FALSE,
                 'message' => 'Authentication required',
@@ -37,7 +37,7 @@ class CampaignAccess
         }
 
         // Check user role permissions
-        if (! $this->hasRequiredPermissions($user, $permissions)) {
+        if (!$this->hasRequiredPermissions($user, $permissions)) {
             return response()->json([
                 'success' => FALSE,
                 'message' => 'Insufficient permissions for campaign management',
@@ -45,7 +45,7 @@ class CampaignAccess
         }
 
         // Check subscription plan limits
-        if (! $this->hasSubscriptionAccess($user)) {
+        if (!$this->hasSubscriptionAccess($user)) {
             return response()->json([
                 'success'     => FALSE,
                 'message'     => 'Upgrade your subscription to access marketing campaigns',
@@ -54,7 +54,7 @@ class CampaignAccess
         }
 
         // Check campaign limits based on plan
-        if (! $this->withinCampaignLimits($user, $request)) {
+        if (!$this->withinCampaignLimits($user, $request)) {
             return response()->json([
                 'success'     => FALSE,
                 'message'     => 'Campaign limit reached for your subscription plan',
@@ -81,14 +81,14 @@ class CampaignAccess
         if ($user->role === 'agent') {
             $allowedPermissions = ['view-campaigns', 'create-campaigns', 'manage-campaigns'];
 
-            return empty($permissions) || ! empty(array_intersect($permissions, $allowedPermissions));
+            return empty($permissions) || !empty(array_intersect($permissions, $allowedPermissions));
         }
 
         // Customer users have very limited access
         if ($user->role === 'customer') {
             $allowedPermissions = ['view-campaigns'];
 
-            return empty($permissions) || ! empty(array_intersect($permissions, $allowedPermissions));
+            return empty($permissions) || !empty(array_intersect($permissions, $allowedPermissions));
         }
 
         return FALSE;

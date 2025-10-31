@@ -270,7 +270,7 @@ class UserPricePreference extends Model
      */
     public function shouldAutoPurchase(float $ticketPrice): bool
     {
-        if (! $this->auto_purchase_enabled || ! $this->auto_purchase_max_price) {
+        if (!$this->auto_purchase_enabled || !$this->auto_purchase_max_price) {
             return FALSE;
         }
 

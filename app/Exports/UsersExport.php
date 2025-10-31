@@ -41,19 +41,19 @@ class UsersExport implements FromCollection, WithHeadings, WithMapping
         $query = User::query();
 
         // Apply filters
-        if (! empty($this->filters['role'])) {
+        if (!empty($this->filters['role'])) {
             $query->where('role', $this->filters['role']);
         }
 
-        if (! empty($this->filters['date_from'])) {
+        if (!empty($this->filters['date_from'])) {
             $query->where('created_at', '>=', $this->filters['date_from']);
         }
 
-        if (! empty($this->filters['date_to'])) {
+        if (!empty($this->filters['date_to'])) {
             $query->where('created_at', '<=', $this->filters['date_to']);
         }
 
-        if (! empty($this->filters['verified_only'])) {
+        if (!empty($this->filters['verified_only'])) {
             $query->whereNotNull('email_verified_at');
         }
 

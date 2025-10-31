@@ -305,7 +305,7 @@ class PaymentService
     {
         $subscription = $user->activeSubscription();
 
-        if (! $subscription) {
+        if (!$subscription) {
             return [
                 'monthly_limit' => 5, // Free tier limit
                 'unlimited'     => FALSE,

@@ -47,7 +47,7 @@ class SmsNotificationService
      */
     public function send(string $phoneNumber, string $message): bool
     {
-        if (! $this->isConfigured()) {
+        if (!$this->isConfigured()) {
             Log::warning('SMS service not configured');
 
             return FALSE;
@@ -171,7 +171,7 @@ class SmsNotificationService
             $data = $response->json();
             $messages = $data['messages'] ?? [];
 
-            if (! empty($messages) && $messages[0]['status'] === '0') {
+            if (!empty($messages) && $messages[0]['status'] === '0') {
                 return [
                     'success'    => TRUE,
                     'message_id' => $messages[0]['message-id'] ?? NULL,
@@ -255,7 +255,7 @@ class SmsNotificationService
         }
 
         // Add + prefix for international format
-        if (! str_starts_with($phoneNumber, '+')) {
+        if (!str_starts_with($phoneNumber, '+')) {
             $phoneNumber = '+' . $phoneNumber;
         }
 
@@ -272,7 +272,7 @@ class SmsNotificationService
             return TRUE;
         }
 
-        return ! empty($this->apiKey) && ! empty($this->apiSecret);
+        return !empty($this->apiKey) && !empty($this->apiSecret);
     }
 
     private function getTwilioStatus(string $messageId): ?string

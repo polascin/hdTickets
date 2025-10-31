@@ -194,7 +194,7 @@ class SmartAlertsService
     {
         return ($preferences['sms_enabled'] ?? FALSE)
                && ($preferences["sms_{$type}"] ?? FALSE)
-               && ! empty($preferences['phone_number']);
+               && !empty($preferences['phone_number']);
     }
 
     private function shouldSendPush(array $preferences, string $type = 'general'): bool

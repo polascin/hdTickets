@@ -84,7 +84,7 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-// Root route - Redirect to appropriate entry point
+// Root route - Canonical welcome page
 Route::get('/', function () {
     if (Auth::check()) {
         // If user is logged in, redirect to dashboard
@@ -93,15 +93,13 @@ Route::get('/', function () {
 
     // If not logged in, show welcome page
     return app(WelcomeController::class)->index(request());
-})->name('root');
+})->name('home');
 
-// Welcome page - Public landing page for sports events ticket monitoring
-Route::get('/home', [WelcomeController::class, 'index'])->name('home');
-Route::get('/welcome', [WelcomeController::class, 'index'])->name('welcome');
-
-// Alternative welcome page variants for A/B testing
-Route::get('/welcome/modern', [WelcomeController::class, 'modernWelcome'])->name('welcome.modern');
-Route::get('/welcome/enhanced', [WelcomeController::class, 'enhancedWelcome'])->name('welcome.enhanced');
+// Legacy welcome page redirects - Permanent 308 redirects to maintain SEO
+Route::permanentRedirect('/welcome', '/');
+Route::permanentRedirect('/home', '/');
+Route::permanentRedirect('/welcome/modern', '/');
+Route::permanentRedirect('/welcome/enhanced', '/');
 
 // API endpoint for welcome page stats
 Route::get('/api/welcome-stats', [WelcomeController::class, 'stats'])->name('api.welcome.stats');

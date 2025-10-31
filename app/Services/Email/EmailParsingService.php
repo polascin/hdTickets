@@ -461,7 +461,7 @@ class EmailParsingService
      */
     private function parseEventDate(?string $dateString): ?string
     {
-        if (! $dateString) {
+        if (!$dateString) {
             return NULL;
         }
 
@@ -547,7 +547,7 @@ class EmailParsingService
      */
     private function extractEmailAddress(?object $headerObject): ?string
     {
-        if (! $headerObject) {
+        if (!$headerObject) {
             return NULL;
         }
 
@@ -571,7 +571,7 @@ class EmailParsingService
     private function validateParsedData(array $parsed): array
     {
         // Remove empty sports events
-        $parsed['sports_events'] = array_filter($parsed['sports_events'], fn (array $event): bool => ! empty($event['name']) && strlen((string) $event['name']) > 3);
+        $parsed['sports_events'] = array_filter($parsed['sports_events'], fn (array $event): bool => !empty($event['name']) && strlen((string) $event['name']) > 3);
 
         // Validate ticket prices
         $parsed['tickets'] = array_filter($parsed['tickets'], fn (array $ticket): bool => isset($ticket['price'])

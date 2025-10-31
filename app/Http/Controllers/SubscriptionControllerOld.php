@@ -143,7 +143,7 @@ class SubscriptionController extends Controller
             $user = Auth::user();
             $currentSubscription = $user->activeSubscription();
 
-            if (! $currentSubscription) {
+            if (!$currentSubscription) {
                 return response()->json([
                     'success' => FALSE,
                     'message' => 'No active subscription found. Create a subscription first.',
@@ -281,7 +281,7 @@ class SubscriptionController extends Controller
             $user = Auth::user();
             $subscription = $user->activeSubscription();
 
-            if (! $subscription) {
+            if (!$subscription) {
                 return response()->json([
                     'success' => TRUE,
                     'data'    => [
@@ -525,14 +525,14 @@ class SubscriptionController extends Controller
                 default => $record->recorded_at->format('Y-m-d'),
             };
 
-            if (! isset($grouped[$key])) {
+            if (!isset($grouped[$key])) {
                 $grouped[$key] = [
                     'period'    => $key,
                     'resources' => [],
                 ];
             }
 
-            if (! isset($grouped[$key]['resources'][$record->resource_type])) {
+            if (!isset($grouped[$key]['resources'][$record->resource_type])) {
                 $grouped[$key]['resources'][$record->resource_type] = [
                     'quantity' => 0,
                     'cost'     => 0,

@@ -60,7 +60,7 @@ class ResourceAccess extends Model
      */
     public function isActive(): bool
     {
-        return ! $this->isExpired();
+        return !$this->isExpired();
     }
 
     /**
@@ -132,13 +132,13 @@ class ResourceAccess extends Model
      */
     public function getResource(): ?Model
     {
-        if (! $this->resource_type || ! $this->resource_id) {
+        if (!$this->resource_type || !$this->resource_id) {
             return NULL;
         }
 
         try {
             $modelClass = $this->getResourceModelClass();
-            if (! $modelClass) {
+            if (!$modelClass) {
                 return NULL;
             }
 
@@ -158,7 +158,7 @@ class ResourceAccess extends Model
         }
 
         foreach ($criteria as $key => $value) {
-            if (! isset($this->context[$key]) || $this->context[$key] !== $value) {
+            if (!isset($this->context[$key]) || $this->context[$key] !== $value) {
                 return FALSE;
             }
         }

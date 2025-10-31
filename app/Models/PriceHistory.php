@@ -115,7 +115,7 @@ class PriceHistory extends Model
             ->orderByDesc('recorded_at')
             ->first();
 
-        if (! $previousRecord) {
+        if (!$previousRecord) {
             return NULL;
         }
 
@@ -141,7 +141,7 @@ class PriceHistory extends Model
     {
         $change = $this->getPriceChange();
 
-        if (! $change) {
+        if (!$change) {
             return FALSE;
         }
 

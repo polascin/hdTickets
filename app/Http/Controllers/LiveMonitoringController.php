@@ -129,7 +129,7 @@ class LiveMonitoringController extends Controller
      */
     public function getMonitoringPreferences(): JsonResponse
     {
-        if (! Auth::check()) {
+        if (!Auth::check()) {
             return response()->json(['success' => FALSE, 'message' => 'Authentication required'], 401);
         }
 
@@ -155,7 +155,7 @@ class LiveMonitoringController extends Controller
      */
     public function updateMonitoringPreferences(Request $request): JsonResponse
     {
-        if (! Auth::check()) {
+        if (!Auth::check()) {
             return response()->json(['success' => FALSE, 'message' => 'Authentication required'], 401);
         }
 

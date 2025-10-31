@@ -254,7 +254,7 @@ class EventsController extends Controller
                 ->where('event_id', $event->id)
                 ->first();
 
-            if (! $monitor) {
+            if (!$monitor) {
                 return $this->errorResponse('No monitoring configured for this event', [], 404);
             }
 
@@ -308,7 +308,7 @@ class EventsController extends Controller
                 ->where('event_id', $event->id)
                 ->first();
 
-            if (! $monitor) {
+            if (!$monitor) {
                 return $this->errorResponse('No monitoring configured for this event', [], 404);
             }
 
@@ -557,7 +557,7 @@ class EventsController extends Controller
             ->where('event_id', $event->id)
             ->first();
 
-        if (! $monitor) {
+        if (!$monitor) {
             return ['status' => 'not_monitored'];
         }
 

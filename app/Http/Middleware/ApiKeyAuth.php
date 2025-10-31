@@ -38,22 +38,22 @@ class ApiKeyAuth
     {
         $apiKey = $this->extractApiKey($request);
 
-        if (! $apiKey) {
+        if (!$apiKey) {
             return $this->unauthorizedResponse('API key required');
         }
 
         $keyModel = $this->validateApiKey($apiKey);
 
-        if (! $keyModel) {
+        if (!$keyModel) {
             return $this->unauthorizedResponse('Invalid API key');
         }
 
-        if (! $keyModel->isValid()) {
+        if (!$keyModel->isValid()) {
             return $this->unauthorizedResponse('API key is expired, revoked, or inactive');
         }
 
         // Check permissions if specified
-        if (! empty($permissions) && ! $keyModel->hasAnyPermission($permissions)) {
+        if (!empty($permissions) && !$keyModel->hasAnyPermission($permissions)) {
             return $this->forbiddenResponse('Insufficient permissions');
         }
 
@@ -121,7 +121,7 @@ class ApiKeyAuth
     /**
      * Check rate limiting for API key
      */
-    private function checkRateLimit(ApiKey $apiKey, Request $request): true|JsonResponse
+    private function checkRateLimit(ApiKey $apiKey, Request $request): TRUE|JsonResponse
     {
         // Use API key specific rate limiting
         $rateLimitKey = "api_key_rate_limit:{$apiKey->id}";

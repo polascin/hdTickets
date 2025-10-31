@@ -163,7 +163,7 @@ class TickPickClient extends BaseApiClient
                 ->timeout($this->timeout)
                 ->get($searchUrl);
 
-            if (! $response->successful()) {
+            if (!$response->successful()) {
                 throw new Exception('Failed to fetch search results from TickPick');
             }
 
@@ -241,7 +241,7 @@ class TickPickClient extends BaseApiClient
             if ($eventNodes !== FALSE) {
                 foreach ($eventNodes as $eventNode) {
                     $event = $this->parseEventCard($xpath, $eventNode);
-                    if (! empty($event['name'])) {
+                    if (!empty($event['name'])) {
                         $events[] = $event;
                     }
                 }
@@ -252,7 +252,7 @@ class TickPickClient extends BaseApiClient
                 $linkNodes = $xpath->query('//a[contains(@href, "/buy-") and contains(@href, "-tickets")]');
                 foreach ($linkNodes as $linkNode) {
                     $event = $this->parseEventFromLink($xpath, $linkNode);
-                    if (! empty($event['name'])) {
+                    if (!empty($event['name'])) {
                         $events[] = $event;
                     }
                 }
@@ -418,7 +418,7 @@ class TickPickClient extends BaseApiClient
                 ->timeout($this->timeout)
                 ->get($eventUrl);
 
-            if (! $response->successful()) {
+            if (!$response->successful()) {
                 throw new Exception('Failed to fetch event details from TickPick');
             }
 
@@ -583,11 +583,11 @@ class TickPickClient extends BaseApiClient
             return 'soldout';
         }
 
-        if (! empty($eventData['ticket_count']) && $eventData['ticket_count'] > 0) {
+        if (!empty($eventData['ticket_count']) && $eventData['ticket_count'] > 0) {
             return 'onsale';
         }
 
-        if (! empty($eventData['available_listings']) && $eventData['available_listings'] > 0) {
+        if (!empty($eventData['available_listings']) && $eventData['available_listings'] > 0) {
             return 'onsale';
         }
 
@@ -616,7 +616,7 @@ class TickPickClient extends BaseApiClient
      */
     protected function normalizeUrl(string $url): string
     {
-        if (! str_starts_with($url, 'http')) {
+        if (!str_starts_with($url, 'http')) {
             return 'https://www.tickpick.com' . $url;
         }
 

@@ -30,7 +30,7 @@ class SeatGeekClient extends BaseWebScrapingClient
     public function searchEvents(array $criteria): array
     {
         // Try API first
-        if (! empty($this->config['client_id']) && ! empty($this->config['client_secret'])) {
+        if (!empty($this->config['client_id']) && !empty($this->config['client_secret'])) {
             try {
                 $params = $this->buildSearchParams($criteria);
 
@@ -71,7 +71,7 @@ class SeatGeekClient extends BaseWebScrapingClient
     public function getEventTickets(string $eventId, array $filters = []): array
     {
         // Try API first
-        if (! empty($this->config['client_id']) && ! empty($this->config['client_secret'])) {
+        if (!empty($this->config['client_id']) && !empty($this->config['client_secret'])) {
             try {
                 $params = array_merge(['event_id' => $eventId], $filters);
 
@@ -273,7 +273,7 @@ class SeatGeekClient extends BaseWebScrapingClient
                         }
 
                         $event = $this->extractEventFromNode($node);
-                        if (! empty($event['name'])) {
+                        if (!empty($event['name'])) {
                             $events[] = $event;
                             $count++;
                         }
@@ -386,7 +386,7 @@ class SeatGeekClient extends BaseWebScrapingClient
         try {
             // Event name
             $nameNode = $xpath->query('.//h3 | .//h4 | .//span[contains(@class, "title")] | .//a[contains(@class, "event-title")]', $eventNode)->item(0);
-            if (! $nameNode) {
+            if (!$nameNode) {
                 // If this is a link node, get text content
                 $nameNode = $eventNode->nodeName === 'a' ? $eventNode : NULL;
             }
@@ -394,7 +394,7 @@ class SeatGeekClient extends BaseWebScrapingClient
 
             // Event URL
             $linkNode = $xpath->query('.//a[contains(@href, "/")]', $eventNode)->item(0);
-            if (! $linkNode && $eventNode->nodeName === 'a') {
+            if (!$linkNode && $eventNode->nodeName === 'a') {
                 $linkNode = $eventNode;
             }
             if ($linkNode && $linkNode->hasAttribute('href')) {
@@ -450,7 +450,7 @@ class SeatGeekClient extends BaseWebScrapingClient
                 ->timeout($this->timeout)
                 ->get($eventUrl);
 
-            if (! $response->successful()) {
+            if (!$response->successful()) {
                 throw new Exception('Failed to fetch event details from SeatGeek');
             }
 
@@ -536,7 +536,7 @@ class SeatGeekClient extends BaseWebScrapingClient
     #[Override]
     protected function normalizeUrl(string $url, ?string $baseUrl = NULL): string
     {
-        if (! str_starts_with($url, 'http')) {
+        if (!str_starts_with($url, 'http')) {
             return ($baseUrl ?: 'https://seatgeek.com') . $url;
         }
 

@@ -26,25 +26,25 @@ Broadcast::channel('App.Models.User.{id}', fn ($user, $id): bool => (int) $user-
 */
 
 // Public channels - no authentication required
-Broadcast::channel('ticket.{ticketId}', fn (): true => // Public channel for ticket-specific updates
+Broadcast::channel('ticket.{ticketId}', fn (): TRUE => // Public channel for ticket-specific updates
     TRUE);
 
-Broadcast::channel('platform.{platform}', fn (): true => // Public channel for platform-wide updates
+Broadcast::channel('platform.{platform}', fn (): TRUE => // Public channel for platform-wide updates
     TRUE);
 
-Broadcast::channel('price-alerts', fn (): true => // Public channel for price alert notifications
+Broadcast::channel('price-alerts', fn (): TRUE => // Public channel for price alert notifications
     TRUE);
 
-Broadcast::channel('availability-alerts', fn (): true => // Public channel for availability change notifications
+Broadcast::channel('availability-alerts', fn (): TRUE => // Public channel for availability change notifications
     TRUE);
 
-Broadcast::channel('status-alerts', fn (): true => // Public channel for ticket status change notifications
+Broadcast::channel('status-alerts', fn (): TRUE => // Public channel for ticket status change notifications
     TRUE);
 
-Broadcast::channel('system.announcements', fn (): true => // Public channel for system-wide announcements
+Broadcast::channel('system.announcements', fn (): TRUE => // Public channel for system-wide announcements
     TRUE);
 
-Broadcast::channel('search.{searchId}', fn (): true => // Public channel for search-related updates
+Broadcast::channel('search.{searchId}', fn (): TRUE => // Public channel for search-related updates
     TRUE);
 
 // Private channels - authentication required

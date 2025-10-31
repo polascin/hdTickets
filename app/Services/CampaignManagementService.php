@@ -534,7 +534,7 @@ class CampaignManagementService
     private function calculateEngagementScore(MarketingCampaign $campaign): float
     {
         $analytics = $campaign->analytics;
-        if (! $analytics || $analytics->messages_sent === 0) {
+        if (!$analytics || $analytics->messages_sent === 0) {
             return 0;
         }
 

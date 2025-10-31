@@ -260,7 +260,7 @@ class EmailParsingServiceTest extends TestCase
         parent::setUp();
 
         // Mock config function
-        if (! function_exists('config')) {
+        if (!function_exists('config')) {
             function config($key = NULL): array
             {
                 return [

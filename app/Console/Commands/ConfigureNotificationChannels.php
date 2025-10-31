@@ -34,7 +34,7 @@ class ConfigureNotificationChannels extends Command
         $setupDiscord = (bool) $this->option('discord') || $setupAll;
         $setupTelegram = (bool) $this->option('telegram') || $setupAll;
 
-        if (! $setupSlack && ! $setupDiscord && ! $setupTelegram) {
+        if (!$setupSlack && !$setupDiscord && !$setupTelegram) {
             $this->info('📋 Available notification channels:');
             $this->line('   • Slack - Team collaboration notifications');
             $this->line('   • Discord - Community notifications');

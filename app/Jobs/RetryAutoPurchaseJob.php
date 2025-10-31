@@ -46,7 +46,7 @@ class RetryAutoPurchaseJob implements ShouldQueue
         try {
             $config = AutoPurchaseConfig::find($this->configId);
 
-            if (! $config) {
+            if (!$config) {
                 Log::warning('Auto purchase config not found for retry', [
                     'config_id' => $this->configId,
                 ]);
@@ -54,7 +54,7 @@ class RetryAutoPurchaseJob implements ShouldQueue
                 return;
             }
 
-            if (! $config->canAttemptPurchase()) {
+            if (!$config->canAttemptPurchase()) {
                 Log::info('Auto purchase retry skipped - config cannot attempt purchase', [
                     'config_id'     => $this->configId,
                     'is_active'     => $config->is_active,
