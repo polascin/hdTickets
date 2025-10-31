@@ -96,10 +96,10 @@ Route::get('/', function () {
 })->name('home');
 
 // Legacy welcome page redirects - Permanent 308 redirects to maintain SEO
-Route::permanentRedirect('/welcome', '/');
-Route::permanentRedirect('/home', '/');
-Route::permanentRedirect('/welcome/modern', '/');
-Route::permanentRedirect('/welcome/enhanced', '/');
+Route::redirect('/welcome', '/', 308);
+Route::redirect('/home', '/', 308);
+Route::redirect('/welcome/modern', '/', 308);
+Route::redirect('/welcome/enhanced', '/', 308);
 
 // API endpoint for welcome page stats
 Route::get('/api/welcome-stats', [WelcomeController::class, 'stats'])->name('api.welcome.stats');

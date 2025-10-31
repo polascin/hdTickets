@@ -59,6 +59,10 @@ class WelcomeController extends Controller
             // Add A/B test variant to data
             $data['ab_variant'] = $abVariant;
 
+            // Ensure platform integrations and security features are always included
+            $data['platform_integrations'] = $data['platform_integrations'] ?? $this->getPlatformIntegrations();
+            $data['security_features'] = $data['security_features'] ?? $this->getSecurityFeatures();
+
             // Track page view
             $this->trackPageView($request, $abVariant);
 
@@ -69,6 +73,8 @@ class WelcomeController extends Controller
             return view('welcome', array_merge($cachedData, [
                 'user'              => $data['user'] ?? NULL,
                 'user_subscription' => $data['user_subscription'] ?? NULL,
+                'platform_integrations' => $data['platform_integrations'],
+                'security_features' => $data['security_features'],
             ]));
         } catch (Exception $e) {
             Log::error('Welcome page error: ' . $e->getMessage(), [
@@ -84,6 +90,8 @@ class WelcomeController extends Controller
                 'features'   => $this->getFallbackFeatures(),
                 'pricing'    => $this->getFallbackPricing(),
                 'legal_docs' => $this->getFallbackLegalDocs(),
+                'platform_integrations' => $this->getPlatformIntegrations(),
+                'security_features' => $this->getSecurityFeatures(),
                 'ab_variant' => 'default',
             ]);
         }
@@ -318,11 +326,12 @@ class WelcomeController extends Controller
     protected function getFallbackStats(): array
     {
         return [
-            'platforms'        => '50+',
+            'platforms'        => '40+',
             'monitoring'       => '24/7',
             'users'            => '15K+',
             'events_monitored' => '1M+',
             'tickets_tracked'  => '5M+',
+            'avg_savings'      => '35%',
         ];
     }
 
