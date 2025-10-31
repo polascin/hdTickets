@@ -37,7 +37,7 @@ Professional sports event ticket monitoring and discovery system built with Lara
 - **Prettier** - Code formatting with Tailwind plugin
 - **Laravel Pint** - PHP code formatting
 - **PHPStan/Larastan** - Static analysis for PHP code
-- **PHPUnit** - Comprehensive testing framework
+- **Pest** - Modern PHP testing framework with elegant syntax
 
 ### Scraping & Monitoring
 - **Roach PHP** - Professional web scraping framework
@@ -177,8 +177,8 @@ The project maintains high code quality through automated tools and strict stand
 
 ### PHP Quality Tools
 - **Laravel Pint**: PSR-12 compliant code formatting with 381 style issues resolved
-- **PHPStan Level 10**: Static analysis with zero errors at maximum strictness
-- **PHPUnit**: Comprehensive test coverage for backend functionality
+- **PHPStan Level 8**: Static analysis with zero errors at maximum strictness
+- **Pest**: Modern testing framework with comprehensive backend test coverage
 - **Rector**: Automated code upgrades and refactoring support
 
 ### Frontend Quality Tools  
@@ -206,7 +206,7 @@ The project maintains high code quality through automated tools and strict stand
 - `npm run build` - Build production assets  
 - `npm run lint` - Run ESLint on JavaScript/TypeScript
 - `php artisan serve` - Start Laravel development server
-- `php artisan test` - Run PHPUnit tests
+- `vendor/bin/pest` - Run Pest test suite
 - `php artisan horizon` - Start queue management dashboard
 - `php artisan optimize` - Cache config, routes, events, and views
 - `vendor/bin/pint` - Format PHP code according to PSR-12
@@ -293,7 +293,7 @@ Automated deployments run via GitHub Actions (`.github/workflows/deploy.yml`) on
 - **Git Hooks**: Pre-commit validation with code quality checks
 
 ### Testing Framework
-- **PHPUnit**: Comprehensive backend testing with Feature and Unit tests
+- **Pest**: Modern PHP testing with elegant syntax for Feature, Unit, and Integration tests
 - **Database Testing**: In-memory SQLite for fast test execution
 - **API Testing**: Complete API endpoint testing with authentication
 - **Browser Testing**: Laravel Dusk for end-to-end testing
@@ -339,9 +339,17 @@ We welcome contributions to improve the HD Tickets platform:
 ### Development Guidelines
 - Follow PSR-12 coding standards for PHP
 - Use TypeScript for all new JavaScript code
-- Write comprehensive test coverage for new features
+- Write comprehensive test coverage for new features using Pest
 - Follow semantic commit message conventions
 - Ensure all local checks pass before merging (e.g., make full-check)
+
+### Welcome Page
+The canonical welcome page is at `/` and features:
+- Semantic HTML with accessibility (WCAG 2.2 AA)
+- Performance optimisations (target LCP ≤ 2.5s, CLS < 0.1)
+- SEO metadata with Open Graph and structured data
+- Legacy routes (`/welcome`, `/welcome-modern`) redirect permanently to `/`
+- See `docs/WELCOME_REBUILD_COMPLETE.md` for implementation details
 
 ## 📄 License
 
@@ -382,6 +390,6 @@ All rights reserved. Unauthorized reproduction or distribution is prohibited.
 - **PHP Version**: 8.4.11 (Latest stable)
 - **Laravel Version**: 12.22.1 (Latest LTS)
 - **Code Quality**: PHPStan Level 8 compliant
-- **Test Coverage**: Comprehensive PHPUnit test suite
+- **Test Coverage**: Comprehensive Pest test suite
 - **Security Score**: Enhanced with multi-layer protection
 - **Mobile Performance**: PWA optimized with service workers
