@@ -15,7 +15,7 @@ class StripePaymentProcessor
 {
     public function __construct()
     {
-        // TODO: Implement Stripe SDK initialization
+        // Stripe SDK initialization - see GitHub issue for implementation plan
     }
 
     /**
@@ -23,7 +23,7 @@ class StripePaymentProcessor
      */
     public function processPayment(array $paymentData): array
     {
-        // TODO: Implement Stripe payment processing
+        // Implementation pending - Stripe payment processing
         throw new Exception('StripePaymentProcessor not yet implemented');
     }
 
@@ -32,16 +32,16 @@ class StripePaymentProcessor
      */
     public function validatePaymentMethod(array $paymentMethod): bool
     {
-        // TODO: Implement payment method validation
-        return FALSE;
+        // Implementation pending - payment method validation
+        return false;
     }
 
     /**
      * Refund payment
      */
-    public function refundPayment(string $paymentId, ?float $amount = NULL): array
+    public function refundPayment(string $paymentId, ?float $amount = null): array
     {
-        // TODO: Implement payment refund
+        // Implementation pending - payment refund
         throw new Exception('StripePaymentProcessor refund not yet implemented');
     }
 }

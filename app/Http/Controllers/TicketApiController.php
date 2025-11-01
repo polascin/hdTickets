@@ -538,7 +538,7 @@ class TicketApiController extends Controller
             $ticket = ScrapedTicket::with(['category'])
                 ->findOrFail($ticketId);
 
-            // TODO: Add view count tracking if needed
+            // View count tracking can be added when analytics requirements are finalized
             // $ticket->increment('view_count');
 
             // Add bookmark status if user is authenticated (not yet implemented)

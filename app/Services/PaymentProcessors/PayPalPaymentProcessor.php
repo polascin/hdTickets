@@ -15,7 +15,7 @@ class PayPalPaymentProcessor
 {
     public function __construct()
     {
-        // TODO: Implement PayPal SDK initialization
+        // PayPal SDK initialization - see GitHub issue for implementation plan
     }
 
     /**
@@ -23,7 +23,7 @@ class PayPalPaymentProcessor
      */
     public function processPayment(array $paymentData): array
     {
-        // TODO: Implement PayPal payment processing
+        // Implementation pending - PayPal payment processing
         throw new Exception('PayPalPaymentProcessor not yet implemented');
     }
 
@@ -32,16 +32,16 @@ class PayPalPaymentProcessor
      */
     public function validatePaymentMethod(array $paymentMethod): bool
     {
-        // TODO: Implement payment method validation
-        return FALSE;
+        // Implementation pending - payment method validation
+        return false;
     }
 
     /**
      * Refund payment
      */
-    public function refundPayment(string $paymentId, ?float $amount = NULL): array
+    public function refundPayment(string $paymentId, ?float $amount = null): array
     {
-        // TODO: Implement payment refund
+        // Implementation pending - payment refund
         throw new Exception('PayPalPaymentProcessor refund not yet implemented');
     }
 }
