@@ -45,6 +45,11 @@ jobs:
       - name: Prepare environment
         run: |
           cp .env.example .env
+          # Override Redis/cache settings for CI
+          sed -i 's/CACHE_STORE=redis/CACHE_STORE=array/' .env
+          sed -i 's/CACHE_DRIVER=redis/CACHE_DRIVER=array/' .env
+          sed -i 's/QUEUE_CONNECTION=redis/QUEUE_CONNECTION=sync/' .env
+          sed -i 's/SESSION_DRIVER=database/SESSION_DRIVER=array/' .env
           mkdir -p bootstrap/cache
 
       - name: Install PHP dependencies
@@ -87,6 +92,11 @@ jobs:
       - name: Prepare environment
         run: |
           cp .env.example .env
+          # Override Redis/cache settings for CI
+          sed -i 's/CACHE_STORE=redis/CACHE_STORE=array/' .env
+          sed -i 's/CACHE_DRIVER=redis/CACHE_DRIVER=array/' .env
+          sed -i 's/QUEUE_CONNECTION=redis/QUEUE_CONNECTION=sync/' .env
+          sed -i 's/SESSION_DRIVER=database/SESSION_DRIVER=array/' .env
           mkdir -p bootstrap/cache
           mkdir -p storage/framework/{sessions,views,cache,testing}
           chmod -R 775 storage bootstrap/cache
