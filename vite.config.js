@@ -12,6 +12,9 @@ export default defineConfig({
         'resources/css/app-v3.css',
         'resources/js/app.js',
         'resources/js/bootstrap.js',
+        // Marketing pages
+        'resources/css/marketing.css',
+        'resources/js/marketing.js',
         // Dashboard assets
         'resources/js/dashboard/index.js',
         'resources/js/dashboard/modern-customer-dashboard.js',

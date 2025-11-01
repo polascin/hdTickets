@@ -120,6 +120,12 @@ Route::get('/legal/cookie-policy', [LegalController::class, 'cookiePolicy'])->na
 Route::get('/legal/acceptable-use-policy', [LegalController::class, 'acceptableUsePolicy'])->name('legal.acceptable-use-policy');
 Route::get('/legal/legal-notices', [LegalController::class, 'legalNotices'])->name('legal.legal-notices');
 
+// Public Marketing Routes
+Route::get('/new', [\App\Http\Controllers\PublicController::class, 'home'])->name('public.home');
+Route::get('/pricing', [\App\Http\Controllers\PublicController::class, 'pricing'])->name('public.pricing');
+Route::get('/coverage', [\App\Http\Controllers\PublicController::class, 'coverage'])->name('public.coverage');
+Route::get('/faqs', [\App\Http\Controllers\PublicController::class, 'faqs'])->name('public.faqs');
+
 // Placeholder routes for subscription and profile (to be implemented later)
 Route::get('/subscription/plans', fn () => redirect()->route('home')->with('message', 'Subscription plans coming soon!'))->name('subscription.plans');
 

@@ -1,0 +1,110 @@
+/* Import Inter font from Google Fonts */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Base marketing styles */
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  font-feature-settings: 'cv01', 'cv03', 'cv04', 'cv11';
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Marketing-specific components */
+/* Hero gradient background */
+.hero-gradient {
+  background: linear-gradient(135deg, 
+    #f0fdf4 0%, 
+    #ecfdf5 25%, 
+    #f0f9ff 50%, 
+    #eff6ff 75%, 
+    #f8fafc 100%);
+  background-attachment: fixed;
+}
+
+/* Gradient text effect */
+.gradient-text-emerald {
+  background: linear-gradient(to right, #059669, #0d9488);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+/* Hero search bar */
+.hero-search {
+  width: 100%;
+  padding: 1rem 1.5rem;
+  font-size: 1.125rem;
+  border-radius: 9999px;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+  background-color: white;
+  border: 2px solid #d1d5db;
+  transition: all 0.2s;
+}
+
+.hero-search:focus {
+  outline: none;
+  border-color: #059669;
+  box-shadow: 0 0 0 4px rgba(5, 150, 105, 0.2);
+}
+
+/* Feature card */
+.feature-card {
+  background-color: white;
+  border-radius: 1rem;
+  padding: 1.5rem;
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  border: 1px solid #e5e7eb;
+  transition: all 0.3s;
+}
+
+.feature-card:hover {
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+
+/* Stat card */
+.stat-card {
+  background: linear-gradient(to bottom right, white, #f9fafb);
+  border-radius: 0.75rem;
+  padding: 1.5rem;
+  border: 1px solid #e5e7eb;
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+}
+
+/* Custom animations for marketing pages */
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+.animate-float {
+  animation: float 3s ease-in-out infinite;
+}
+
+/* Mobile menu animations */
+@media (max-width: 768px) {
+  .mobile-menu-enter {
+    animation: slideDown 0.3s ease-out;
+  }
+  
+  @keyframes slideDown {
+    from {
+      opacity: 0;
+      transform: translateY(-10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+}

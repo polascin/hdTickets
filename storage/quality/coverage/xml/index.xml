@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <phpunit xmlns="https://schema.phpunit.de/coverage/1.0">
-  <build time="Fri Oct 31 10:45:22 UTC 2025" phpunit="10.5.36" coverage="10.1.16">
-    <runtime name="PHP" version="8.3.26" url="https://www.php.net/"/>
+  <build time="Sat Nov 1 4:21:16 UTC 2025" phpunit="10.5.36" coverage="10.1.16">
+    <runtime name="PHP" version="8.3.27" url="https://www.php.net/"/>
     <driver name="pcov" version="1.0.12"/>
   </build>
   <project source=".">

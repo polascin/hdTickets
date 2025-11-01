@@ -244,4 +244,19 @@ return [
             'low'    => 0.2,   // Challenge only after failed attempts
         ],
     ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Analytics Configuration
+    |--------------------------------------------------------------------------
+    |
+    | Google Analytics 4 configuration for tracking and analytics.
+    | Set GA4_ID environment variable to enable analytics.
+    | Leave empty to disable analytics tracking.
+    |
+    */
+
+    'analytics' => [
+        'ga4' => env('GA4_ID'),
+    ],
 ];

@@ -71,10 +71,10 @@ class WelcomeController extends Controller
             $cachedData = Cache::remember($cacheKey, 300, fn () => $data);
 
             return view('welcome', array_merge($cachedData, [
-                'user'              => $data['user'] ?? NULL,
-                'user_subscription' => $data['user_subscription'] ?? NULL,
+                'user'                  => $data['user'] ?? NULL,
+                'user_subscription'     => $data['user_subscription'] ?? NULL,
                 'platform_integrations' => $data['platform_integrations'],
-                'security_features' => $data['security_features'],
+                'security_features'     => $data['security_features'],
             ]));
         } catch (Exception $e) {
             Log::error('Welcome page error: ' . $e->getMessage(), [
@@ -86,13 +86,13 @@ class WelcomeController extends Controller
 
             // Fallback to simple welcome view without dynamic data
             return view('welcome', [
-                'stats'      => $this->getFallbackStats(),
-                'features'   => $this->getFallbackFeatures(),
-                'pricing'    => $this->getFallbackPricing(),
-                'legal_docs' => $this->getFallbackLegalDocs(),
+                'stats'                 => $this->getFallbackStats(),
+                'features'              => $this->getFallbackFeatures(),
+                'pricing'               => $this->getFallbackPricing(),
+                'legal_docs'            => $this->getFallbackLegalDocs(),
                 'platform_integrations' => $this->getPlatformIntegrations(),
-                'security_features' => $this->getSecurityFeatures(),
-                'ab_variant' => 'default',
+                'security_features'     => $this->getSecurityFeatures(),
+                'ab_variant'            => 'default',
             ]);
         }
     }

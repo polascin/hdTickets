@@ -42,6 +42,19 @@ jobs:
           key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
           restore-keys: ${{ runner.os }}-composer-
 
+      - name: Prepare environment
+        run: |
+          cp .env.example .env
+          # Override Redis/cache settings for CI
+          sed -i 's/CACHE_STORE=redis/CACHE_STORE=array/' .env
+          sed -i 's/CACHE_DRIVER=redis/CACHE_DRIVER=array/' .env
+          sed -i 's/QUEUE_CONNECTION=redis/QUEUE_CONNECTION=sync/' .env
+          sed -i 's/SESSION_DRIVER=database/SESSION_DRIVER=array/' .env
+          # Create all required directories
+          mkdir -p bootstrap/cache
+          mkdir -p storage/framework/{sessions,views,cache,testing}
+          chmod -R 775 storage bootstrap/cache
+
       - name: Install PHP dependencies
         run: composer install --no-interaction --prefer-dist --optimize-autoloader
 
@@ -79,20 +92,26 @@ jobs:
           key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
           restore-keys: ${{ runner.os }}-composer-
 
+      - name: Prepare environment
+        run: |
+          cp .env.example .env
+          # Override Redis/cache settings for CI
+          sed -i 's/CACHE_STORE=redis/CACHE_STORE=array/' .env
+          sed -i 's/CACHE_DRIVER=redis/CACHE_DRIVER=array/' .env
+          sed -i 's/QUEUE_CONNECTION=redis/QUEUE_CONNECTION=sync/' .env
+          sed -i 's/SESSION_DRIVER=database/SESSION_DRIVER=array/' .env
+          mkdir -p bootstrap/cache
+          mkdir -p storage/framework/{sessions,views,cache,testing}
+          chmod -R 775 storage bootstrap/cache
+
       - name: Install PHP dependencies
         run: composer install --no-interaction --prefer-dist --optimize-autoloader
 
       - name: Prepare Laravel application
         run: |
-          cp .env.example .env
           php artisan key:generate
           touch database/database.sqlite
           php artisan config:clear
-
-      - name: Create storage directories
-        run: |
-          mkdir -p storage/framework/{sessions,views,cache,testing}
-          chmod -R 775 storage bootstrap/cache
 
       - name: Run Pest tests
         run: vendor/bin/pest --parallel
