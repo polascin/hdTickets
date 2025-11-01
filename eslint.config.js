@@ -7,7 +7,7 @@ export default [
   {
     files: ["resources/js/**/*.{js,ts}"],
     languageOptions: {
-      parser: tsparser,
+      parser: tsParser,
       ecmaVersion: "latest",
       sourceType: "module",
       globals: {

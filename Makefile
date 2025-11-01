@@ -131,29 +131,29 @@ psr4-check:
 	done
 	@echo "$(GREEN)✅ PSR-4 namespace validation completed$(NC)"
 
-## Run PHPUnit tests
+## Run Pest tests
 test:
 	@echo "$(BLUE)🧪 Running tests...$(NC)"
-	$(VENDOR_BIN)/phpunit --configuration=phpunit.xml
+	$(VENDOR_BIN)/pest
 	@echo "$(GREEN)✅ Tests completed$(NC)"
 
 ## Run tests with coverage
 test-coverage:
 	@echo "$(BLUE)🧪 Running tests with coverage...$(NC)"
-	$(VENDOR_BIN)/phpunit --configuration=phpunit.xml --coverage-html=storage/quality/coverage/html
+	XDEBUG_MODE=coverage $(VENDOR_BIN)/pest --coverage --coverage-html=storage/quality/coverage/html
 	@echo "$(GREEN)✅ Tests with coverage completed$(NC)"
 	@echo "$(YELLOW)📊 Coverage report: storage/quality/coverage/html/index.html$(NC)"
 
 ## Run unit tests only
 test-unit:
 	@echo "$(BLUE)🧪 Running unit tests...$(NC)"
-	$(VENDOR_BIN)/phpunit --configuration=phpunit.xml --testsuite=Unit
+	$(VENDOR_BIN)/pest --testsuite=Unit
 	@echo "$(GREEN)✅ Unit tests completed$(NC)"
 
 ## Run feature tests only
 test-feature:
 	@echo "$(BLUE)🧪 Running feature tests...$(NC)"
-	$(VENDOR_BIN)/phpunit --configuration=phpunit.xml --testsuite=Feature
+	$(VENDOR_BIN)/pest --testsuite=Feature
 	@echo "$(GREEN)✅ Feature tests completed$(NC)"
 
 ## Generate quality metrics
