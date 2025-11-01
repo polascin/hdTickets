@@ -221,9 +221,6 @@ full-check: syntax-check quality test security metrics
 pre-commit: syntax-check check-style analyze psr4-check
 	@echo "$(GREEN)✅ Pre-commit quality checks passed$(NC)"
 
-## CI/CD pipeline simulation
-ci-pipeline: install setup full-check
-	@echo "$(GREEN)🚀 CI/CD pipeline simulation completed successfully$(NC)"
 
 ## Development workflow
 dev-workflow: fix analyze test

@@ -140,5 +140,4 @@ Notable artisan commands for sports ticket operations:
 - Main project info: [README.md](README.md)
 - Architecture details: [docs/architecture/](docs/architecture/)
 - Development guides: [docs/development/](docs/development/)
-- CI/CD: [.github/workflows/deploy.yml](.github/workflows/deploy.yml)
 - Quality tools: [Makefile](Makefile), [phpstan.neon](phpstan.neon)
