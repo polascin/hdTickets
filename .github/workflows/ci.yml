@@ -42,6 +42,9 @@ jobs:
           key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
           restore-keys: ${{ runner.os }}-composer-
 
+      - name: Create bootstrap cache directory
+        run: mkdir -p bootstrap/cache
+
       - name: Install PHP dependencies
         run: composer install --no-interaction --prefer-dist --optimize-autoloader
 
@@ -92,6 +95,7 @@ jobs:
       - name: Create storage directories
         run: |
           mkdir -p storage/framework/{sessions,views,cache,testing}
+          mkdir -p bootstrap/cache
           chmod -R 775 storage bootstrap/cache
 
       - name: Run Pest tests
