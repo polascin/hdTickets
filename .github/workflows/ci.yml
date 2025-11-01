@@ -50,7 +50,10 @@ jobs:
           sed -i 's/CACHE_DRIVER=redis/CACHE_DRIVER=array/' .env
           sed -i 's/QUEUE_CONNECTION=redis/QUEUE_CONNECTION=sync/' .env
           sed -i 's/SESSION_DRIVER=database/SESSION_DRIVER=array/' .env
+          # Create all required directories
           mkdir -p bootstrap/cache
+          mkdir -p storage/framework/{sessions,views,cache,testing}
+          chmod -R 775 storage bootstrap/cache
 
       - name: Install PHP dependencies
         run: composer install --no-interaction --prefer-dist --optimize-autoloader
