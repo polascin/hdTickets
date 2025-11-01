@@ -249,40 +249,6 @@ The platform features a comprehensive design system with:
 - **Input Validation**: Comprehensive server-side validation with Laravel Form Requests
 - **API Security**: Laravel Passport OAuth2 server with token management
 
-## 🚀 Deployment
-
-The application supports various deployment strategies:
-
-### Production Deployment
-- **Apache/Nginx**: Traditional web server deployment with SSL/TLS
-- **Docker**: Containerized deployment with Docker Compose
-- **Cloud Platforms**: AWS, Google Cloud, DigitalOcean optimized configurations
-- **Load Balancing**: Multiple server deployment with Redis session sharing
-
-### Environment Configuration
-```bash
-# Production environment setup
-APP_ENV=production
-APP_DEBUG=false
-APP_URL=https://yourdomain.com
-
-# Database configuration
-DB_CONNECTION=mysql
-DB_HOST=127.0.0.1
-DB_PORT=3306
-DB_DATABASE=hdtickets_prod
-
-# Redis configuration
-REDIS_HOST=127.0.0.1
-REDIS_PASSWORD=null
-REDIS_PORT=6379
-
-# Queue configuration
-QUEUE_CONNECTION=redis
-HORIZON_BALANCE=auto
-```
-
-Automated deployments run via GitHub Actions (`.github/workflows/deploy.yml`) once the required secrets are configured. The production host is the DigitalOcean droplet at `hd-tickets.com`. See `docs/DEPLOYMENT_AUTOMATION.md` for setup details.
 
 ## 🔧 Development & Testing
 

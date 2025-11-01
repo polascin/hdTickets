@@ -6,7 +6,7 @@ includes:
     - phpstan-baseline.neon
 
 parameters:
-    level: 5  # Temporarily reduced from 8 to allow commit with 74 remaining errors
+    level: 8  # Restored to level 8 as per WARP quality requirements
     
     paths:
         - app/
