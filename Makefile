@@ -40,7 +40,7 @@ help:
 	@echo "  psr4-check       Validate PSR-4 namespace compliance"
 	@echo ""
 	@echo "$(YELLOW)🧪 Testing:$(NC)"
-	@echo "  test             Run PHPUnit tests"
+	@echo "  test             Run Pest tests"
 	@echo "  test-coverage    Generate test coverage report"
 	@echo "  test-unit        Run unit tests only"
 	@echo "  test-feature     Run feature tests only"
