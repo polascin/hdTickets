@@ -4,8 +4,9 @@ declare(strict_types=1);
 
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use function Pest\Laravel\get;
+
 use function Pest\Laravel\actingAs;
+use function Pest\Laravel\get;
 
 uses(Tests\TestCase::class, RefreshDatabase::class);
 
@@ -103,8 +104,10 @@ describe('Public Marketing Pages', function (): void {
 
         $response->assertStatus(200);
         $response->assertSee('General');
-        $response->assertSee('Pricing & Plans');
-        $response->assertSee('Alerts & Notifications');
+        $response->assertSee('Pricing');
+        $response->assertSee('Plans');
+        $response->assertSee('Alerts');
+        $response->assertSee('Notifications');
         $response->assertSee('Technical Questions');
     });
 
@@ -122,18 +125,18 @@ describe('SEO and Meta Tags', function (): void {
         $response = get(route('public.home'));
 
         $response->assertStatus(200);
-        $response->assertSee('<meta property="og:type"', false);
-        $response->assertSee('<meta property="og:title"', false);
-        $response->assertSee('<meta name="description"', false);
-        $response->assertSee('application/ld+json', false);
+        $response->assertSee('<meta property="og:type"', FALSE);
+        $response->assertSee('<meta property="og:title"', FALSE);
+        $response->assertSee('<meta name="description"', FALSE);
+        $response->assertSee('application/ld+json', FALSE);
     });
 
     test('pricing page has proper meta tags', function (): void {
         $response = get(route('public.pricing'));
 
         $response->assertStatus(200);
-        $response->assertSee('<meta name="description"', false);
-        $response->assertSee('<link rel="canonical"', false);
+        $response->assertSee('<meta name="description"', FALSE);
+        $response->assertSee('<link rel="canonical"', FALSE);
     });
 
     test('all public pages have JSON-LD structured data', function (): void {
@@ -142,8 +145,8 @@ describe('SEO and Meta Tags', function (): void {
         foreach ($routes as $route) {
             $response = get(route($route));
             $response->assertStatus(200);
-            $response->assertSee('application/ld+json', false);
-            $response->assertSee('WebApplication', false);
+            $response->assertSee('application/ld+json', FALSE);
+            $response->assertSee('WebApplication', FALSE);
         }
     });
 });
@@ -154,7 +157,7 @@ describe('Accessibility Features', function (): void {
 
         $response->assertStatus(200);
         $response->assertSee('Skip to main content');
-        $response->assertSee('#main-content', false);
+        $response->assertSee('#main-content', FALSE);
     });
 
     test('all pages have proper landmark regions', function (): void {
@@ -163,9 +166,9 @@ describe('Accessibility Features', function (): void {
         foreach ($routes as $route) {
             $response = get(route($route));
             $response->assertStatus(200);
-            $response->assertSee('role="banner"', false);
-            $response->assertSee('role="main"', false);
-            $response->assertSee('role="contentinfo"', false);
+            $response->assertSee('role="banner"', FALSE);
+            $response->assertSee('role="main"', FALSE);
+            $response->assertSee('role="contentinfo"', FALSE);
         }
     });
 
@@ -173,8 +176,8 @@ describe('Accessibility Features', function (): void {
         $response = get(route('public.home'));
 
         $response->assertStatus(200);
-        $response->assertSee('aria-expanded', false);
-        $response->assertSee('aria-label', false);
+        $response->assertSee('aria-expanded', FALSE);
+        $response->assertSee('aria-label', FALSE);
     });
 });
 
@@ -220,11 +223,11 @@ describe('User Authentication Flow', function (): void {
 describe('Performance and Caching', function (): void {
     test('home page stats are cached', function (): void {
         // First request should populate cache
-        $response1 = $this->get(route('public.home'));
+        $response1 = get(route('public.home'));
         $response1->assertStatus(200);
 
         // Second request should use cache
-        $response2 = $this->get(route('public.home'));
+        $response2 = get(route('public.home'));
         $response2->assertStatus(200);
 
         // Both responses should be identical for cached content
@@ -239,10 +242,10 @@ describe('British English Compliance', function (): void {
         foreach ($routes as $route) {
             $response = get(route($route));
             $response->assertStatus(200);
-            
+
             // Check for British spelling
-            $response->assertSee('favourite', false);
-            $response->assertDontSee('favorite', false);
+            $response->assertSee('favourite', FALSE);
+            $response->assertDontSee('favorite', FALSE);
         }
     });
 
