@@ -1,0 +1,28 @@
+# Dependencies
+/vendor/
+/node_modules/
+
+# Build outputs
+/public/build/
+/dist/
+/build/
+
+# Laravel specific
+/bootstrap/cache/
+/storage/
+
+# Minified files
+*.min.js
+*.min.css
+
+# Coverage and quality reports
+/storage/quality/
+/coverage/
+
+# Lock files
+package-lock.json
+composer.lock
+yarn.lock
+
+# Blade templates (handled by Laravel Pint)
+*.blade.php

@@ -95,7 +95,9 @@ export default [
       "@typescript-eslint/explicit-function-return-type": "off",
       "@typescript-eslint/explicit-module-boundary-types": "off",
       "@typescript-eslint/no-explicit-any": "warn",
-      "no-console": ["warn", { "allow": ["log", "warn", "error", "info", "debug"] }],
+      "no-console": "error",
+      "no-debugger": "error",
+      "no-warning-comments": ["error", { "terms": ["todo", "fixme"], "location": "start" }],
       "prefer-const": "error",
       "no-var": "error",
       "no-unused-vars": "off",
@@ -109,6 +111,13 @@ export default [
       "no-extra-semi": "error",
       "no-unexpected-multiline": "error",
       "no-unreachable": "error"
+    }
+  },
+  {
+    // Scripts and tools - allow console
+    files: ["scripts/**/*.js", "tools/**/*.js", "*.config.js", "*.config.ts"],
+    rules: {
+      "no-console": "off"
     }
   },
   {
@@ -135,6 +144,16 @@ export default [
     }
   },
   {
-    ignores: ["public/build/**/*", "vendor/**/*", "node_modules/**/*"]
+    ignores: [
+      "public/build/**/*",
+      "vendor/**/*",
+      "node_modules/**/*",
+      "storage/**/*",
+      "bootstrap/cache/**/*",
+      "dist/**/*",
+      "**/*.min.js",
+      "**/d3.min.js",
+      "**/nv.d3.min.js"
+    ]
   }
 ];
