@@ -1,0 +1,104 @@
+name: Deploy to Digital Ocean
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: deploy-production
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    name: Deploy to Production
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup SSH key
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.DEPLOY_SSH_KEY }}" > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
+          ssh-keyscan -H ${{ secrets.DEPLOY_HOST }} >> ~/.ssh/known_hosts
+
+      - name: Deploy to Digital Ocean
+        env:
+          DEPLOY_USER: ${{ secrets.DEPLOY_USER }}
+          DEPLOY_HOST: ${{ secrets.DEPLOY_HOST }}
+          DEPLOY_PATH: ${{ secrets.DEPLOY_PATH }}
+        run: |
+          ssh -i ~/.ssh/deploy_key $DEPLOY_USER@$DEPLOY_HOST << 'ENDSSH'
+            set -e
+            
+            echo "🚀 Starting deployment..."
+            
+            # Navigate to project directory
+            cd ${{ secrets.DEPLOY_PATH }}
+            
+            # Enable maintenance mode
+            php artisan down --retry=60 --secret="${{ secrets.MAINTENANCE_SECRET }}" || true
+            
+            # Pull latest changes
+            echo "📥 Pulling latest changes from GitHub..."
+            git fetch origin main
+            git reset --hard origin/main
+            
+            # Install/update Composer dependencies (no dev dependencies in production)
+            echo "📦 Installing Composer dependencies..."
+            composer install --no-dev --no-interaction --prefer-dist --optimize-autoloader
+            
+            # Install/update NPM dependencies
+            echo "📦 Installing NPM dependencies..."
+            npm ci --production=false
+            
+            # Build frontend assets
+            echo "🏗️  Building frontend assets..."
+            npm run build
+            
+            # Clear and rebuild caches
+            echo "🧹 Clearing caches..."
+            php artisan config:clear
+            php artisan route:clear
+            php artisan view:clear
+            php artisan event:clear
+            
+            # Run database migrations
+            echo "🗄️  Running database migrations..."
+            php artisan migrate --force --no-interaction
+            
+            # Optimise application
+            echo "⚡ Optimising application..."
+            php artisan config:cache
+            php artisan route:cache
+            php artisan view:cache
+            php artisan event:cache
+            
+            # Restart queue workers
+            echo "🔄 Restarting queue workers..."
+            php artisan horizon:terminate || php artisan queue:restart
+            
+            # Clear application cache (optional, depends on your needs)
+            php artisan cache:clear
+            
+            # Disable maintenance mode
+            echo "✅ Bringing application online..."
+            php artisan up
+            
+            echo "🎉 Deployment completed successfully!"
+          ENDSSH
+
+      - name: Cleanup SSH key
+        if: always()
+        run: rm -f ~/.ssh/deploy_key
+
+      - name: Notify deployment status
+        if: failure()
+        run: echo "❌ Deployment failed! Check logs for details."
