@@ -42,8 +42,10 @@ jobs:
           key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
           restore-keys: ${{ runner.os }}-composer-
 
-      - name: Create bootstrap cache directory
-        run: mkdir -p bootstrap/cache
+      - name: Prepare environment
+        run: |
+          cp .env.example .env
+          mkdir -p bootstrap/cache
 
       - name: Install PHP dependencies
         run: composer install --no-interaction --prefer-dist --optimize-autoloader
@@ -82,21 +84,21 @@ jobs:
           key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
           restore-keys: ${{ runner.os }}-composer-
 
+      - name: Prepare environment
+        run: |
+          cp .env.example .env
+          mkdir -p bootstrap/cache
+          mkdir -p storage/framework/{sessions,views,cache,testing}
+          chmod -R 775 storage bootstrap/cache
+
       - name: Install PHP dependencies
         run: composer install --no-interaction --prefer-dist --optimize-autoloader
 
       - name: Prepare Laravel application
         run: |
-          cp .env.example .env
           php artisan key:generate
           touch database/database.sqlite
           php artisan config:clear
-
-      - name: Create storage directories
-        run: |
-          mkdir -p storage/framework/{sessions,views,cache,testing}
-          mkdir -p bootstrap/cache
-          chmod -R 775 storage bootstrap/cache
 
       - name: Run Pest tests
         run: vendor/bin/pest --parallel
