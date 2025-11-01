@@ -53,6 +53,15 @@ Add the following secrets:
 | `DEPLOY_PATH` | Absolute path to application | `/var/www/hdtickets` |
 | `MAINTENANCE_SECRET` | Secret for bypass during maintenance | Generate random string |
 
+#### Optional (doctl) Secrets for auto-resolving droplet IP:
+
+| Secret Name | Description | Example |
+|-------------|-------------|---------|
+| `DO_API_TOKEN` | DigitalOcean API token (read-only is enough) | `************` |
+| `DO_DROPLET_NAME` | Droplet name to resolve IP from | `hdtickets-prod` |
+| `DO_DROPLET_ID` | Droplet ID (overrides name/tag) | `123456789` |
+| `DO_DROPLET_TAG` | Droplet tag to pick first matching droplet | `production` |
+
 #### To get the private key content:
 ```bash
 cat ~/.ssh/github_deploy_hdtickets

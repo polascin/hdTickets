@@ -33,14 +33,26 @@ jobs:
           token: ${{ secrets.DO_API_TOKEN }}
 
       - name: Resolve droplet IP (optional via doctl)
-        if: ${{ secrets.DO_API_TOKEN != '' && secrets.DO_DROPLET_NAME != '' }}
+        if: ${{ secrets.DO_API_TOKEN != '' }}
         run: |
-          IP=$(doctl compute droplet list --format Name,PublicIPv4 --no-header | awk -v n="${{ secrets.DO_DROPLET_NAME }}" '$1==n{print $2;exit}')
-          if [ -n "$IP" ]; then
-            echo "DEPLOY_HOST=$IP" >> $GITHUB_ENV
-            echo "Resolved DEPLOY_HOST to $IP"
+          set -e
+          RESOLVED=""
+          if [ -n "${{ secrets.DO_DROPLET_ID }}" ]; then
+            echo "Resolving by droplet ID..."
+            RESOLVED=$(doctl compute droplet get "${{ secrets.DO_DROPLET_ID }}" --format PublicIPv4 --no-header)
+          elif [ -n "${{ secrets.DO_DROPLET_NAME }}" ]; then
+            echo "Resolving by droplet name..."
+            RESOLVED=$(doctl compute droplet list --format Name,PublicIPv4 --no-header | awk -v n="${{ secrets.DO_DROPLET_NAME }}" '$1==n{print $2;exit}')
+          elif [ -n "${{ secrets.DO_DROPLET_TAG }}" ]; then
+            echo "Resolving by droplet tag..."
+            RESOLVED=$(doctl compute droplet list --tag-name "${{ secrets.DO_DROPLET_TAG }}" --format ID,Name,PublicIPv4 --no-header | awk 'NR==1{print $3;exit}')
+          fi
+
+          if [ -n "$RESOLVED" ]; then
+            echo "DEPLOY_HOST=$RESOLVED" >> $GITHUB_ENV
+            echo "Resolved DEPLOY_HOST to $RESOLVED"
           else
-            echo "Could not resolve droplet IP for name ${{ secrets.DO_DROPLET_NAME }}" >&2
+            echo "No doctl resolution performed or failed; using DEPLOY_HOST secret as-is." 
           fi
 
       - name: Start SSH agent
@@ -52,6 +64,20 @@ jobs:
         run: |
           mkdir -p ~/.ssh
           ssh-keyscan -H "$DEPLOY_HOST" >> ~/.ssh/known_hosts
+
+      - name: Validate deployment configuration
+        run: |
+          echo "User: $DEPLOY_USER"
+          echo "Host: ${DEPLOY_HOST:-<empty>}"
+          echo "Path: $DEPLOY_PATH"
+          if [ -z "$DEPLOY_USER" ] || [ -z "$DEPLOY_PATH" ]; then
+            echo "Missing DEPLOY_USER or DEPLOY_PATH secrets" >&2
+            exit 1
+          fi
+          if [ -z "$DEPLOY_HOST" ]; then
+            echo "DEPLOY_HOST is empty. Set it as a secret or provide DO_API_TOKEN plus DO_DROPLET_NAME/ID/TAG to resolve automatically." >&2
+            exit 1
+          fi
 
       - name: Test SSH connection
         run: |
