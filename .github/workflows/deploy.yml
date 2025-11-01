@@ -17,10 +17,31 @@ jobs:
     name: Deploy to Production
     runs-on: ubuntu-24.04
     timeout-minutes: 30
+    env:
+      DEPLOY_USER: ${{ secrets.DEPLOY_USER }}
+      DEPLOY_HOST: ${{ secrets.DEPLOY_HOST }}
+      DEPLOY_PATH: ${{ secrets.DEPLOY_PATH }}
     
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+
+      - name: Install doctl
+        if: ${{ secrets.DO_API_TOKEN != '' }}
+        uses: digitalocean/action-doctl@v2
+        with:
+          token: ${{ secrets.DO_API_TOKEN }}
+
+      - name: Resolve droplet IP (optional via doctl)
+        if: ${{ secrets.DO_API_TOKEN != '' && secrets.DO_DROPLET_NAME != '' }}
+        run: |
+          IP=$(doctl compute droplet list --format Name,PublicIPv4 --no-header | awk -v n="${{ secrets.DO_DROPLET_NAME }}" '$1==n{print $2;exit}')
+          if [ -n "$IP" ]; then
+            echo "DEPLOY_HOST=$IP" >> $GITHUB_ENV
+            echo "Resolved DEPLOY_HOST to $IP"
+          else
+            echo "Could not resolve droplet IP for name ${{ secrets.DO_DROPLET_NAME }}" >&2
+          fi
 
       - name: Start SSH agent
         uses: webfactory/ssh-agent@v0.9.0
@@ -30,28 +51,21 @@ jobs:
       - name: Add host to known_hosts
         run: |
           mkdir -p ~/.ssh
-          ssh-keyscan -H ${{ secrets.DEPLOY_HOST }} >> ~/.ssh/known_hosts
+          ssh-keyscan -H "$DEPLOY_HOST" >> ~/.ssh/known_hosts
 
       - name: Test SSH connection
-        env:
-          DEPLOY_USER: ${{ secrets.DEPLOY_USER }}
-          DEPLOY_HOST: ${{ secrets.DEPLOY_HOST }}
         run: |
           ssh -o BatchMode=yes -o StrictHostKeyChecking=no $DEPLOY_USER@$DEPLOY_HOST "echo 'ssh-ok'"
 
       - name: Deploy to Digital Ocean
-        env:
-          DEPLOY_USER: ${{ secrets.DEPLOY_USER }}
-          DEPLOY_HOST: ${{ secrets.DEPLOY_HOST }}
-          DEPLOY_PATH: ${{ secrets.DEPLOY_PATH }}
         run: |
-          ssh $DEPLOY_USER@$DEPLOY_HOST << 'ENDSSH'
+          ssh -o BatchMode=yes $DEPLOY_USER@$DEPLOY_HOST << 'ENDSSH'
             set -e
             
             echo "🚀 Starting deployment..."
             
             # Navigate to project directory
-            cd ${{ secrets.DEPLOY_PATH }}
+            cd $DEPLOY_PATH
             
             # Enable maintenance mode
             php artisan down --retry=60 --secret="${{ secrets.MAINTENANCE_SECRET }}" || true
